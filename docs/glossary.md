@@ -88,6 +88,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | --- | --- | --- |
 | Top-level factor | The first level of the factor tree, with one weight each | Environment |
 | Preference type | Who sets a measured indicator's direction: fixed, user direction, user range or user choice | Rain: user direction |
+| Ramp | A scoring curve that runs in a straight line from 0 at one threshold to 1 at another, and stays flat beyond them. It falls when lower values are better | PM2.5: 1 at 5 µg/m³, falling to 0 at 25 µg/m³ |
 | Active child | A child factor that counts in a hex cell: its weight is above 0 and it has a score there | |
 | Effective share | A factor's share of total weight as it works out in one hex cell. A factor with no data there passes its share to its active siblings | Air quality's 0.1 becomes 0.2 where Noise has no data |
 
@@ -108,7 +109,9 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Term | Meaning | Example |
 | --- | --- | --- |
 | Factor catalogue | The YAML files that list the factor tree and every dataset | `catalogue/` (step 0.2) |
-| Research status | How far a factor has got: idea, researched, spiked (tried in a spike) or built | Every factor in the seed tree is an idea |
+| Research status | How far a measured indicator has got: idea, researched, spiked (tried in a spike) or built. A factor with sub-factors shows how many of its measured indicators are researched | NO₂ and PM2.5 are researched |
+| Public build | A data bundle built for the public site. It uses only datasets whose licences allow redistribution and commercial use (D07). A local build, for its builder's own use, may use any dataset | The London map, once it is public |
+| SPDX licence id | The standard short name of a licence, from the SPDX licence list | `OGL-UK-3.0` for the Open Government Licence v3.0 |
 | Data pipeline | The Python program that downloads datasets and computes measured indicators for every hex cell | `atlas build london` |
 | Data bundle | The files the data pipeline publishes for one region. The web app reads only these | `data/published/london/…` |
 | Manifest | The index file of a data bundle: factor tree, scoring curves, datasets, dates | `manifest.json` |

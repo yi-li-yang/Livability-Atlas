@@ -37,6 +37,8 @@ Most of these datasets are expected to be under the Open Government Licence. The
 
 Non-commercial datasets, such as Ookla's speed tests, never go into public builds (D07).
 
+Each licence still needs checking at the source. The London Atmospheric Emissions Inventory, for one, gives its licence as "Not Specified" ([datasets.yaml](../../catalogue/datasets.yaml)).
+
 ## Transport: getting around in general
 
 | Sub-factor | Measured indicator | London dataset | MVP |
@@ -111,13 +113,4 @@ An industry's strength in a city combines four signals:
 
 ## Catalogue fields still to come
 
-From the Phase 0 plan, for the top-down and bottom-up passes:
-
-- **A measured indicator** gets its dataset options by tier, unit, preference type, default direction or range, scoring curve and evidence type, and whether it is comparable across regions.
-- **A dataset** gets:
-  - its id, name, publisher and URL
-  - its tier, area, resolution and date
-  - its licence and attribution text
-  - its update cadence, access method and cost
-  - what it can tell us
-  - for a published ranking, its credibility rating
+The [catalogue format](../specs/2026-10-24-catalogue-format.md) added the fields that the Phase 0 plan listed, except three for each dataset: its update cadence, its access method and its cost. They arrive when the data pipeline starts fetching datasets.

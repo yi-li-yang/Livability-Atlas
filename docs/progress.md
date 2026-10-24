@@ -3,13 +3,17 @@
 ## Now
 
 - Step 0.1 is merged into `main` (#1).
-- Step 0.2: the factor explorer is built, with a switch between the treemap and the sunburst and a colour for each factor (D17, accepted). It is published as a private Artifact, and its pull request is open from `feat/factor-explorer`.
+- Step 0.2: the factor explorer is merged (#2), with a switch between the treemap and the sunburst and a colour for each factor (D17, accepted).
+- Step 0.2: the [catalogue format](specs/2026-10-24-catalogue-format.md) is built, and its pull request is open from `feat/catalogue-format`. NO₂ and PM2.5 are the first researched measured indicators.
 
 ## Next
 
-1. The owner reviews the colours and the layout switch, then merges the pull request.
-2. The rest of step 0.2: expand the factor catalogue top-down and bottom-up, starting from [research-notes.md](factors/research-notes.md).
-3. Before step 0.3:
+1. The owner reviews the catalogue format's pull request and the republished factor explorer, then merges.
+2. Two licence checks for air quality, which the owner can do at any time. Until one of them succeeds, air quality stays out of public builds:
+   - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory.
+   - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
+3. Research the MVP factors, one top-level factor per pull request, starting from [research-notes.md](factors/research-notes.md): Transport, Environment, Safety, Housing and cost, Natural hazards, Daily amenities, Digital connectivity, Education, and Community and people.
+4. Before step 0.3:
    - Install uv and just with winget.
    - Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`.
    - Optionally, upgrade Git for Windows from 2.41 and set `core.longpaths true`.
@@ -22,6 +26,10 @@
 
 ### 2026-10-24
 
+- **Catalogue format built.** Measured indicators gained their research fields in `catalogue/factors.yaml`, and datasets have their own file, `catalogue/datasets.yaml`. The checks enforce D07 by SPDX licence id. The factor explorer shows each measured indicator's unit, curve, evidence type and datasets. NO₂ and PM2.5 are researched, with curves from the WHO's 2021 guidelines.
+- **Licence finding.** Neither air-quality dataset can go into a public build yet. The London Datastore gives the LAEI's licence as "Not Specified", and UK-AIR, which hosts Defra's background maps, was offline for security updates. Both are recorded in `datasets.yaml` with a note, and the two checks are in "Next".
+- **Catalogue format started.** Wrote its [spec](specs/2026-10-24-catalogue-format.md) and [plan](plans/2026-10-24-catalogue-format.md). The owner chose to research the MVP factors first, in this session, after the format.
+- **Factor explorer merged** into `main` as pull request #2.
 - **Factor explorer revised.** After trying both layouts, the owner kept both, with a switch, and asked for a colour for each factor. The colours come from the categorical palette of the Salt design system, in an order checked for normal and colour-blind vision. D17 is accepted.
 - **Factor explorer built.** The seed factor tree is in `catalogue/factors.yaml`, and the page has its tests and a browser check in Edge. It is published as a private Artifact, and its pull request is open.
 - **Step 0.2 started.** Wrote the [factor explorer spec](specs/2026-10-24-factor-explorer.md).

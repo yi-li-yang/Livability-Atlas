@@ -198,6 +198,9 @@ button, input { font: inherit; color: inherit; }
 .problems { display: grid; gap: 8px; padding: 12px 16px; border-left: 4px solid var(--critical); border-radius: 4px; background: var(--surface); }
 .tooltip { position: fixed; z-index: 20; max-width: 300px; padding: 10px 12px; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); color: var(--ink); box-shadow: 0 6px 20px var(--shadow); font-size: 0.875rem; pointer-events: none; }
 .tooltip p { margin-top: 4px; color: var(--ink-2); }
+.tooltip ul { margin: 2px 0 0; padding-left: 16px; color: var(--ink-2); }
+.tooltip li + li { margin-top: 2px; }
+.tooltip .flag { color: var(--ink); font-weight: 600; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) {
   .node rect, .arc path { transition: none; }
   .drawing:not([hidden]) { animation: none; }
@@ -261,19 +264,23 @@ button, input { font: inherit; color: inherit; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" integrity="sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js" integrity="sha512-CSBhVREyzHAjAFfBlIBakjoRUKp5h7VSweP0InR/pAJyptH7peuhCsqAI/snV+TwZmXZqoUklpXp6R6wMnYf5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="explorer-core.js"></script>
-<script type="text/yaml" id="catalogue">
+<script type="text/yaml" id="factors">
 # The factor tree: every factor a user can weight, from broad to specific.
 # Terms are defined in docs/glossary.md.
 #
-# This is the seed version, written in step 0.2 from the approved Phase 0 plan.
-# Measured indicators, datasets and scoring curves arrive with the top-down pass.
+# It started as the seed tree from the approved Phase 0 plan. A factor without
+# sub-factors is a measured indicator, and research fills in its unit, scoring
+# curve, evidence type and datasets. The field reference, and the rules the
+# checks enforce, are in catalogue/README.md.
 #
 # Rules until default weights are set from evidence (D14):
 # - default_weight is a placeholder: 3 for every factor, 1 for the two
 #   supporting factors, and 0 for choice factors and community composition.
 #   A default_weight other than 3 needs a weight_reason.
 # - A sub-factor inherits its parent's scales, or lists a subset of them.
-# - status is idea unless stated.
+# - A measured indicator's status is idea unless stated, and its status
+#   decides which fields it needs. A factor with sub-factors has no status of
+#   its own.
 #
 # After editing, refresh the factor explorer and run its tests:
 #   node docs/factors/embed-catalogue.mjs
@@ -366,8 +373,57 @@ factors:
         name: Air quality
         default_weight: 3
         children:
-          - {id: no2, name: "NO₂, annual mean", default_weight: 3, scales: [within-city]}
-          - {id: pm25, name: "PM2.5, annual mean", default_weight: 3, scales: [within-city]}
+          - id: no2
+            name: NO₂, annual mean
+            description: Nitrogen dioxide in the air, as a yearly average.
+            default_weight: 3
+            scales: [within-city]
+            status: researched
+            unit: µg/m³
+            preference_type: fixed
+            curve: {shape: ramp, t0: 40, t1: 10}
+            curve_reason: >-
+              1 at 10 µg/m³, the WHO's 2021 air quality guideline for the
+              annual mean, and 0 at 40 µg/m³, the UK's legal limit for the
+              annual mean, which is also the WHO's first interim target.
+              Sources: WHO global air quality guidelines (2021); the Air
+              Quality Standards Regulations 2010.
+            evidence_type: estimate
+            comparable_across_regions: true
+            method: >-
+              The area-weighted mean, over the hex cell, of the modelled annual
+              mean concentration. Spike S5 settles how rasters are aggregated
+              to hex cells. Both datasets are modelled from emissions and
+              monitoring, so the evidence type is estimate. The LAEI's 20 m
+              grid resolves the higher concentrations beside roads. Defra's
+              background maps leave out local sources such as roads, so they
+              stand in only where no city dataset exists.
+            datasets: [laei, defra-background-maps]
+          - id: pm25
+            name: PM2.5, annual mean
+            description: Fine particles in the air, 2.5 micrometres across or smaller, as a yearly average.
+            default_weight: 3
+            scales: [within-city]
+            status: researched
+            unit: µg/m³
+            preference_type: fixed
+            curve: {shape: ramp, t0: 25, t1: 5}
+            curve_reason: >-
+              1 at 5 µg/m³, the WHO's 2021 air quality guideline for the annual
+              mean, and 0 at 25 µg/m³, its second interim target. The first
+              interim target, 35 µg/m³, would leave most of the curve unused in
+              the UK, where every compliance zone met the legal limit of
+              20 µg/m³ in 2023 and 2024. Sources: WHO global air quality
+              guidelines (2021); Defra's Air Pollution in the UK reports for
+              2023 and 2024.
+            evidence_type: estimate
+            comparable_across_regions: true
+            method: >-
+              The area-weighted mean, over the hex cell, of the modelled annual
+              mean concentration. Spike S5 settles how rasters are aggregated
+              to hex cells. Both datasets are modelled from emissions and
+              monitoring, so the evidence type is estimate.
+            datasets: [laei, defra-background-maps]
       - id: noise
         name: Noise
         default_weight: 3
@@ -601,6 +657,68 @@ factors:
       - {id: happiness, name: "Happiness", default_weight: 3, scales: [across-cities]}
       - {id: life-expectancy, name: "Life expectancy", default_weight: 3}
 </script>
+<script type="text/yaml" id="datasets">
+# Every dataset that the factor catalogue uses or plans to use. Measured
+# indicators in factors.yaml name their datasets by id, best first. The field
+# reference, and the rules the checks enforce, are in catalogue/README.md.
+# Terms are defined in docs/glossary.md.
+#
+# Each licence is an SPDX id (https://spdx.org/licenses/), or unknown until it
+# is confirmed at the source. A dataset goes into public builds only under a
+# licence from D07's list, with the date it was checked (D07).
+#
+# After editing, refresh the factor explorer and run its tests:
+#   node docs/factors/embed-catalogue.mjs
+#   node --test "docs/factors/*.test.mjs"
+
+datasets:
+  - id: laei
+    name: London Atmospheric Emissions Inventory (LAEI)
+    publisher: Greater London Authority and Transport for London
+    url: https://data.london.gov.uk/dataset/london-atmospheric-emissions-inventory--laei--2022
+    tier: city
+    area: Greater London
+    resolution: 20 m grid
+    date: 2022
+    licence: unknown
+    licence_checked: 2026-10-24
+    public_build: false
+    licence_note: >-
+      The London Datastore gives the licence as "Not Specified", for the 2022
+      and 2019 editions alike. Its terms let anyone use its data for any
+      purpose, but name no licence. Ask the GLA Air Quality Team, the
+      dataset's contact, to confirm an open licence before a public build.
+    attribution: >-
+      London Atmospheric Emissions Inventory 2022, Greater London Authority and
+      Transport for London. The Greater London Authority cannot warrant the
+      quality or accuracy of the data.
+    tells:
+      - Modelled annual mean concentrations of NO₂, NOx, PM10 and PM2.5 in 2022, on a 20 m grid
+      - Emissions of air pollutants by source, such as road transport
+
+  - id: defra-background-maps
+    name: Background maps for local air quality management
+    publisher: Defra and the devolved administrations
+    url: https://uk-air.defra.gov.uk/data/laqm-background-home
+    tier: country
+    area: United Kingdom
+    resolution: 1 km grid
+    date: 2021 reference year, projected to 2040
+    licence: unknown
+    public_build: false
+    licence_note: >-
+      Not yet checked at the source: UK-AIR, which hosts the files, was offline
+      for security updates on 2026-10-24. Defra's user guide for the maps
+      (November 2024) is Crown copyright under the Open Government Licence
+      v3.0. Nottingham City Council's copy of the maps credits them as Crown
+      copyright under the Open Government Licence, but also calls them
+      "specifically for LAQM purposes only". Check UK-AIR's terms before a
+      public build.
+    attribution: © Crown copyright, Defra, via uk-air.defra.gov.uk.
+    tells:
+      - Modelled annual mean background concentrations of NOx, NO₂, PM10 and PM2.5, for each year from 2021 to 2040
+      - An estimated split of those concentrations by source sector
+</script>
 <script>
 (function () {
   "use strict";
@@ -644,6 +762,7 @@ factors:
   const core = window.ExplorerCore;
   const state = { scale: "within-city", layout: savedLayout(), openId: core.ROOT_ID, weights: {}, committed: {} };
   let catalogueRoot = null;
+  let datasetsById = new Map();
   let tree = null;
 
   // The layout this viewer chose last time. Storage can be unavailable, in
@@ -658,21 +777,32 @@ factors:
 
   // Loading
 
-  function load() {
-    let catalogue;
+  // Parses one embedded YAML file, by its block's id. Returns the parsed
+  // document, or a problem naming the file and line.
+  function readYaml(name) {
     try {
-      catalogue = jsyaml.load($("catalogue").textContent);
+      return { doc: jsyaml.load($(name).textContent) };
     } catch (error) {
       const where = error.mark ? ` at line ${error.mark.line + 1}` : "";
-      showProblems([`factors.yaml cannot be read${where}: ${error.reason || error.message}.`]);
+      return { problem: `${name}.yaml cannot be read${where}: ${error.reason || error.message}.` };
+    }
+  }
+
+  function load() {
+    const factors = readYaml("factors");
+    const datasets = readYaml("datasets");
+    const unreadable = [factors.problem, datasets.problem].filter(Boolean);
+    if (unreadable.length > 0) {
+      showProblems(unreadable);
       return;
     }
-    const problems = core.validateCatalogue(catalogue);
+    const problems = [...core.validateDatasets(datasets.doc), ...core.validateCatalogue(factors.doc, datasets.doc)];
     if (problems.length > 0) {
       showProblems(problems);
       return;
     }
-    catalogueRoot = core.normaliseCatalogue(catalogue);
+    catalogueRoot = core.normaliseCatalogue(factors.doc);
+    datasetsById = core.normaliseDatasets(datasets.doc);
     showLayout();
     render();
   }
@@ -1035,8 +1165,9 @@ factors:
     const lines = [el("strong", {}, view.name)];
     if (view.description) lines.push(el("p", {}, view.description));
     lines.push(el("p", {}, `Weight ${view.weight}, ${percent.format(view.share)} of total weight`));
-    lines.push(el("p", {}, `Status: ${view.status}`));
+    lines.push(el("p", {}, researchStatus(view)));
     if (view.weightReason) lines.push(el("p", {}, view.weightReason));
+    if (!hasSubFactors(view)) lines.push(...research(view));
     const tip = $("tooltip");
     tip.replaceChildren(...lines);
     tip.hidden = false;
@@ -1046,6 +1177,35 @@ factors:
       const box = anchor.getBoundingClientRect();
       place(box.right + 12, box.top);
     }
+  }
+
+  // A measured indicator shows its own research status. A factor with
+  // sub-factors shows how many of its measured indicators are researched.
+  function researchStatus(view) {
+    if (!hasSubFactors(view)) return `Research status: ${view.status}`;
+    const { researched, total } = view.progress;
+    return `${researched} of ${total} measured ${total === 1 ? "indicator" : "indicators"} researched`;
+  }
+
+  // The research behind a measured indicator: its unit, scoring curve,
+  // evidence type and datasets. An idea has none of it yet.
+  function research(view) {
+    const lines = [];
+    if (view.unit) lines.push(el("p", {}, `Measured in ${view.unit}`));
+    if (view.curve) lines.push(el("p", {}, `Scoring curve: ${core.describeCurve(view.curve, view.unit)}`));
+    if (view.evidenceType) lines.push(el("p", {}, `Evidence type: ${view.evidenceType}`));
+    if (view.datasets.length > 0) {
+      lines.push(el("p", {}, view.datasets.length === 1 ? "Dataset:" : "Datasets, best first:"));
+      lines.push(el("ul", {}, ...view.datasets.map((datasetId) => datasetItem(datasetsById.get(datasetId)))));
+    }
+    return lines;
+  }
+
+  function datasetItem(dataset) {
+    const licence = dataset.licence === "unknown" ? "licence unknown" : `licence ${dataset.licence}`;
+    const item = el("li", {}, `${dataset.name} · ${dataset.tier} · ${licence}`);
+    if (!dataset.publicBuild) item.append(" · ", el("span", { class: "flag" }, "not in public builds"));
+    return item;
   }
 
   function placeAtPointer(event) {

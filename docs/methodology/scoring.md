@@ -16,7 +16,7 @@ Sections 3 to 8 compute everything for one hex cell under one preference profile
 | $w_n$ | weight | From 0 (ignore) to 5 (crucial), set by the user |
 | $x_i$ | raw value | The value of measured indicator $i$ in this hex cell, in its unit. It can be missing |
 | $f_i$ | scoring curve | The rule that turns $x_i$ into a score (section 3) |
-| $t_0$, $t_1$ | thresholds | On a rising or falling curve, the raw values that score 0 and 1 |
+| $t_0$, $t_1$ | thresholds | On a ramp, the raw values that score 0 and 1 |
 | $l_0$, $l_1$, $u_1$, $u_0$ | ideal-range thresholds | On an ideal range, the lower ($l$) and upper ($u$) raw values that score 0 and 1. The subscript is the score |
 | $s_n$ | score | From 0 (worst) to 1 (best). A node without data has no score |
 | $L$ | livability score | From 0 to 100 |
@@ -69,12 +69,12 @@ Each measured indicator $i$ has a scoring curve $f_i$ that turns its raw value $
 
 | Shape | Definition | Example |
 | --- | --- | --- |
-| Rising or falling | 0 at threshold $t_0$ and 1 at threshold $t_1$, linear in between and flat beyond | PM2.5: $t_0 = 25$ µg/m³, $t_1 = 5$ µg/m³ (the WHO 2021 guideline) |
+| Ramp (rising or falling) | 0 at threshold $t_0$ and 1 at threshold $t_1$, linear in between and flat beyond | PM2.5: $t_0 = 25$ µg/m³, $t_1 = 5$ µg/m³ (the WHO 2021 guideline) |
 | Ideal range | 0 up to $l_0$, rising to 1 at $l_1$, 1 up to $u_1$, then falling to 0 at $u_0$ | Summer temperature, with a band the user can move |
 | Lookup | A score for each category | Flood risk band, with illustrative values: very low 1, low 0.75, medium 0.4, high 0 |
 | Percentile (fallback) | The share of the region's hex cells with a worse raw value | Only where no meaningful threshold exists |
 
-A rising or falling curve is
+A ramp is
 
 ```math
 f(x) = \min\left(1,\ \max\left(0,\ \frac{x - t_0}{t_1 - t_0}\right)\right)
@@ -82,7 +82,7 @@ f(x) = \min\left(1,\ \max\left(0,\ \frac{x - t_0}{t_1 - t_0}\right)\right)
 
 It rises when $t_1 > t_0$ and falls when $t_1 < t_0$. For PM2.5, a raw value of 9 µg/m³ scores $(9 - 25)/(5 - 25) = 0.8$.
 
-An ideal range is the lower of two such curves: one rising from $l_0$ to $l_1$, and one falling from $u_1$ to $u_0$. With illustrative summer temperatures of $l_0 = 14$, $l_1 = 20$, $u_1 = 26$ and $u_0 = 32$ °C, 23 °C scores 1 and 29 °C scores 0.5.
+An ideal range is the lower of two ramps: one rising from $l_0$ to $l_1$, and one falling from $u_1$ to $u_0$. With illustrative summer temperatures of $l_0 = 14$, $l_1 = 20$, $u_1 = 26$ and $u_0 = 32$ °C, 23 °C scores 1 and 29 °C scores 0.5.
 
 ```text
 score

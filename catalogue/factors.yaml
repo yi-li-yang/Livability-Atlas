@@ -1,15 +1,19 @@
 # The factor tree: every factor a user can weight, from broad to specific.
 # Terms are defined in docs/glossary.md.
 #
-# This is the seed version, written in step 0.2 from the approved Phase 0 plan.
-# Measured indicators, datasets and scoring curves arrive with the top-down pass.
+# It started as the seed tree from the approved Phase 0 plan. A factor without
+# sub-factors is a measured indicator, and research fills in its unit, scoring
+# curve, evidence type and datasets. The field reference, and the rules the
+# checks enforce, are in catalogue/README.md.
 #
 # Rules until default weights are set from evidence (D14):
 # - default_weight is a placeholder: 3 for every factor, 1 for the two
 #   supporting factors, and 0 for choice factors and community composition.
 #   A default_weight other than 3 needs a weight_reason.
 # - A sub-factor inherits its parent's scales, or lists a subset of them.
-# - status is idea unless stated.
+# - A measured indicator's status is idea unless stated, and its status
+#   decides which fields it needs. A factor with sub-factors has no status of
+#   its own.
 #
 # After editing, refresh the factor explorer and run its tests:
 #   node docs/factors/embed-catalogue.mjs
@@ -102,8 +106,57 @@ factors:
         name: Air quality
         default_weight: 3
         children:
-          - {id: no2, name: "NO₂, annual mean", default_weight: 3, scales: [within-city]}
-          - {id: pm25, name: "PM2.5, annual mean", default_weight: 3, scales: [within-city]}
+          - id: no2
+            name: NO₂, annual mean
+            description: Nitrogen dioxide in the air, as a yearly average.
+            default_weight: 3
+            scales: [within-city]
+            status: researched
+            unit: µg/m³
+            preference_type: fixed
+            curve: {shape: ramp, t0: 40, t1: 10}
+            curve_reason: >-
+              1 at 10 µg/m³, the WHO's 2021 air quality guideline for the
+              annual mean, and 0 at 40 µg/m³, the UK's legal limit for the
+              annual mean, which is also the WHO's first interim target.
+              Sources: WHO global air quality guidelines (2021); the Air
+              Quality Standards Regulations 2010.
+            evidence_type: estimate
+            comparable_across_regions: true
+            method: >-
+              The area-weighted mean, over the hex cell, of the modelled annual
+              mean concentration. Spike S5 settles how rasters are aggregated
+              to hex cells. Both datasets are modelled from emissions and
+              monitoring, so the evidence type is estimate. The LAEI's 20 m
+              grid resolves the higher concentrations beside roads. Defra's
+              background maps leave out local sources such as roads, so they
+              stand in only where no city dataset exists.
+            datasets: [laei, defra-background-maps]
+          - id: pm25
+            name: PM2.5, annual mean
+            description: Fine particles in the air, 2.5 micrometres across or smaller, as a yearly average.
+            default_weight: 3
+            scales: [within-city]
+            status: researched
+            unit: µg/m³
+            preference_type: fixed
+            curve: {shape: ramp, t0: 25, t1: 5}
+            curve_reason: >-
+              1 at 5 µg/m³, the WHO's 2021 air quality guideline for the annual
+              mean, and 0 at 25 µg/m³, its second interim target. The first
+              interim target, 35 µg/m³, would leave most of the curve unused in
+              the UK, where every compliance zone met the legal limit of
+              20 µg/m³ in 2023 and 2024. Sources: WHO global air quality
+              guidelines (2021); Defra's Air Pollution in the UK reports for
+              2023 and 2024.
+            evidence_type: estimate
+            comparable_across_regions: true
+            method: >-
+              The area-weighted mean, over the hex cell, of the modelled annual
+              mean concentration. Spike S5 settles how rasters are aggregated
+              to hex cells. Both datasets are modelled from emissions and
+              monitoring, so the evidence type is estimate.
+            datasets: [laei, defra-background-maps]
       - id: noise
         name: Noise
         default_weight: 3
