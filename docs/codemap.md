@@ -23,7 +23,9 @@ Livability-Atlas/
     ├── architecture.md    # system diagram, contracts, planned layout
     ├── interface.md       # progressive disclosure, visual factor tree
     ├── codemap.md         # this file
-    └── methodology/
-        ├── scoring.md     # spatial framework and scoring method v0
-        └── validation.md  # how the data and the method are checked
+    ├── methodology/
+    │   ├── scoring.md     # spatial framework and scoring method v0
+    │   └── validation.md  # how the data and the method are checked
+    └── specs/             # design specs, one per work item
+        └── 2026-10-24-factor-explorer.md
 ```

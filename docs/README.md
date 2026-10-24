@@ -20,7 +20,7 @@ These are living documents: they change as the project changes, and git keeps th
 
 Three more folders are created when first needed:
 
-- `specs/` for design specs
+- [specs/](specs/) for design specs
 - `plans/` for implementation plans
 - `spikes/` for one page per feasibility experiment
 
