@@ -19,14 +19,113 @@
   const PLACEHOLDER_WEIGHT = 3;
   const ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
+  // The fields research adds to a measured indicator (catalogue/README.md),
+  // and the values they allow.
+  const INDICATOR_FIELDS = ["unit", "preference_type", "curve", "curve_reason", "evidence_type",
+    "comparable_across_regions", "method", "datasets"];
+  const FACTOR_FIELDS = ["id", "name", "description", "default_weight", "weight_reason", "scales", "status",
+    "children", ...INDICATOR_FIELDS];
+  const PREFERENCE_TYPES = ["fixed", "user-direction", "user-range", "user-choice"];
+  const EVIDENCE_TYPES = ["direct", "estimate", "indirect", "perception", "ranking"];
+  const CURVE_SHAPES = ["ramp", "ideal-range", "lookup", "percentile"];
+  // The fields each research status requires of a measured indicator, beyond
+  // a name and a default weight.
+  const RESEARCHED = ["unit", "preference_type", "evidence_type", "comparable_across_regions", "method",
+    "datasets", "curve_reason"];
+  const REQUIRED_BY_STATUS = {
+    idea: [],
+    researched: RESEARCHED,
+    spiked: [...RESEARCHED, "curve"],
+    built: [...RESEARCHED, "curve"],
+  };
+
+  const isMapping = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+  const isText = (value) => typeof value === "string" && value.trim() !== "";
+  const isNumber = (value) => typeof value === "number" && Number.isFinite(value);
+
   // Returns a list of problems, each naming the factor it concerns.
-  // An empty list means that the catalogue can be drawn.
-  function validateCatalogue(catalogue) {
+  // An empty list means that the catalogue can be drawn. `datasetsDoc` is
+  // the parsed datasets.yaml, against which dataset ids are checked.
+  function validateCatalogue(catalogue, datasetsDoc = { datasets: [] }) {
     if (!catalogue || !Array.isArray(catalogue.factors) || catalogue.factors.length === 0) {
       return ["The catalogue needs a non-empty list under factors."];
     }
     const problems = [];
     const seen = new Set();
+    const known = new Map();
+    for (const dataset of isMapping(datasetsDoc) && Array.isArray(datasetsDoc.datasets) ? datasetsDoc.datasets : []) {
+      if (isMapping(dataset) && typeof dataset.id === "string") known.set(dataset.id, dataset);
+    }
+
+    function checkCurve(curve, label) {
+      if (!isMapping(curve)) {
+        problems.push(`${label}: curve must be a mapping with a shape, such as {shape: ramp, t0: 25, t1: 5}.`);
+        return;
+      }
+      if (curve.shape === "ramp") {
+        if (!isNumber(curve.t0) || !isNumber(curve.t1) || curve.t0 === curve.t1) {
+          problems.push(`${label}: a ramp needs two different numbers, t0 and t1.`);
+        }
+      } else if (curve.shape === "ideal-range") {
+        const { l0, l1, u1, u0 } = curve;
+        if (![l0, l1, u1, u0].every(isNumber) || !(l0 < l1 && l1 <= u1 && u1 < u0)) {
+          problems.push(`${label}: an ideal-range curve needs numbers with l0 < l1 ≤ u1 < u0.`);
+        }
+      } else if (curve.shape === "lookup") {
+        const scores = curve.scores;
+        const valid = isMapping(scores) && Object.keys(scores).length > 0
+          && Object.values(scores).every((score) => isNumber(score) && score >= 0 && score <= 1);
+        if (!valid) problems.push(`${label}: a lookup curve needs scores, with a score from 0 to 1 for each category.`);
+      } else if (curve.shape === "percentile") {
+        if (curve.better !== "higher" && curve.better !== "lower") {
+          problems.push(`${label}: a percentile curve needs better: higher or lower.`);
+        }
+      } else {
+        problems.push(`${label}: curve.shape must be one of ${CURVE_SHAPES.join(", ")}.`);
+      }
+    }
+
+    // The fields of a measured indicator: each one present is checked, and
+    // its research status decides which must be present.
+    function checkIndicator(node, label) {
+      for (const field of ["unit", "curve_reason", "method"]) {
+        if (node[field] !== undefined && !isText(node[field])) problems.push(`${label}: ${field} must be non-empty text.`);
+      }
+      if (node.preference_type !== undefined && !PREFERENCE_TYPES.includes(node.preference_type)) {
+        problems.push(`${label}: preference_type must be one of ${PREFERENCE_TYPES.join(", ")}.`);
+      }
+      if (node.evidence_type !== undefined && !EVIDENCE_TYPES.includes(node.evidence_type)) {
+        problems.push(`${label}: evidence_type must be one of ${EVIDENCE_TYPES.join(", ")}.`);
+      }
+      if (node.comparable_across_regions !== undefined && typeof node.comparable_across_regions !== "boolean") {
+        problems.push(`${label}: comparable_across_regions must be true or false.`);
+      }
+      if (node.curve !== undefined) {
+        checkCurve(node.curve, label);
+        if (node.curve_reason === undefined) problems.push(`${label}: a curve needs a curve_reason.`);
+        if (node.preference_type === "user-range" && isMapping(node.curve) && node.curve.shape !== "ideal-range") {
+          problems.push(`${label}: a user-range measured indicator needs an ideal-range curve, because its user drags a band.`);
+        }
+      }
+      if (node.datasets !== undefined) {
+        if (!Array.isArray(node.datasets) || node.datasets.length === 0 || !node.datasets.every(isText)) {
+          problems.push(`${label}: datasets must be a non-empty list of dataset ids.`);
+        } else {
+          node.datasets.forEach((id, i) => {
+            if (node.datasets.indexOf(id) !== i) {
+              problems.push(`${label}: dataset ${id} is listed twice.`);
+            } else if (!known.has(id)) {
+              problems.push(`${label}: datasets.yaml has no dataset ${id}.`);
+            } else if (node.evidence_type === "ranking" && known.get(id).credibility === undefined) {
+              problems.push(`${label}: evidence type ranking needs a credibility rating on dataset ${id}.`);
+            }
+          });
+        }
+      }
+      const required = REQUIRED_BY_STATUS[node.status || "idea"] || [];
+      const missing = required.filter((field) => node[field] === undefined);
+      if (missing.length > 0) problems.push(`${label}: at status ${node.status}, it needs ${missing.join(", ")}.`);
+    }
 
     function check(node, parentScales, where) {
       if (node === null || typeof node !== "object" || Array.isArray(node)) {
@@ -34,6 +133,9 @@
         return;
       }
       const label = typeof node.id === "string" ? node.id : where;
+      for (const field of Object.keys(node)) {
+        if (!FACTOR_FIELDS.includes(field)) problems.push(`${label}: unknown field ${field}.`);
+      }
       if (typeof node.id !== "string" || !ID_PATTERN.test(node.id)) {
         problems.push(`${label}: id must be kebab-case, such as air-quality.`);
       } else if (seen.has(node.id)) {
@@ -63,12 +165,21 @@
       } else {
         scales = node.scales;
       }
-      if (node.children !== undefined) {
-        if (!Array.isArray(node.children) || node.children.length === 0) {
-          problems.push(`${label}: children must be a non-empty list.`);
-        } else {
-          node.children.forEach((child, i) => check(child, scales, `${label}, child ${i + 1}`));
-        }
+      if (node.children === undefined) {
+        checkIndicator(node, label);
+        return;
+      }
+      const indicatorFields = INDICATOR_FIELDS.filter((field) => node[field] !== undefined);
+      if (indicatorFields.length > 0) {
+        problems.push(`${label}: a factor with sub-factors is not a measured indicator, so it cannot have ${indicatorFields.join(", ")}.`);
+      }
+      if (node.status !== undefined) {
+        problems.push(`${label}: a factor with sub-factors takes its research status from them, so it has none of its own.`);
+      }
+      if (!Array.isArray(node.children) || node.children.length === 0) {
+        problems.push(`${label}: children must be a non-empty list.`);
+      } else {
+        node.children.forEach((child, i) => check(child, scales, `${label}, child ${i + 1}`));
       }
     }
 
