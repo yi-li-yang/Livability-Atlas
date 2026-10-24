@@ -74,7 +74,7 @@ The type is Barlow, a typeface drawn from road signs. Its semi-condensed cut set
 Every command runs from the repo root, `E:/GitHub/Livability-Atlas`, in Git Bash. `SP` is this session's scratchpad. It already holds `check_links.py` and the markdownlint install (`mdtools/`) from earlier work. In a new session, recreate both first.
 
 ```bash
-SP="C:/Users/YILIYA~1/AppData/Local/Temp/claude/e--GitHub-Livability-Atlas/e71a2b80-e2d8-44a2-9f0e-181dba0c25f3/scratchpad"
+SP="<this session's scratchpad folder>"
 cd "E:/GitHub/Livability-Atlas" && git switch feat/factor-explorer
 ```
 
@@ -99,7 +99,7 @@ Expected output: `OK: all relative links and anchors resolve` and `Summary: 0 is
 - [ ] **Step 1: Copy this plan into the repo**
 
 ```bash
-mkdir -p docs/plans docs/factors && cp "C:/Users/Yili Yang/.claude/plans/look-at-themd-and-majestic-shore.md" docs/plans/2026-10-24-factor-explorer.md
+mkdir -p docs/plans docs/factors && cp "<the plan-mode plan file>" docs/plans/2026-10-24-factor-explorer.md
 ```
 
 - [ ] **Step 2: Write `docs/factors/research-notes.md`**
