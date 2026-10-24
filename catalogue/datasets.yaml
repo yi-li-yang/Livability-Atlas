@@ -58,3 +58,82 @@ datasets:
     tells:
       - Modelled annual mean background concentrations of NOx, NO₂, PM10 and PM2.5, for each year from 2021 to 2040
       - An estimated split of those concentrations by source sector
+
+  - id: tfl-unified-api
+    name: TfL Unified API
+    publisher: Transport for London
+    url: https://api-portal.tfl.gov.uk/
+    tier: city
+    area: Greater London, and TfL services beyond it
+    resolution: points, for stations and stops
+    date: live, updated continually
+    licence: LicenseRef-TfL-Open-Data
+    licence_checked: 2026-10-24
+    public_build: true
+    licence_note: >-
+      TfL's licence is version 2.0 of the Open Government Licence with TfL's
+      amendments. It allows commercial use and redistribution with attribution,
+      but needs registration for the live feeds and limits requests to 500 a
+      minute per feed, and TfL may revise it without notice. Check it again
+      before each public build.
+    attribution: >-
+      Powered by TfL Open Data. Contains OS data © Crown copyright and database
+      rights 2016 and Geomni UK Map data © and database rights [2019].
+    tells:
+      - The location of every station and stop, and the lines that serve it
+      - The fare zone of each station
+      - Journey plans by public transport between any two places
+
+  - id: tfl-ptal
+    name: Public Transport Accessibility Levels (PTAL)
+    publisher: Transport for London, on the London Datastore
+    url: https://data.london.gov.uk/dataset/public-transport-accessibility-levels
+    tier: city
+    area: Greater London
+    resolution: 100 m grid
+    date: 2015
+    licence: OGL-UK-2.0
+    licence_checked: 2026-10-24
+    public_build: true
+    attribution: >-
+      Public Transport Accessibility Levels, Transport for London. Contains
+      public sector information licensed under the Open Government Licence
+      v2.0. The Greater London Authority cannot warrant the quality or accuracy
+      of the data.
+    tells:
+      - The PTAL band of each 100 m grid square in 2015, from 0 (worst) to 6b (best)
+      - The average access index of census areas, wards and boroughs
+
+  - id: naptan
+    name: National Public Transport Access Nodes (NaPTAN)
+    publisher: Department for Transport
+    url: https://beta-naptan.dft.gov.uk/
+    tier: country
+    area: Great Britain
+    resolution: points, for every stop and station
+    date: updated daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-24
+    public_build: true
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The location and type of every public transport stop and station, for bus, coach, rail, metro, Underground, tram, ferry and air
+
+  - id: openstreetmap
+    name: OpenStreetMap
+    publisher: OpenStreetMap contributors
+    url: https://www.openstreetmap.org/
+    tier: global
+    area: World
+    resolution: points, lines and areas, mapped by volunteers
+    date: updated continually
+    licence: ODbL-1.0
+    licence_checked: 2026-10-24
+    public_build: true
+    licence_note: >-
+      The ODbL is share-alike: a database built from OpenStreetMap must be
+      published under the ODbL too, as D12 expects for data bundles.
+    attribution: © OpenStreetMap contributors, available under the Open Database License.
+    tells:
+      - Streets and paths, for walking routes and times
+      - Stations, stops, and the routes of rail, Tube, tram and bus lines
