@@ -132,7 +132,9 @@
           });
         }
       }
-      const required = REQUIRED_BY_STATUS[node.status || "idea"] || [];
+      // An unknown status is reported above, and requires nothing here.
+      const status = node.status || "idea";
+      const required = STATUSES.includes(status) ? REQUIRED_BY_STATUS[status] : [];
       const missing = required.filter((field) => node[field] === undefined);
       if (missing.length > 0) problems.push(`${label}: at status ${node.status}, it needs ${missing.join(", ")}.`);
     }
@@ -297,17 +299,8 @@
         children: (node.children || []).map((child, i) => copy(child, scales, i)),
       };
     }
-    return {
-      id: ROOT_ID,
-      name: "All factors",
-      description: "",
-      defaultWeight: 1,
-      weightReason: "",
-      scales: SCALES.slice(),
-      status: "idea",
-      index: 0,
-      children: catalogue.factors.map((factor, i) => copy(factor, SCALES, i)),
-    };
+    // The root goes through the same copy, so that it has every field too.
+    return copy({ id: ROOT_ID, name: "All factors", default_weight: 1, children: catalogue.factors }, SCALES.slice(), 0);
   }
 
   // Returns the tree for one scale, with the user's weights applied.

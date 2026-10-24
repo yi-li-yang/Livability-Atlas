@@ -239,6 +239,12 @@ test("a researched measured indicator needs each field its status requires", () 
   }
 });
 
+test("an unknown status is reported, even one that names a built-in property", () => {
+  for (const status of ["done", "toString", "constructor"]) {
+    expectProblem(problemsOf(researched({ status })), /^pm25: status must be one of idea, researched, spiked, built/);
+  }
+});
+
 test("a spiked measured indicator also needs its curve", () => {
   assert.deepEqual(problemsOf(researched({ status: "spiked" })), []);
   expectProblem(problemsOf(without(researched({ status: "spiked" }), "curve")), /^pm25: at status spiked, it needs curve/);
@@ -407,6 +413,10 @@ test("each view in the tree carries its measured indicator's research", () => {
   assert.equal(idea.curve, null);
   assert.equal(idea.comparableAcrossRegions, null);
   assert.deepEqual(idea.datasets, []);
+  // The root has the same fields, so any view can be shown.
+  const root = treeOf(example()).root;
+  assert.equal(root.unit, "");
+  assert.deepEqual(root.datasets, []);
 });
 
 test("each view counts the measured indicators below it that are researched or further, at its scale", () => {
