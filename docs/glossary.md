@@ -108,6 +108,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Term | Meaning | Example |
 | --- | --- | --- |
 | Factor catalogue | The YAML files that list the factor tree and every dataset | `catalogue/` (step 0.2) |
+| Research status | How far a factor has got: idea, researched, spiked (tried in a spike) or built | Every factor in the seed tree is an idea |
 | Data pipeline | The Python program that downloads datasets and computes measured indicators for every hex cell | `atlas build london` |
 | Data bundle | The files the data pipeline publishes for one region. The web app reads only these | `data/published/london/…` |
 | Manifest | The index file of a data bundle: factor tree, scoring curves, datasets, dates | `manifest.json` |

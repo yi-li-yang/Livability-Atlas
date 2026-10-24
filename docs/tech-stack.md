@@ -1,6 +1,6 @@
 # Tech stack
 
-Status: planned. Nothing is installed yet. Step 0.3 of Phase 0 creates the scaffold and pins exact versions in the lockfiles (`uv.lock`, `package-lock.json`). Update this file whenever a tool is added, swapped or upgraded, and record large changes in [decisions.md](decisions.md#d03-tech-stack).
+Status: planned. Nothing is installed yet: the factor explorer (step 0.2) loads its two libraries from cdnjs and runs its tests with Node's built-in test runner. Step 0.3 of Phase 0 creates the scaffold and pins exact versions in the lockfiles (`uv.lock`, `package-lock.json`). Update this file whenever a tool is added, swapped or upgraded, and record large changes in [decisions.md](decisions.md#d03-tech-stack).
 
 The "From" column gives the step or phase in which a tool arrives.
 
@@ -32,7 +32,8 @@ The "From" column gives the step or phase in which a tool arrives.
 | [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) | Base map | Open source, no per-view fees | Mapbox GL (licence and fees), Leaflet (slow with many hexagons) | 0.3 |
 | [deck.gl](https://deck.gl/docs) `H3HexagonLayer` | Drawing and recolouring about 15,000 hex cells | Recolours on the GPU at every slider move | Plain MapLibre layers | Phase 1 |
 | [OpenFreeMap](https://openfreemap.org/), later [Protomaps](https://docs.protomaps.com/) | Basemap tiles | Free, with no key; Protomaps can be self-hosted | MapTiler, Mapbox (keys, fees) | 0.3 |
-| [d3-hierarchy](https://d3js.org/d3-hierarchy) | Treemap and sunburst layouts for the visual factor tree | Full control over sizing, drill-down and animation | ECharts (less control) | 0.2 (factor explorer) |
+| [D3](https://d3js.org/) 7.9: d3-hierarchy, d3-shape and d3-transition | Treemap and sunburst layouts and drawing for the visual factor tree | Full control over sizing, drill-down and animation | ECharts (less control) | 0.2 (factor explorer, from cdnjs) |
+| [js-yaml](https://github.com/nodeca/js-yaml) 4.1 | Reads the embedded `catalogue/factors.yaml` inside the factor explorer | The page keeps the catalogue as YAML, with no build step | Converting to JSON first, which needs a build step before step 0.3 | 0.2 (factor explorer, from cdnjs) |
 | [Tailwind CSS](https://tailwindcss.com/docs), [shadcn/ui](https://ui.shadcn.com/) | Styling; accessible dropdowns, popovers, sheets and tabs | Accessible building blocks for progressive disclosure | MUI, Chakra UI | 0.3 |
 | [Zustand](https://zustand.docs.pmnd.rs/) | State: the preference profile, kept in browser storage and the URL | Small and simple | Redux Toolkit | Phase 1 |
 | [hyparquet](https://github.com/hyparam/hyparquet) | Reading Parquet data bundles in the browser | Pure JavaScript, and small | parquet-wasm, Arrow IPC, JSON | Phase 1 |
@@ -46,6 +47,7 @@ The "From" column gives the step or phase in which a tool arrives.
 | Tool | Role here | Why | Alternatives considered | From |
 | --- | --- | --- | --- | --- |
 | [just](https://just.systems/man/en/) | One command runner for people, Claude and CI | Cross-platform | Make (not on Windows by default), npm scripts | 0.3 |
+| [Node's test runner](https://nodejs.org/api/test.html) (`node --test`) | Tests for the factor explorer before the scaffold exists | Built into Node 24, so nothing is installed | Vitest, which arrives with the web app | 0.2 |
 | [pre-commit](https://pre-commit.com/) with ruff, Biome, [gitleaks](https://github.com/gitleaks/gitleaks) and a large-file check | Checks before each commit | Stops secrets and data from reaching a public repo | Husky | 0.3 |
 | [GitHub Actions](https://docs.github.com/actions) | CI running `just check` | Free for public repos | — | 0.3 |
 | [CLA Assistant](https://cla-assistant.io/) | CLA signatures on pull requests | The common choice on GitHub | — | Before the first outside contribution |
