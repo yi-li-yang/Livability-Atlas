@@ -9,26 +9,63 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600&display=swap">
 <style>
-/* Layout: a header row, then the weights panel beside two equal square
-   drawings; one column below 1100px, with the drawings first. Colour shows
-   structure only: a factor drawn with its sub-factors is deeper blue, the
-   others lighter blue. */
+/* Layout: a header row, then the weights panel beside one drawing, the
+   treemap or the sunburst; one column below 820px, with the drawing first.
+   Colour belongs to the data: each factor has its own colour from the Salt
+   palette, and the interface itself stays in ink. */
 :root {
   --plane: #f9f9f7;
   --surface: #fcfcfb;
   --ink: #0b0b0b;
   --ink-2: #52514e;
   --hairline: #e1e0d9;
-  --accent: #256abf;
-  --accent-ink: #ffffff;
-  --group: #256abf;
-  --group-ink: #ffffff;
-  --tile: #86b6ef;
-  --tile-ink: #0b0b0b;
+  --accent: #0b0b0b;
+  --accent-ink: #fcfcfb;
+  --on-colour: #ffffff;
   --critical: #d03b3b;
   --shadow: rgba(11, 11, 11, 0.14);
   --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-label: "Barlow Semi Condensed", "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Factor colours: the categorical palette of the Salt design system
+     (J.P. Morgan, Apache-2.0, github.com/jpmorganchase/salt-ds). The base is
+     step 500, which carries white text at 4.5:1 or more. Sub-factors take a
+     tint: step 200 here, step 800 in the dark theme. */
+  --salt-cobalt: #4676bf;
+  --salt-cobalt-tint: #c6d3ef;
+  --salt-cider: #ab6528;
+  --salt-cider-tint: #ffc99e;
+  --salt-plum: #9f55c2;
+  --salt-plum-tint: #e6b9fa;
+  --salt-aqua: #2a8285;
+  --salt-aqua-tint: #b1e5e5;
+  --salt-rose: #b0549d;
+  --salt-rose-tint: #fabeed;
+  --salt-olive: #6d7c4d;
+  --salt-olive-tint: #d2deb8;
+  --salt-salmon: #bd5558;
+  --salt-salmon-tint: #ffc2c2;
+  --salt-indigo: #7665cf;
+  --salt-indigo-tint: #d0c2fc;
+  --salt-jade: #2d8543;
+  --salt-jade-tint: #b3e5bb;
+  --salt-citrine: #877410;
+  --salt-citrine-tint: #f0e1a5;
+  --salt-autumn: #bd5a13;
+  --salt-autumn-tint: #ffc5a1;
+  --salt-lavender: #946694;
+  --salt-lavender-tint: #edc7ed;
+  --salt-ocean: #008094;
+  --salt-ocean-tint: #b4e5f0;
+  --salt-fuchsia: #c24795;
+  --salt-fuchsia-tint: #ffbfe5;
+  --salt-lime: #667d15;
+  --salt-lime-tint: #d7e3a8;
+  --salt-fur: #996a45;
+  --salt-fur-tint: #f5d6bf;
+  --salt-violet: #636ebf;
+  --salt-violet-tint: #cacbfc;
+  --salt-forest: #23855e;
+  --salt-forest-tint: #bce8d3;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -37,13 +74,27 @@
     --ink: #f0efec;
     --ink-2: #c3c2b7;
     --hairline: #2c2c2a;
-    --accent: #5598e7;
-    --accent-ink: #0b0b0b;
-    --group: #5598e7;
-    --group-ink: #0b0b0b;
-    --tile: #184f95;
-    --tile-ink: #f0efec;
+    --accent: #f0efec;
+    --accent-ink: #1a1a19;
     --shadow: rgba(0, 0, 0, 0.5);
+    --salt-cobalt-tint: #133369;
+    --salt-cider-tint: #5a2f0d;
+    --salt-plum-tint: #4f2264;
+    --salt-aqua-tint: #084446;
+    --salt-rose-tint: #5a204e;
+    --salt-olive-tint: #314015;
+    --salt-salmon-tint: #59191d;
+    --salt-indigo-tint: #393166;
+    --salt-jade-tint: #08461a;
+    --salt-citrine-tint: #4a3f06;
+    --salt-autumn-tint: #56270a;
+    --salt-lavender-tint: #542554;
+    --salt-ocean-tint: #00404a;
+    --salt-fuchsia-tint: #72134f;
+    --salt-lime-tint: #354406;
+    --salt-fur-tint: #552e14;
+    --salt-violet-tint: #2f3563;
+    --salt-forest-tint: #06462e;
     color-scheme: dark;
   }
 }
@@ -53,13 +104,27 @@
   --ink: #f0efec;
   --ink-2: #c3c2b7;
   --hairline: #2c2c2a;
-  --accent: #5598e7;
-  --accent-ink: #0b0b0b;
-  --group: #5598e7;
-  --group-ink: #0b0b0b;
-  --tile: #184f95;
-  --tile-ink: #f0efec;
+  --accent: #f0efec;
+  --accent-ink: #1a1a19;
   --shadow: rgba(0, 0, 0, 0.5);
+  --salt-cobalt-tint: #133369;
+  --salt-cider-tint: #5a2f0d;
+  --salt-plum-tint: #4f2264;
+  --salt-aqua-tint: #084446;
+  --salt-rose-tint: #5a204e;
+  --salt-olive-tint: #314015;
+  --salt-salmon-tint: #59191d;
+  --salt-indigo-tint: #393166;
+  --salt-jade-tint: #08461a;
+  --salt-citrine-tint: #4a3f06;
+  --salt-autumn-tint: #56270a;
+  --salt-lavender-tint: #542554;
+  --salt-ocean-tint: #00404a;
+  --salt-fuchsia-tint: #72134f;
+  --salt-lime-tint: #354406;
+  --salt-fur-tint: #552e14;
+  --salt-violet-tint: #2f3563;
+  --salt-forest-tint: #06462e;
   color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
@@ -77,19 +142,19 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 h1 { font-size: 1.625rem; font-weight: 600; line-height: 1.2; }
 h2 { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
 h3 { font-size: 0.9375rem; font-weight: 600; }
-p { margin: 0; }
+p { margin: 0; text-wrap: pretty; }
 button, input { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .page { display: grid; gap: 16px; max-width: 1600px; margin: 0 auto; }
 .bar { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
 .subtitle { margin-top: 4px; max-width: 65ch; color: var(--ink-2); }
 .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-.scale { display: inline-flex; margin: 0; padding: 2px; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); }
-.scale legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.scale input { position: absolute; opacity: 0; pointer-events: none; }
-.scale label { padding: 5px 12px; border-radius: 4px; cursor: pointer; }
-.scale input:checked + label { background: var(--accent); color: var(--accent-ink); }
-.scale input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+.segmented { display: inline-flex; margin: 0; padding: 2px; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); }
+.segmented legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.segmented input { position: absolute; opacity: 0; pointer-events: none; }
+.segmented label { padding: 5px 12px; border-radius: 4px; cursor: pointer; }
+.segmented input:checked + label { background: var(--accent); color: var(--accent-ink); }
+.segmented input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
 .quiet { padding: 6px 12px; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); cursor: pointer; }
 .quiet:hover:not(:disabled) { border-color: var(--ink-2); }
 .quiet:disabled { opacity: 0.45; cursor: default; }
@@ -97,10 +162,10 @@ button, input { font: inherit; color: inherit; }
 .crumbs ol { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 0; padding: 0; list-style: none; }
 .crumbs li { display: flex; align-items: center; gap: 6px; }
 .crumbs li + li::before { content: "›"; color: var(--ink-2); }
-.crumbs li button { padding: 0; border: 0; background: none; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.crumbs li button { padding: 0; border: 0; background: none; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .crumbs [aria-current="page"] { font-weight: 600; }
-.workspace { display: grid; grid-template-columns: minmax(250px, 320px) minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 16px; }
-@media (max-width: 1100px) {
+.workspace { display: grid; grid-template-columns: minmax(250px, 320px) minmax(0, 1fr); align-items: start; gap: 16px; }
+@media (max-width: 820px) {
   .workspace { grid-template-columns: minmax(0, 1fr); }
   .workspace > .panel:first-child { order: 1; }
 }
@@ -109,27 +174,34 @@ button, input { font: inherit; color: inherit; }
 .hint, .reason, .figures { color: var(--ink-2); font-size: 0.875rem; }
 .sliders, .not-counted, #problem-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
 .slider-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; }
-.slider-row label { grid-column: 1; grid-row: 1; min-width: 0; overflow-wrap: anywhere; }
+.slider-row label { grid-column: 1; grid-row: 1; display: flex; align-items: center; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
 .slider-row .quiet { grid-column: 2; grid-row: 1; justify-self: end; padding: 2px 10px; font-size: 0.875rem; }
-.slider-row input[type="range"] { grid-column: 1; grid-row: 2; width: 100%; margin: 0; accent-color: var(--accent); }
+.slider-row input[type="range"] { grid-column: 1; grid-row: 2; width: 100%; margin: 0; }
 .figures { grid-column: 2; grid-row: 2; min-width: 7ch; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.swatch { flex: none; width: 10px; height: 10px; border-radius: 3px; }
 .not-counted li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
-.drawing svg { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 1 / 1; }
+.not-counted .name { display: flex; align-items: center; gap: 8px; }
+.drawing svg { display: block; max-width: 100%; height: auto; margin-inline: auto; }
+#treemap { width: min(100%, calc(76vh * 4 / 3)); aspect-ratio: 4 / 3; }
+#sunburst { width: min(100%, 76vh); aspect-ratio: 1 / 1; }
+.drawing:not([hidden]) { animation: appear 200ms ease-out; }
+@keyframes appear { from { opacity: 0; } }
 .drawing text { font-family: var(--font-label); font-size: 12px; font-weight: 500; pointer-events: none; }
-.node rect, .arc path { fill: var(--tile); cursor: pointer; transition: opacity 150ms; }
-.node.is-group rect, .arc.is-group path { fill: var(--group); }
-.node text, .arc text { fill: var(--tile-ink); }
-.node.is-group text, .arc.is-group text { fill: var(--group-ink); font-weight: 600; }
+.node rect, .arc path { cursor: pointer; transition: opacity 150ms; }
+.node.is-group text, .arc.is-group text { font-weight: 600; }
 .centre circle { fill: var(--surface); }
 .centre text { fill: var(--ink); font-size: 13px; font-weight: 600; }
-.centre .go-up { fill: var(--accent); font-weight: 500; }
+.centre .go-up { fill: var(--ink-2); font-weight: 500; }
 .centre.can-go-up { cursor: pointer; }
 .empty { fill: var(--ink-2); font-size: 14px; }
 .is-dim { opacity: 0.3; }
 .problems { display: grid; gap: 8px; padding: 12px 16px; border-left: 4px solid var(--critical); border-radius: 4px; background: var(--surface); }
 .tooltip { position: fixed; z-index: 20; max-width: 300px; padding: 10px 12px; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); color: var(--ink); box-shadow: 0 6px 20px var(--shadow); font-size: 0.875rem; pointer-events: none; }
 .tooltip p { margin-top: 4px; color: var(--ink-2); }
-@media (prefers-reduced-motion: reduce) { .node rect, .arc path { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .node rect, .arc path { transition: none; }
+  .drawing:not([hidden]) { animation: none; }
+}
 </style>
 </head>
 <body>
@@ -137,10 +209,17 @@ button, input { font: inherit; color: inherit; }
   <header class="bar">
     <div>
       <h1>Factor explorer</h1>
-      <p class="subtitle">The factor catalogue's tree, drawn as a treemap and as a sunburst. Each area is a factor's share of total weight. The default weights are placeholders until they are set from evidence (D14).</p>
+      <p class="subtitle">The factor catalogue's tree, drawn as a treemap or as a sunburst. Each area is a factor's share of total weight, and each factor has its own colour. The default weights are placeholders until they are set from evidence (D14).</p>
     </div>
     <div class="controls">
-      <fieldset class="scale">
+      <fieldset class="segmented">
+        <legend>Layout</legend>
+        <input type="radio" name="layout" id="layout-treemap" value="treemap" checked>
+        <label for="layout-treemap">Treemap</label>
+        <input type="radio" name="layout" id="layout-sunburst" value="sunburst">
+        <label for="layout-sunburst">Sunburst</label>
+      </fieldset>
+      <fieldset class="segmented">
         <legend>Scale</legend>
         <input type="radio" name="scale" id="scale-within-city" value="within-city" checked>
         <label for="scale-within-city">Within a city</label>
@@ -161,18 +240,18 @@ button, input { font: inherit; color: inherit; }
   <main id="workspace" class="workspace">
     <section class="panel" aria-labelledby="weights-title">
       <h2 id="weights-title">Weights</h2>
-      <p class="hint">Each row shows the weight (0–5), then the share of total weight.</p>
+      <p class="hint">Each row shows the factor's colour, its weight (0–5) and its share of total weight.</p>
       <ul id="sliders" class="sliders"></ul>
       <div id="not-counted-block" class="panel-part" hidden>
         <h3>Not counted</h3>
         <ul id="not-counted" class="not-counted"></ul>
       </div>
     </section>
-    <section class="panel drawing" aria-labelledby="treemap-title">
+    <section id="treemap-panel" class="panel drawing" aria-labelledby="treemap-title">
       <h2 id="treemap-title">Treemap</h2>
       <svg id="treemap" role="img" aria-labelledby="treemap-title"></svg>
     </section>
-    <section class="panel drawing" aria-labelledby="sunburst-title">
+    <section id="sunburst-panel" class="panel drawing" aria-labelledby="sunburst-title" hidden>
       <h2 id="sunburst-title">Sunburst</h2>
       <svg id="sunburst" role="img" aria-labelledby="sunburst-title"></svg>
     </section>
@@ -528,7 +607,20 @@ factors:
   const $ = (id) => document.getElementById(id);
   const MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 300;
   const HEADER = 20; // px above a group's sub-factors in the treemap, for its name
+  const LINE = 14; // px between label lines in the treemap
+  const LAYOUT_KEY = "factor-explorer-layout";
   const percent = new Intl.NumberFormat("en-GB", { style: "percent", maximumFractionDigits: 1 });
+
+  // Factor colours, by Salt colour name (see the --salt-* tokens). Each
+  // top-level factor takes the colour at its catalogue position. The order
+  // keeps neighbouring factors apart for normal and colour-blind vision in
+  // both scales, and fits a colour's meaning where it can (Environment green,
+  // Climate blue). When a factor is open, its sub-factors take colours from
+  // the second sequence, which keeps neighbours apart for any number of
+  // sub-factors up to nine.
+  const TOP_COLOURS = ["lavender", "citrine", "violet", "forest", "cobalt", "autumn", "rose", "lime", "plum",
+    "salmon", "ocean", "fur", "aqua", "cider", "fuchsia", "olive", "indigo", "jade"];
+  const SUB_COLOURS = ["indigo", "citrine", "ocean", "fur", "fuchsia", "cider", "aqua", "autumn", "forest"];
 
   function el(tag, attributes, ...children) {
     const node = document.createElement(tag);
@@ -550,9 +642,19 @@ factors:
   }
 
   const core = window.ExplorerCore;
-  const state = { scale: "within-city", openId: core.ROOT_ID, weights: {}, committed: {} };
+  const state = { scale: "within-city", layout: savedLayout(), openId: core.ROOT_ID, weights: {}, committed: {} };
   let catalogueRoot = null;
   let tree = null;
+
+  // The layout this viewer chose last time. Storage can be unavailable, in
+  // which case the treemap shows first.
+  function savedLayout() {
+    try {
+      return localStorage.getItem(LAYOUT_KEY) === "sunburst" ? "sunburst" : "treemap";
+    } catch {
+      return "treemap";
+    }
+  }
 
   // Loading
 
@@ -571,6 +673,7 @@ factors:
       return;
     }
     catalogueRoot = core.normaliseCatalogue(catalogue);
+    showLayout();
     render();
   }
 
@@ -605,7 +708,7 @@ factors:
     if (open.parentId !== null) openFactor(open.parentId);
   }
 
-  // While a slider moves: update the figures and the drawings, keep the rows.
+  // While a slider moves: update the figures and the drawing, keep the rows.
   function setWeight(id, weight) {
     state.weights[id] = weight;
     tree = core.buildTree(catalogueRoot, state.scale, state.weights);
@@ -633,6 +736,32 @@ factors:
     render(id);
   }
 
+  function showLayout() {
+    $("treemap-panel").hidden = state.layout !== "treemap";
+    $("sunburst-panel").hidden = state.layout !== "sunburst";
+    document.querySelectorAll('input[name="layout"]').forEach((radio) => {
+      radio.checked = radio.value === state.layout;
+    });
+  }
+
+  // Colours
+
+  // The colour of a factor drawn one level below the open factor.
+  function colourOf(view, openId) {
+    const sequence = openId === core.ROOT_ID ? TOP_COLOURS : SUB_COLOURS;
+    return sequence[view.index % sequence.length];
+  }
+
+  // The open factor's sub-factors take their full colour, with white text;
+  // their own sub-factors take a tint of it, with ink text.
+  function fillOf(d) {
+    return d.depth === 1 ? `var(--salt-${d.data.colour})` : `var(--salt-${d.data.colour}-tint)`;
+  }
+
+  function inkOf(d) {
+    return d.depth === 1 ? "var(--on-colour)" : "var(--ink)";
+  }
+
   // The path and the weights panel
 
   function hasSubFactors(view) {
@@ -641,6 +770,10 @@ factors:
 
   function figures(view) {
     return `${view.weight} · ${percent.format(view.share)}`;
+  }
+
+  function swatch(colour) {
+    return el("span", { class: "swatch", style: `background: var(--salt-${colour})`, "aria-hidden": "true" });
   }
 
   function renderPath(open) {
@@ -656,20 +789,23 @@ factors:
   }
 
   function renderWeights(open) {
-    $("sliders").replaceChildren(...open.counted.map(sliderRow));
-    $("not-counted").replaceChildren(...open.notCounted.map(notCountedRow));
+    $("sliders").replaceChildren(...open.counted.map((view) => sliderRow(view, colourOf(view, open.id))));
+    $("not-counted").replaceChildren(...open.notCounted.map((view) => notCountedRow(view, colourOf(view, open.id))));
     $("not-counted-block").hidden = open.notCounted.length === 0;
   }
 
-  function sliderRow(view) {
+  function sliderRow(view, colour) {
     const inputId = `weight-${view.id}`;
-    const input = el("input", { type: "range", id: inputId, min: "0", max: "5", step: "1", value: String(view.weight), "data-focus": view.id });
+    const input = el("input", {
+      type: "range", id: inputId, min: "0", max: "5", step: "1", value: String(view.weight),
+      "data-focus": view.id, style: `accent-color: var(--salt-${colour})`,
+    });
     input.addEventListener("input", () => setWeight(view.id, Number(input.value)));
     input.addEventListener("change", () => commitWeight(view.id, Number(input.value)));
     input.addEventListener("focus", () => showDetails(view.id, { anchor: input }));
     input.addEventListener("blur", hideTooltip);
     const row = el("li", { class: "slider-row" },
-      el("label", { for: inputId }, view.name),
+      el("label", { for: inputId }, swatch(colour), view.name),
       el("span", { class: "figures", id: `figures-${view.id}` }, figures(view)),
       input);
     if (hasSubFactors(view)) {
@@ -680,31 +816,37 @@ factors:
     return row;
   }
 
-  function notCountedRow(view) {
+  function notCountedRow(view, colour) {
     const ownWeightIsZero = view.weight === 0;
     const action = ownWeightIsZero ? "Bring back" : "Open";
     const button = el("button", { type: "button", class: "quiet", "data-focus": view.id, "aria-label": `${action} ${view.name}` }, action);
     button.addEventListener("click", () => (ownWeightIsZero ? bringBack(view.id) : openFactor(view.id)));
     const reason = ownWeightIsZero ? "weight 0" : "all its sub-factors are at weight 0";
-    return el("li", {}, el("span", {}, `${view.name} `, el("span", { class: "reason" }, `· ${reason}`)), button);
+    return el("li", {},
+      el("span", { class: "name" }, swatch(colour), el("span", {}, `${view.name} `, el("span", { class: "reason" }, `· ${reason}`))),
+      button);
   }
 
   // The drawings
 
   function draw(open) {
-    const data = twoLevels(open, 0);
-    drawTreemap(data);
-    drawSunburst(data, open);
+    const data = twoLevels(open, 0, null, open.id);
+    if (state.layout === "treemap") drawTreemap(data);
+    else drawSunburst(data, open);
   }
 
-  // The open factor and two levels below it, keeping only the factors that count.
-  function twoLevels(view, depth) {
+  // The open factor and two levels below it, keeping only the factors that
+  // count. Each node carries the colour of its family in the drawing.
+  function twoLevels(view, depth, colour, openId) {
     return {
       id: view.id,
       name: view.name,
       share: view.share,
       opens: hasSubFactors(view),
-      children: depth < 2 ? view.counted.map((child) => twoLevels(child, depth + 1)) : [],
+      colour,
+      children: depth < 2
+        ? view.counted.map((child) => twoLevels(child, depth + 1, depth === 0 ? colourOf(child, openId) : colour, openId))
+        : [],
     };
   }
 
@@ -726,8 +868,6 @@ factors:
   // Fits a treemap name into its tile, wrapped over as many lines as the tile
   // has room for. A group's name stays on one line, in its header. If the name
   // does not fit, it is hidden, and the tooltip carries it.
-  const LINE = 14; // px between label lines in the treemap
-
   function fitLabel(node, d) {
     const text = d3.select(node).text(null);
     const width = d.x1 - d.x0 - 12;
@@ -788,14 +928,15 @@ factors:
     const all = entered.merge(cells).order()
       .attr("data-id", (d) => d.data.id)
       .attr("data-depth", (d) => d.depth)
+      .attr("data-colour", (d) => d.data.colour)
       .classed("is-group", (d) => Boolean(d.children))
       .call(bindEvents);
     all.transition().duration(MOTION).style("opacity", 1)
       .attr("transform", (d) => `translate(${d.x0},${d.y0})`);
-    all.select("rect").transition().duration(MOTION)
+    all.select("rect").style("fill", fillOf).transition().duration(MOTION)
       .attr("width", (d) => Math.max(0, d.x1 - d.x0))
       .attr("height", (d) => Math.max(0, d.y1 - d.y0));
-    all.select("text").each(function (d) {
+    all.select("text").style("fill", inkOf).each(function (d) {
       fitLabel(this, d);
     });
     emptyState(svg, nodes.length === 0, width / 2, height / 2);
@@ -827,17 +968,18 @@ factors:
     const all = entered.merge(arcs).order()
       .attr("data-id", (d) => d.data.id)
       .attr("data-depth", (d) => d.depth)
+      .attr("data-colour", (d) => d.data.colour)
       .classed("is-group", (d) => Boolean(d.children))
       .call(bindEvents);
     all.transition().duration(MOTION).style("opacity", 1);
-    all.select("path").transition().duration(MOTION).attrTween("d", function (d) {
+    all.select("path").style("fill", fillOf).transition().duration(MOTION).attrTween("d", function (d) {
       const target = { x0: d.x0, x1: d.x1, y0: d.y0, y1: d.y1 };
       const interpolate = d3.interpolate(this.__previous || target, target);
       this.__previous = target;
       return (t) => arc(interpolate(t));
     });
     // Names run along the radius where a ring has room, and flip on the left half.
-    all.select("text").text(labelText)
+    all.select("text").text(labelText).style("fill", inkOf)
       .attr("visibility", function (d) {
         const along = this.getComputedTextLength() + 10 <= ring - 2;
         const across = (d.x1 - d.x0) * ((d.y0 + d.y1) / 2) * ring >= 14;
@@ -875,7 +1017,7 @@ factors:
       .merge(note).attr("x", x).attr("y", y);
   }
 
-  // Hover: highlight a factor and its family in both drawings.
+  // Hover: highlight a factor and its family in the drawing.
   function highlight(id) {
     const lineage = id === null ? null : core.pathTo(catalogueRoot, id);
     d3.selectAll("#treemap g.node, #sunburst g.arc").classed("is-dim", (d) => {
@@ -922,6 +1064,20 @@ factors:
 
   // Controls
 
+  document.querySelectorAll('input[name="layout"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      state.layout = radio.value;
+      try {
+        localStorage.setItem(LAYOUT_KEY, state.layout);
+      } catch {
+        // Without storage, the choice lasts until the page is reloaded.
+      }
+      highlight(null);
+      hideTooltip();
+      showLayout();
+      if (tree) draw(tree.byId.get(state.openId));
+    });
+  });
   document.querySelectorAll('input[name="scale"]').forEach((radio) => {
     radio.addEventListener("change", () => {
       state.scale = radio.value;
@@ -944,7 +1100,7 @@ factors:
     if (!tree) return;
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => draw(tree.byId.get(state.openId)));
-  }).observe($("treemap"));
+  }).observe($("workspace"));
 
   // Load the label fonts before the first drawing, so that labels are measured
   // in the font they are drawn in. The browser fetches a font only once text
