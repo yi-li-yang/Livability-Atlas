@@ -3,12 +3,13 @@
 ## Now
 
 - Step 0.1 is merged into `main` (#1).
-- Step 0.2: the factor explorer is built, with a switch between the treemap and the sunburst and a colour for each factor (D17, accepted). It is published as a private Artifact, and its pull request is open from `feat/factor-explorer`.
+- Step 0.2: the factor explorer is merged (#2), with a switch between the treemap and the sunburst and a colour for each factor (D17, accepted).
+- Step 0.2, in progress on `feat/catalogue-format`: the [catalogue format](specs/2026-10-24-catalogue-format.md), proved on NO₂ and PM2.5.
 
 ## Next
 
-1. The owner reviews the colours and the layout switch, then merges the pull request.
-2. The rest of step 0.2: expand the factor catalogue top-down and bottom-up, starting from [research-notes.md](factors/research-notes.md).
+1. Finish the catalogue format, then the owner reviews its pull request.
+2. Research the MVP factors, one top-level factor per pull request, starting from [research-notes.md](factors/research-notes.md): Transport, Environment, Safety, Housing and cost, Natural hazards, Daily amenities, Digital connectivity, Education, and Community and people.
 3. Before step 0.3:
    - Install uv and just with winget.
    - Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`.
@@ -22,6 +23,8 @@
 
 ### 2026-10-24
 
+- **Catalogue format started.** Wrote its [spec](specs/2026-10-24-catalogue-format.md) and [plan](plans/2026-10-24-catalogue-format.md). The owner chose to research the MVP factors first, in this session, after the format.
+- **Factor explorer merged** into `main` as pull request #2.
 - **Factor explorer revised.** After trying both layouts, the owner kept both, with a switch, and asked for a colour for each factor. The colours come from the categorical palette of the Salt design system, in an order checked for normal and colour-blind vision. D17 is accepted.
 - **Factor explorer built.** The seed factor tree is in `catalogue/factors.yaml`, and the page has its tests and a browser check in Edge. It is published as a private Artifact, and its pull request is open.
 - **Step 0.2 started.** Wrote the [factor explorer spec](specs/2026-10-24-factor-explorer.md).
