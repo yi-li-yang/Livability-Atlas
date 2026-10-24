@@ -3,16 +3,17 @@
 ## Now
 
 - Step 0.1 is merged into `main` (#1).
-- Step 0.2: the factor explorer is merged (#2), with a switch between the treemap and the sunburst and a colour for each factor (D17, accepted).
-- Step 0.2: the [catalogue format](specs/2026-10-24-catalogue-format.md) is built, and its pull request is open from `feat/catalogue-format`. NO₂ and PM2.5 are the first researched measured indicators.
+- Step 0.2: the factor explorer (#2) and the [catalogue format](specs/2026-10-24-catalogue-format.md) (#3) are merged.
+- Step 0.2: the [Transport research](specs/2026-10-24-transport-research.md) is done, and its pull request is open from `data/transport-research`. Six of Transport's eight within-city measured indicators are researched, and all four of its datasets may go into public builds.
 
 ## Next
 
-1. The owner reviews the catalogue format's pull request and the republished factor explorer, then merges.
-2. Two licence checks for air quality, which the owner can do at any time. Until one of them succeeds, air quality stays out of public builds:
-   - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory.
+1. The owner reviews the Transport research's pull request, in particular TfL's licence joining D07's allowed list, then merges.
+2. Three checks the owner can make at any time:
+   - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
-3. Research the MVP factors, one top-level factor per pull request, starting from [research-notes.md](factors/research-notes.md): Transport, Environment, Safety, Housing and cost, Natural hazards, Daily amenities, Digital connectivity, Education, and Community and people.
+   - Ask TfL's WebCAT team for its latest PTAL data, since the open release is from 2015, before the Elizabeth line (spike S1).
+3. Research the next MVP factors, one top-level factor per pull request, starting from [research-notes.md](factors/research-notes.md): Environment, Safety, Housing and cost, Natural hazards, Daily amenities, Digital connectivity, Education, and Community and people.
 4. Before step 0.3:
    - Install uv and just with winget.
    - Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`.
@@ -26,6 +27,8 @@
 
 ### 2026-10-24
 
+- **Transport researched.** Walk to the nearest station, rail and Tube lines nearby, bus routes nearby, service level (PTAL), travel cost and travel time to places are researched, with the [spec](specs/2026-10-24-transport-research.md) recording each choice. The walking thresholds come from CIHT's guidance and TfL's PTAL, and travel cost from TfL's 2026 fare caps. The curves for lines, routes and travel time wait for spikes S6 and S4. TfL's open data licence joined D07's allowed list, so all four Transport datasets may go into public builds.
+- **Catalogue format merged** into `main` as pull request #3.
 - **Catalogue format built.** Measured indicators gained their research fields in `catalogue/factors.yaml`, and datasets have their own file, `catalogue/datasets.yaml`. The checks enforce D07 by SPDX licence id. The factor explorer shows each measured indicator's unit, curve, evidence type and datasets. NO₂ and PM2.5 are researched, with curves from the WHO's 2021 guidelines.
 - **Licence finding.** Neither air-quality dataset can go into a public build yet. The London Datastore gives the LAEI's licence as "Not Specified", and UK-AIR, which hosts Defra's background maps, was offline for security updates. Both are recorded in `datasets.yaml` with a note, and the two checks are in "Next".
 - **Catalogue format started.** Wrote its [spec](specs/2026-10-24-catalogue-format.md) and [plan](plans/2026-10-24-catalogue-format.md). The owner chose to research the MVP factors first, in this session, after the format.

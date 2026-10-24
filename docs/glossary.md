@@ -21,6 +21,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Within-city scale | Comparing small areas inside one city | Hex cells across London |
 | Across-cities scale | Comparing whole cities, across countries | London versus Lisbon |
 | Comparable across regions | Whether a measured indicator means the same thing everywhere, so that places in different regions can be compared on it | Satellite PM2.5: yes. Crime counts: no, because countries record crime differently |
+| Fare zone | One of the numbered rings that London's public transport fares are priced by, from zone 1 in the centre outwards | Bank is in zone 1 |
 
 ### Factors and scores
 
@@ -111,7 +112,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Factor catalogue | The YAML files that list the factor tree and every dataset | `catalogue/` (step 0.2) |
 | Research status | How far a measured indicator has got: idea, researched, spiked (tried in a spike) or built. A factor with sub-factors shows how many of its measured indicators are researched | NO₂ and PM2.5 are researched |
 | Public build | A data bundle built for the public site. It uses only datasets whose licences allow redistribution and commercial use (D07). A local build, for its builder's own use, may use any dataset | The London map, once it is public |
-| SPDX licence id | The standard short name of a licence, from the SPDX licence list | `OGL-UK-3.0` for the Open Government Licence v3.0 |
+| SPDX licence id | The standard short name of a licence, from the SPDX licence list. A licence the list lacks takes an id that starts `LicenseRef-` | `OGL-UK-3.0` for the Open Government Licence v3.0 |
 | Data pipeline | The Python program that downloads datasets and computes measured indicators for every hex cell | `atlas build london` |
 | Data bundle | The files the data pipeline publishes for one region. The web app reads only these | `data/published/london/…` |
 | Manifest | The index file of a data bundle: factor tree, scoring curves, datasets, dates | `manifest.json` |
