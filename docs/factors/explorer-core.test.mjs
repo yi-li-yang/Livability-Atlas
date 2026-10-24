@@ -65,3 +65,74 @@ test("each check names its problem and the factor it concerns", () => {
     assert.ok(problems.some((p) => expected.test(p)), `expected ${expected}, got ${JSON.stringify(problems)}`);
   }
 });
+
+function treeOf(catalogue, weights = {}, scale = "within-city") {
+  return core.buildTree(core.normaliseCatalogue(catalogue), scale, weights);
+}
+function close(actual, expected) {
+  assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} is not ${expected}`);
+}
+const ids = (views) => views.map((v) => v.id);
+
+test("shares of total weight match the worked example in scoring.md", () => {
+  const { byId } = treeOf(example());
+  close(byId.get("housing").share, 0.4);
+  close(byId.get("transport").share, 0.4);
+  close(byId.get("environment").share, 0.2);
+  close(byId.get("air-quality").share, 0.1);
+  close(byId.get("noise").share, 0.1);
+  close(byId.get("no2").share, 0.05);
+  close(byId.get("pm25").share, 0.05);
+});
+
+test("a factor that starts at weight 0 is listed as not counted", () => {
+  const { byId } = treeOf(example());
+  assert.deepEqual(ids(byId.get("environment").notCounted), ["green-space"]);
+  assert.equal(byId.get("green-space").share, 0);
+});
+
+test("setting a weight to 0 removes the factor, and its siblings share its part", () => {
+  const { byId } = treeOf(example(), { transport: 0 });
+  assert.deepEqual(ids(byId.get("root").notCounted), ["transport"]);
+  close(byId.get("housing").share, 4 / 6);
+  close(byId.get("environment").share, 2 / 6);
+  assert.equal(byId.get("transport").share, 0);
+});
+
+test("a factor whose sub-factors all have weight 0 counts as weight 0", () => {
+  const { byId } = treeOf(example(), { no2: 0, pm25: 0 });
+  assert.equal(byId.get("air-quality").countsAsZero, true);
+  assert.equal(byId.get("air-quality").share, 0);
+  assert.deepEqual(ids(byId.get("environment").notCounted), ["air-quality", "green-space"]);
+  close(byId.get("noise").share, 0.2);
+});
+
+test("the scale filter keeps the factors for that scale, and sub-factors inherit scales", () => {
+  const root = core.normaliseCatalogue({
+    factors: [
+      { id: "climate", name: "Climate", default_weight: 3, scales: ["across-cities"] },
+      {
+        id: "environment",
+        name: "Environment",
+        default_weight: 3,
+        scales: ["within-city", "across-cities"],
+        children: [
+          { id: "noise", name: "Noise", default_weight: 3, scales: ["within-city"] },
+          { id: "air-quality", name: "Air quality", default_weight: 3 },
+        ],
+      },
+    ],
+  });
+  const within = core.buildTree(root, "within-city", {});
+  const across = core.buildTree(root, "across-cities", {});
+  assert.deepEqual(ids(within.root.counted), ["environment"]);
+  assert.deepEqual(ids(across.root.counted), ["climate", "environment"]);
+  assert.deepEqual(ids(within.byId.get("environment").counted), ["noise", "air-quality"]);
+  assert.deepEqual(ids(across.byId.get("environment").counted), ["air-quality"]);
+});
+
+test("pathTo lists the ids from the root down to a factor", () => {
+  const root = core.normaliseCatalogue(example());
+  assert.deepEqual(core.pathTo(root, "no2"), ["root", "environment", "air-quality", "no2"]);
+  assert.deepEqual(core.pathTo(root, "missing"), []);
+});

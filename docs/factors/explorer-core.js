@@ -1,5 +1,7 @@
-// Factor explorer logic, without any drawing: it checks the factor catalogue.
-// explorer.html loads it as a classic script, and the tests load it with require().
+// Factor explorer logic, without any drawing. It checks the factor catalogue,
+// fills in inherited scales, and computes each factor's share of total weight
+// (docs/methodology/scoring.md, section 5). explorer.html loads it as a
+// classic script, and the tests load it with require().
 (function (root, factory) {
   if (typeof module === "object" && module.exports) {
     module.exports = factory();
@@ -9,6 +11,7 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
+  const ROOT_ID = "root";
   const SCALES = ["within-city", "across-cities"];
   const STATUSES = ["idea", "researched", "spiked", "built"];
   // Until default weights are set from evidence (D14), 3 is the placeholder,
@@ -73,5 +76,92 @@
     return problems;
   }
 
-  return { SCALES, STATUSES, PLACEHOLDER_WEIGHT, validateCatalogue };
+  // Returns the catalogue as a tree with every field filled in: inherited
+  // scales, the default status, and a root above the top-level factors.
+  function normaliseCatalogue(catalogue) {
+    function copy(node, parentScales) {
+      const scales = node.scales || parentScales;
+      return {
+        id: node.id,
+        name: node.name,
+        description: node.description || "",
+        defaultWeight: node.default_weight,
+        weightReason: node.weight_reason || "",
+        scales,
+        status: node.status || "idea",
+        children: (node.children || []).map((child) => copy(child, scales)),
+      };
+    }
+    return {
+      id: ROOT_ID,
+      name: "All factors",
+      description: "",
+      defaultWeight: 1,
+      weightReason: "",
+      scales: SCALES.slice(),
+      status: "idea",
+      children: catalogue.factors.map((factor) => copy(factor, SCALES)),
+    };
+  }
+
+  // Returns the tree for one scale, with the user's weights applied.
+  // `weights` maps a factor's id to the weight the user set; every other
+  // factor keeps its default. Each node of the result holds:
+  //   weight        the weight in use
+  //   countsAsZero  true when the weight is 0, or every sub-factor counts as 0
+  //   share         its share of total weight, 0 when it counts as 0
+  //   counted, notCounted  its sub-factors at this scale, split by whether they count
+  //   parentId      its parent's id, or null for the root
+  // byId maps each id to its node.
+  function buildTree(root, scale, weights) {
+    const byId = new Map();
+
+    function build(node, parentId) {
+      const subFactors = node.children
+        .filter((child) => child.scales.includes(scale))
+        .map((child) => build(child, node.id));
+      const weight = node.id === ROOT_ID ? 1 : weights[node.id] !== undefined ? weights[node.id] : node.defaultWeight;
+      const counted = subFactors.filter((s) => !s.countsAsZero);
+      const view = {
+        id: node.id,
+        name: node.name,
+        description: node.description,
+        weightReason: node.weightReason,
+        status: node.status,
+        scales: node.scales,
+        defaultWeight: node.defaultWeight,
+        weight,
+        countsAsZero: weight === 0 || (subFactors.length > 0 && counted.length === 0),
+        share: 0,
+        counted,
+        notCounted: subFactors.filter((s) => s.countsAsZero),
+        parentId,
+      };
+      byId.set(node.id, view);
+      return view;
+    }
+
+    function assignShares(view, share) {
+      view.share = share;
+      const total = view.counted.reduce((sum, s) => sum + s.weight, 0);
+      view.counted.forEach((s) => assignShares(s, (share * s.weight) / total));
+    }
+
+    const top = build(root, null);
+    assignShares(top, top.countsAsZero ? 0 : 1);
+    return { root: top, byId };
+  }
+
+  // Returns the ids from the root down to the factor with this id,
+  // or an empty list when no factor has it.
+  function pathTo(root, id) {
+    if (root.id === id) return [root.id];
+    for (const child of root.children) {
+      const path = pathTo(child, id);
+      if (path.length > 0) return [root.id, ...path];
+    }
+    return [];
+  }
+
+  return { ROOT_ID, SCALES, STATUSES, PLACEHOLDER_WEIGHT, validateCatalogue, normaliseCatalogue, buildTree, pathTo };
 });
