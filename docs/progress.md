@@ -3,12 +3,12 @@
 ## Now
 
 - Step 0.1 is merged into `main` (#1).
-- Step 0.2 has started. The [factor explorer spec](specs/2026-10-24-factor-explorer.md) is written on the local branch `feat/factor-explorer`, and the owner is reviewing it.
+- Step 0.2: the factor explorer is built and published as a private Artifact for the owner. Its pull request is open from `feat/factor-explorer`.
 
 ## Next
 
-1. Once the owner approves the spec, write the factor explorer's implementation plan, then build it.
-2. The rest of step 0.2: expand the factor catalogue top-down and bottom-up.
+1. The owner tries both layouts in the factor explorer and chooses one. Record the choice in D17 and interface.md, then merge the pull request.
+2. The rest of step 0.2: expand the factor catalogue top-down and bottom-up, starting from [research-notes.md](factors/research-notes.md).
 3. Before step 0.3:
    - Install uv and just with winget.
    - Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`.
@@ -22,6 +22,7 @@
 
 ### 2026-10-24
 
+- **Factor explorer built.** The seed factor tree is in `catalogue/factors.yaml`, and the page has its tests and a browser check in Edge. It is published as a private Artifact, and its pull request is open.
 - **Step 0.2 started.** Wrote the [factor explorer spec](specs/2026-10-24-factor-explorer.md).
 - **Step 0.1 merged** into `main` as pull request #1.
 - **Step 0.1 approved.** The owner reviewed every document and gave the go-ahead. The branch was pushed and a pull request opened.
