@@ -39,6 +39,16 @@
     built: [...RESEARCHED, "curve"],
   };
 
+  // The fields of a dataset in datasets.yaml, and the values they allow.
+  const DATASET_FIELDS = ["id", "name", "publisher", "url", "tier", "area", "resolution", "date", "licence",
+    "licence_checked", "public_build", "licence_note", "attribution", "tells", "credibility", "credibility_reason"];
+  const TIERS = ["city", "country", "global"];
+  const CREDIBILITY = ["high", "medium", "low"];
+  // Licences that allow redistribution and commercial use, by SPDX id (D07).
+  // Only datasets under one of them may go into public builds.
+  const OPEN_LICENCES = ["OGL-UK-1.0", "OGL-UK-2.0", "OGL-UK-3.0", "CC-BY-3.0", "CC-BY-4.0", "CC-BY-SA-3.0",
+    "CC-BY-SA-4.0", "CC0-1.0", "ODbL-1.0", "CDLA-Permissive-1.0", "CDLA-Permissive-2.0", "Apache-2.0"];
+
   const isMapping = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
   const isText = (value) => typeof value === "string" && value.trim() !== "";
   const isNumber = (value) => typeof value === "number" && Number.isFinite(value);
@@ -187,6 +197,79 @@
     return problems;
   }
 
+  // A date as YAML gives it, as YYYY-MM-DD: an unquoted 2026-10-24 arrives
+  // as a Date, a quoted one as text. Returns null for anything else.
+  function isoDate(value) {
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value.toISOString().slice(0, 10);
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value))) return value;
+    return null;
+  }
+
+  // Returns a list of problems in datasets.yaml, each naming the dataset it
+  // concerns. It enforces D07: only openly licensed datasets, with their
+  // licence checked, may go into public builds.
+  function validateDatasets(datasetsDoc) {
+    if (!isMapping(datasetsDoc) || !Array.isArray(datasetsDoc.datasets)) {
+      return ["datasets.yaml needs a list under datasets."];
+    }
+    const problems = [];
+    const seen = new Set();
+    datasetsDoc.datasets.forEach((dataset, i) => {
+      if (!isMapping(dataset)) {
+        problems.push(`dataset ${i + 1}: each dataset must be a mapping of fields.`);
+        return;
+      }
+      const label = `dataset ${typeof dataset.id === "string" ? dataset.id : i + 1}`;
+      const problem = (message) => problems.push(`${label}: ${message}`);
+      for (const field of Object.keys(dataset)) {
+        if (!DATASET_FIELDS.includes(field)) problem(`unknown field ${field}.`);
+      }
+      if (typeof dataset.id !== "string" || !ID_PATTERN.test(dataset.id)) {
+        problem("id must be kebab-case, such as laei.");
+      } else if (seen.has(dataset.id)) {
+        problem("this id is used more than once.");
+      } else {
+        seen.add(dataset.id);
+      }
+      for (const field of ["name", "publisher", "area", "resolution", "licence"]) {
+        if (dataset[field] === undefined) problem(`${field} is missing.`);
+        else if (!isText(dataset[field])) problem(`${field} must be non-empty text.`);
+      }
+      for (const field of ["licence_note", "attribution", "credibility_reason"]) {
+        if (dataset[field] !== undefined && !isText(dataset[field])) problem(`${field} must be non-empty text.`);
+      }
+      if (dataset.url === undefined) problem("url is missing.");
+      else if (typeof dataset.url !== "string" || !/^https?:\/\/\S+$/.test(dataset.url)) problem("url must start with http:// or https://.");
+      if (dataset.tier === undefined) problem("tier is missing.");
+      else if (!TIERS.includes(dataset.tier)) problem(`tier must be one of ${TIERS.join(", ")}.`);
+      if (dataset.date === undefined) problem("date is missing.");
+      else if (!isText(dataset.date) && !Number.isInteger(dataset.date)) problem("date must be text or a year, such as 2022.");
+      if (dataset.tells === undefined) problem("tells is missing.");
+      else if (!Array.isArray(dataset.tells) || dataset.tells.length === 0 || !dataset.tells.every(isText)) problem("tells must be a non-empty list of text.");
+      if (dataset.licence_checked !== undefined && isoDate(dataset.licence_checked) === null) {
+        problem("licence_checked must be a date, such as 2026-10-24.");
+      }
+      if (dataset.public_build === undefined) {
+        problem("public_build is missing.");
+      } else if (typeof dataset.public_build !== "boolean") {
+        problem("public_build must be true or false.");
+      } else if (dataset.public_build) {
+        if (isText(dataset.licence) && !OPEN_LICENCES.includes(dataset.licence)) {
+          problem(`public_build is true, but ${dataset.licence} is not on D07's list of open licences: ${OPEN_LICENCES.join(", ")}.`);
+        }
+        if (dataset.licence_checked === undefined) problem("public_build is true, so it needs licence_checked, the date its licence was checked at the source.");
+        if (dataset.attribution === undefined) problem("public_build is true, so it needs an attribution.");
+      } else if (dataset.licence_note === undefined) {
+        problem("public_build is false, so it needs a licence_note saying why.");
+      }
+      if (dataset.credibility !== undefined) {
+        if (!CREDIBILITY.includes(dataset.credibility)) problem(`credibility must be one of ${CREDIBILITY.join(", ")}.`);
+        if (dataset.credibility_reason === undefined) problem("credibility needs a credibility_reason.");
+      }
+    });
+    return problems;
+  }
+
   // Returns the catalogue as a tree with every field filled in: inherited
   // scales, the default status, each factor's position among its siblings in
   // the catalogue (index), and a root above the top-level factors.
@@ -281,5 +364,8 @@
     return [];
   }
 
-  return { ROOT_ID, SCALES, STATUSES, PLACEHOLDER_WEIGHT, validateCatalogue, normaliseCatalogue, buildTree, pathTo };
+  return {
+    ROOT_ID, SCALES, STATUSES, PLACEHOLDER_WEIGHT, OPEN_LICENCES,
+    validateCatalogue, validateDatasets, normaliseCatalogue, buildTree, pathTo,
+  };
 });

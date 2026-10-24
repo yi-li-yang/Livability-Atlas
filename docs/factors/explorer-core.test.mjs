@@ -312,3 +312,79 @@ test("a measured indicator of evidence type ranking needs datasets with a credib
   const rated = datasetsDoc({ credibility: "medium", credibility_reason: "Its method is published." });
   assert.deepEqual(problemsOf(researched({ evidence_type: "ranking" }), rated), []);
 });
+
+// Datasets: datasets.yaml, and decision D07 on licences.
+
+// A dataset that public builds may use.
+function openDataset(fields = {}) {
+  const dataset = datasetsDoc({
+    licence: "OGL-UK-3.0",
+    licence_checked: "2026-10-24",
+    public_build: true,
+    attribution: "Contains public sector information licensed under the Open Government Licence v3.0.",
+    ...fields,
+  }).datasets[0];
+  delete dataset.licence_note;
+  return { datasets: [dataset] };
+}
+
+test("a valid list of datasets passes, and so does an empty one", () => {
+  assert.deepEqual(core.validateDatasets(datasetsDoc()), []);
+  assert.deepEqual(core.validateDatasets({ datasets: [] }), []);
+});
+
+test("datasets.yaml needs a list under datasets", () => {
+  assert.deepEqual(core.validateDatasets({}), ["datasets.yaml needs a list under datasets."]);
+  assert.deepEqual(core.validateDatasets(null), ["datasets.yaml needs a list under datasets."]);
+});
+
+test("a dataset needs each of its required fields", () => {
+  const fields = ["name", "publisher", "url", "tier", "area", "resolution", "date", "licence", "public_build", "tells"];
+  for (const field of fields) {
+    const doc = datasetsDoc();
+    delete doc.datasets[0][field];
+    expectProblem(core.validateDatasets(doc), new RegExp(`^dataset laei: ${field} is missing`));
+  }
+});
+
+test("each dataset check names its problem and the dataset it concerns", () => {
+  const twice = datasetsDoc();
+  twice.datasets.push({ ...twice.datasets[0] });
+  expectProblem(core.validateDatasets(twice), /^dataset laei: this id is used more than once/);
+  const cases = [
+    [{ id: "LAEI_2022" }, /id must be kebab-case/],
+    [{ tier: "continent" }, /^dataset laei: tier must be one of city, country, global/],
+    [{ url: "data.london.gov.uk" }, /^dataset laei: url must start with http/],
+    [{ licence_check: "2026-10-24" }, /^dataset laei: unknown field licence_check/],
+    [{ tells: [] }, /^dataset laei: tells must be a non-empty list of text/],
+    [{ public_build: "no" }, /^dataset laei: public_build must be true or false/],
+    [{ licence_checked: "24/10/2026" }, /^dataset laei: licence_checked must be a date, such as 2026-10-24/],
+    [{ credibility: "very high", credibility_reason: "Example." }, /^dataset laei: credibility must be one of high, medium, low/],
+    [{ credibility: "high" }, /^dataset laei: credibility needs a credibility_reason/],
+  ];
+  for (const [fields, expected] of cases) expectProblem(core.validateDatasets(datasetsDoc(fields)), expected);
+});
+
+test("a year that YAML reads as a number is a valid date", () => {
+  assert.deepEqual(core.validateDatasets(datasetsDoc({ date: 2022 })), []);
+});
+
+test("a dataset for public builds needs an open licence, the date it was checked and an attribution (D07)", () => {
+  assert.deepEqual(core.validateDatasets(openDataset()), []);
+  assert.deepEqual(core.validateDatasets(openDataset({ licence_checked: new Date(Date.UTC(2026, 9, 24)) })), []);
+  const notOpen = /^dataset laei: public_build is true, but .* is not on D07's list of open licences/;
+  expectProblem(core.validateDatasets(openDataset({ licence: "unknown" })), notOpen);
+  expectProblem(core.validateDatasets(openDataset({ licence: "CC-BY-NC-4.0" })), notOpen);
+  const unchecked = openDataset();
+  delete unchecked.datasets[0].licence_checked;
+  expectProblem(core.validateDatasets(unchecked), /^dataset laei: public_build is true, so it needs licence_checked/);
+  const uncredited = openDataset();
+  delete uncredited.datasets[0].attribution;
+  expectProblem(core.validateDatasets(uncredited), /^dataset laei: public_build is true, so it needs an attribution/);
+});
+
+test("a dataset kept out of public builds says why", () => {
+  const doc = datasetsDoc();
+  delete doc.datasets[0].licence_note;
+  expectProblem(core.validateDatasets(doc), /^dataset laei: public_build is false, so it needs a licence_note/);
+});
