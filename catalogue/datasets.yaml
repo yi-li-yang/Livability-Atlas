@@ -1,0 +1,60 @@
+# Every dataset that the factor catalogue uses or plans to use. Measured
+# indicators in factors.yaml name their datasets by id, best first. The field
+# reference, and the rules the checks enforce, are in catalogue/README.md.
+# Terms are defined in docs/glossary.md.
+#
+# Each licence is an SPDX id (https://spdx.org/licenses/), or unknown until it
+# is confirmed at the source. A dataset goes into public builds only under a
+# licence from D07's list, with the date it was checked (D07).
+#
+# After editing, refresh the factor explorer and run its tests:
+#   node docs/factors/embed-catalogue.mjs
+#   node --test "docs/factors/*.test.mjs"
+
+datasets:
+  - id: laei
+    name: London Atmospheric Emissions Inventory (LAEI)
+    publisher: Greater London Authority and Transport for London
+    url: https://data.london.gov.uk/dataset/london-atmospheric-emissions-inventory--laei--2022
+    tier: city
+    area: Greater London
+    resolution: 20 m grid
+    date: 2022
+    licence: unknown
+    licence_checked: 2026-10-24
+    public_build: false
+    licence_note: >-
+      The London Datastore gives the licence as "Not Specified", for the 2022
+      and 2019 editions alike. Its terms let anyone use its data for any
+      purpose, but name no licence. Ask the GLA Air Quality Team, the
+      dataset's contact, to confirm an open licence before a public build.
+    attribution: >-
+      London Atmospheric Emissions Inventory 2022, Greater London Authority and
+      Transport for London. The Greater London Authority cannot warrant the
+      quality or accuracy of the data.
+    tells:
+      - Modelled annual mean concentrations of NO₂, NOx, PM10 and PM2.5 in 2022, on a 20 m grid
+      - Emissions of air pollutants by source, such as road transport
+
+  - id: defra-background-maps
+    name: Background maps for local air quality management
+    publisher: Defra and the devolved administrations
+    url: https://uk-air.defra.gov.uk/data/laqm-background-home
+    tier: country
+    area: United Kingdom
+    resolution: 1 km grid
+    date: 2021 reference year, projected to 2040
+    licence: unknown
+    public_build: false
+    licence_note: >-
+      Not yet checked at the source: UK-AIR, which hosts the files, was offline
+      for security updates on 2026-10-24. Defra's user guide for the maps
+      (November 2024) is Crown copyright under the Open Government Licence
+      v3.0. Nottingham City Council's copy of the maps credits them as Crown
+      copyright under the Open Government Licence, but also calls them
+      "specifically for LAQM purposes only". Check UK-AIR's terms before a
+      public build.
+    attribution: © Crown copyright, Defra, via uk-air.defra.gov.uk.
+    tells:
+      - Modelled annual mean background concentrations of NOx, NO₂, PM10 and PM2.5, for each year from 2021 to 2040
+      - An estimated split of those concentrations by source sector
