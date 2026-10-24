@@ -21,7 +21,7 @@ The page also tries out the three interactions that the app's visual factor tree
 
 ## Approach
 
-**Chosen: one HTML page that draws with D3 loaded from a CDN.** The page needs no build step and no installed packages, so it works before the step 0.3 scaffold exists. It opens with a double-click, needing only an internet connection for its two libraries, and it publishes as an Artifact unchanged. D3's hierarchy layouts are the ones [tech-stack.md](../tech-stack.md) plans for the app, so the sizing behaviour carries over.
+**Chosen: one HTML page that draws with D3 loaded from a CDN.** The page needs no build step and no installed packages, so it works before the step 0.3 scaffold exists. It opens with a double-click, needing only an internet connection for its two libraries. Without its document wrapper, the same page publishes as an Artifact. D3's hierarchy layouts are the ones [tech-stack.md](../tech-stack.md) plans for the app, so the sizing behaviour carries over.
 
 Two alternatives were rejected:
 
@@ -38,8 +38,10 @@ The page's code is a prototype. Phase 1 rebuilds the visual factor tree in the a
 | `catalogue/README.md` | What the catalogue holds, and how it is checked |
 | `docs/factors/explorer.html` | The page. It holds an embedded copy of `factors.yaml` and draws it |
 | `docs/factors/explorer-core.js` | The page's logic, without any drawing. It checks the catalogue, filters it by scale and computes each factor's share of total weight. The page and the tests both load it |
-| `docs/factors/explorer-core.test.mjs` | The tests, run with `node --test docs/factors/` |
+| `docs/factors/*.test.mjs` | The tests, run with `node --test "docs/factors/*.test.mjs"` |
 | `docs/factors/embed-catalogue.mjs` | Copies `factors.yaml` into the page. With `--check`, it only reports whether the copy is out of date |
+| `docs/factors/artifact-page.mjs` | Writes the copy of the page that is published as an Artifact, without the document wrapper that the Artifact host adds itself |
+| `docs/factors/research-notes.md` | Research tables from the Phase 0 plan, kept for the rest of step 0.2 |
 | `docs/factors/README.md` | How to open, refresh, test and publish the explorer |
 
 The scripts use only Node's built-in modules. The page loads two libraries from cdnjs, D3 and js-yaml, at pinned versions with integrity hashes.
@@ -93,7 +95,7 @@ Each node has these fields:
 - Hovering over a factor in either drawing, or focusing its row in the weights panel, shows its name, description, weight, share of total weight, status and weight reason.
 - The scale switch redraws the tree for the other scale and keeps the weights set so far. If the open factor does not apply at the new scale, the drawings go up to its nearest parent that does.
 
-**Colour and labels.** Each top-level factor has a colour, and its sub-factors take lighter tints of it. Every shape has a label or a tooltip, so colour is never the only cue. The palette stays readable for colour-blind users, in light and dark themes.
+**Colour and labels.** Colour shows structure, not identity. A factor drawn with its sub-factors is a deeper blue, and a factor drawn without them is a lighter blue. Eighteen top-level factors are too many to tell apart by colour, for any reader, so labels and tooltips name every factor. Hovering over a factor highlights it and its family in both drawings. Both blues keep labels above 4.5:1 contrast, in light and dark themes.
 
 **Keyboard.** Every action works from the keyboard. The sliders are standard controls, and each row of the weights panel has an "Open" button for factors with sub-factors.
 
@@ -107,21 +109,22 @@ Until step 0.3, a change to the catalogue takes four steps:
 
 1. Edit `catalogue/factors.yaml`.
 2. Run `node docs/factors/embed-catalogue.mjs`.
-3. Run `node --test docs/factors/`.
+3. Run `node --test "docs/factors/*.test.mjs"`.
 4. Publish the Artifact again.
 
 From step 0.3, `just docs` runs steps 2 and 3, and `atlas validate` takes over the catalogue checks.
 
 ## Testing
 
-The tests are written before the code, as the task loop requires. The unit tests cover `explorer-core.js` and the embedded copy:
+The tests are written before the code, as the task loop requires. The unit tests cover `explorer-core.js`, the embedded copy and the Artifact copy:
 
 - The shares of total weight match the worked example in scoring.md: 0.40, 0.40 and 0.20 at the top, 0.10 for Air quality, and 0.05 for NO₂.
 - Setting a weight to 0 removes the factor and rescales its siblings.
 - A factor whose sub-factors all have weight 0 counts as weight 0.
 - The scale filter keeps only the factors for that scale, and sub-factors inherit scales.
-- The checks reject a duplicate id, a weight outside 0–5, a missing name, an unknown scale or status, and a sub-factor scale that its parent lacks.
+- The checks reject a duplicate id, an id that is not kebab-case, a weight outside 0–5, a weight other than 3 without a reason, a missing name, an unknown scale or status, and a sub-factor scale that its parent lacks.
 - The embedded copy matches `catalogue/factors.yaml`.
+- The Artifact copy drops exactly the document wrapper, and nothing else.
 
 A browser check runs Playwright against the installed Edge, from a scratch folder. It is not committed, because Playwright arrives with the web app in step 0.3. It confirms that:
 
@@ -133,7 +136,7 @@ A browser check runs Playwright against the installed Edge, from a scratch folde
 
 ## Publishing
 
-The page and `explorer-core.js` are published together as a private Artifact called "Factor explorer", so the owner can open it from a link. It is published again after each change to the catalogue during step 0.2.
+The page and `explorer-core.js` are published together as a private Artifact called "Factor explorer", so the owner can open it from a link. `artifact-page.mjs` first writes the page without its document wrapper, because the Artifact host adds its own. It is published again after each change to the catalogue during step 0.2.
 
 ## Done when
 
