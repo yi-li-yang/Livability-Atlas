@@ -10,6 +10,9 @@ Livability-Atlas/
 ├── LICENSE                # AGPL-3.0
 ├── .gitignore             # keeps data/, .env files and build output out of git
 ├── .gitattributes         # line-ending normalisation
+├── catalogue/             # the factor catalogue
+│   ├── README.md          # what it holds, and how it is checked
+│   └── factors.yaml       # the factor tree, with default weights
 └── docs/
     ├── README.md          # index of all documents
     ├── conceptualisation.md  # the original idea document
@@ -23,7 +26,19 @@ Livability-Atlas/
     ├── architecture.md    # system diagram, contracts, planned layout
     ├── interface.md       # progressive disclosure, visual factor tree
     ├── codemap.md         # this file
-    └── methodology/
-        ├── scoring.md     # spatial framework and scoring method v0
-        └── validation.md  # how the data and the method are checked
+    ├── factors/           # the factor explorer and research notes (step 0.2)
+    │   ├── README.md            # how to open, refresh, test and publish the explorer
+    │   ├── explorer.html        # the factor explorer page
+    │   ├── explorer-core.js     # its logic, without drawing
+    │   ├── embed-catalogue.mjs  # copies catalogue/factors.yaml into the page
+    │   ├── artifact-page.mjs    # writes the copy published as an Artifact
+    │   ├── *.test.mjs           # tests, run with Node's test runner
+    │   └── research-notes.md    # research tables from the Phase 0 plan
+    ├── methodology/
+    │   ├── scoring.md     # spatial framework and scoring method v0
+    │   └── validation.md  # how the data and the method are checked
+    ├── plans/             # implementation plans, one per work item
+    │   └── 2026-10-24-factor-explorer.md
+    └── specs/             # design specs, one per work item
+        └── 2026-10-24-factor-explorer.md
 ```

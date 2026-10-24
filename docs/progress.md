@@ -2,12 +2,13 @@
 
 ## Now
 
-- Phase 0, step 0.1 (foundations) is reviewed and approved. The branch `docs/phase-0-foundations` is pushed, with a pull request open against `main`.
+- Step 0.1 is merged into `main` (#1).
+- Step 0.2: the factor explorer is built, with a switch between the treemap and the sunburst and a colour for each factor (D17, accepted). It is published as a private Artifact, and its pull request is open from `feat/factor-explorer`.
 
 ## Next
 
-1. Squash-merge the step 0.1 pull request. There is no CI yet; step 0.3 adds it.
-2. Step 0.2: build the factor explorer on the seed factor tree, then expand the factor catalogue top-down and bottom-up.
+1. The owner reviews the colours and the layout switch, then merges the pull request.
+2. The rest of step 0.2: expand the factor catalogue top-down and bottom-up, starting from [research-notes.md](factors/research-notes.md).
 3. Before step 0.3:
    - Install uv and just with winget.
    - Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`.
@@ -21,6 +22,10 @@
 
 ### 2026-10-24
 
+- **Factor explorer revised.** After trying both layouts, the owner kept both, with a switch, and asked for a colour for each factor. The colours come from the categorical palette of the Salt design system, in an order checked for normal and colour-blind vision. D17 is accepted.
+- **Factor explorer built.** The seed factor tree is in `catalogue/factors.yaml`, and the page has its tests and a browser check in Edge. It is published as a private Artifact, and its pull request is open.
+- **Step 0.2 started.** Wrote the [factor explorer spec](specs/2026-10-24-factor-explorer.md).
+- **Step 0.1 merged** into `main` as pull request #1.
 - **Step 0.1 approved.** The owner reviewed every document and gave the go-ahead. The branch was pushed and a pull request opened.
 - **Idea: destinations.** The owner asked for optional distance to services such as Costco, IKEA and the nearest airport. Parked in the [backlog](backlog.md) under Phase 2, with the term "Destination" added to the [glossary](glossary.md).
 - **Glossary.** Split into two parts: words the app shows, which must be plain, and words for contributors, where jargon is fine. Three app terms got plainer names: location quotient became industry specialisation, market signal became brand presence, and confidence label became evidence type, with its value "proxy" renamed "indirect".

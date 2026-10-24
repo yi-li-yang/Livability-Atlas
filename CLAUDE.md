@@ -21,7 +21,10 @@ The project is in **Phase 0**: decisions, factor catalogue, spikes and scaffold.
 
 ## Commands
 
-None yet. Step 0.3 adds a `justfile`, and every command (setup, check, test, validate, build, dev, docs) will then run through `just`. Until then, only git is used.
+Step 0.3 adds a `justfile`, and every command (setup, check, test, validate, build, dev, docs) will then run through `just`. Until then:
+
+- `node --test "docs/factors/*.test.mjs"` runs the factor explorer's tests.
+- `node docs/factors/embed-catalogue.mjs` refreshes the explorer after an edit to `catalogue/factors.yaml`.
 
 ## Living documents: what to update when
 

@@ -1,0 +1,338 @@
+# The factor tree: every factor a user can weight, from broad to specific.
+# Terms are defined in docs/glossary.md.
+#
+# This is the seed version, written in step 0.2 from the approved Phase 0 plan.
+# Measured indicators, datasets and scoring curves arrive with the top-down pass.
+#
+# Rules until default weights are set from evidence (D14):
+# - default_weight is a placeholder: 3 for every factor, 1 for the two
+#   supporting factors, and 0 for choice factors and community composition.
+#   A default_weight other than 3 needs a weight_reason.
+# - A sub-factor inherits its parent's scales, or lists a subset of them.
+# - status is idea unless stated.
+#
+# After editing, refresh the factor explorer and run its tests:
+#   node docs/factors/embed-catalogue.mjs
+#   node --test "docs/factors/*.test.mjs"
+
+factors:
+  - id: housing-and-cost
+    name: Housing and cost
+    description: What it costs to buy or rent a home, and to live in the area.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: buying-cost, name: "Buying cost", default_weight: 3, scales: [within-city], description: "Price per square metre."}
+      - {id: renting-cost, name: "Renting cost", default_weight: 3, scales: [within-city], description: "Monthly rent by home size."}
+      - {id: council-tax, name: "Council tax", default_weight: 3, scales: [within-city]}
+      - {id: home-energy-efficiency, name: "Home energy efficiency", default_weight: 3, scales: [within-city]}
+      - {id: rent-and-price-levels, name: "Rent and price levels", default_weight: 3, scales: [across-cities]}
+      - {id: purchasing-power, name: "Purchasing power", default_weight: 3, scales: [across-cities]}
+      - {id: tax-burden, name: "Tax burden", default_weight: 3, scales: [across-cities]}
+
+  - id: transport
+    name: Transport
+    description: How easily you get around, and how long it takes to reach the places you go.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: getting-around
+        name: Getting around in general
+        description: The same for every user. Stations, lines and services near each hex cell.
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: station-proximity, name: "Station proximity", default_weight: 3, description: "Walking minutes to the nearest station, for each mode."}
+          - {id: line-choice, name: "Line choice", default_weight: 3, description: "Rail and Tube lines within a 10-minute walk, and bus routes within 5 minutes."}
+          - {id: service-level, name: "Service level", default_weight: 3, description: "TfL's PTAL index, which combines walking time and service frequency."}
+          - {id: travel-cost, name: "Travel cost", default_weight: 3, description: "Fare zone of the nearest station."}
+          - {id: night-and-step-free, name: "Night and step-free travel", default_weight: 3}
+          - {id: cycling, name: "Cycling", default_weight: 3, description: "Protected lanes, cycle-hire docks and slope."}
+      - {id: travel-time-to-places, name: "Travel time to places", default_weight: 3, scales: [within-city], description: "Door-to-door public-transport time to the default places, or to the user's own places."}
+      - {id: airport-connectivity, name: "Airport connectivity", default_weight: 3, scales: [across-cities]}
+      - {id: intercity-rail, name: "Intercity rail", default_weight: 3, scales: [across-cities]}
+
+  - id: daily-amenities
+    name: Daily amenities
+    description: Shops, food and services within an easy walk.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: everyday-amenities
+        name: Everyday amenities
+        description: Everyday shops and services within a 10-minute walk.
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: groceries, name: "Groceries", default_weight: 3}
+          - {id: pharmacies, name: "Pharmacies", default_weight: 3}
+          - {id: cafes, name: "Cafés", default_weight: 3}
+          - {id: gyms, name: "Gyms", default_weight: 3}
+          - {id: libraries, name: "Libraries", default_weight: 3}
+      - id: food-and-drink
+        name: Food and drink
+        description: The choice, variety and quality of places to eat.
+        default_weight: 3
+        children:
+          - {id: restaurant-choice, name: "Restaurant choice", default_weight: 3, scales: [within-city], description: "Restaurants within a 10-minute walk."}
+          - {id: cuisine-variety, name: "Cuisine variety", default_weight: 3}
+          - {id: your-cuisines, name: "Your cuisines", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks cuisines (D18)."}
+          - {id: food-hygiene, name: "Food hygiene", default_weight: 3, scales: [within-city]}
+          - {id: guide-recognition, name: "Guide recognition", default_weight: 3, description: "Michelin and other guides, through Wikidata."}
+          - {id: independents, name: "Independent restaurants", default_weight: 3, scales: [within-city], description: "The share of restaurants that are not chains."}
+      - id: brand-presence
+        name: Brand presence
+        description: Chain brands and shopping centres nearby, as a sign of how large companies rate the area.
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: shopping-centres, name: "Shopping centres", default_weight: 3}
+          - {id: brand-variety, name: "Brand variety", default_weight: 3}
+          - {id: brand-groups, name: "Brand groups", default_weight: 3, description: "Premium, high-footfall, large-catchment and value brands."}
+      - {id: shopping, name: "Shopping", default_weight: 3, scales: [across-cities], description: "Shopping centres, and flagship and big-box stores."}
+      - {id: destinations, name: "Destinations", default_weight: 0, scales: [within-city], weight_reason: "Choice factor: weight 0 until the user picks destinations (D18). Planned for Phase 2.", description: "Distance to public places or chains the user picks, such as IKEA or the nearest airport."}
+
+  - id: environment
+    name: Environment
+    description: Air, noise, green space, water and heat where you live.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: air-quality
+        name: Air quality
+        default_weight: 3
+        children:
+          - {id: no2, name: "NO₂, annual mean", default_weight: 3, scales: [within-city]}
+          - {id: pm25, name: "PM2.5, annual mean", default_weight: 3, scales: [within-city]}
+      - id: noise
+        name: Noise
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: road-noise, name: "Road traffic noise", default_weight: 3}
+          - {id: rail-noise, name: "Rail noise", default_weight: 3}
+          - {id: aircraft-noise, name: "Aircraft noise", default_weight: 3}
+      - id: green-space
+        name: Green space
+        default_weight: 3
+        children:
+          - {id: park-area, name: "Park area within a 10-minute walk", default_weight: 3, scales: [within-city]}
+          - {id: tree-canopy, name: "Tree canopy cover", default_weight: 3, scales: [within-city]}
+      - {id: water-nearby, name: "Water nearby", default_weight: 3, scales: [within-city], description: "A river, canal or lake."}
+      - {id: urban-heat, name: "Urban heat", default_weight: 3, scales: [within-city]}
+      - {id: light-pollution, name: "Light pollution", default_weight: 3, scales: [across-cities]}
+
+  - id: climate
+    name: Climate
+    description: Weather and climate. They differ between cities, but barely within one.
+    default_weight: 3
+    scales: [across-cities]
+    children:
+      - {id: temperature, name: "Temperature", default_weight: 3}
+      - {id: sunshine, name: "Sunshine duration", default_weight: 3, description: "Hours of sunshine, per year and per month."}
+      - {id: daylight, name: "Daylight length", default_weight: 3}
+      - {id: humidity, name: "Humidity", default_weight: 3}
+      - {id: rain, name: "Rain", default_weight: 3}
+      - {id: wind, name: "Wind", default_weight: 3}
+      - {id: snow, name: "Snow", default_weight: 3}
+      - {id: weather-extremes, name: "Weather extremes", default_weight: 3}
+      - {id: future-climate, name: "Future climate", default_weight: 3}
+
+  - id: natural-hazards
+    name: Natural hazards
+    description: Risks from floods, ground movement and other natural events.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: flood-risk
+        name: Flood risk
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: river-and-sea-flooding, name: "Rivers and sea", default_weight: 3}
+          - {id: surface-water-flooding, name: "Surface water", default_weight: 3}
+      - {id: subsidence, name: "Subsidence", default_weight: 3, scales: [within-city]}
+      - {id: earthquakes, name: "Earthquakes", default_weight: 3, scales: [across-cities]}
+      - {id: storms, name: "Storms", default_weight: 3, scales: [across-cities]}
+      - {id: wildfire, name: "Wildfire", default_weight: 3, scales: [across-cities]}
+      - {id: sea-level-rise, name: "Sea-level rise", default_weight: 3, scales: [across-cities]}
+
+  - id: safety
+    name: Safety
+    description: Crime and road danger.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: crime, name: "Crime by category", default_weight: 3, scales: [within-city]}
+      - {id: road-collisions, name: "Road collisions", default_weight: 3, scales: [within-city]}
+      - {id: homicide-rate, name: "Homicide rate", default_weight: 3, scales: [across-cities]}
+      - {id: political-stability, name: "Political stability", default_weight: 3, scales: [across-cities]}
+
+  - id: health-care
+    name: Health care
+    description: Access to GPs, hospitals and dentists.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      # GP access sits here, not under Daily amenities. Life expectancy sits under Resident wellbeing.
+      - {id: gp-access, name: "GP access and list size", default_weight: 3, scales: [within-city]}
+      - {id: ae-travel-time, name: "A&E travel time", default_weight: 3, scales: [within-city]}
+      - {id: dentists, name: "Dentists", default_weight: 3, scales: [within-city]}
+      - {id: health-care-quality, name: "Health-care quality and cost", default_weight: 3, scales: [across-cities]}
+
+  - id: education
+    name: Education
+    description: Schools, nurseries and universities.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: schools, name: "Schools by phase and inspection outcome", default_weight: 3, scales: [within-city]}
+      - {id: nurseries, name: "Nurseries", default_weight: 3, scales: [within-city]}
+      - {id: school-league-tables, name: "School league tables", default_weight: 3, scales: [within-city]}
+      - {id: school-quality, name: "School quality", default_weight: 3, scales: [across-cities]}
+      - {id: international-schools, name: "International schools", default_weight: 3, scales: [across-cities]}
+      - {id: universities, name: "Universities", default_weight: 3, scales: [across-cities]}
+
+  - id: community-and-people
+    name: Community and people
+    description: Who lives nearby, and the community life they share.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: community-composition
+        name: Community composition
+        description: Framed as the presence of a group the user picks, and as diversity (D08).
+        default_weight: 0
+        weight_reason: Starts at 0, so composition counts only if the user asks for it (D08).
+        children:
+          - {id: your-community, name: "Your community", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks a group (D18).", description: "The presence of a group the user picks, by ethnicity, country of birth or language."}
+          - {id: diversity, name: "Diversity", default_weight: 3, scales: [within-city]}
+      - {id: faith, name: "Faith", default_weight: 0, scales: [within-city], weight_reason: "Choice factor: weight 0 until the user picks a faith (D18).", description: "Places of worship of the user's faith, and residents who share it."}
+      - id: community-life
+        name: Community life
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: community-spaces, name: "Community spaces", default_weight: 3}
+          - {id: lgbtq-friendly-venues, name: "LGBTQ+-friendly venues", default_weight: 3}
+          - {id: election-turnout, name: "Local election turnout", default_weight: 3}
+          - {id: residents-stay, name: "How long residents stay", default_weight: 3}
+      - {id: english-proficiency, name: "English proficiency", default_weight: 3, scales: [across-cities]}
+      - {id: expat-communities, name: "Expat communities", default_weight: 3, scales: [across-cities]}
+      - {id: religious-freedom, name: "Religious freedom", default_weight: 3, scales: [across-cities]}
+      - {id: gender-equality, name: "Gender equality", default_weight: 3, scales: [across-cities]}
+
+  - id: culture-and-leisure
+    name: Culture and leisure
+    description: Culture, nightlife and things to do.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: culture
+        name: Culture
+        default_weight: 3
+        children:
+          - {id: cultural-venues-nearby, name: "Cultural venues within a 15-minute walk", default_weight: 3, scales: [within-city]}
+          - {id: cultural-venues-in-reach, name: "Cultural venues within 30 minutes by public transport", default_weight: 3, scales: [within-city]}
+          - {id: local-character, name: "Local character", default_weight: 3, scales: [within-city], description: "Listed buildings and conservation areas."}
+          - {id: cultural-activity, name: "Cultural activity", default_weight: 3, scales: [within-city], description: "Events, and well-known places on Wikipedia."}
+      - {id: nightlife, name: "Nightlife", default_weight: 3, description: "Some users want it nearby and others want quiet, so the user sets the direction."}
+      - {id: outdoor-access, name: "Outdoor access", default_weight: 3, scales: [across-cities]}
+
+  - id: animal-friendliness
+    name: Animal friendliness
+    description: How well the area suits pets and wildlife.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: pets
+        name: Pets
+        default_weight: 3
+        children:
+          - {id: vets, name: "Vets", default_weight: 3, scales: [within-city]}
+          - {id: pet-shops, name: "Pet shops", default_weight: 3, scales: [within-city]}
+          - {id: dog-friendly-parks, name: "Dog-friendly parks and off-lead areas", default_weight: 3, scales: [within-city]}
+          - {id: pet-friendly-venues, name: "Pet-friendly cafés and pubs", default_weight: 3, scales: [within-city]}
+          - {id: pet-friendly-rentals, name: "Pet-friendly rentals", default_weight: 3, scales: [within-city], description: "No open data yet."}
+          - {id: pet-rental-rules, name: "Pet rules in rental law", default_weight: 3, scales: [across-cities]}
+      - id: wildlife
+        name: Wildlife
+        default_weight: 3
+        children:
+          - {id: nature-sites, name: "Nature sites", default_weight: 3, scales: [within-city]}
+          - {id: biodiversity, name: "Biodiversity", default_weight: 3}
+      - {id: animal-protection-laws, name: "Animal-protection laws", default_weight: 3, scales: [across-cities]}
+
+  - id: work-and-economy
+    name: Work and economy
+    description: Jobs, pay and the local economy.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      # Jobs within reach sits here, not under Transport.
+      - {id: job-density, name: "Job density", default_weight: 3, scales: [within-city]}
+      - {id: jobs-within-reach, name: "Jobs within reach", default_weight: 3, scales: [within-city], description: "Jobs reachable within 45 minutes by public transport."}
+      - {id: coworking, name: "Coworking", default_weight: 3, scales: [within-city]}
+      - {id: your-industry, name: "Your industry", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks an industry (D18).", description: "Jobs in a chosen industry within reach, or how strong that industry is in a city."}
+      - {id: salaries, name: "Salaries", default_weight: 3, scales: [across-cities]}
+      - {id: unemployment, name: "Unemployment", default_weight: 3, scales: [across-cities]}
+      - {id: residency-and-visas, name: "Ease of residency and visas", default_weight: 3, scales: [across-cities]}
+
+  - id: digital-connectivity
+    name: Digital connectivity
+    description: Broadband and mobile coverage.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: full-fibre, name: "Full-fibre availability", default_weight: 3, scales: [within-city]}
+      - {id: 5g-coverage, name: "5G coverage", default_weight: 3, scales: [within-city]}
+      - {id: broadband-speed, name: "Broadband speed", default_weight: 3, scales: [across-cities]}
+      - {id: internet-freedom, name: "Internet freedom", default_weight: 3, scales: [across-cities]}
+
+  - id: urban-form-and-change
+    name: Urban form and change
+    description: Density, building age, and how the area is changing.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: density, name: "Density", default_weight: 3, scales: [within-city], description: "Some users want a busy area and others a quiet one, so the user sets the direction."}
+      - {id: building-age, name: "Building age", default_weight: 3, scales: [within-city], description: "The user sets an ideal range."}
+      - {id: regeneration, name: "Regeneration and planning", default_weight: 3, scales: [within-city]}
+      - {id: urban-growth, name: "Urban growth", default_weight: 3, scales: [across-cities]}
+
+  - id: governance-and-rights
+    name: Governance and rights
+    description: How a country is governed, and the rights people have there.
+    default_weight: 3
+    scales: [across-cities]
+    children:
+      - {id: rule-of-law, name: "Rule of law", default_weight: 3}
+      - {id: democracy, name: "Democracy", default_weight: 3}
+      - {id: press-freedom, name: "Press freedom", default_weight: 3}
+      - {id: corruption, name: "Corruption", default_weight: 3}
+      - {id: lgbtq-friendliness, name: "LGBTQ+ friendliness", default_weight: 3, description: "Legal rights and public acceptance."}
+
+  - id: published-rankings
+    name: Published rankings
+    description: Outside lists and indices of places, kept as a supporting factor.
+    default_weight: 1
+    weight_reason: Supporting factor. It partly repeats the other factors, so it starts low (D14).
+    scales: [within-city, across-cities]
+    children:
+      - {id: sunday-times-best-places, name: "Sunday Times Best Places to Live", default_weight: 3, scales: [within-city]}
+      - {id: time-out-neighbourhoods, name: "Time Out neighbourhood lists", default_weight: 3, scales: [within-city]}
+      - {id: eiu-liveability, name: "EIU Global Liveability Index", default_weight: 3, scales: [across-cities]}
+      - {id: mercer-quality-of-living, name: "Mercer Quality of Living", default_weight: 3, scales: [across-cities]}
+      - {id: monocle-quality-of-life, name: "Monocle Quality of Life", default_weight: 3, scales: [across-cities]}
+      - {id: oecd-better-life, name: "OECD Better Life Index", default_weight: 3, scales: [across-cities]}
+
+  - id: resident-wellbeing
+    name: Resident wellbeing
+    description: How residents rate their lives, and how long they live.
+    default_weight: 1
+    weight_reason: Supporting factor. It partly repeats the other factors, so it starts low (D14).
+    scales: [within-city, across-cities]
+    children:
+      - {id: life-satisfaction, name: "Life satisfaction", default_weight: 3, scales: [within-city]}
+      - {id: happiness, name: "Happiness", default_weight: 3, scales: [across-cities]}
+      - {id: life-expectancy, name: "Life expectancy", default_weight: 3}

@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Factor explorer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600&display=swap">
+<style>
+/* Layout: a header row, then the weights panel beside one drawing, the
+   treemap or the sunburst; one column below 820px, with the drawing first.
+   Colour belongs to the data: each factor has its own colour from the Salt
+   palette, and the interface itself stays in ink. */
+:root {
+  --plane: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --hairline: #e1e0d9;
+  --accent: #0b0b0b;
+  --accent-ink: #fcfcfb;
+  --on-colour: #ffffff;
+  --critical: #d03b3b;
+  --shadow: rgba(11, 11, 11, 0.14);
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-label: "Barlow Semi Condensed", "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Factor colours: the categorical palette of the Salt design system
+     (J.P. Morgan, Apache-2.0, github.com/jpmorganchase/salt-ds). The base is
+     step 500, which carries white text at 4.5:1 or more. Sub-factors take a
+     tint: step 200 here, step 800 in the dark theme. */
+  --salt-cobalt: #4676bf;
+  --salt-cobalt-tint: #c6d3ef;
+  --salt-cider: #ab6528;
+  --salt-cider-tint: #ffc99e;
+  --salt-plum: #9f55c2;
+  --salt-plum-tint: #e6b9fa;
+  --salt-aqua: #2a8285;
+  --salt-aqua-tint: #b1e5e5;
+  --salt-rose: #b0549d;
+  --salt-rose-tint: #fabeed;
+  --salt-olive: #6d7c4d;
+  --salt-olive-tint: #d2deb8;
+  --salt-salmon: #bd5558;
+  --salt-salmon-tint: #ffc2c2;
+  --salt-indigo: #7665cf;
+  --salt-indigo-tint: #d0c2fc;
+  --salt-jade: #2d8543;
+  --salt-jade-tint: #b3e5bb;
+  --salt-citrine: #877410;
+  --salt-citrine-tint: #f0e1a5;
+  --salt-autumn: #bd5a13;
+  --salt-autumn-tint: #ffc5a1;
+  --salt-lavender: #946694;
+  --salt-lavender-tint: #edc7ed;
+  --salt-ocean: #008094;
+  --salt-ocean-tint: #b4e5f0;
+  --salt-fuchsia: #c24795;
+  --salt-fuchsia-tint: #ffbfe5;
+  --salt-lime: #667d15;
+  --salt-lime-tint: #d7e3a8;
+  --salt-fur: #996a45;
+  --salt-fur-tint: #f5d6bf;
+  --salt-violet: #636ebf;
+  --salt-violet-tint: #cacbfc;
+  --salt-forest: #23855e;
+  --salt-forest-tint: #bce8d3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --plane: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --hairline: #2c2c2a;
+    --accent: #f0efec;
+    --accent-ink: #1a1a19;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --salt-cobalt-tint: #133369;
+    --salt-cider-tint: #5a2f0d;
+    --salt-plum-tint: #4f2264;
+    --salt-aqua-tint: #084446;
+    --salt-rose-tint: #5a204e;
+    --salt-olive-tint: #314015;
+    --salt-salmon-tint: #59191d;
+    --salt-indigo-tint: #393166;
+    --salt-jade-tint: #08461a;
+    --salt-citrine-tint: #4a3f06;
+    --salt-autumn-tint: #56270a;
+    --salt-lavender-tint: #542554;
+    --salt-ocean-tint: #00404a;
+    --salt-fuchsia-tint: #72134f;
+    --salt-lime-tint: #354406;
+    --salt-fur-tint: #552e14;
+    --salt-violet-tint: #2f3563;
+    --salt-forest-tint: #06462e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --plane: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --hairline: #2c2c2a;
+  --accent: #f0efec;
+  --accent-ink: #1a1a19;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --salt-cobalt-tint: #133369;
+  --salt-cider-tint: #5a2f0d;
+  --salt-plum-tint: #4f2264;
+  --salt-aqua-tint: #084446;
+  --salt-rose-tint: #5a204e;
+  --salt-olive-tint: #314015;
+  --salt-salmon-tint: #59191d;
+  --salt-indigo-tint: #393166;
+  --salt-jade-tint: #08461a;
+  --salt-citrine-tint: #4a3f06;
+  --salt-autumn-tint: #56270a;
+  --salt-lavender-tint: #542554;
+  --salt-ocean-tint: #00404a;
+  --salt-fuchsia-tint: #72134f;
+  --salt-lime-tint: #354406;
+  --salt-fur-tint: #552e14;
+  --salt-violet-tint: #2f3563;
+  --salt-forest-tint: #06462e;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--plane);
+  color: var(--ink);
+  font: 400 15px/1.45 var(--font-body);
+  padding-block: 20px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+h1 { font-size: 1.625rem; font-weight: 600; line-height: 1.2; }
+h2 { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+h3 { font-size: 0.9375rem; font-weight: 600; }
+p { margin: 0; text-wrap: pretty; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.page { display: grid; gap: 16px; max-width: 1600px; margin: 0 auto; }
+.bar { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+.subtitle { margin-top: 4px; max-width: 65ch; color: var(--ink-2); }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.segmented { display: inline-flex; margin: 0; padding: 2px; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); }
+.segmented legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.segmented input { position: absolute; opacity: 0; pointer-events: none; }
+.segmented label { padding: 5px 12px; border-radius: 4px; cursor: pointer; }
+.segmented input:checked + label { background: var(--accent); color: var(--accent-ink); }
+.segmented input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+.quiet { padding: 6px 12px; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); cursor: pointer; }
+.quiet:hover:not(:disabled) { border-color: var(--ink-2); }
+.quiet:disabled { opacity: 0.45; cursor: default; }
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.crumbs ol { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 0; padding: 0; list-style: none; }
+.crumbs li { display: flex; align-items: center; gap: 6px; }
+.crumbs li + li::before { content: "›"; color: var(--ink-2); }
+.crumbs li button { padding: 0; border: 0; background: none; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.crumbs [aria-current="page"] { font-weight: 600; }
+.workspace { display: grid; grid-template-columns: minmax(250px, 320px) minmax(0, 1fr); align-items: start; gap: 16px; }
+@media (max-width: 820px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); }
+  .workspace > .panel:first-child { order: 1; }
+}
+.panel { display: grid; gap: 12px; min-width: 0; padding: 14px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--surface); }
+.panel-part { display: grid; gap: 8px; }
+.hint, .reason, .figures { color: var(--ink-2); font-size: 0.875rem; }
+.sliders, .not-counted, #problem-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.slider-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; }
+.slider-row label { grid-column: 1; grid-row: 1; display: flex; align-items: center; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
+.slider-row .quiet { grid-column: 2; grid-row: 1; justify-self: end; padding: 2px 10px; font-size: 0.875rem; }
+.slider-row input[type="range"] { grid-column: 1; grid-row: 2; width: 100%; margin: 0; }
+.figures { grid-column: 2; grid-row: 2; min-width: 7ch; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.swatch { flex: none; width: 10px; height: 10px; border-radius: 3px; }
+.not-counted li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+.not-counted .name { display: flex; align-items: center; gap: 8px; }
+.drawing svg { display: block; max-width: 100%; height: auto; margin-inline: auto; }
+#treemap { width: min(100%, calc(76vh * 4 / 3)); aspect-ratio: 4 / 3; }
+#sunburst { width: min(100%, 76vh); aspect-ratio: 1 / 1; }
+.drawing:not([hidden]) { animation: appear 200ms ease-out; }
+@keyframes appear { from { opacity: 0; } }
+.drawing text { font-family: var(--font-label); font-size: 12px; font-weight: 500; pointer-events: none; }
+.node rect, .arc path { cursor: pointer; transition: opacity 150ms; }
+.node.is-group text, .arc.is-group text { font-weight: 600; }
+.centre circle { fill: var(--surface); }
+.centre text { fill: var(--ink); font-size: 13px; font-weight: 600; }
+.centre .go-up { fill: var(--ink-2); font-weight: 500; }
+.centre.can-go-up { cursor: pointer; }
+.empty { fill: var(--ink-2); font-size: 14px; }
+.is-dim { opacity: 0.3; }
+.problems { display: grid; gap: 8px; padding: 12px 16px; border-left: 4px solid var(--critical); border-radius: 4px; background: var(--surface); }
+.tooltip { position: fixed; z-index: 20; max-width: 300px; padding: 10px 12px; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); color: var(--ink); box-shadow: 0 6px 20px var(--shadow); font-size: 0.875rem; pointer-events: none; }
+.tooltip p { margin-top: 4px; color: var(--ink-2); }
+@media (prefers-reduced-motion: reduce) {
+  .node rect, .arc path { transition: none; }
+  .drawing:not([hidden]) { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="bar">
+    <div>
+      <h1>Factor explorer</h1>
+      <p class="subtitle">The factor catalogue's tree, drawn as a treemap or as a sunburst. Each area is a factor's share of total weight, and each factor has its own colour. The default weights are placeholders until they are set from evidence (D14).</p>
+    </div>
+    <div class="controls">
+      <fieldset class="segmented">
+        <legend>Layout</legend>
+        <input type="radio" name="layout" id="layout-treemap" value="treemap" checked>
+        <label for="layout-treemap">Treemap</label>
+        <input type="radio" name="layout" id="layout-sunburst" value="sunburst">
+        <label for="layout-sunburst">Sunburst</label>
+      </fieldset>
+      <fieldset class="segmented">
+        <legend>Scale</legend>
+        <input type="radio" name="scale" id="scale-within-city" value="within-city" checked>
+        <label for="scale-within-city">Within a city</label>
+        <input type="radio" name="scale" id="scale-across-cities" value="across-cities">
+        <label for="scale-across-cities">Across cities</label>
+      </fieldset>
+      <button type="button" id="reset" class="quiet">Reset weights</button>
+    </div>
+  </header>
+  <section id="problems" class="problems" hidden>
+    <h3>The catalogue has problems, so nothing is drawn</h3>
+    <ul id="problem-list"></ul>
+  </section>
+  <nav id="path" class="crumbs" aria-label="Path">
+    <ol id="crumbs"></ol>
+    <button type="button" id="back" class="quiet">Back</button>
+  </nav>
+  <main id="workspace" class="workspace">
+    <section class="panel" aria-labelledby="weights-title">
+      <h2 id="weights-title">Weights</h2>
+      <p class="hint">Each row shows the factor's colour, its weight (0–5) and its share of total weight.</p>
+      <ul id="sliders" class="sliders"></ul>
+      <div id="not-counted-block" class="panel-part" hidden>
+        <h3>Not counted</h3>
+        <ul id="not-counted" class="not-counted"></ul>
+      </div>
+    </section>
+    <section id="treemap-panel" class="panel drawing" aria-labelledby="treemap-title">
+      <h2 id="treemap-title">Treemap</h2>
+      <svg id="treemap" role="img" aria-labelledby="treemap-title"></svg>
+    </section>
+    <section id="sunburst-panel" class="panel drawing" aria-labelledby="sunburst-title" hidden>
+      <h2 id="sunburst-title">Sunburst</h2>
+      <svg id="sunburst" role="img" aria-labelledby="sunburst-title"></svg>
+    </section>
+  </main>
+</div>
+<div id="tooltip" class="tooltip" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" integrity="sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js" integrity="sha512-CSBhVREyzHAjAFfBlIBakjoRUKp5h7VSweP0InR/pAJyptH7peuhCsqAI/snV+TwZmXZqoUklpXp6R6wMnYf5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="explorer-core.js"></script>
+<script type="text/yaml" id="catalogue">
+# The factor tree: every factor a user can weight, from broad to specific.
+# Terms are defined in docs/glossary.md.
+#
+# This is the seed version, written in step 0.2 from the approved Phase 0 plan.
+# Measured indicators, datasets and scoring curves arrive with the top-down pass.
+#
+# Rules until default weights are set from evidence (D14):
+# - default_weight is a placeholder: 3 for every factor, 1 for the two
+#   supporting factors, and 0 for choice factors and community composition.
+#   A default_weight other than 3 needs a weight_reason.
+# - A sub-factor inherits its parent's scales, or lists a subset of them.
+# - status is idea unless stated.
+#
+# After editing, refresh the factor explorer and run its tests:
+#   node docs/factors/embed-catalogue.mjs
+#   node --test "docs/factors/*.test.mjs"
+
+factors:
+  - id: housing-and-cost
+    name: Housing and cost
+    description: What it costs to buy or rent a home, and to live in the area.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: buying-cost, name: "Buying cost", default_weight: 3, scales: [within-city], description: "Price per square metre."}
+      - {id: renting-cost, name: "Renting cost", default_weight: 3, scales: [within-city], description: "Monthly rent by home size."}
+      - {id: council-tax, name: "Council tax", default_weight: 3, scales: [within-city]}
+      - {id: home-energy-efficiency, name: "Home energy efficiency", default_weight: 3, scales: [within-city]}
+      - {id: rent-and-price-levels, name: "Rent and price levels", default_weight: 3, scales: [across-cities]}
+      - {id: purchasing-power, name: "Purchasing power", default_weight: 3, scales: [across-cities]}
+      - {id: tax-burden, name: "Tax burden", default_weight: 3, scales: [across-cities]}
+
+  - id: transport
+    name: Transport
+    description: How easily you get around, and how long it takes to reach the places you go.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: getting-around
+        name: Getting around in general
+        description: The same for every user. Stations, lines and services near each hex cell.
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: station-proximity, name: "Station proximity", default_weight: 3, description: "Walking minutes to the nearest station, for each mode."}
+          - {id: line-choice, name: "Line choice", default_weight: 3, description: "Rail and Tube lines within a 10-minute walk, and bus routes within 5 minutes."}
+          - {id: service-level, name: "Service level", default_weight: 3, description: "TfL's PTAL index, which combines walking time and service frequency."}
+          - {id: travel-cost, name: "Travel cost", default_weight: 3, description: "Fare zone of the nearest station."}
+          - {id: night-and-step-free, name: "Night and step-free travel", default_weight: 3}
+          - {id: cycling, name: "Cycling", default_weight: 3, description: "Protected lanes, cycle-hire docks and slope."}
+      - {id: travel-time-to-places, name: "Travel time to places", default_weight: 3, scales: [within-city], description: "Door-to-door public-transport time to the default places, or to the user's own places."}
+      - {id: airport-connectivity, name: "Airport connectivity", default_weight: 3, scales: [across-cities]}
+      - {id: intercity-rail, name: "Intercity rail", default_weight: 3, scales: [across-cities]}
+
+  - id: daily-amenities
+    name: Daily amenities
+    description: Shops, food and services within an easy walk.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: everyday-amenities
+        name: Everyday amenities
+        description: Everyday shops and services within a 10-minute walk.
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: groceries, name: "Groceries", default_weight: 3}
+          - {id: pharmacies, name: "Pharmacies", default_weight: 3}
+          - {id: cafes, name: "Cafés", default_weight: 3}
+          - {id: gyms, name: "Gyms", default_weight: 3}
+          - {id: libraries, name: "Libraries", default_weight: 3}
+      - id: food-and-drink
+        name: Food and drink
+        description: The choice, variety and quality of places to eat.
+        default_weight: 3
+        children:
+          - {id: restaurant-choice, name: "Restaurant choice", default_weight: 3, scales: [within-city], description: "Restaurants within a 10-minute walk."}
+          - {id: cuisine-variety, name: "Cuisine variety", default_weight: 3}
+          - {id: your-cuisines, name: "Your cuisines", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks cuisines (D18)."}
+          - {id: food-hygiene, name: "Food hygiene", default_weight: 3, scales: [within-city]}
+          - {id: guide-recognition, name: "Guide recognition", default_weight: 3, description: "Michelin and other guides, through Wikidata."}
+          - {id: independents, name: "Independent restaurants", default_weight: 3, scales: [within-city], description: "The share of restaurants that are not chains."}
+      - id: brand-presence
+        name: Brand presence
+        description: Chain brands and shopping centres nearby, as a sign of how large companies rate the area.
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: shopping-centres, name: "Shopping centres", default_weight: 3}
+          - {id: brand-variety, name: "Brand variety", default_weight: 3}
+          - {id: brand-groups, name: "Brand groups", default_weight: 3, description: "Premium, high-footfall, large-catchment and value brands."}
+      - {id: shopping, name: "Shopping", default_weight: 3, scales: [across-cities], description: "Shopping centres, and flagship and big-box stores."}
+      - {id: destinations, name: "Destinations", default_weight: 0, scales: [within-city], weight_reason: "Choice factor: weight 0 until the user picks destinations (D18). Planned for Phase 2.", description: "Distance to public places or chains the user picks, such as IKEA or the nearest airport."}
+
+  - id: environment
+    name: Environment
+    description: Air, noise, green space, water and heat where you live.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: air-quality
+        name: Air quality
+        default_weight: 3
+        children:
+          - {id: no2, name: "NO₂, annual mean", default_weight: 3, scales: [within-city]}
+          - {id: pm25, name: "PM2.5, annual mean", default_weight: 3, scales: [within-city]}
+      - id: noise
+        name: Noise
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: road-noise, name: "Road traffic noise", default_weight: 3}
+          - {id: rail-noise, name: "Rail noise", default_weight: 3}
+          - {id: aircraft-noise, name: "Aircraft noise", default_weight: 3}
+      - id: green-space
+        name: Green space
+        default_weight: 3
+        children:
+          - {id: park-area, name: "Park area within a 10-minute walk", default_weight: 3, scales: [within-city]}
+          - {id: tree-canopy, name: "Tree canopy cover", default_weight: 3, scales: [within-city]}
+      - {id: water-nearby, name: "Water nearby", default_weight: 3, scales: [within-city], description: "A river, canal or lake."}
+      - {id: urban-heat, name: "Urban heat", default_weight: 3, scales: [within-city]}
+      - {id: light-pollution, name: "Light pollution", default_weight: 3, scales: [across-cities]}
+
+  - id: climate
+    name: Climate
+    description: Weather and climate. They differ between cities, but barely within one.
+    default_weight: 3
+    scales: [across-cities]
+    children:
+      - {id: temperature, name: "Temperature", default_weight: 3}
+      - {id: sunshine, name: "Sunshine duration", default_weight: 3, description: "Hours of sunshine, per year and per month."}
+      - {id: daylight, name: "Daylight length", default_weight: 3}
+      - {id: humidity, name: "Humidity", default_weight: 3}
+      - {id: rain, name: "Rain", default_weight: 3}
+      - {id: wind, name: "Wind", default_weight: 3}
+      - {id: snow, name: "Snow", default_weight: 3}
+      - {id: weather-extremes, name: "Weather extremes", default_weight: 3}
+      - {id: future-climate, name: "Future climate", default_weight: 3}
+
+  - id: natural-hazards
+    name: Natural hazards
+    description: Risks from floods, ground movement and other natural events.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: flood-risk
+        name: Flood risk
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: river-and-sea-flooding, name: "Rivers and sea", default_weight: 3}
+          - {id: surface-water-flooding, name: "Surface water", default_weight: 3}
+      - {id: subsidence, name: "Subsidence", default_weight: 3, scales: [within-city]}
+      - {id: earthquakes, name: "Earthquakes", default_weight: 3, scales: [across-cities]}
+      - {id: storms, name: "Storms", default_weight: 3, scales: [across-cities]}
+      - {id: wildfire, name: "Wildfire", default_weight: 3, scales: [across-cities]}
+      - {id: sea-level-rise, name: "Sea-level rise", default_weight: 3, scales: [across-cities]}
+
+  - id: safety
+    name: Safety
+    description: Crime and road danger.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: crime, name: "Crime by category", default_weight: 3, scales: [within-city]}
+      - {id: road-collisions, name: "Road collisions", default_weight: 3, scales: [within-city]}
+      - {id: homicide-rate, name: "Homicide rate", default_weight: 3, scales: [across-cities]}
+      - {id: political-stability, name: "Political stability", default_weight: 3, scales: [across-cities]}
+
+  - id: health-care
+    name: Health care
+    description: Access to GPs, hospitals and dentists.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      # GP access sits here, not under Daily amenities. Life expectancy sits under Resident wellbeing.
+      - {id: gp-access, name: "GP access and list size", default_weight: 3, scales: [within-city]}
+      - {id: ae-travel-time, name: "A&E travel time", default_weight: 3, scales: [within-city]}
+      - {id: dentists, name: "Dentists", default_weight: 3, scales: [within-city]}
+      - {id: health-care-quality, name: "Health-care quality and cost", default_weight: 3, scales: [across-cities]}
+
+  - id: education
+    name: Education
+    description: Schools, nurseries and universities.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: schools, name: "Schools by phase and inspection outcome", default_weight: 3, scales: [within-city]}
+      - {id: nurseries, name: "Nurseries", default_weight: 3, scales: [within-city]}
+      - {id: school-league-tables, name: "School league tables", default_weight: 3, scales: [within-city]}
+      - {id: school-quality, name: "School quality", default_weight: 3, scales: [across-cities]}
+      - {id: international-schools, name: "International schools", default_weight: 3, scales: [across-cities]}
+      - {id: universities, name: "Universities", default_weight: 3, scales: [across-cities]}
+
+  - id: community-and-people
+    name: Community and people
+    description: Who lives nearby, and the community life they share.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: community-composition
+        name: Community composition
+        description: Framed as the presence of a group the user picks, and as diversity (D08).
+        default_weight: 0
+        weight_reason: Starts at 0, so composition counts only if the user asks for it (D08).
+        children:
+          - {id: your-community, name: "Your community", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks a group (D18).", description: "The presence of a group the user picks, by ethnicity, country of birth or language."}
+          - {id: diversity, name: "Diversity", default_weight: 3, scales: [within-city]}
+      - {id: faith, name: "Faith", default_weight: 0, scales: [within-city], weight_reason: "Choice factor: weight 0 until the user picks a faith (D18).", description: "Places of worship of the user's faith, and residents who share it."}
+      - id: community-life
+        name: Community life
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - {id: community-spaces, name: "Community spaces", default_weight: 3}
+          - {id: lgbtq-friendly-venues, name: "LGBTQ+-friendly venues", default_weight: 3}
+          - {id: election-turnout, name: "Local election turnout", default_weight: 3}
+          - {id: residents-stay, name: "How long residents stay", default_weight: 3}
+      - {id: english-proficiency, name: "English proficiency", default_weight: 3, scales: [across-cities]}
+      - {id: expat-communities, name: "Expat communities", default_weight: 3, scales: [across-cities]}
+      - {id: religious-freedom, name: "Religious freedom", default_weight: 3, scales: [across-cities]}
+      - {id: gender-equality, name: "Gender equality", default_weight: 3, scales: [across-cities]}
+
+  - id: culture-and-leisure
+    name: Culture and leisure
+    description: Culture, nightlife and things to do.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: culture
+        name: Culture
+        default_weight: 3
+        children:
+          - {id: cultural-venues-nearby, name: "Cultural venues within a 15-minute walk", default_weight: 3, scales: [within-city]}
+          - {id: cultural-venues-in-reach, name: "Cultural venues within 30 minutes by public transport", default_weight: 3, scales: [within-city]}
+          - {id: local-character, name: "Local character", default_weight: 3, scales: [within-city], description: "Listed buildings and conservation areas."}
+          - {id: cultural-activity, name: "Cultural activity", default_weight: 3, scales: [within-city], description: "Events, and well-known places on Wikipedia."}
+      - {id: nightlife, name: "Nightlife", default_weight: 3, description: "Some users want it nearby and others want quiet, so the user sets the direction."}
+      - {id: outdoor-access, name: "Outdoor access", default_weight: 3, scales: [across-cities]}
+
+  - id: animal-friendliness
+    name: Animal friendliness
+    description: How well the area suits pets and wildlife.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - id: pets
+        name: Pets
+        default_weight: 3
+        children:
+          - {id: vets, name: "Vets", default_weight: 3, scales: [within-city]}
+          - {id: pet-shops, name: "Pet shops", default_weight: 3, scales: [within-city]}
+          - {id: dog-friendly-parks, name: "Dog-friendly parks and off-lead areas", default_weight: 3, scales: [within-city]}
+          - {id: pet-friendly-venues, name: "Pet-friendly cafés and pubs", default_weight: 3, scales: [within-city]}
+          - {id: pet-friendly-rentals, name: "Pet-friendly rentals", default_weight: 3, scales: [within-city], description: "No open data yet."}
+          - {id: pet-rental-rules, name: "Pet rules in rental law", default_weight: 3, scales: [across-cities]}
+      - id: wildlife
+        name: Wildlife
+        default_weight: 3
+        children:
+          - {id: nature-sites, name: "Nature sites", default_weight: 3, scales: [within-city]}
+          - {id: biodiversity, name: "Biodiversity", default_weight: 3}
+      - {id: animal-protection-laws, name: "Animal-protection laws", default_weight: 3, scales: [across-cities]}
+
+  - id: work-and-economy
+    name: Work and economy
+    description: Jobs, pay and the local economy.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      # Jobs within reach sits here, not under Transport.
+      - {id: job-density, name: "Job density", default_weight: 3, scales: [within-city]}
+      - {id: jobs-within-reach, name: "Jobs within reach", default_weight: 3, scales: [within-city], description: "Jobs reachable within 45 minutes by public transport."}
+      - {id: coworking, name: "Coworking", default_weight: 3, scales: [within-city]}
+      - {id: your-industry, name: "Your industry", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks an industry (D18).", description: "Jobs in a chosen industry within reach, or how strong that industry is in a city."}
+      - {id: salaries, name: "Salaries", default_weight: 3, scales: [across-cities]}
+      - {id: unemployment, name: "Unemployment", default_weight: 3, scales: [across-cities]}
+      - {id: residency-and-visas, name: "Ease of residency and visas", default_weight: 3, scales: [across-cities]}
+
+  - id: digital-connectivity
+    name: Digital connectivity
+    description: Broadband and mobile coverage.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: full-fibre, name: "Full-fibre availability", default_weight: 3, scales: [within-city]}
+      - {id: 5g-coverage, name: "5G coverage", default_weight: 3, scales: [within-city]}
+      - {id: broadband-speed, name: "Broadband speed", default_weight: 3, scales: [across-cities]}
+      - {id: internet-freedom, name: "Internet freedom", default_weight: 3, scales: [across-cities]}
+
+  - id: urban-form-and-change
+    name: Urban form and change
+    description: Density, building age, and how the area is changing.
+    default_weight: 3
+    scales: [within-city, across-cities]
+    children:
+      - {id: density, name: "Density", default_weight: 3, scales: [within-city], description: "Some users want a busy area and others a quiet one, so the user sets the direction."}
+      - {id: building-age, name: "Building age", default_weight: 3, scales: [within-city], description: "The user sets an ideal range."}
+      - {id: regeneration, name: "Regeneration and planning", default_weight: 3, scales: [within-city]}
+      - {id: urban-growth, name: "Urban growth", default_weight: 3, scales: [across-cities]}
+
+  - id: governance-and-rights
+    name: Governance and rights
+    description: How a country is governed, and the rights people have there.
+    default_weight: 3
+    scales: [across-cities]
+    children:
+      - {id: rule-of-law, name: "Rule of law", default_weight: 3}
+      - {id: democracy, name: "Democracy", default_weight: 3}
+      - {id: press-freedom, name: "Press freedom", default_weight: 3}
+      - {id: corruption, name: "Corruption", default_weight: 3}
+      - {id: lgbtq-friendliness, name: "LGBTQ+ friendliness", default_weight: 3, description: "Legal rights and public acceptance."}
+
+  - id: published-rankings
+    name: Published rankings
+    description: Outside lists and indices of places, kept as a supporting factor.
+    default_weight: 1
+    weight_reason: Supporting factor. It partly repeats the other factors, so it starts low (D14).
+    scales: [within-city, across-cities]
+    children:
+      - {id: sunday-times-best-places, name: "Sunday Times Best Places to Live", default_weight: 3, scales: [within-city]}
+      - {id: time-out-neighbourhoods, name: "Time Out neighbourhood lists", default_weight: 3, scales: [within-city]}
+      - {id: eiu-liveability, name: "EIU Global Liveability Index", default_weight: 3, scales: [across-cities]}
+      - {id: mercer-quality-of-living, name: "Mercer Quality of Living", default_weight: 3, scales: [across-cities]}
+      - {id: monocle-quality-of-life, name: "Monocle Quality of Life", default_weight: 3, scales: [across-cities]}
+      - {id: oecd-better-life, name: "OECD Better Life Index", default_weight: 3, scales: [across-cities]}
+
+  - id: resident-wellbeing
+    name: Resident wellbeing
+    description: How residents rate their lives, and how long they live.
+    default_weight: 1
+    weight_reason: Supporting factor. It partly repeats the other factors, so it starts low (D14).
+    scales: [within-city, across-cities]
+    children:
+      - {id: life-satisfaction, name: "Life satisfaction", default_weight: 3, scales: [within-city]}
+      - {id: happiness, name: "Happiness", default_weight: 3, scales: [across-cities]}
+      - {id: life-expectancy, name: "Life expectancy", default_weight: 3}
+</script>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 300;
+  const HEADER = 20; // px above a group's sub-factors in the treemap, for its name
+  const LINE = 14; // px between label lines in the treemap
+  const LAYOUT_KEY = "factor-explorer-layout";
+  const percent = new Intl.NumberFormat("en-GB", { style: "percent", maximumFractionDigits: 1 });
+
+  // Factor colours, by Salt colour name (see the --salt-* tokens). Each
+  // top-level factor takes the colour at its catalogue position. The order
+  // keeps neighbouring factors apart for normal and colour-blind vision in
+  // both scales, and fits a colour's meaning where it can (Environment green,
+  // Climate blue). When a factor is open, its sub-factors take colours from
+  // the second sequence, which keeps neighbours apart for any number of
+  // sub-factors up to nine.
+  const TOP_COLOURS = ["lavender", "citrine", "violet", "forest", "cobalt", "autumn", "rose", "lime", "plum",
+    "salmon", "ocean", "fur", "aqua", "cider", "fuchsia", "olive", "indigo", "jade"];
+  const SUB_COLOURS = ["indigo", "citrine", "ocean", "fur", "fuchsia", "cider", "aqua", "autumn", "forest"];
+
+  function el(tag, attributes, ...children) {
+    const node = document.createElement(tag);
+    for (const [name, value] of Object.entries(attributes)) node.setAttribute(name, value);
+    node.append(...children);
+    return node;
+  }
+
+  function showProblems(problems) {
+    $("problem-list").replaceChildren(...problems.map((problem) => el("li", {}, problem)));
+    $("problems").hidden = false;
+    $("path").hidden = true;
+    $("workspace").hidden = true;
+  }
+
+  if (!window.d3 || !window.jsyaml || !window.ExplorerCore) {
+    showProblems(["D3, js-yaml or explorer-core.js did not load. The page needs an internet connection for D3 and js-yaml, and explorer-core.js beside it."]);
+    return;
+  }
+
+  const core = window.ExplorerCore;
+  const state = { scale: "within-city", layout: savedLayout(), openId: core.ROOT_ID, weights: {}, committed: {} };
+  let catalogueRoot = null;
+  let tree = null;
+
+  // The layout this viewer chose last time. Storage can be unavailable, in
+  // which case the treemap shows first.
+  function savedLayout() {
+    try {
+      return localStorage.getItem(LAYOUT_KEY) === "sunburst" ? "sunburst" : "treemap";
+    } catch {
+      return "treemap";
+    }
+  }
+
+  // Loading
+
+  function load() {
+    let catalogue;
+    try {
+      catalogue = jsyaml.load($("catalogue").textContent);
+    } catch (error) {
+      const where = error.mark ? ` at line ${error.mark.line + 1}` : "";
+      showProblems([`factors.yaml cannot be read${where}: ${error.reason || error.message}.`]);
+      return;
+    }
+    const problems = core.validateCatalogue(catalogue);
+    if (problems.length > 0) {
+      showProblems(problems);
+      return;
+    }
+    catalogueRoot = core.normaliseCatalogue(catalogue);
+    showLayout();
+    render();
+  }
+
+  // State changes
+
+  function render(focusId) {
+    tree = core.buildTree(catalogueRoot, state.scale, state.weights);
+    if (!tree.byId.has(state.openId)) {
+      // The open factor does not apply at this scale: go up to its nearest parent that does.
+      const path = core.pathTo(catalogueRoot, state.openId).reverse();
+      state.openId = path.find((id) => tree.byId.has(id)) || core.ROOT_ID;
+    }
+    const open = tree.byId.get(state.openId);
+    renderPath(open);
+    renderWeights(open);
+    draw(open);
+    if (focusId) {
+      const target = document.querySelector(`[data-focus="${focusId}"]`);
+      if (target) target.focus();
+    }
+  }
+
+  function openFactor(id) {
+    state.openId = id;
+    highlight(null);
+    hideTooltip();
+    render();
+  }
+
+  function goUp() {
+    const open = tree.byId.get(state.openId);
+    if (open.parentId !== null) openFactor(open.parentId);
+  }
+
+  // While a slider moves: update the figures and the drawing, keep the rows.
+  function setWeight(id, weight) {
+    state.weights[id] = weight;
+    tree = core.buildTree(catalogueRoot, state.scale, state.weights);
+    const open = tree.byId.get(state.openId);
+    for (const view of open.counted.concat(open.notCounted)) {
+      const cell = $(`figures-${view.id}`);
+      if (cell) cell.textContent = figures(view);
+    }
+    draw(open);
+  }
+
+  // When a slider is released: rebuild the rows, so a factor at 0 moves to "Not counted".
+  function commitWeight(id, weight) {
+    if (weight > 0) state.committed[id] = weight;
+    state.weights[id] = weight;
+    render(id);
+  }
+
+  function bringBack(id) {
+    const view = tree.byId.get(id);
+    const last = state.committed[id] !== undefined ? state.committed[id] : view.defaultWeight;
+    const weight = last > 0 ? last : 1;
+    state.committed[id] = weight;
+    state.weights[id] = weight;
+    render(id);
+  }
+
+  function showLayout() {
+    $("treemap-panel").hidden = state.layout !== "treemap";
+    $("sunburst-panel").hidden = state.layout !== "sunburst";
+    document.querySelectorAll('input[name="layout"]').forEach((radio) => {
+      radio.checked = radio.value === state.layout;
+    });
+  }
+
+  // Colours
+
+  // The colour of a factor drawn one level below the open factor.
+  function colourOf(view, openId) {
+    const sequence = openId === core.ROOT_ID ? TOP_COLOURS : SUB_COLOURS;
+    return sequence[view.index % sequence.length];
+  }
+
+  // The open factor's sub-factors take their full colour, with white text;
+  // their own sub-factors take a tint of it, with ink text.
+  function fillOf(d) {
+    return d.depth === 1 ? `var(--salt-${d.data.colour})` : `var(--salt-${d.data.colour}-tint)`;
+  }
+
+  function inkOf(d) {
+    return d.depth === 1 ? "var(--on-colour)" : "var(--ink)";
+  }
+
+  // The path and the weights panel
+
+  function hasSubFactors(view) {
+    return view.counted.length + view.notCounted.length > 0;
+  }
+
+  function figures(view) {
+    return `${view.weight} · ${percent.format(view.share)}`;
+  }
+
+  function swatch(colour) {
+    return el("span", { class: "swatch", style: `background: var(--salt-${colour})`, "aria-hidden": "true" });
+  }
+
+  function renderPath(open) {
+    const items = core.pathTo(catalogueRoot, open.id).map((id) => {
+      const view = tree.byId.get(id);
+      if (id === open.id) return el("li", {}, el("span", { "aria-current": "page" }, view.name));
+      const button = el("button", { type: "button" }, view.name);
+      button.addEventListener("click", () => openFactor(id));
+      return el("li", {}, button);
+    });
+    $("crumbs").replaceChildren(...items);
+    $("back").disabled = open.parentId === null;
+  }
+
+  function renderWeights(open) {
+    $("sliders").replaceChildren(...open.counted.map((view) => sliderRow(view, colourOf(view, open.id))));
+    $("not-counted").replaceChildren(...open.notCounted.map((view) => notCountedRow(view, colourOf(view, open.id))));
+    $("not-counted-block").hidden = open.notCounted.length === 0;
+  }
+
+  function sliderRow(view, colour) {
+    const inputId = `weight-${view.id}`;
+    const input = el("input", {
+      type: "range", id: inputId, min: "0", max: "5", step: "1", value: String(view.weight),
+      "data-focus": view.id, style: `accent-color: var(--salt-${colour})`,
+    });
+    input.addEventListener("input", () => setWeight(view.id, Number(input.value)));
+    input.addEventListener("change", () => commitWeight(view.id, Number(input.value)));
+    input.addEventListener("focus", () => showDetails(view.id, { anchor: input }));
+    input.addEventListener("blur", hideTooltip);
+    const row = el("li", { class: "slider-row" },
+      el("label", { for: inputId }, swatch(colour), view.name),
+      el("span", { class: "figures", id: `figures-${view.id}` }, figures(view)),
+      input);
+    if (hasSubFactors(view)) {
+      const button = el("button", { type: "button", class: "quiet", "aria-label": `Open ${view.name}` }, "Open");
+      button.addEventListener("click", () => openFactor(view.id));
+      row.append(button);
+    }
+    return row;
+  }
+
+  function notCountedRow(view, colour) {
+    const ownWeightIsZero = view.weight === 0;
+    const action = ownWeightIsZero ? "Bring back" : "Open";
+    const button = el("button", { type: "button", class: "quiet", "data-focus": view.id, "aria-label": `${action} ${view.name}` }, action);
+    button.addEventListener("click", () => (ownWeightIsZero ? bringBack(view.id) : openFactor(view.id)));
+    const reason = ownWeightIsZero ? "weight 0" : "all its sub-factors are at weight 0";
+    return el("li", {},
+      el("span", { class: "name" }, swatch(colour), el("span", {}, `${view.name} `, el("span", { class: "reason" }, `· ${reason}`))),
+      button);
+  }
+
+  // The drawings
+
+  function draw(open) {
+    const data = twoLevels(open, 0, null, open.id);
+    if (state.layout === "treemap") drawTreemap(data);
+    else drawSunburst(data, open);
+  }
+
+  // The open factor and two levels below it, keeping only the factors that
+  // count. Each node carries the colour of its family in the drawing.
+  function twoLevels(view, depth, colour, openId) {
+    return {
+      id: view.id,
+      name: view.name,
+      share: view.share,
+      opens: hasSubFactors(view),
+      colour,
+      children: depth < 2
+        ? view.counted.map((child) => twoLevels(child, depth + 1, depth === 0 ? colourOf(child, openId) : colour, openId))
+        : [],
+    };
+  }
+
+  function hierarchyOf(data) {
+    return d3.hierarchy(data).sum((d) => (d.children.length > 0 ? 0 : d.share));
+  }
+
+  function sizeOf(svg) {
+    const box = svg.getBoundingClientRect();
+    return { width: Math.max(1, Math.round(box.width)), height: Math.max(1, Math.round(box.height)) };
+  }
+
+  // A "›" marks a factor that opens further than the drawing shows. A
+  // non-breaking space keeps it on the same line as the name's last word.
+  function labelText(d) {
+    return d.data.opens && !d.children ? `${d.data.name} ›` : d.data.name;
+  }
+
+  // Fits a treemap name into its tile, wrapped over as many lines as the tile
+  // has room for. A group's name stays on one line, in its header. If the name
+  // does not fit, it is hidden, and the tooltip carries it.
+  function fitLabel(node, d) {
+    const text = d3.select(node).text(null);
+    const width = d.x1 - d.x0 - 12;
+    const lines = d.children ? 1 : Math.floor((d.y1 - d.y0 - 4) / LINE);
+    let tspan = text.append("tspan").attr("x", 6).attr("dy", 0);
+    let used = 1;
+    let fits = true;
+    for (const word of labelText(d).split(" ")) {
+      const before = tspan.text();
+      tspan.text(before ? `${before} ${word}` : word);
+      if (before && tspan.node().getComputedTextLength() > width) {
+        tspan.text(before);
+        tspan = text.append("tspan").attr("x", 6).attr("dy", LINE).text(word);
+        used += 1;
+      }
+      if (tspan.node().getComputedTextLength() > width) fits = false;
+    }
+    text.attr("visibility", fits && used <= lines ? "visible" : "hidden");
+  }
+
+  function bindEvents(selection) {
+    selection
+      .on("mouseenter", (event, d) => {
+        highlight(d.data.id);
+        showDetails(d.data.id, { event });
+      })
+      .on("mousemove", (event) => placeAtPointer(event))
+      .on("mouseleave", () => {
+        highlight(null);
+        hideTooltip();
+      })
+      .on("click", (event, d) => {
+        if (d.data.opens) openFactor(d.data.id);
+        else showDetails(d.data.id, { event });
+      });
+  }
+
+  function drawTreemap(data) {
+    const svg = d3.select("#treemap");
+    const { width, height } = sizeOf(svg.node());
+    svg.attr("viewBox", `0 0 ${width} ${height}`);
+    const root = hierarchyOf(data);
+    d3.treemap()
+      .size([width, height])
+      .tile(d3.treemapSquarify)
+      .round(true)
+      .paddingInner(2)
+      .paddingOuter((d) => (d.depth === 1 ? 2 : 0))
+      .paddingTop((d) => (d.depth === 1 && d.children ? HEADER : 0))(root);
+    const nodes = root.value > 0 ? root.descendants().filter((d) => d.depth > 0) : [];
+
+    const cells = svg.selectAll("g.node").data(nodes, (d) => d.data.id);
+    cells.exit().attr("class", "node-exit").transition().duration(MOTION).style("opacity", 0).remove();
+    const entered = cells.enter().append("g").attr("class", "node").style("opacity", 0)
+      .attr("transform", (d) => `translate(${d.x0},${d.y0})`);
+    entered.append("rect").attr("width", (d) => d.x1 - d.x0).attr("height", (d) => d.y1 - d.y0);
+    entered.append("text").attr("x", 6).attr("y", 14);
+    const all = entered.merge(cells).order()
+      .attr("data-id", (d) => d.data.id)
+      .attr("data-depth", (d) => d.depth)
+      .attr("data-colour", (d) => d.data.colour)
+      .classed("is-group", (d) => Boolean(d.children))
+      .call(bindEvents);
+    all.transition().duration(MOTION).style("opacity", 1)
+      .attr("transform", (d) => `translate(${d.x0},${d.y0})`);
+    all.select("rect").style("fill", fillOf).transition().duration(MOTION)
+      .attr("width", (d) => Math.max(0, d.x1 - d.x0))
+      .attr("height", (d) => Math.max(0, d.y1 - d.y0));
+    all.select("text").style("fill", inkOf).each(function (d) {
+      fitLabel(this, d);
+    });
+    emptyState(svg, nodes.length === 0, width / 2, height / 2);
+  }
+
+  function drawSunburst(data, open) {
+    const svg = d3.select("#sunburst");
+    const { width, height } = sizeOf(svg.node());
+    svg.attr("viewBox", `${-width / 2} ${-height / 2} ${width} ${height}`);
+    const radius = Math.min(width, height) / 2 - 2;
+    const root = hierarchyOf(data);
+    const levels = root.height + 1;
+    const ring = radius / levels;
+    d3.partition().size([2 * Math.PI, levels])(root);
+    const arc = d3.arc()
+      .startAngle((d) => d.x0)
+      .endAngle((d) => d.x1)
+      .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 2 / radius))
+      .padRadius(radius)
+      .innerRadius((d) => d.y0 * ring + 1)
+      .outerRadius((d) => d.y1 * ring - 1);
+    const nodes = root.value > 0 ? root.descendants().filter((d) => d.depth > 0) : [];
+
+    const arcs = svg.selectAll("g.arc").data(nodes, (d) => d.data.id);
+    arcs.exit().attr("class", "arc-exit").transition().duration(MOTION).style("opacity", 0).remove();
+    const entered = arcs.enter().append("g").attr("class", "arc").style("opacity", 0);
+    entered.append("path");
+    entered.append("text").attr("dy", "0.35em").attr("text-anchor", "middle");
+    const all = entered.merge(arcs).order()
+      .attr("data-id", (d) => d.data.id)
+      .attr("data-depth", (d) => d.depth)
+      .attr("data-colour", (d) => d.data.colour)
+      .classed("is-group", (d) => Boolean(d.children))
+      .call(bindEvents);
+    all.transition().duration(MOTION).style("opacity", 1);
+    all.select("path").style("fill", fillOf).transition().duration(MOTION).attrTween("d", function (d) {
+      const target = { x0: d.x0, x1: d.x1, y0: d.y0, y1: d.y1 };
+      const interpolate = d3.interpolate(this.__previous || target, target);
+      this.__previous = target;
+      return (t) => arc(interpolate(t));
+    });
+    // Names run along the radius where a ring has room, and flip on the left half.
+    all.select("text").text(labelText).style("fill", inkOf)
+      .attr("visibility", function (d) {
+        const along = this.getComputedTextLength() + 10 <= ring - 2;
+        const across = (d.x1 - d.x0) * ((d.y0 + d.y1) / 2) * ring >= 14;
+        return along && across ? "visible" : "hidden";
+      })
+      .transition().duration(MOTION)
+      .attr("transform", (d) => {
+        const angle = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
+        const r = ((d.y0 + d.y1) / 2) * ring;
+        return `rotate(${angle - 90}) translate(${r},0) rotate(${angle < 180 ? 0 : 180})`;
+      });
+
+    // The centre names the open factor. Clicking it goes back up.
+    const centre = svg.selectAll("g.centre").data([open.id]);
+    const centreEntered = centre.enter().append("g").attr("class", "centre");
+    centreEntered.append("circle");
+    centreEntered.append("text").attr("class", "centre-name").attr("text-anchor", "middle");
+    centreEntered.append("text").attr("class", "go-up").attr("text-anchor", "middle");
+    const canGoUp = open.parentId !== null;
+    const centreAll = centreEntered.merge(centre).classed("can-go-up", canGoUp).on("click", goUp);
+    centreAll.select("circle").attr("r", Math.max(0, ring - 1));
+    centreAll.select(".centre-name").attr("y", canGoUp ? -2 : 4).text(open.name)
+      .attr("visibility", function () {
+        return this.getComputedTextLength() <= 2 * ring - 12 ? "visible" : "hidden";
+      });
+    centreAll.select(".go-up").attr("y", 16).text(canGoUp ? "‹ Back" : "");
+    emptyState(svg, nodes.length === 0, 0, ring * 1.6);
+  }
+
+  function emptyState(svg, show, x, y) {
+    const note = svg.selectAll("text.empty").data(show ? [0] : []);
+    note.exit().remove();
+    note.enter().append("text").attr("class", "empty").attr("text-anchor", "middle")
+      .text("Nothing to draw: every sub-factor here is at weight 0.")
+      .merge(note).attr("x", x).attr("y", y);
+  }
+
+  // Hover: highlight a factor and its family in the drawing.
+  function highlight(id) {
+    const lineage = id === null ? null : core.pathTo(catalogueRoot, id);
+    d3.selectAll("#treemap g.node, #sunburst g.arc").classed("is-dim", (d) => {
+      if (lineage === null) return false;
+      const own = d.ancestors().map((a) => a.data.id);
+      return !own.includes(id) && !lineage.includes(d.data.id);
+    });
+  }
+
+  // Tooltip
+
+  function showDetails(id, { event, anchor }) {
+    const view = tree.byId.get(id);
+    if (!view) return;
+    const lines = [el("strong", {}, view.name)];
+    if (view.description) lines.push(el("p", {}, view.description));
+    lines.push(el("p", {}, `Weight ${view.weight}, ${percent.format(view.share)} of total weight`));
+    lines.push(el("p", {}, `Status: ${view.status}`));
+    if (view.weightReason) lines.push(el("p", {}, view.weightReason));
+    const tip = $("tooltip");
+    tip.replaceChildren(...lines);
+    tip.hidden = false;
+    if (event) {
+      placeAtPointer(event);
+    } else if (anchor) {
+      const box = anchor.getBoundingClientRect();
+      place(box.right + 12, box.top);
+    }
+  }
+
+  function placeAtPointer(event) {
+    place(event.clientX + 14, event.clientY + 14);
+  }
+
+  function place(x, y) {
+    const tip = $("tooltip");
+    tip.style.left = `${Math.max(8, Math.min(x, window.innerWidth - tip.offsetWidth - 8))}px`;
+    tip.style.top = `${Math.max(8, Math.min(y, window.innerHeight - tip.offsetHeight - 8))}px`;
+  }
+
+  function hideTooltip() {
+    $("tooltip").hidden = true;
+  }
+
+  // Controls
+
+  document.querySelectorAll('input[name="layout"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      state.layout = radio.value;
+      try {
+        localStorage.setItem(LAYOUT_KEY, state.layout);
+      } catch {
+        // Without storage, the choice lasts until the page is reloaded.
+      }
+      highlight(null);
+      hideTooltip();
+      showLayout();
+      if (tree) draw(tree.byId.get(state.openId));
+    });
+  });
+  document.querySelectorAll('input[name="scale"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      state.scale = radio.value;
+      highlight(null);
+      hideTooltip();
+      render();
+    });
+  });
+  $("reset").addEventListener("click", () => {
+    state.weights = {};
+    state.committed = {};
+    render();
+  });
+  $("back").addEventListener("click", goUp);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") hideTooltip();
+  });
+  let frame = 0;
+  new ResizeObserver(() => {
+    if (!tree) return;
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => draw(tree.byId.get(state.openId)));
+  }).observe($("workspace"));
+
+  // Load the label fonts before the first drawing, so that labels are measured
+  // in the font they are drawn in. The browser fetches a font only once text
+  // uses it, so waiting for document.fonts.ready alone is not enough.
+  const labelFonts = ['500 12px "Barlow Semi Condensed"', '600 12px "Barlow Semi Condensed"', '600 13px "Barlow Semi Condensed"'];
+  Promise.all(labelFonts.map((font) => document.fonts.load(font).catch(() => [])))
+    .then(() => document.fonts.ready)
+    .then(load);
+})();
+</script>
+</body>
+</html>

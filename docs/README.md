@@ -20,8 +20,8 @@ These are living documents: they change as the project changes, and git keeps th
 
 Three more folders are created when first needed:
 
-- `specs/` for design specs
-- `plans/` for implementation plans
+- [specs/](specs/) for design specs
+- [plans/](plans/) for implementation plans
 - `spikes/` for one page per feasibility experiment
 
 Specs and plans are named `YYYY-MM-DD-topic.md`.
@@ -32,6 +32,7 @@ Specs and plans are named `YYYY-MM-DD-topic.md`.
 | --- | --- |
 | [architecture.md](architecture.md) | System diagram, data flow, contracts, privacy boundary, planned layout |
 | [interface.md](interface.md) | Progressive disclosure and the visual factor tree |
+| [factors/README.md](factors/README.md) | The factor explorer, and research notes for building the factor catalogue |
 | [tech-stack.md](tech-stack.md) | Every technology: its role, why it was chosen, the alternatives |
 | [methodology/scoring.md](methodology/scoring.md) | Spatial framework and scoring method v0 |
 | [methodology/validation.md](methodology/validation.md) | How the data and the method are checked |
