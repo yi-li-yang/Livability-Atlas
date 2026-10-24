@@ -136,3 +136,29 @@ test("pathTo lists the ids from the root down to a factor", () => {
   assert.deepEqual(core.pathTo(root, "no2"), ["root", "environment", "air-quality", "no2"]);
   assert.deepEqual(core.pathTo(root, "missing"), []);
 });
+
+test("each factor keeps its catalogue position among its siblings, whatever the scale", () => {
+  const root = core.normaliseCatalogue({
+    factors: [
+      { id: "housing", name: "Housing", default_weight: 3, scales: ["within-city", "across-cities"] },
+      { id: "climate", name: "Climate", default_weight: 3, scales: ["across-cities"] },
+      {
+        id: "environment",
+        name: "Environment",
+        default_weight: 3,
+        scales: ["within-city", "across-cities"],
+        children: [
+          { id: "noise", name: "Noise", default_weight: 3, scales: ["within-city"] },
+          { id: "air-quality", name: "Air quality", default_weight: 3 },
+        ],
+      },
+    ],
+  });
+  const within = core.buildTree(root, "within-city", {});
+  const across = core.buildTree(root, "across-cities", {});
+  assert.equal(within.byId.get("environment").index, 2);
+  assert.equal(across.byId.get("environment").index, 2);
+  assert.equal(across.byId.get("climate").index, 1);
+  assert.equal(within.byId.get("air-quality").index, 1);
+  assert.equal(across.byId.get("air-quality").index, 1);
+});

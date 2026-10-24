@@ -77,9 +77,10 @@
   }
 
   // Returns the catalogue as a tree with every field filled in: inherited
-  // scales, the default status, and a root above the top-level factors.
+  // scales, the default status, each factor's position among its siblings in
+  // the catalogue (index), and a root above the top-level factors.
   function normaliseCatalogue(catalogue) {
-    function copy(node, parentScales) {
+    function copy(node, parentScales, index) {
       const scales = node.scales || parentScales;
       return {
         id: node.id,
@@ -89,7 +90,8 @@
         weightReason: node.weight_reason || "",
         scales,
         status: node.status || "idea",
-        children: (node.children || []).map((child) => copy(child, scales)),
+        index,
+        children: (node.children || []).map((child, i) => copy(child, scales, i)),
       };
     }
     return {
@@ -100,7 +102,8 @@
       weightReason: "",
       scales: SCALES.slice(),
       status: "idea",
-      children: catalogue.factors.map((factor) => copy(factor, SCALES)),
+      index: 0,
+      children: catalogue.factors.map((factor, i) => copy(factor, SCALES, i)),
     };
   }
 
@@ -112,6 +115,9 @@
   //   share         its share of total weight, 0 when it counts as 0
   //   counted, notCounted  its sub-factors at this scale, split by whether they count
   //   parentId      its parent's id, or null for the root
+  //   index         its position among its siblings in the catalogue, so that
+  //                 anything keyed to it, such as colour, does not shift when
+  //                 the scale or the weights hide a sibling
   // byId maps each id to its node.
   function buildTree(root, scale, weights) {
     const byId = new Map();
@@ -129,6 +135,7 @@
         weightReason: node.weightReason,
         status: node.status,
         scales: node.scales,
+        index: node.index,
         defaultWeight: node.defaultWeight,
         weight,
         countsAsZero: weight === 0 || (subFactors.length > 0 && counted.length === 0),
