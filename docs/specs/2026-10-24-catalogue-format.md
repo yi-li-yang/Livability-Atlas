@@ -1,6 +1,6 @@
 # Catalogue format
 
-Status: approved by the owner in conversation. The second work item of Phase 0, step 0.2 ([roadmap](../roadmap.md)).
+Status: built. The owner approved the design in conversation. The second work item of Phase 0, step 0.2 ([roadmap](../roadmap.md)).
 
 ## Why
 

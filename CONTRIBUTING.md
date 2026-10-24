@@ -39,9 +39,9 @@ These checklists define when a repeated job is done.
 
 ### Add a factor
 
-1. Tree node: plain name, description, default weight with its reason, parent.
-2. Measured indicators, each with its unit, preference type, a scoring curve with its justification, an evidence type, and whether it is comparable across regions.
-3. A dataset entry, with its tier and licence checked.
+1. Tree node in `catalogue/factors.yaml`: plain name, description, default weight with its reason, parent.
+2. Measured indicators, each with its unit, preference type, a scoring curve with its justification, an evidence type, a method, and whether it is comparable across regions. The fields are listed in [catalogue/README.md](catalogue/README.md#measured-indicators).
+3. A dataset entry in `catalogue/datasets.yaml`, with its tier and licence checked.
 4. Fetching is idempotent and cached, and the checksum is recorded.
 5. A documented method aggregates the data to hex cells.
 6. QA checks run: range, nulls, coverage, at least one known-fact assertion, and a cross-check wherever an independent dataset exists.
@@ -51,7 +51,9 @@ These checklists define when a repeated job is done.
 
 ### Add a dataset
 
-Record its tier, URL, licence (checked against decision D07), attribution text, date and update cadence. Cache the raw file with its checksum, and list what the dataset can tell us.
+1. Add it to `catalogue/datasets.yaml` with the fields in [catalogue/README.md](catalogue/README.md#datasetsyaml): its tier, URL, date, attribution text, and what it can tell us.
+2. Check its licence at the source, against decision D07, and record the date you checked. If the licence cannot be confirmed, record `unknown` and keep the dataset out of public builds, with a note saying why.
+3. From step 0.4, the data pipeline fetches it: record its update cadence, and cache the raw file with its checksum.
 
 ### Add a region
 

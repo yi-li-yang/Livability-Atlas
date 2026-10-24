@@ -4,9 +4,9 @@ Tools and notes for building the factor catalogue in step 0.2 of Phase 0.
 
 | File | What it is |
 | --- | --- |
-| [explorer.html](explorer.html) | The factor explorer: the factor tree drawn as a treemap and as a sunburst, with weight sliders. Its design is in the [spec](../specs/2026-10-24-factor-explorer.md) |
-| `explorer-core.js` | The explorer's logic, without any drawing |
-| `embed-catalogue.mjs` | Copies `catalogue/factors.yaml` into the page |
+| [explorer.html](explorer.html) | The factor explorer: the factor tree drawn as a treemap and as a sunburst, with weight sliders. Hovering over a measured indicator shows its research: unit, scoring curve, evidence type and datasets. Its design is in the [factor explorer spec](../specs/2026-10-24-factor-explorer.md) and the [catalogue format spec](../specs/2026-10-24-catalogue-format.md) |
+| `explorer-core.js` | The explorer's logic, without any drawing, including the catalogue's checks |
+| `embed-catalogue.mjs` | Copies `catalogue/factors.yaml` and `catalogue/datasets.yaml` into the page |
 | `artifact-page.mjs` | Writes the copy of the page that is published as an Artifact |
 | `*.test.mjs` | The tests, run with Node's built-in test runner |
 | [research-notes.md](research-notes.md) | Starting points for the rest of step 0.2, carried over from the Phase 0 plan |

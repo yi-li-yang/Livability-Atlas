@@ -11,8 +11,9 @@ Livability-Atlas/
 ├── .gitignore             # keeps data/, .env files and build output out of git
 ├── .gitattributes         # line-ending normalisation
 ├── catalogue/             # the factor catalogue
-│   ├── README.md          # what it holds, and how it is checked
-│   └── factors.yaml       # the factor tree, with default weights
+│   ├── README.md          # the field reference, and how it is checked
+│   ├── factors.yaml       # the factor tree, down to measured indicators
+│   └── datasets.yaml      # every dataset, with its tier and licence
 └── docs/
     ├── README.md          # index of all documents
     ├── conceptualisation.md  # the original idea document
@@ -30,7 +31,7 @@ Livability-Atlas/
     │   ├── README.md            # how to open, refresh, test and publish the explorer
     │   ├── explorer.html        # the factor explorer page
     │   ├── explorer-core.js     # its logic, without drawing
-    │   ├── embed-catalogue.mjs  # copies catalogue/factors.yaml into the page
+    │   ├── embed-catalogue.mjs  # copies the catalogue's two files into the page
     │   ├── artifact-page.mjs    # writes the copy published as an Artifact
     │   ├── *.test.mjs           # tests, run with Node's test runner
     │   └── research-notes.md    # research tables from the Phase 0 plan
@@ -38,7 +39,9 @@ Livability-Atlas/
     │   ├── scoring.md     # spatial framework and scoring method v0
     │   └── validation.md  # how the data and the method are checked
     ├── plans/             # implementation plans, one per work item
+    │   ├── 2026-10-24-catalogue-format.md
     │   └── 2026-10-24-factor-explorer.md
     └── specs/             # design specs, one per work item
+        ├── 2026-10-24-catalogue-format.md
         └── 2026-10-24-factor-explorer.md
 ```

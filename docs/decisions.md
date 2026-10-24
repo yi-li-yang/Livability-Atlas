@@ -117,15 +117,22 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.
   - 2026-10-23: notation rewritten after review, with a symbols table, rendered formulas and a worked example. One rule added: a composite factor whose children all have weight 0 counts as weight 0, so it does not lower data coverage.
+  - 2026-10-24: the rising or falling curve is named a ramp, the name the factor catalogue uses for it.
 
 ## D07 Dataset licences
 
 - **Status:** proposed
-- **Choice:** Public builds use only datasets whose licences allow redistribution and commercial use, with attribution. Examples are OGL, CC BY, CC0, ODbL, CDLA-Permissive-2.0 and Apache-2.0. Datasets under non-commercial licences (e.g. Ookla's speed tests) or restrictive terms (e.g. ratings platforms) may appear only in local builds, flagged in the factor catalogue.
+- **Choice:** Public builds use only datasets whose licences allow redistribution and commercial use, with attribution. The allowed list, by SPDX licence id:
+  - the Open Government Licence: `OGL-UK-1.0`, `OGL-UK-2.0`, `OGL-UK-3.0`
+  - Creative Commons: `CC-BY-3.0`, `CC-BY-4.0`, `CC-BY-SA-3.0`, `CC-BY-SA-4.0`, `CC0-1.0`
+  - `ODbL-1.0`, `CDLA-Permissive-1.0`, `CDLA-Permissive-2.0` and `Apache-2.0`
+
+  Datasets under non-commercial licences (e.g. Ookla's speed tests), restrictive terms (e.g. ratings platforms) or a licence not yet confirmed may appear only in local builds, flagged in the factor catalogue. The catalogue's checks enforce this: a dataset marked for public builds needs a licence from the list, the date it was checked at the source, and its attribution ([catalogue/README.md](../catalogue/README.md#datasetsyaml)).
 - **Why:** A public site redistributes the data it shows, and a paid edition must stay possible.
 - **Revisit when:** A restricted dataset is worth licensing. It then moves to the allowed list under its new licence.
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.
+  - 2026-10-24: the examples became an allowed list of SPDX ids, enforced by the factor catalogue's checks. A dataset whose licence is not yet confirmed stays out of public builds, as the London Atmospheric Emissions Inventory does until the GLA confirms its licence.
 
 ## D08 Sensitive data and privacy
 

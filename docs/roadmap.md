@@ -11,6 +11,7 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
 - [x] **0.1 Foundations.** Living documents, licence, `CLAUDE.md`, `CONTRIBUTING.md`, README and `.gitignore`. Docs only. Reviewed and approved by the owner.
 - [ ] **0.2 Factor catalogue and factor explorer.**
   - [x] Factor explorer: a standalone page that draws the seed factor tree as both a treemap and a sunburst, sized by default weights, with live sliders and drill-down. It is published as a private Artifact for review, and the layout is chosen from it (D17). Both layouts stay, with a switch, and each factor has its own colour.
+  - [x] Catalogue format: the fields of measured indicators and datasets, their checks, D07 as a rule, and the research shown in the factor explorer. Proved on NO₂ and PM2.5.
   - [ ] Top-down pass: expand the 18 top-level factors into sub-factors and measured indicators, each with its preference type (`catalogue/factors.yaml`).
   - [ ] Bottom-up pass: inventory city, country and global datasets, each with its tier and what it can tell us (`catalogue/datasets.yaml`).
   - [ ] Assess published rankings against the credibility rubric (`docs/factors/rankings.md`).
