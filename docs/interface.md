@@ -1,6 +1,6 @@
 # Interface
 
-Status: planned (D17, proposed). The layout of the visual factor tree, treemap or sunburst, will be chosen after the factor explorer prototype in step 0.2 of Phase 0.
+Status: planned (D17, accepted). The factor explorer in step 0.2 of Phase 0 prototypes the visual factor tree.
 
 ## Progressive disclosure
 
@@ -29,7 +29,8 @@ The preferences panel draws the factor tree, and each factor's area is its share
 - **Resizing.** Moving a weight slider resizes that factor at once, and the others shrink or grow to match. This is exactly how weights act in the score.
 - **Drill-down.** Clicking a factor zooms into its sub-factors, which resize the same way. "Back" returns to the level above.
 - **Weight 0.** A factor at weight 0 leaves the drawing and moves to a short "not counted" list, from which it can be brought back.
-- **Layout.** A treemap (nested rectangles) or a sunburst (rings around a centre). The factor explorer shows both, and one is chosen.
+- **Layout.** A treemap (nested rectangles) or a sunburst (rings around a centre), with a switch between them. The treemap shows first (D17).
+- **Colour.** Each factor has its own colour, from the categorical palette of the Salt design system. Its sub-factors take a tint of it. The weights panel shows each colour beside its factor's name, so it doubles as the legend, and labels name every shape, so colour is never the only cue.
 
 ## Controls inside a factor
 

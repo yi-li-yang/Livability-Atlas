@@ -29,7 +29,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D14](#d14-default-weights) | Default weights | From evidence of what people value | proposed |
 | [D15](#d15-llm-use) | LLM use | Free options first | proposed |
 | [D16](#d16-scaling) | Scaling | Dataset tiers + region recipe | proposed |
-| [D17](#d17-interface) | Interface | Progressive disclosure; visual factor tree | proposed |
+| [D17](#d17-interface) | Interface | Progressive disclosure; visual factor tree as a treemap or a sunburst, one colour per factor | accepted |
 | [D18](#d18-preference-types) | Preference types | Fixed, user direction, user range, user choice | proposed |
 | [D19](#d19-food-quality) | Food quality | Open signals first | proposed |
 
@@ -241,15 +241,17 @@ The living list of project decisions. Each entry holds the current choice and wh
 
 ## D17 Interface
 
-- **Status:** proposed
+- **Status:** accepted
 - **Choice:**
   - Progressive disclosure in five layers: map, quick look, why this score, inside a factor, evidence.
-  - Preferences are set in a visual factor tree whose areas follow the weights. Its layout, treemap or sunburst, is chosen after the factor explorer prototype.
+  - Preferences are set in a visual factor tree whose areas follow the weights. It offers both layouts, a treemap and a sunburst, with a switch between them. The treemap shows first.
+  - Each factor has its own colour, from the categorical palette of the Salt design system. The interface itself stays in ink, so colour always means data.
   - Details are in [interface.md](interface.md).
-- **Why:** Users see the answer first and are not flooded with detail. Sizes that follow the weights show at a glance how much each factor counts.
-- **Revisit when:** The factor explorer (step 0.2) has been tried.
+- **Why:** Users see the answer first and are not flooded with detail. Sizes that follow the weights show at a glance how much each factor counts. The owner tried both layouts in the factor explorer and found each useful. The treemap shows first because rectangles show shares more faithfully than rings, and hold more labels.
+- **Revisit when:** Testing in Phase 1 shows that one layout is rarely used, or that colour by factor confuses.
 - **History:**
   - 2026-10-23: proposed after review asked for layered details and a visual, interactive factor list.
+  - 2026-10-24: accepted after the owner tried the factor explorer. Both layouts stay, with a switch, and each factor has its own colour.
 
 ## D18 Preference types
 

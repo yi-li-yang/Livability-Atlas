@@ -3,11 +3,11 @@
 ## Now
 
 - Step 0.1 is merged into `main` (#1).
-- Step 0.2: the factor explorer is built and published as a private Artifact for the owner. Its pull request is open from `feat/factor-explorer`.
+- Step 0.2: the factor explorer is built, with a switch between the treemap and the sunburst and a colour for each factor (D17, accepted). It is published as a private Artifact, and its pull request is open from `feat/factor-explorer`.
 
 ## Next
 
-1. The owner tries both layouts in the factor explorer and chooses one. Record the choice in D17 and interface.md, then merge the pull request.
+1. The owner reviews the colours and the layout switch, then merges the pull request.
 2. The rest of step 0.2: expand the factor catalogue top-down and bottom-up, starting from [research-notes.md](factors/research-notes.md).
 3. Before step 0.3:
    - Install uv and just with winget.
@@ -22,6 +22,7 @@
 
 ### 2026-10-24
 
+- **Factor explorer revised.** After trying both layouts, the owner kept both, with a switch, and asked for a colour for each factor. The colours come from the categorical palette of the Salt design system, in an order checked for normal and colour-blind vision. D17 is accepted.
 - **Factor explorer built.** The seed factor tree is in `catalogue/factors.yaml`, and the page has its tests and a browser check in Edge. It is published as a private Artifact, and its pull request is open.
 - **Step 0.2 started.** Wrote the [factor explorer spec](specs/2026-10-24-factor-explorer.md).
 - **Step 0.1 merged** into `main` as pull request #1.
