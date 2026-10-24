@@ -45,9 +45,12 @@
   const TIERS = ["city", "country", "global"];
   const CREDIBILITY = ["high", "medium", "low"];
   // Licences that allow redistribution and commercial use, by SPDX id (D07).
-  // Only datasets under one of them may go into public builds.
+  // Only datasets under one of them may go into public builds. A licence that
+  // SPDX does not list takes a LicenseRef- id: TfL's open data licence is
+  // version 2.0 of the Open Government Licence with TfL's amendments.
   const OPEN_LICENCES = ["OGL-UK-1.0", "OGL-UK-2.0", "OGL-UK-3.0", "CC-BY-3.0", "CC-BY-4.0", "CC-BY-SA-3.0",
-    "CC-BY-SA-4.0", "CC0-1.0", "ODbL-1.0", "CDLA-Permissive-1.0", "CDLA-Permissive-2.0", "Apache-2.0"];
+    "CC-BY-SA-4.0", "CC0-1.0", "ODbL-1.0", "CDLA-Permissive-1.0", "CDLA-Permissive-2.0", "Apache-2.0",
+    "LicenseRef-TfL-Open-Data"];
 
   const isMapping = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
   const isText = (value) => typeof value === "string" && value.trim() !== "";
@@ -409,8 +412,12 @@
           : `1 from ${number.format(curve.l1)} to ${value(curve.u1)}`;
         return `${best}, falling to 0 at ${value(curve.l0)} or less and at ${value(curve.u0)} or more`;
       }
-      case "lookup":
-        return `by category: ${Object.entries(curve.scores).map(([category, score]) => `${category} ${number.format(score)}`).join(", ")}`;
+      case "lookup": {
+        // Best first. The keys' own order cannot be trusted, because
+        // JavaScript puts keys that look like whole numbers first.
+        const best = Object.entries(curve.scores).sort(([, a], [, b]) => b - a);
+        return `by category: ${best.map(([category, score]) => `${category} ${number.format(score)}`).join(", ")}`;
+      }
       case "percentile":
         return `by rank within the region, where ${curve.better} values score better`;
       default:

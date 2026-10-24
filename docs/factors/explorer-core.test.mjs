@@ -389,6 +389,10 @@ test("a dataset for public builds needs an open licence, the date it was checked
   expectProblem(core.validateDatasets(uncredited), /^dataset laei: public_build is true, so it needs an attribution/);
 });
 
+test("TfL's open data licence is on D07's list, by its LicenseRef id", () => {
+  assert.deepEqual(core.validateDatasets(openDataset({ licence: "LicenseRef-TfL-Open-Data" })), []);
+});
+
 test("a dataset kept out of public builds says why", () => {
   const doc = datasetsDoc();
   delete doc.datasets[0].licence_note;
@@ -478,4 +482,14 @@ test("describeCurve puts a scoring curve into words", () => {
     [{ shape: "percentile", better: "higher" }, "venues", "by rank within the region, where higher values score better"],
   ];
   for (const [curve, unit, words] of cases) assert.equal(core.describeCurve(curve, unit), words);
+});
+
+test("describeCurve lists a lookup's categories from best to worst, even when they look like numbers", () => {
+  // JavaScript puts keys that look like whole numbers first, so the order
+  // must come from the scores, not from the keys.
+  const ptal = { 0: 0, "1a": 0.125, "1b": 0.25, 2: 0.375, 3: 0.5, 4: 0.625, 5: 0.75, "6a": 0.875, "6b": 1 };
+  assert.equal(
+    core.describeCurve({ shape: "lookup", scores: ptal }, "PTAL band"),
+    "by category: 6b 1, 6a 0.875, 5 0.75, 4 0.625, 3 0.5, 2 0.375, 1b 0.25, 1a 0.125, 0 0",
+  );
 });
