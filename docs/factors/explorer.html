@@ -10,8 +10,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600&display=swap">
 <style>
 /* Layout: a header row, then the weights panel beside two equal square
-   drawings; one column below 1100px. Colour shows structure only: a factor
-   drawn with its sub-factors is deeper blue, the others lighter blue. */
+   drawings; one column below 1100px, with the drawings first. Colour shows
+   structure only: a factor drawn with its sub-factors is deeper blue, the
+   others lighter blue. */
 :root {
   --plane: #f9f9f7;
   --surface: #fcfcfb;
@@ -99,16 +100,19 @@ button, input { font: inherit; color: inherit; }
 .crumbs li button { padding: 0; border: 0; background: none; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .crumbs [aria-current="page"] { font-weight: 600; }
 .workspace { display: grid; grid-template-columns: minmax(250px, 320px) minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 16px; }
-@media (max-width: 1100px) { .workspace { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1100px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); }
+  .workspace > .panel:first-child { order: 1; }
+}
 .panel { display: grid; gap: 12px; min-width: 0; padding: 14px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--surface); }
 .panel-part { display: grid; gap: 8px; }
 .hint, .reason, .figures { color: var(--ink-2); font-size: 0.875rem; }
 .sliders, .not-counted, #problem-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
-.slider-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 2px 8px; }
-.slider-row label { min-width: 0; overflow-wrap: anywhere; }
-.figures { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.slider-row input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--accent); }
-.slider-row .quiet { grid-column: 1 / -1; justify-self: start; padding: 3px 10px; font-size: 0.875rem; }
+.slider-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; }
+.slider-row label { grid-column: 1; grid-row: 1; min-width: 0; overflow-wrap: anywhere; }
+.slider-row .quiet { grid-column: 2; grid-row: 1; justify-self: end; padding: 2px 10px; font-size: 0.875rem; }
+.slider-row input[type="range"] { grid-column: 1; grid-row: 2; width: 100%; margin: 0; accent-color: var(--accent); }
+.figures { grid-column: 2; grid-row: 2; min-width: 7ch; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .not-counted li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
 .drawing svg { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 1 / 1; }
 .drawing text { font-family: var(--font-label); font-size: 12px; font-weight: 500; pointer-events: none; }
@@ -713,9 +717,35 @@ factors:
     return { width: Math.max(1, Math.round(box.width)), height: Math.max(1, Math.round(box.height)) };
   }
 
-  // A "›" marks a factor that opens further than the drawing shows.
+  // A "›" marks a factor that opens further than the drawing shows. A
+  // non-breaking space keeps it on the same line as the name's last word.
   function labelText(d) {
-    return d.data.opens && !d.children ? `${d.data.name} ›` : d.data.name;
+    return d.data.opens && !d.children ? `${d.data.name} ›` : d.data.name;
+  }
+
+  // Fits a treemap name into its tile, wrapped over as many lines as the tile
+  // has room for. A group's name stays on one line, in its header. If the name
+  // does not fit, it is hidden, and the tooltip carries it.
+  const LINE = 14; // px between label lines in the treemap
+
+  function fitLabel(node, d) {
+    const text = d3.select(node).text(null);
+    const width = d.x1 - d.x0 - 12;
+    const lines = d.children ? 1 : Math.floor((d.y1 - d.y0 - 4) / LINE);
+    let tspan = text.append("tspan").attr("x", 6).attr("dy", 0);
+    let used = 1;
+    let fits = true;
+    for (const word of labelText(d).split(" ")) {
+      const before = tspan.text();
+      tspan.text(before ? `${before} ${word}` : word);
+      if (before && tspan.node().getComputedTextLength() > width) {
+        tspan.text(before);
+        tspan = text.append("tspan").attr("x", 6).attr("dy", LINE).text(word);
+        used += 1;
+      }
+      if (tspan.node().getComputedTextLength() > width) fits = false;
+    }
+    text.attr("visibility", fits && used <= lines ? "visible" : "hidden");
   }
 
   function bindEvents(selection) {
@@ -765,10 +795,8 @@ factors:
     all.select("rect").transition().duration(MOTION)
       .attr("width", (d) => Math.max(0, d.x1 - d.x0))
       .attr("height", (d) => Math.max(0, d.y1 - d.y0));
-    // Show a name only where it fits. The tooltip carries the rest.
-    all.select("text").text(labelText).attr("visibility", function (d) {
-      const room = d.children ? HEADER : d.y1 - d.y0;
-      return this.getComputedTextLength() + 12 <= d.x1 - d.x0 && room >= 18 ? "visible" : "hidden";
+    all.select("text").each(function (d) {
+      fitLabel(this, d);
     });
     emptyState(svg, nodes.length === 0, width / 2, height / 2);
   }
@@ -918,8 +946,13 @@ factors:
     frame = requestAnimationFrame(() => draw(tree.byId.get(state.openId)));
   }).observe($("treemap"));
 
-  // Wait for the fonts, so that labels are measured in the font they are drawn in.
-  document.fonts.ready.then(load);
+  // Load the label fonts before the first drawing, so that labels are measured
+  // in the font they are drawn in. The browser fetches a font only once text
+  // uses it, so waiting for document.fonts.ready alone is not enough.
+  const labelFonts = ['500 12px "Barlow Semi Condensed"', '600 12px "Barlow Semi Condensed"', '600 13px "Barlow Semi Condensed"'];
+  Promise.all(labelFonts.map((font) => document.fonts.load(font).catch(() => [])))
+    .then(() => document.fonts.ready)
+    .then(load);
 })();
 </script>
 </body>
