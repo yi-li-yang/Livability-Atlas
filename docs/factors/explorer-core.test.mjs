@@ -388,3 +388,84 @@ test("a dataset kept out of public builds says why", () => {
   delete doc.datasets[0].licence_note;
   expectProblem(core.validateDatasets(doc), /^dataset laei: public_build is false, so it needs a licence_note/);
 });
+
+// Showing the research in the factor explorer.
+
+test("each view in the tree carries its measured indicator's research", () => {
+  const view = treeOf(catalogueWith(researched())).byId.get("pm25");
+  assert.equal(view.status, "researched");
+  assert.equal(view.unit, "µg/m³");
+  assert.equal(view.preferenceType, "fixed");
+  assert.deepEqual(view.curve, { shape: "ramp", t0: 25, t1: 5 });
+  assert.equal(view.curveReason, "The WHO's 2021 guideline and its second interim target.");
+  assert.equal(view.evidenceType, "estimate");
+  assert.equal(view.comparableAcrossRegions, true);
+  assert.equal(view.method, "The area-weighted mean of the modelled annual mean over the hex cell.");
+  assert.deepEqual(view.datasets, ["laei"]);
+  const idea = treeOf(example()).byId.get("noise");
+  assert.equal(idea.unit, "");
+  assert.equal(idea.curve, null);
+  assert.equal(idea.comparableAcrossRegions, null);
+  assert.deepEqual(idea.datasets, []);
+});
+
+test("each view counts the measured indicators below it that are researched or further, at its scale", () => {
+  const root = core.normaliseCatalogue({
+    factors: [{
+      id: "environment",
+      name: "Environment",
+      default_weight: 3,
+      scales: ["within-city", "across-cities"],
+      children: [
+        {
+          id: "air-quality",
+          name: "Air quality",
+          default_weight: 3,
+          children: [
+            researched({ id: "no2", name: "NO₂", status: "spiked", scales: ["within-city"] }),
+            researched({ scales: ["within-city"] }),
+          ],
+        },
+        { id: "noise", name: "Noise", default_weight: 3, scales: ["within-city"] },
+        { id: "light-pollution", name: "Light pollution", default_weight: 0, weight_reason: "Example.", scales: ["across-cities"] },
+      ],
+    }],
+  });
+  const within = core.buildTree(root, "within-city", {}).byId;
+  assert.deepEqual(within.get("pm25").progress, { researched: 1, total: 1 });
+  assert.deepEqual(within.get("air-quality").progress, { researched: 2, total: 2 });
+  assert.deepEqual(within.get("environment").progress, { researched: 2, total: 3 });
+  // Across cities, Air quality has no sub-factors, so it is itself a measured
+  // indicator, at status idea. A factor at weight 0 still counts.
+  const across = core.buildTree(root, "across-cities", {}).byId;
+  assert.deepEqual(across.get("air-quality").progress, { researched: 0, total: 1 });
+  assert.deepEqual(across.get("environment").progress, { researched: 0, total: 2 });
+});
+
+test("normaliseDatasets returns each dataset by id, with its dates as text", () => {
+  const laei = core.normaliseDatasets(openDataset({ licence_checked: new Date(Date.UTC(2026, 9, 24)), date: 2022 })).get("laei");
+  assert.equal(laei.name, "London Atmospheric Emissions Inventory (LAEI)");
+  assert.equal(laei.tier, "city");
+  assert.equal(laei.licence, "OGL-UK-3.0");
+  assert.equal(laei.licenceChecked, "2026-10-24");
+  assert.equal(laei.date, "2022");
+  assert.equal(laei.publicBuild, true);
+  assert.equal(laei.licenceNote, "");
+  assert.deepEqual(laei.tells, ["Modelled annual mean concentrations of NO₂ and PM2.5"]);
+  assert.equal(core.normaliseDatasets(openDataset()).get("laei").licenceChecked, "2026-10-24");
+  assert.equal(core.normaliseDatasets({}).size, 0);
+});
+
+test("describeCurve puts a scoring curve into words", () => {
+  const cases = [
+    [{ shape: "ramp", t0: 40, t1: 10 }, "µg/m³", "1 at 10 µg/m³ or less, falling to 0 at 40 µg/m³ or more"],
+    [{ shape: "ramp", t0: 2, t1: 8 }, "km²", "0 at 2 km² or less, rising to 1 at 8 km² or more"],
+    [{ shape: "ramp", t0: 0, t1: 1500 }, "", "0 at 0 or less, rising to 1 at 1,500 or more"],
+    [{ shape: "ramp", t0: 0, t1: 30 }, "%", "0 at 0% or less, rising to 1 at 30% or more"],
+    [{ shape: "ideal-range", l0: 14, l1: 20, u1: 26, u0: 32 }, "°C", "1 from 20 to 26 °C, falling to 0 at 14 °C or less and at 32 °C or more"],
+    [{ shape: "ideal-range", l0: 14, l1: 20, u1: 20, u0: 32 }, "°C", "1 at 20 °C, falling to 0 at 14 °C or less and at 32 °C or more"],
+    [{ shape: "lookup", scores: { "very low": 1, low: 0.75, high: 0 } }, "", "by category: very low 1, low 0.75, high 0"],
+    [{ shape: "percentile", better: "higher" }, "venues", "by rank within the region, where higher values score better"],
+  ];
+  for (const [curve, unit, words] of cases) assert.equal(core.describeCurve(curve, unit), words);
+});

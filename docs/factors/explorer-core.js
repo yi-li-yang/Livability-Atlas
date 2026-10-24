@@ -272,7 +272,8 @@
 
   // Returns the catalogue as a tree with every field filled in: inherited
   // scales, the default status, each factor's position among its siblings in
-  // the catalogue (index), and a root above the top-level factors.
+  // the catalogue (index), a measured indicator's research, and a root above
+  // the top-level factors.
   function normaliseCatalogue(catalogue) {
     function copy(node, parentScales, index) {
       const scales = node.scales || parentScales;
@@ -285,6 +286,14 @@
         scales,
         status: node.status || "idea",
         index,
+        unit: node.unit || "",
+        preferenceType: node.preference_type || "",
+        curve: node.curve || null,
+        curveReason: node.curve_reason || "",
+        evidenceType: node.evidence_type || "",
+        comparableAcrossRegions: typeof node.comparable_across_regions === "boolean" ? node.comparable_across_regions : null,
+        method: node.method || "",
+        datasets: node.datasets || [],
         children: (node.children || []).map((child, i) => copy(child, scales, i)),
       };
     }
@@ -303,12 +312,15 @@
 
   // Returns the tree for one scale, with the user's weights applied.
   // `weights` maps a factor's id to the weight the user set; every other
-  // factor keeps its default. Each node of the result holds:
+  // factor keeps its default. Each node of the result holds the normalised
+  // factor's fields, and:
   //   weight        the weight in use
   //   countsAsZero  true when the weight is 0, or every sub-factor counts as 0
   //   share         its share of total weight, 0 when it counts as 0
   //   counted, notCounted  its sub-factors at this scale, split by whether they count
   //   parentId      its parent's id, or null for the root
+  //   progress      how many of the measured indicators at or below it, at
+  //                 this scale, are researched or further, out of how many
   //   index         its position among its siblings in the catalogue, so that
   //                 anything keyed to it, such as colour, does not shift when
   //                 the scale or the weights hide a sibling
@@ -322,21 +334,23 @@
         .map((child) => build(child, node.id));
       const weight = node.id === ROOT_ID ? 1 : weights[node.id] !== undefined ? weights[node.id] : node.defaultWeight;
       const counted = subFactors.filter((s) => !s.countsAsZero);
+      // At this scale, a factor without sub-factors is a measured indicator.
+      const progress = subFactors.length === 0
+        ? { researched: node.status === "idea" ? 0 : 1, total: 1 }
+        : subFactors.reduce((sum, s) => ({
+          researched: sum.researched + s.progress.researched,
+          total: sum.total + s.progress.total,
+        }), { researched: 0, total: 0 });
+      const { children, ...fields } = node;
       const view = {
-        id: node.id,
-        name: node.name,
-        description: node.description,
-        weightReason: node.weightReason,
-        status: node.status,
-        scales: node.scales,
-        index: node.index,
-        defaultWeight: node.defaultWeight,
+        ...fields,
         weight,
         countsAsZero: weight === 0 || (subFactors.length > 0 && counted.length === 0),
         share: 0,
         counted,
         notCounted: subFactors.filter((s) => s.countsAsZero),
         parentId,
+        progress,
       };
       byId.set(node.id, view);
       return view;
@@ -353,6 +367,64 @@
     return { root: top, byId };
   }
 
+  // Returns the datasets of datasets.yaml as a map by id, with every field
+  // filled in and both dates as text.
+  function normaliseDatasets(datasetsDoc) {
+    const byId = new Map();
+    for (const dataset of isMapping(datasetsDoc) && Array.isArray(datasetsDoc.datasets) ? datasetsDoc.datasets : []) {
+      byId.set(dataset.id, {
+        id: dataset.id,
+        name: dataset.name,
+        publisher: dataset.publisher,
+        url: dataset.url,
+        tier: dataset.tier,
+        area: dataset.area,
+        resolution: dataset.resolution,
+        date: String(dataset.date),
+        licence: dataset.licence,
+        licenceChecked: isoDate(dataset.licence_checked) || "",
+        publicBuild: dataset.public_build === true,
+        licenceNote: dataset.licence_note || "",
+        attribution: dataset.attribution || "",
+        tells: dataset.tells || [],
+        credibility: dataset.credibility || "",
+        credibilityReason: dataset.credibility_reason || "",
+      });
+    }
+    return byId;
+  }
+
+  const number = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 6 });
+
+  // Puts a scoring curve into words, with its thresholds in the measured
+  // indicator's unit, e.g. "1 at 10 µg/m³ or less, falling to 0 at 40 µg/m³
+  // or more". Scores run from 0 (worst) to 1 (best), as in scoring.md.
+  function describeCurve(curve, unit) {
+    const value = (x) => {
+      const text = number.format(x);
+      if (!unit) return text;
+      return unit === "%" ? `${text}%` : `${text} ${unit}`;
+    };
+    switch (curve.shape) {
+      case "ramp":
+        return curve.t1 < curve.t0
+          ? `1 at ${value(curve.t1)} or less, falling to 0 at ${value(curve.t0)} or more`
+          : `0 at ${value(curve.t0)} or less, rising to 1 at ${value(curve.t1)} or more`;
+      case "ideal-range": {
+        const best = curve.l1 === curve.u1
+          ? `1 at ${value(curve.l1)}`
+          : `1 from ${number.format(curve.l1)} to ${value(curve.u1)}`;
+        return `${best}, falling to 0 at ${value(curve.l0)} or less and at ${value(curve.u0)} or more`;
+      }
+      case "lookup":
+        return `by category: ${Object.entries(curve.scores).map(([category, score]) => `${category} ${number.format(score)}`).join(", ")}`;
+      case "percentile":
+        return `by rank within the region, where ${curve.better} values score better`;
+      default:
+        return "";
+    }
+  }
+
   // Returns the ids from the root down to the factor with this id,
   // or an empty list when no factor has it.
   function pathTo(root, id) {
@@ -366,6 +438,6 @@
 
   return {
     ROOT_ID, SCALES, STATUSES, PLACEHOLDER_WEIGHT, OPEN_LICENCES,
-    validateCatalogue, validateDatasets, normaliseCatalogue, buildTree, pathTo,
+    validateCatalogue, validateDatasets, normaliseCatalogue, normaliseDatasets, buildTree, describeCurve, pathTo,
   };
 });
