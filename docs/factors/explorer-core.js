@@ -395,11 +395,13 @@
   // Puts a scoring curve into words, with its thresholds in the measured
   // indicator's unit, e.g. "1 at 10 µg/m³ or less, falling to 0 at 40 µg/m³
   // or more". Scores run from 0 (worst) to 1 (best), as in scoring.md.
+  // Non-breaking spaces keep each number with its unit, and each category
+  // with its score, when the tooltip wraps.
   function describeCurve(curve, unit) {
     const value = (x) => {
       const text = number.format(x);
       if (!unit) return text;
-      return unit === "%" ? `${text}%` : `${text} ${unit}`;
+      return unit === "%" ? `${text}%` : `${text} ${unit}`;
     };
     switch (curve.shape) {
       case "ramp":
@@ -416,7 +418,7 @@
         // Best first. The keys' own order cannot be trusted, because
         // JavaScript puts keys that look like whole numbers first.
         const best = Object.entries(curve.scores).sort(([, a], [, b]) => b - a);
-        return `by category: ${best.map(([category, score]) => `${category} ${number.format(score)}`).join(", ")}`;
+        return `by ${unit || "category"}: ${best.map(([category, score]) => `${category} → ${number.format(score)}`).join(", ")}`;
       }
       case "percentile":
         return `by rank within the region, where ${curve.better} values score better`;

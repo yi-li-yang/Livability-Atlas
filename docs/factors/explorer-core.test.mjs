@@ -478,10 +478,21 @@ test("describeCurve puts a scoring curve into words", () => {
     [{ shape: "ramp", t0: 0, t1: 30 }, "%", "0 at 0% or less, rising to 1 at 30% or more"],
     [{ shape: "ideal-range", l0: 14, l1: 20, u1: 26, u0: 32 }, "°C", "1 from 20 to 26 °C, falling to 0 at 14 °C or less and at 32 °C or more"],
     [{ shape: "ideal-range", l0: 14, l1: 20, u1: 20, u0: 32 }, "°C", "1 at 20 °C, falling to 0 at 14 °C or less and at 32 °C or more"],
-    [{ shape: "lookup", scores: { "very low": 1, low: 0.75, high: 0 } }, "", "by category: very low 1, low 0.75, high 0"],
+    [{ shape: "lookup", scores: { "very low": 1, low: 0.75, high: 0 } }, "", "by category: very low → 1, low → 0.75, high → 0"],
+    [{ shape: "lookup", scores: { 1: 1, 2: 1, 3: 0.89 } }, "fare zone", "by fare zone: 1 → 1, 2 → 1, 3 → 0.89"],
     [{ shape: "percentile", better: "higher" }, "venues", "by rank within the region, where higher values score better"],
   ];
-  for (const [curve, unit, words] of cases) assert.equal(core.describeCurve(curve, unit), words);
+  for (const [curve, unit, words] of cases) assert.equal(plain(core.describeCurve(curve, unit)), words);
+});
+
+// The curve in words uses non-breaking spaces; most tests compare it as plain text.
+function plain(text) {
+  return text.replace(/ /g, " ");
+}
+
+test("describeCurve keeps each number with its unit, and each category with its score", () => {
+  assert.equal(core.describeCurve({ shape: "ramp", t0: 40, t1: 10 }, "µg/m³"), "1 at 10 µg/m³ or less, falling to 0 at 40 µg/m³ or more");
+  assert.equal(core.describeCurve({ shape: "lookup", scores: { low: 1, high: 0 } }, ""), "by category: low → 1, high → 0");
 });
 
 test("describeCurve lists a lookup's categories from best to worst, even when they look like numbers", () => {
@@ -489,7 +500,7 @@ test("describeCurve lists a lookup's categories from best to worst, even when th
   // must come from the scores, not from the keys.
   const ptal = { 0: 0, "1a": 0.125, "1b": 0.25, 2: 0.375, 3: 0.5, 4: 0.625, 5: 0.75, "6a": 0.875, "6b": 1 };
   assert.equal(
-    core.describeCurve({ shape: "lookup", scores: ptal }, "PTAL band"),
-    "by category: 6b 1, 6a 0.875, 5 0.75, 4 0.625, 3 0.5, 2 0.375, 1b 0.25, 1a 0.125, 0 0",
+    plain(core.describeCurve({ shape: "lookup", scores: ptal }, "PTAL band")),
+    "by PTAL band: 6b → 1, 6a → 0.875, 5 → 0.75, 4 → 0.625, 3 → 0.5, 2 → 0.375, 1b → 0.25, 1a → 0.125, 0 → 0",
   );
 });
