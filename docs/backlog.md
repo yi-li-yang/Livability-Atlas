@@ -19,8 +19,9 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Scheduled data refresh with anomaly checks (ML) | idea |
 | Buses in the travel-time estimate; cycling, step-free and night-time travel; jobs within 45 min | idea |
 | Personal notes layer: users rate places they have visited, stored in the browser | idea |
+| Destinations: the user picks public places or chains, e.g. Costco, IKEA or the nearest airport, and each is scored by distance to the nearest one. Starts as straight-line distance computed in the browser from a small points file per destination (brand tags, checked in spike S6); later car and public-transport times | idea |
 | Your industry: jobs in a chosen industry within reach | idea |
-| Market signals: brand groups checked against data | idea |
+| Brand presence: brand groups checked against data | idea |
 | "Why we differ" view against published rankings | idea |
 
 ## Phase 3: more places
@@ -33,7 +34,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Street-photo and text-derived indicators for hard-to-measure factors (ML, LLM) | idea |
 | Finer air quality, noise and rent by ML downscaling | idea |
 | Localisation: currencies, units, UI languages | idea |
-| Your industry across cities: location quotient, firms, institutions, credible rankings | idea |
+| Your industry across cities: industry specialisation, firms, institutions, credible rankings | idea |
 | Climate for the across-cities scale: sunshine duration, daylight, wind, rain, temperature ranges | idea |
 
 ## Phase 4: product

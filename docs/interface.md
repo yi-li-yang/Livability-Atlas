@@ -12,7 +12,7 @@ The surface shows what a decision needs. Each further layer opens only when the 
 | 2. Quick look | Neighbourhood name, score and rank, its two biggest strengths and its biggest weakness (e.g. "+ Transport, + Green space, − Cost") | Hover over or tap a hex cell |
 | 3. Why this score | One bar per top-level factor, showing its score contribution | Click the hex cell |
 | 4. Inside a factor | That factor's sub-factor scores | Open the factor's dropdown |
-| 5. Evidence | Raw value and unit, scoring curve, dataset, date, licence and confidence label | The "details" link on a measured indicator |
+| 5. Evidence | Raw value and unit, scoring curve, dataset, date, licence and evidence type | The "details" link on a measured indicator |
 
 The same rule applies across the app:
 
@@ -43,7 +43,7 @@ The preferences panel draws the factor tree, and each factor's area is its share
 
 ## Plain and accessible
 
-- Labels use the glossary's plain names.
+- Labels use only the words in the glossary's [In the app](glossary.md#in-the-app) part, which carry no jargon.
 - Colours stay readable for colour-blind users.
 - Everything works with a keyboard.
 - The ranked list is a full alternative to the map for screen-reader users.

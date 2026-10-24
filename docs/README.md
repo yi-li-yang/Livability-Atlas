@@ -6,7 +6,7 @@ These are living documents: they change as the project changes, and git keeps th
 
 | Document | What it holds |
 | --- | --- |
-| [glossary.md](glossary.md) | Every project term in plain words, with examples |
+| [glossary.md](glossary.md) | Every project term in plain words, with examples: first the words the app shows, then the words for contributors |
 | [vision.md](vision.md) | What the tool is for: goals, target users, not-now list, MVP success criteria |
 | [progress.md](progress.md) | Where the project stands, what is next, and a dated log |
 

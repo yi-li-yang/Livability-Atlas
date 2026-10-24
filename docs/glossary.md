@@ -1,80 +1,122 @@
 # Glossary
 
-Every term the project uses, in plain words. Each term keeps one meaning in the code, the docs and the app. When you introduce a term, add it here.
+Every term the project uses, in plain words. Each term keeps one meaning and one name in the code, the docs and the app.
 
-## Map and places
+The glossary has two parts:
 
-| Term | Meaning | Example |
-| --- | --- | --- |
-| Within-city scale | Scoring small areas inside one city | Hex cells across London |
-| Across-cities scale | Scoring whole cities across countries | London versus Lisbon |
-| Hex cell | One hexagon of the map grid: about 0.1 km² and 350 m across. The smallest area the project scores | Greater London has about 15,000 |
-| H3 | An open-source system of hexagon grids covering the globe, from Uber | Resolution 9 gives our hex cells |
-| Neighbourhood (MSOA) | A named census area of about 8,000 residents, used for names and the ranked list | About 1,000 in London |
-| Region | The whole area one build covers | Greater London |
-| Buffer zone | A 2 km ring around the region, computed but not shown, so that hex cells at the edge count what lies just outside | |
-| Dataset tier | How much of the world a dataset covers: one city, one country, or the globe | PTAL is city tier |
-| Comparable across regions | Whether a measured indicator means the same thing in every region | Satellite PM2.5: yes. Crime counts: no |
+- **[In the app](#in-the-app).** Words the app shows its users, in labels, legends, tooltips and help text. Each must be clear to someone who has never seen the project, so these words carry no jargon.
+- **[For contributors](#for-contributors).** Words used only in the docs and the code. Technical terms are fine here, as long as each meaning is written plainly.
 
-## Factors and scoring
+When you add a term, put it in the part where it is used. A contributor term that starts to appear in the app moves to "In the app", and gets a plain name first.
+
+## In the app
+
+### Map and places
 
 | Term | Meaning | Example |
 | --- | --- | --- |
-| Factor tree | Everything a user can weight, arranged from broad to specific | |
-| Top-level factor | The first level of the factor tree, with one weight each | Environment |
-| Sub-factor | A part of a factor, opened with a dropdown. It can split again | Air quality, then NO₂ |
-| Measured indicator | The bottom of the factor tree: one number per hex cell, computed from a dataset | Annual mean NO₂ in µg/m³ |
+| Hex cell | One hexagon of the map grid, about 350 m across. The smallest area the app scores | Greater London has about 15,000 |
+| Neighbourhood | A named area of about 8,000 residents, used for names on the map and in the ranked list | About 1,000 in London |
+| Region | The whole area one map covers | Greater London |
+| Within-city scale | Comparing small areas inside one city | Hex cells across London |
+| Across-cities scale | Comparing whole cities, across countries | London versus Lisbon |
+| Comparable across regions | Whether a measured indicator means the same thing everywhere, so that places in different regions can be compared on it | Satellite PM2.5: yes. Crime counts: no, because countries record crime differently |
+
+### Factors and scores
+
+| Term | Meaning | Example |
+| --- | --- | --- |
+| Factor | Something that makes a place better or worse to live in, and that the user can weight | Transport, Safety |
+| Factor tree | All the factors, from broad to specific. Each factor opens into sub-factors, down to measured indicators | |
+| Sub-factor | A part of a factor, opened from it. It can split again | Air quality, inside Environment |
+| Measured indicator | The bottom of the factor tree: one number per hex cell, taken from a dataset | Annual mean NO₂ in µg/m³ |
 | Weight | How much a factor matters to the user, from 0 (ignore) to 5 (crucial) | |
 | Default weight | The starting weight, set from evidence of what people value. Users change it | |
-| Scoring curve | The rule that turns a measured value into a score from 0 to 1 | PM2.5: 5 µg/m³ → 1, 25 µg/m³ → 0 |
-| Preference type | Who sets a measured indicator's direction: fixed, user direction, user range or user choice | Rain: user direction |
-| Ideal range | A band of values a user likes best. The score falls off on both sides | Summer temperature 20–26 °C |
-| Hard limit (filter) | A must-have rule. Hex cells that fail it are greyed out and not ranked | Rent no higher than the user's cap |
-| Livability score | The 0–100 result for one hex cell under a preference profile | |
-| Score contribution | How many of the 100 points one factor adds for a hex cell | |
-| Data coverage | The share of the user's total weight that has data for a hex cell. Below 70% the score is flagged | |
-| Confidence label | How directly a measured indicator measures its factor: direct, estimate, proxy, perception or ranking | A venue count is direct |
+| Share of total weight | How much of the user's total weight one factor carries. Each factor's share splits among its sub-factors by their weights, and the factor tree draws it as area | Weights of 4, 4 and 2 give shares of 40%, 40% and 20% |
+| Scoring curve | The rule that turns a measured value into a score from 0 (worst) to 1 (best) | PM2.5: 5 µg/m³ scores 1, and 25 µg/m³ scores 0 |
+| Ideal range | A band of values the user likes best. The score falls away on both sides | Summer temperature 20–26 °C |
+| Hard limit | A must-have rule, like a search filter. Hex cells that fail it are greyed out and not ranked | Rent no higher than the user's cap |
+| Livability score | The 0–100 result for one hex cell, from the user's own weights | |
+| Score contribution | How many of the livability score's points one factor adds in a hex cell. The contributions add up to the score | Transport: 32 of 59 points |
+| Data coverage | How much of the user's total weight has data in a hex cell. Below 70%, the score is flagged as resting on thin data | |
+| Evidence type | What kind of evidence a measured indicator is. Each measured indicator shows one of the five [evidence types](#evidence-types) below | |
 
-## Interface
+### Evidence types
 
 | Term | Meaning | Example |
 | --- | --- | --- |
-| Progressive disclosure | Showing the high-level answer first, and each layer of detail only when the user asks | Hover, then click, then a dropdown, then "details" |
-| Quick look | What hovering over a hex cell shows: name, score, rank, main strengths and weakness | "+ Transport, − Cost" |
-| Evidence layer | The deepest layer: raw value, scoring curve, dataset, date, licence, confidence label | |
-| Visual factor tree | The factor tree drawn so that each factor's area is its share of the total weight | |
-| Treemap, sunburst | Two ways to draw the visual factor tree: nested rectangles, or rings around a centre | |
-| Factor explorer | A standalone page that prototypes the visual factor tree on the factor catalogue | `docs/factors/explorer.html` (step 0.2) |
+| Direct | It measures the thing itself | Theatres within a 15-minute walk |
+| Estimate | It is worked out approximately, for example by a model where data is sparse | Travel time to a user's own places |
+| Indirect | It measures something closely related, as a sign of the thing | The variety of cuisines nearby, as a sign of culture |
+| Perception | How a place looks or feels to people, judged from photos or written descriptions | Street photos rated for greenery |
+| Ranking | It comes from a published ranking | Time Out's neighbourhood lists |
 
-## Users and preferences
+### Preferences
+
+| Term | Meaning | Example |
+| --- | --- | --- |
+| Preference profile | Everything a user sets: weights, directions, ranges, choices, hard limits and places. It stays in their browser | |
+| A user's places ("my places" in the app) | Up to 3 places a user travels to often. Travel times to them are estimated in the browser | Work, family |
+| Default places | Used until a user adds their own places: London's main job centres | Bank, Oxford Circus, Canary Wharf, King's Cross |
+| Destination | A public place or chain a user chooses, scored by distance to the nearest one. Unlike a user's places, it is not personal | Costco, IKEA, the nearest airport |
+| Preset | A ready-made preference profile to start from | Family with children |
+
+### Data and sources
+
+| Term | Meaning | Example |
+| --- | --- | --- |
+| Dataset | A file or service the project takes data from. Every number in the app names its dataset, with its date and licence | Police.uk crime data |
+| Published ranking | A list or index of places published by someone else, used as a supporting factor and for comparison | Sunday Times Best Places to Live |
+| Credibility rating | The project's high, medium or low judgement of how far a published ranking can be trusted | |
+| Industry specialisation | How many times bigger an industry's share of local jobs is than its share nationally or worldwide. Above 1, the place specialises in that industry. Economists call it the location quotient | Fashion in Milan |
+| Brand presence | Which chain brands and shopping centres are near a place. Large companies choose their sites carefully, so where they open shows how they rate an area | Gail's and Waitrose nearby; Westfield within reach |
+
+## For contributors
+
+### Map grid
+
+| Term | Meaning | Example |
+| --- | --- | --- |
+| H3 | An open-source system of hexagon grids covering the globe, from Uber | Resolution 9 gives the hex cells |
+| MSOA | Middle layer Super Output Area: the UK census area used for neighbourhoods. The House of Commons Library publishes readable names for them | About 1,000 in London |
+| Buffer zone | A 2 km ring around the region, computed but not shown, so that hex cells at the edge count what lies just outside | |
+| Dataset tier | How much of the world a dataset covers: one city, one country, or the globe | PTAL is city tier |
+
+### Scoring method
+
+| Term | Meaning | Example |
+| --- | --- | --- |
+| Top-level factor | The first level of the factor tree, with one weight each | Environment |
+| Preference type | Who sets a measured indicator's direction: fixed, user direction, user range or user choice | Rain: user direction |
+| Active child | A child factor that counts in a hex cell: its weight is above 0 and it has a score there | |
+| Effective share | A factor's share of total weight as it works out in one hex cell. A factor with no data there passes its share to its active siblings | Air quality's 0.1 becomes 0.2 where Noise has no data |
+
+### Interface design
 
 | Term | Meaning | Example |
 | --- | --- | --- |
 | User | Anyone using the app. The first user is the project's developer | |
-| Preference profile | Everything a user sets: weights, directions, ranges, choices, hard limits and places. Stored in their browser | |
-| A user's places ("my places" in the app) | Up to 3 places a user travels to often. Travel time to them is estimated in the browser | Work, family |
-| Default places | Used until a user adds their own places: London's main job centres | Bank, Oxford Circus, Canary Wharf, King's Cross |
-| Preset | A ready-made preference profile to start from | Family with children |
+| Progressive disclosure | Showing the high-level answer first, and each layer of detail only when the user asks | Hover, then click, then a dropdown, then "details" |
+| Quick look | What hovering over a hex cell shows: name, score, rank, main strengths and weakness | "+ Transport, − Cost" |
+| Evidence layer | The deepest layer: raw value, scoring curve, dataset, date, licence and evidence type | |
+| Visual factor tree | The factor tree drawn so that each factor's area is its share of total weight | |
+| Treemap, sunburst | Two ways to draw the visual factor tree: nested rectangles, or rings around a centre | |
+| Factor explorer | A standalone page that prototypes the visual factor tree on the factor catalogue | `docs/factors/explorer.html` (step 0.2) |
 
-## Data
+### Data pipeline
 
 | Term | Meaning | Example |
 | --- | --- | --- |
-| Dataset | A file or API the project takes data from | Police.uk crime data |
 | Factor catalogue | The YAML files that list the factor tree and every dataset | `catalogue/` (step 0.2) |
 | Data pipeline | The Python program that downloads datasets and computes measured indicators for every hex cell | `atlas build london` |
 | Data bundle | The files the data pipeline publishes for one region. The web app reads only these | `data/published/london/…` |
 | Manifest | The index file of a data bundle: factor tree, scoring curves, datasets, dates | `manifest.json` |
 | Station travel-time matrix | Public-transport times between every pair of stations in a region, including average waits and changes | `station-matrix.parquet` |
 | QA report | The checks run on each build, and their results | `qa.md` |
-| Published ranking | An outside list or index of places, used as a supporting sub-factor and for comparison | Sunday Times Best Places to Live |
-| Credibility rating | The project's high, medium or low judgement of a published ranking | |
 | PTAL | TfL's Public Transport Accessibility Level, from 0 (worst) to 6b (best) | |
-| Location quotient | An industry's share of local jobs divided by its share nationally or globally. Above 1, the place specialises in it | Fashion in Milan |
-| Market signal | Where large companies choose to open, read as evidence of how they rate an area | Chain brands, shopping centres |
 | Brand tag | A label in OpenStreetMap or Overture that links a shop to its company | `brand:wikidata` |
 
-## Process
+### Process
 
 | Term | Meaning | Example |
 | --- | --- | --- |

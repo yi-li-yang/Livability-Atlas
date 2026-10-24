@@ -36,7 +36,7 @@ The project's first user is its developer. Every feature is built for any user.
 ## Principles
 
 - **Transparent.** The livability score is a weighted sum that anyone can inspect. No black-box model decides what is livable.
-- **Honest about evidence.** Every number traces to a dataset with its date and licence, and every measured indicator carries a confidence label.
+- **Honest about evidence.** Every number traces to a dataset with its date and licence, and every measured indicator carries an evidence type.
 - **Personal.** Users set the weights. Where tastes differ, they also set the direction, the ideal range or the choice. Hard limits remove areas that fail a must-have.
 - **Private.** A user's preferences and places stay in their browser.
 - **Clear.** The answer comes first, and details open on demand.
@@ -58,7 +58,7 @@ Each item is also kept in the [backlog](backlog.md#not-now).
 ## MVP success criteria (end of Phase 1)
 
 1. A user sets weights for about 10 top-level factors in a visual factor tree whose sizes follow the weights. They can also open any factor to adjust its sub-factors, set the direction or ideal range of subjective factors, set hard limits, and add up to 3 places of their own. The map recolours within about 100 ms of a weight change.
-2. Hovering over a hex cell shows its neighbourhood, livability score and main strengths and weaknesses. Clicking shows each top-level factor's score contribution. Sub-factors, raw values, datasets, dates and confidence labels open only when asked for.
+2. Hovering over a hex cell shows its neighbourhood, livability score and main strengths and weaknesses. Clicking shows each top-level factor's score contribution. Sub-factors, raw values, datasets, dates and evidence types open only when asked for.
 3. The QA report passes all its checks: dataset checks, cross-checks and known-fact assertions ([methodology/validation.md](methodology/validation.md)).
 4. `just build london` rebuilds the data bundle from raw downloads and gives the same result every time.
 5. A new factor is added by following the factor recipe, with no change to UI code.

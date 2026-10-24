@@ -40,7 +40,7 @@ These checklists define when a repeated job is done.
 ### Add a factor
 
 1. Tree node: plain name, description, default weight with its reason, parent.
-2. Measured indicators, each with its unit, preference type, a scoring curve with its justification, a confidence label, and whether it is comparable across regions.
+2. Measured indicators, each with its unit, preference type, a scoring curve with its justification, an evidence type, and whether it is comparable across regions.
 3. A dataset entry, with its tier and licence checked.
 4. Fetching is idempotent and cached, and the checksum is recorded.
 5. A documented method aggregates the data to hex cells.

@@ -116,6 +116,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** Step 0.5 finalises the method with golden test cases.
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.
+  - 2026-10-23: notation rewritten after review, with a symbols table, rendered formulas and a worked example. One rule added: a composite factor whose children all have weight 0 counts as weight 0, so it does not lower data coverage.
 
 ## D07 Dataset licences
 
@@ -160,7 +161,7 @@ The living list of project decisions. Each entry holds the current choice and wh
   - A user's own places (up to 3) get an estimate computed in the browser: the walk to a nearby station, then a precomputed station-to-station travel-time matrix, then the walk to the place. Places never leave the device.
   - The engine is r5py with GTFS timetables, or the TfL Journey Planner API if the timetable conversion fails.
 - **Why:** In a static-first app, the data pipeline cannot precompute every user's places.
-- **Known limits:** Buses are not in the matrix, so bus-only trips come out too long. Estimates carry the confidence label "estimate".
+- **Known limits:** Buses are not in the matrix, so bus-only trips come out too long. Estimates carry the evidence type "estimate".
 - **Revisit when:** Spike S4 reports the estimate's error and picks the engine. Exact routing arrives with a routing service (Phase 4).
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.

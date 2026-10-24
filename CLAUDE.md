@@ -32,7 +32,7 @@ None yet. Step 0.3 adds a `justfile`, and every command (setup, check, test, val
 | An idea comes up or a feature ships | `docs/backlog.md` |
 | A milestone moves | `docs/roadmap.md` |
 | The directory structure changes | `docs/codemap.md` |
-| A new term appears | `docs/glossary.md`, with one meaning per term |
+| A new term appears | `docs/glossary.md`, with one meaning per term, under "In the app" if the app shows it |
 | Every session | `docs/progress.md` |
 
 Specs go to `docs/specs/YYYY-MM-DD-topic.md` and implementation plans to `docs/plans/YYYY-MM-DD-topic.md`. This overrides the superpowers default of `docs/superpowers/...`.
@@ -53,7 +53,7 @@ Recipes for adding a factor, a dataset or a region are in [CONTRIBUTING.md](CONT
 ## Conventions
 
 - Write British English in docs and UI text.
-- Use the glossary's terms. Each thing keeps one name in code, docs and UI.
+- Use the glossary's terms. Each thing keeps one name in code, docs and UI. Words the app shows (the glossary's "In the app" part) must be clear to a newcomer, with no jargon. Jargon is fine only in words for contributors.
 - Plans carry no dates or durations. Phases, cycles and spikes end when their checks pass.
 - Commit messages follow Conventional Commits.
 - Keep files small and focused: one module per dataset and one per indicator family.
