@@ -10,6 +10,9 @@ Livability-Atlas/
 ├── LICENSE                # AGPL-3.0
 ├── .gitignore             # keeps data/, .env files and build output out of git
 ├── .gitattributes         # line-ending normalisation
+├── .claude/
+│   └── commands/
+│       └── research-factor.md  # the recipe for researching one factor, as a Claude Code command
 ├── catalogue/             # the factor catalogue
 │   ├── README.md          # the field reference, and how it is checked
 │   ├── factors.yaml       # the factor tree, down to measured indicators

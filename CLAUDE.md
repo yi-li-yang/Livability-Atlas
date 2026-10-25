@@ -25,6 +25,7 @@ Step 0.3 adds a `justfile`, and every command (setup, check, test, validate, bui
 
 - `node --test "docs/factors/*.test.mjs"` runs the factor explorer's tests.
 - `node docs/factors/embed-catalogue.mjs` refreshes the explorer after an edit to `catalogue/factors.yaml` or `catalogue/datasets.yaml`.
+- `/research-factor <id>` researches one factor of the catalogue, through to an open pull request ([.claude/commands/research-factor.md](.claude/commands/research-factor.md)).
 
 ## Living documents: what to update when
 
