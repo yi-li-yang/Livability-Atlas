@@ -22,6 +22,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Across-cities scale | Comparing whole cities, across countries | London versus Lisbon |
 | Comparable across regions | Whether a measured indicator means the same thing everywhere, so that places in different regions can be compared on it | Satellite PM2.5: yes. Crime counts: no, because countries record crime differently |
 | Fare zone | One of the numbered rings that London's public transport fares are priced by, from zone 1 in the centre outwards | Bank is in zone 1 |
+| Daytime noise level | The average noise level from 7 am to 11 pm, in decibels (dB) | 55 dB (daytime) from road traffic |
 
 ### Factors and scores
 
