@@ -479,3 +479,36 @@ datasets:
       under the Open Government Licence v3.0.
     tells:
       - The share of premises, indoors and outdoors, and of land with 4G and 5G coverage, by how many of the four networks provide it
+
+  - id: dfe-gias
+    name: Get Information About Schools (DfE)
+    publisher: Department for Education (DfE)
+    url: https://get-information-schools.service.gov.uk/Downloads
+    tier: country
+    area: England
+    resolution: points, one for each school
+    date: updated daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - Every school and other educational establishment in England, with its phase, type, status and location
+
+  - id: ofsted-school-inspections
+    name: "State-funded school inspections and outcomes: management information (Ofsted)"
+    publisher: Ofsted
+    url: https://www.gov.uk/government/statistical-data-sets/monthly-management-information-ofsteds-school-inspections-outcomes
+    tier: country
+    area: England
+    resolution: one record for each state-funded school
+    date: monthly
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Published on GOV.UK, whose content is available under the Open
+      Government Licence v3.0 unless it says otherwise.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
