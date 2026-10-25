@@ -49,7 +49,7 @@ The [Natural hazards research](../specs/2026-10-25-natural-hazards-research.md) 
 
 ## Daily amenities: the sub-factors still to research
 
-The [Daily amenities research](../specs/2026-10-25-daily-amenities-research.md) left these as ideas, outside the MVP. The food and brand sections above hold their signals.
+The [Daily amenities research](../specs/2026-10-25-daily-amenities-research.md) left these as ideas, outside the MVP. Their signals are in [hard-to-measure.md](../methodology/hard-to-measure.md).
 
 | Sub-factor | Leads |
 | --- | --- |
@@ -92,54 +92,6 @@ The MVP rows moved into the catalogue with the [Transport research](../specs/202
 | Cycling | Protected lanes, cycle-hire docks, slope | TfL Cycle Infrastructure Database, OpenStreetMap, elevation data |
 
 Outside London, the Bus Open Data Service (BODS) publishes bus timetables for England. It becomes the country-tier dataset for bus routes when a second English city is added.
-
-## Culture: the evidence ladder
-
-| Kind of evidence | Culture example | Evidence type |
-| --- | --- | --- |
-| Direct counts | Cultural venues within a 15-minute walk: theatres, music venues, galleries, cinemas, libraries (GLA Cultural Infrastructure Map) | direct |
-| Access | Cultural venues within 30 minutes by public transport | direct |
-| Variety | The number of distinct cuisines nearby | indirect |
-| Character | Listed buildings and conservation areas (Historic England) | indirect |
-| Activity | Event listings; geotagged Wikipedia articles and their page views | indirect |
-| Perception, by ML | Street-level photos rated for liveliness and beauty; area descriptions tagged by an LLM | perception |
-| Published rankings | Time Out neighbourhood lists, Sunday Times Best Places to Live | ranking |
-| A user's own ratings | A personal notes layer, stored in the browser | the user's own |
-
-The same ladder applies to other factors that are hard to measure, such as community life or feeling safe. Spike S7 tests it.
-
-## Food and drink: quality signals
-
-| Kind of evidence | Example | Dataset and licence | Evidence type |
-| --- | --- | --- | --- |
-| Choice | Restaurants and cafés within a 10-minute walk | OpenStreetMap, Overture, Foursquare Open Source Places | direct |
-| Variety | The number of distinct cuisines nearby | OpenStreetMap cuisine tags | indirect |
-| Your cuisines | Restaurants serving the cuisines a user picks | OpenStreetMap cuisine tags | direct |
-| Hygiene | Food hygiene ratings of nearby restaurants | UK Food Standards Agency (open; country tier) | direct for hygiene, indirect for quality |
-| Guide recognition | Michelin stars and Bib Gourmand, the Good Food Guide, The World's 50 Best | Wikidata (CC0) records the Michelin stars of many restaurants, though not all. The guides themselves are proprietary, so keep only counts and a citation | ranking |
-| Independents | The share of restaurants that are not chains | OpenStreetMap and Overture brand tags | indirect |
-| Ratings and reviews | Average rating and review count | Google, Yelp, Tripadvisor, OpenRice (Hong Kong), Tabelog (Japan), Dianping (China). Their terms forbid storing the data or require a partnership | perception |
-
-Build from the open rows first. Treat each country's ratings platform as a country-tier dataset that needs a licence. Until it has one, ratings stay out of public builds (D07, D19). Spike S8 tests the open signals.
-
-## Brand presence: shopping centres and brand groups
-
-| Signal | Measured indicator | Example |
-| --- | --- | --- |
-| Shopping centres | The size of the shopping centres within reach | Westfield London, Westfield Stratford City |
-| Brand variety | Distinct national and international chains within a 15-minute walk | |
-| Brand groups | Brands grouped by what their choice of sites signals: premium, high footfall, large catchment, value | Premium: Gail's, Waitrose. High footfall: Pret, Starbucks. Large catchment: Costco, IKEA. Value: Aldi, Lidl |
-
-Brand groups are listed per country. Each brand's group is checked against data before use, for example whether its presence tracks house prices, and brands that show no pattern are dropped. Brand presence partly mirrors house prices, so it gets a low default weight. Spike S8 checks how complete brand tags are for London.
-
-## Your industry, across cities
-
-An industry's strength in a city combines four signals:
-
-- industry specialisation: the industry's share of local jobs, compared with its share worldwide
-- its firms and headquarters, from Wikidata
-- its flagship institutions and events
-- credible rankings of the industry
 
 ## Catalogue fields still to come
 

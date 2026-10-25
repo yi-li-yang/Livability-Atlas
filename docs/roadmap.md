@@ -16,7 +16,7 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [ ] Top-down pass: expand the 18 top-level factors into sub-factors and measured indicators, each with its preference type (`catalogue/factors.yaml`).
   - [ ] Bottom-up pass: inventory city, country and global datasets, each with its tier and what it can tell us (`catalogue/datasets.yaml`).
   - [x] Assess published rankings against the credibility rubric (`docs/factors/rankings.md`).
-  - [ ] Draft `docs/methodology/hard-to-measure.md`.
+  - [x] Draft `docs/methodology/hard-to-measure.md`.
   - [ ] Set default weights from evidence, with reasons, and compute the build order (D14).
   - [ ] Propose the MVP set: about 10 top-level factors.
 - [ ] **Before 0.3: install the tools.** Install uv and just with winget. Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`. Java 21 waits for spike S4.
