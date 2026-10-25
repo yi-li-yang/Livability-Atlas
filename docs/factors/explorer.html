@@ -293,9 +293,65 @@ factors:
     default_weight: 3
     scales: [within-city, across-cities]
     children:
-      - {id: buying-cost, name: "Buying cost", default_weight: 3, scales: [within-city], description: "Price per square metre."}
-      - {id: renting-cost, name: "Renting cost", default_weight: 3, scales: [within-city], description: "Monthly rent by home size."}
-      - {id: council-tax, name: "Council tax", default_weight: 3, scales: [within-city]}
+      - id: buying-cost
+        name: Buying cost
+        description: The price per square metre of the homes sold nearby.
+        default_weight: 3
+        scales: [within-city]
+        status: researched
+        unit: £ per m²
+        preference_type: fixed
+        curve: {shape: percentile, better: lower}
+        curve_reason: &cost-curve-reason >-
+          No standard sets a fair price, and prices differ between regions and
+          currencies, so a hex cell scores by its rank within the region. A
+          user's budget belongs in a hard limit, not in the curve.
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The median price per square metre of the homes sold in and around the
+          hex cell in recent years: each sale's price from HM Land Registry,
+          divided by the home's floor area from its energy certificate. Spike S3
+          decides how many years and how wide an area to pool, and how to match
+          sales to certificates within the licences' terms.
+        datasets: [hm-land-registry-price-paid, epc-domestic]
+      - id: renting-cost
+        name: Renting cost
+        description: The average monthly private rent in the borough.
+        default_weight: 3
+        scales: [within-city]
+        status: researched
+        unit: £ a month
+        preference_type: fixed
+        curve: {shape: percentile, better: lower}
+        curve_reason: *cost-curve-reason
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The ONS's average monthly private rent for the local authority, for all
+          homes, so every hex cell in a borough shares one value: no finer open
+          rent data covers London. The ONS also breaks rents down by number of
+          bedrooms, which can follow the user's home size later. Spike S3 asks
+          whether a model of rent from sale prices is credible at hex level.
+        datasets: [ons-private-rents]
+      - id: council-tax
+        name: Council tax
+        description: The Band D council tax of the borough.
+        default_weight: 3
+        scales: [within-city]
+        status: researched
+        unit: £ a year (Band D)
+        preference_type: fixed
+        curve: {shape: percentile, better: lower}
+        curve_reason: *cost-curve-reason
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The billing authority's average Band D council tax for the current
+          year, including precepts such as the Mayor of London's, so every hex
+          cell in a borough shares one value. A home's own band sets its real
+          bill, so Band D serves only to compare places.
+        datasets: [mhclg-council-tax]
       - {id: home-energy-efficiency, name: "Home energy efficiency", default_weight: 3, scales: [within-city]}
       - {id: rent-and-price-levels, name: "Rent and price levels", default_weight: 3, scales: [across-cities]}
       - {id: purchasing-power, name: "Purchasing power", default_weight: 3, scales: [across-cities]}
@@ -1219,6 +1275,83 @@ datasets:
     attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
     tells:
       - The number of usual residents of each output area on census day in 2021
+
+  - id: hm-land-registry-price-paid
+    name: Price Paid Data (HM Land Registry)
+    publisher: HM Land Registry
+    url: https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads
+    tier: country
+    area: England and Wales
+    resolution: the address of each home sold
+    date: monthly, with sales since 1995
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: false
+    licence_note: >-
+      The Open Government Licence covers the prices. The addresses, postcodes
+      included, were processed against Ordnance Survey's AddressBase Premium,
+      which includes Royal Mail's PAF, and Royal Mail and Ordnance Survey permit
+      their use only for personal or non-commercial use, or to display
+      residential property price information. Matching sales to energy
+      certificates by address may need Royal Mail's permission. Ask before a
+      public build, or test Land Registry's UPRN look-up table, which has its
+      own licence (spike S3).
+    attribution: >-
+      Contains HM Land Registry data © Crown copyright and database right 2021.
+      This data is licensed under the Open Government Licence v3.0.
+    tells:
+      - The price, date, property type, tenure and new-build status of each home sold for value
+
+  - id: epc-domestic
+    name: Energy performance certificates for homes, England and Wales
+    publisher: Ministry of Housing, Communities and Local Government (MHCLG)
+    url: https://get-energy-performance-data.communities.gov.uk/
+    tier: country
+    area: England and Wales
+    resolution: individual buildings, identified by UPRN
+    date: certificates lodged since 2008
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The Open Government Licence v3.0 covers every field except the address
+      and postcode, UPRNs included. The address fields may be used only for
+      purposes tied to the energy performance of buildings, so the pipeline
+      must locate certificates by UPRN, not by address. The service also sets
+      data protection requirements.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The floor area, energy rating, property type, age and heating of each certificated home
+
+  - id: ons-private-rents
+    name: "Price Index of Private Rents, UK: monthly price statistics"
+    publisher: Office for National Statistics (ONS)
+    url: https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/priceindexofprivaterentsukmonthlypricestatistics
+    tier: country
+    area: United Kingdom
+    resolution: local authorities
+    date: monthly
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
+    tells:
+      - Average monthly private rents by local authority, with breakdowns by number of bedrooms and property type
+
+  - id: mhclg-council-tax
+    name: Council Tax levels set by local authorities in England
+    publisher: Ministry of Housing, Communities and Local Government (MHCLG)
+    url: https://www.gov.uk/government/statistics/council-tax-levels-set-by-local-authorities-in-england-2026-to-2027
+    tier: country
+    area: England
+    resolution: billing authorities
+    date: 2026-27, published each March
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The average Band D council tax of each billing authority, including precepts
 </script>
 <script>
 (function () {

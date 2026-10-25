@@ -252,3 +252,80 @@ datasets:
     attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
     tells:
       - The number of usual residents of each output area on census day in 2021
+
+  - id: hm-land-registry-price-paid
+    name: Price Paid Data (HM Land Registry)
+    publisher: HM Land Registry
+    url: https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads
+    tier: country
+    area: England and Wales
+    resolution: the address of each home sold
+    date: monthly, with sales since 1995
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: false
+    licence_note: >-
+      The Open Government Licence covers the prices. The addresses, postcodes
+      included, were processed against Ordnance Survey's AddressBase Premium,
+      which includes Royal Mail's PAF, and Royal Mail and Ordnance Survey permit
+      their use only for personal or non-commercial use, or to display
+      residential property price information. Matching sales to energy
+      certificates by address may need Royal Mail's permission. Ask before a
+      public build, or test Land Registry's UPRN look-up table, which has its
+      own licence (spike S3).
+    attribution: >-
+      Contains HM Land Registry data © Crown copyright and database right 2021.
+      This data is licensed under the Open Government Licence v3.0.
+    tells:
+      - The price, date, property type, tenure and new-build status of each home sold for value
+
+  - id: epc-domestic
+    name: Energy performance certificates for homes, England and Wales
+    publisher: Ministry of Housing, Communities and Local Government (MHCLG)
+    url: https://get-energy-performance-data.communities.gov.uk/
+    tier: country
+    area: England and Wales
+    resolution: individual buildings, identified by UPRN
+    date: certificates lodged since 2008
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The Open Government Licence v3.0 covers every field except the address
+      and postcode, UPRNs included. The address fields may be used only for
+      purposes tied to the energy performance of buildings, so the pipeline
+      must locate certificates by UPRN, not by address. The service also sets
+      data protection requirements.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The floor area, energy rating, property type, age and heating of each certificated home
+
+  - id: ons-private-rents
+    name: "Price Index of Private Rents, UK: monthly price statistics"
+    publisher: Office for National Statistics (ONS)
+    url: https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/priceindexofprivaterentsukmonthlypricestatistics
+    tier: country
+    area: United Kingdom
+    resolution: local authorities
+    date: monthly
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
+    tells:
+      - Average monthly private rents by local authority, with breakdowns by number of bedrooms and property type
+
+  - id: mhclg-council-tax
+    name: Council Tax levels set by local authorities in England
+    publisher: Ministry of Housing, Communities and Local Government (MHCLG)
+    url: https://www.gov.uk/government/statistics/council-tax-levels-set-by-local-authorities-in-england-2026-to-2027
+    tier: country
+    area: England
+    resolution: billing authorities
+    date: 2026-27, published each March
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The average Band D council tax of each billing authority, including precepts
