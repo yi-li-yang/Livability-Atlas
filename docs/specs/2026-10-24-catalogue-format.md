@@ -82,7 +82,7 @@ A field may appear before its status requires it, and is then checked as usual. 
 | `licence_note` | when `public_build` is false | Why public builds may not use it, and what would change that |
 | `attribution` | when `public_build` is true | The credit the licence requires |
 | `tells` | yes | A list of what it can tell us |
-| `credibility` | for published rankings | `high`, `medium` or `low` ([research notes](../factors/research-notes.md#credibility-of-published-rankings)) |
+| `credibility` | for published rankings | `high`, `medium` or `low` ([the rubric](../factors/rankings.md#the-rubric)) |
 | `credibility_reason` | with `credibility` | Why |
 
 **D07 becomes a rule.** A dataset marked `public_build: true` needs a licence from D07's allowed list, which allows redistribution and commercial use, and the date its licence was checked. The allowed list, by SPDX id:

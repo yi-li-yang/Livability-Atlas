@@ -37,6 +37,7 @@ Livability-Atlas/
     │   ├── embed-catalogue.mjs  # copies the catalogue's two files into the page
     │   ├── artifact-page.mjs    # writes the copy published as an Artifact
     │   ├── *.test.mjs           # tests, run with Node's test runner
+    │   ├── rankings.md          # the published rankings, rated for credibility
     │   └── research-notes.md    # research tables from the Phase 0 plan
     ├── methodology/
     │   ├── scoring.md     # spatial framework and scoring method v0

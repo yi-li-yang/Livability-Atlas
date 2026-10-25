@@ -93,19 +93,6 @@ The MVP rows moved into the catalogue with the [Transport research](../specs/202
 
 Outside London, the Bus Open Data Service (BODS) publishes bus timetables for England. It becomes the country-tier dataset for bus routes when a second English city is added.
 
-## Credibility of published rankings
-
-Each published ranking gets a credibility rating of high, medium or low. The rating weighs six questions:
-
-- Is the method published?
-- How much data is behind it?
-- Is the publisher independent? An estate agent, for example, is not.
-- Is it recent?
-- Does it cover our places?
-- Does its licence let us store it?
-
-Many rankings are proprietary. For those, store only the rank and a citation, and keep them out of public builds unless the licence allows more (D07).
-
 ## Culture: the evidence ladder
 
 | Kind of evidence | Culture example | Evidence type |

@@ -1339,8 +1339,42 @@ factors:
     weight_reason: Supporting factor. It partly repeats the other factors, so it starts low (D14).
     scales: [within-city, across-cities]
     children:
-      - {id: sunday-times-best-places, name: "Sunday Times Best Places to Live", default_weight: 3, scales: [within-city]}
-      - {id: time-out-neighbourhoods, name: "Time Out neighbourhood lists", default_weight: 3, scales: [within-city]}
+      - id: sunday-times-best-places
+        name: Sunday Times Best Places to Live
+        description: Whether the latest Sunday Times guide names the area.
+        default_weight: 3
+        scales: [within-city]
+        status: researched
+        unit: listing
+        preference_type: fixed
+        curve: {shape: lookup, scores: {listed: 1, not listed: 0}}
+        curve_reason: &listing-reason >-
+          A ranking names a few places and says nothing about the rest, so a
+          hex cell in a named place scores 1 and any other 0. Published
+          rankings start at a low default weight, so a listing cannot outweigh
+          the measured factors (D14).
+        evidence_type: ranking
+        comparable_across_regions: false
+        method: &listing-method >-
+          The hex cells inside the neighbourhoods that the latest edition names,
+          matched to the neighbourhoods' boundaries by name. Only the list of
+          names and a citation are stored. The assessment of the ranking is in
+          docs/factors/rankings.md.
+        datasets: [sunday-times-best-places-to-live]
+      - id: time-out-neighbourhoods
+        name: Time Out neighbourhood lists
+        description: Whether Time Out's latest list of the world's coolest neighbourhoods names the area.
+        default_weight: 3
+        scales: [within-city]
+        status: researched
+        unit: listing
+        preference_type: fixed
+        curve: {shape: lookup, scores: {listed: 1, not listed: 0}}
+        curve_reason: *listing-reason
+        evidence_type: ranking
+        comparable_across_regions: false
+        method: *listing-method
+        datasets: [time-out-coolest-neighbourhoods]
       - {id: eiu-liveability, name: "EIU Global Liveability Index", default_weight: 3, scales: [across-cities]}
       - {id: mercer-quality-of-living, name: "Mercer Quality of Living", default_weight: 3, scales: [across-cities]}
       - {id: monocle-quality-of-life, name: "Monocle Quality of Life", default_weight: 3, scales: [across-cities]}
@@ -1890,6 +1924,136 @@ datasets:
     attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
     tells:
       - Residents of each output area by ethnic group (TS021), religion (TS030), country of birth (TS004), main language (TS024) and five-year age band (TS007A)
+
+  - id: sunday-times-best-places-to-live
+    name: The Sunday Times Best Places to Live
+    publisher: The Sunday Times
+    url: https://www.thetimes.com/best-places-to-live
+    tier: country
+    area: United Kingdom
+    resolution: named towns, cities and neighbourhoods
+    date: annual; the 2026 edition names 72 places
+    licence: LicenseRef-All-Rights-Reserved
+    public_build: false
+    licence_note: >-
+      Proprietary. Store only which places each edition names, with a
+      citation, for local builds (D07).
+    tells:
+      - The places the guide names each year, with an overall winner and a winner for each region
+    credibility: medium
+    credibility_reason: >-
+      The guide publishes its criteria, such as schools, transport, broadband,
+      green space and the high street, and its judges visit every place, but it
+      publishes no scoring. It is annual and independent of estate agents, but
+      the 2026 edition is sponsored by Lloyds Banking Group, a mortgage lender.
+
+  - id: time-out-coolest-neighbourhoods
+    name: Time Out's Coolest Neighbourhoods in the World
+    publisher: Time Out
+    url: https://www.timeout.com/coolest-neighbourhoods-in-the-world
+    tier: global
+    area: World
+    resolution: named neighbourhoods
+    date: annual; the 2025 edition names 39 places
+    licence: LicenseRef-All-Rights-Reserved
+    public_build: false
+    licence_note: >-
+      Proprietary. Store only which neighbourhoods each edition names, with a
+      citation, for local builds (D07).
+    tells:
+      - The neighbourhoods Time Out's writers and editors rank as the world's coolest each year
+    credibility: low
+    credibility_reason: >-
+      Time Out's writers and editors nominate and rank the places on broad
+      criteria, such as culture, nightlife and a sense of newness, with no
+      published scoring or data. It names one or two London neighbourhoods a
+      year, and its criteria favour going out over everyday living.
+
+  - id: eiu-global-liveability-index
+    name: Global Liveability Index (Economist Intelligence Unit)
+    publisher: Economist Intelligence Unit (EIU)
+    url: https://www.eiu.com/n/campaigns/global-liveability-index-2025/
+    tier: global
+    area: 173 cities worldwide
+    resolution: cities
+    date: annual; the 2026 edition was released in July 2026
+    licence: LicenseRef-All-Rights-Reserved
+    public_build: false
+    licence_note: >-
+      Proprietary: the full index is sold, with a free summary. Store only
+      ranks, with a citation, for local builds (D07).
+    tells:
+      - "Each city's liveability score and rank, from 30 indicators in five categories: stability, health care, culture and environment, education, and infrastructure"
+    credibility: high
+    credibility_reason: >-
+      The EIU publishes its 30 indicators and five categories, and it is
+      independent of property interests. It is annual, and covers London among
+      173 cities.
+
+  - id: mercer-quality-of-living
+    name: Quality of Living City Ranking (Mercer)
+    publisher: Mercer
+    url: https://www.mercer.com/insights/total-rewards/talent-mobility-insights/quality-of-living-city-ranking/
+    tier: global
+    area: 241 cities worldwide
+    resolution: cities
+    date: 2024
+    licence: LicenseRef-All-Rights-Reserved
+    public_build: false
+    licence_note: >-
+      Proprietary: Mercer sells its city reports. Store only ranks, with a
+      citation, for local builds (D07).
+    tells:
+      - Each city's quality of living, scored against New York
+    credibility: low
+    credibility_reason: >-
+      Mercer describes its method only in outline, and builds the ranking to
+      help employers set pay and hardship allowances for staff posted abroad,
+      not for residents. The cities it covers follow its clients' demand.
+
+  - id: monocle-quality-of-life-survey
+    name: Monocle's Quality of Life Survey
+    publisher: Monocle
+    url: https://monocle.com/affairs/urbanism/qol/quality-of-life-2026-most-liveable-cities/
+    tier: global
+    area: World
+    resolution: cities
+    date: annual; the 2026 edition names 20 cities
+    licence: LicenseRef-All-Rights-Reserved
+    public_build: false
+    licence_note: >-
+      Proprietary. Store only ranks, with a citation, for local builds (D07).
+    tells:
+      - The 20 cities Monocle's editors rank highest for quality of life each year
+    credibility: low
+    credibility_reason: >-
+      Monocle's editors choose the top 20 from its correspondents' answers to a
+      questionnaire and a set of metrics, such as safety, green space and
+      nightlife, with no published scoring. London is not in the 2026 list.
+
+  - id: oecd-better-life-index
+    name: OECD Better Life Index
+    publisher: Organisation for Economic Co-operation and Development (OECD)
+    url: https://www.oecd.org/en/data/tools/oecd-better-life-index.html
+    tier: global
+    area: OECD countries, and their large regions through the OECD's regional well-being data
+    resolution: countries and large regions
+    date: editions since 2011
+    licence: unknown
+    public_build: false
+    licence_note: >-
+      Not confirmed. The OECD's open-by-default policy puts content published
+      since 1 July 2024 under CC BY 4.0, but the terms for this data could not
+      be checked: the OECD's site refused automated access on 2026-10-25.
+      Check its terms before a public build.
+    tells:
+      - Countries' results on 11 topics of well-being, such as housing, income, jobs, health, safety and life satisfaction, with no overall ranking imposed
+    credibility: high
+    credibility_reason: >-
+      The OECD publishes its method and data, and is independent of property
+      interests. It covers countries and large regions, such as Greater London,
+      not cities or neighbourhoods, and it leaves the weighting of its 11
+      topics to the user.
 </script>
 <script>
 (function () {
