@@ -81,6 +81,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | --- | --- | --- |
 | H3 | An open-source system of hexagon grids covering the globe, from Uber | Resolution 9 gives the hex cells |
 | MSOA | Middle layer Super Output Area: the UK census area used for neighbourhoods. The House of Commons Library publishes readable names for them | About 1,000 in London |
+| Output area | The smallest area for which the census publishes results. Output areas group into MSOAs | Census 2021 residents by output area |
 | Buffer zone | A 2 km ring around the region, computed but not shown, so that hex cells at the edge count what lies just outside | |
 | Dataset tier | How much of the world a dataset covers: one city, one country, or the globe | PTAL is city tier |
 

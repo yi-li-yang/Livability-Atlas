@@ -99,7 +99,10 @@ A dataset marked `public_build: true` also needs its `licence_checked` date and 
 
 Until step 0.3, the [factor explorer](../docs/factors/README.md) checks both files whenever it loads, and lists any problem instead of drawing. The checks also reject unknown fields, so a misspelt field name does not pass unseen. From step 0.3, `atlas validate` checks the whole catalogue in CI.
 
-YAML reads an unquoted `2022` as a number and an unquoted `2026-10-24` as a date. The checks accept both, so neither needs quotes.
+YAML reads an unquoted `2022` as a number and an unquoted `2026-10-24` as a date. The checks accept both, so neither needs quotes. Two more points about YAML:
+
+- Text that contains a colon followed by a space, such as `Source: Office for National Statistics`, needs quotes or a `>-` block, or YAML reads it as a new field.
+- An anchor shares one text between several factors: `&name` marks the first copy and `*name` repeats it, as the crime indicators do for their method.
 
 After editing either file, refresh the explorer's copy and run its tests:
 

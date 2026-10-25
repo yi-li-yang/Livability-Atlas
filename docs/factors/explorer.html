@@ -705,7 +705,92 @@ factors:
     default_weight: 3
     scales: [within-city, across-cities]
     children:
-      - {id: crime, name: "Crime by category", default_weight: 3, scales: [within-city]}
+      - id: crime
+        name: Crime
+        description: Recorded crime and anti-social behaviour nearby, as rates, by kind.
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - id: burglary
+            name: Burglary
+            description: Recorded burglaries, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: crimes a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: &crime-curve-reason >-
+              No standard sets a safe level of crime, and countries record crime
+              differently, so a hex cell scores by its rank within the region:
+              the share of hex cells with a higher rate.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: &crime-method >-
+              Police.uk's recorded crimes of this kind over the last 12 months,
+              counted at their anonymised map points, per 1,000 residents from
+              Census 2021, smoothed over neighbouring hex cells. Spike S2 sets
+              the smoothing, and compares rates per resident with rates per
+              area: rates per resident overstate crime where few people live
+              but many visit. Not every crime is reported, and recording varies
+              between police forces.
+            datasets: [police-uk, ons-census-2021-residents]
+          - id: violence-and-sexual-offences
+            name: Violence and sexual offences
+            description: Recorded violent and sexual crimes, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: crimes a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: *crime-curve-reason
+            evidence_type: direct
+            comparable_across_regions: false
+            method: *crime-method
+            datasets: [police-uk, ons-census-2021-residents]
+          - id: robbery-and-theft-from-the-person
+            name: Robbery and theft from the person
+            description: Robbery, and theft such as pickpocketing and bag snatching, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: crimes a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: *crime-curve-reason
+            evidence_type: direct
+            comparable_across_regions: false
+            method: *crime-method
+            datasets: [police-uk, ons-census-2021-residents]
+          - id: vehicle-crime
+            name: Vehicle crime
+            description: Theft of and from vehicles, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: crimes a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: *crime-curve-reason
+            evidence_type: direct
+            comparable_across_regions: false
+            method: *crime-method
+            datasets: [police-uk, ons-census-2021-residents]
+          - id: anti-social-behaviour
+            name: Anti-social behaviour
+            description: Incidents of anti-social behaviour reported to the police, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: incidents a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: *crime-curve-reason
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              Police.uk's incidents of anti-social behaviour over the last 12
+              months, counted at their anonymised map points, per 1,000
+              residents from Census 2021, smoothed over neighbouring hex cells
+              as for crime (spike S2). Not every incident is reported, and
+              Police.uk notes that some forces may count some incidents twice.
+            datasets: [police-uk, ons-census-2021-residents]
       - {id: road-collisions, name: "Road collisions", default_weight: 3, scales: [within-city]}
       - {id: homicide-rate, name: "Homicide rate", default_weight: 3, scales: [across-cities]}
       - {id: political-stability, name: "Political stability", default_weight: 3, scales: [across-cities]}
@@ -1098,6 +1183,42 @@ datasets:
     attribution: Contains OS data © Crown copyright and database right 2026.
     tells:
       - Green spaces likely to be open to the public, such as parks, playing fields and sports facilities, with the points where people can get in
+
+  - id: police-uk
+    name: Police recorded crime and anti-social behaviour (data.police.uk)
+    publisher: The police forces of England, Wales and Northern Ireland, through data.police.uk
+    url: https://data.police.uk/
+    tier: country
+    area: England, Wales and Northern Ireland
+    resolution: points, each moved to the nearest of a list of anonymous map points
+    date: monthly, for the latest three years
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    attribution: >-
+      Contains public sector information licensed under the Open Government
+      Licence v3.0. Source: data.police.uk.
+    tells:
+      - Recorded crimes and incidents of anti-social behaviour, by month and in 14 categories
+      - The outcome of each crime, for the forces that report outcomes
+
+  - id: ons-census-2021-residents
+    name: Census 2021, usual residents by output area (table TS001)
+    publisher: Office for National Statistics (ONS), through Nomis
+    url: https://www.nomisweb.co.uk/sources/census_2021_bulk
+    tier: country
+    area: England and Wales
+    resolution: output areas, the smallest census areas
+    date: 2021
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Nomis publishes census data under the Open Government Licence without
+      naming a version. The version in force is 3.0.
+    attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
+    tells:
+      - The number of usual residents of each output area on census day in 2021
 </script>
 <script>
 (function () {

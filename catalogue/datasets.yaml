@@ -216,3 +216,39 @@ datasets:
     attribution: Contains OS data © Crown copyright and database right 2026.
     tells:
       - Green spaces likely to be open to the public, such as parks, playing fields and sports facilities, with the points where people can get in
+
+  - id: police-uk
+    name: Police recorded crime and anti-social behaviour (data.police.uk)
+    publisher: The police forces of England, Wales and Northern Ireland, through data.police.uk
+    url: https://data.police.uk/
+    tier: country
+    area: England, Wales and Northern Ireland
+    resolution: points, each moved to the nearest of a list of anonymous map points
+    date: monthly, for the latest three years
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    attribution: >-
+      Contains public sector information licensed under the Open Government
+      Licence v3.0. Source: data.police.uk.
+    tells:
+      - Recorded crimes and incidents of anti-social behaviour, by month and in 14 categories
+      - The outcome of each crime, for the forces that report outcomes
+
+  - id: ons-census-2021-residents
+    name: Census 2021, usual residents by output area (table TS001)
+    publisher: Office for National Statistics (ONS), through Nomis
+    url: https://www.nomisweb.co.uk/sources/census_2021_bulk
+    tier: country
+    area: England and Wales
+    resolution: output areas, the smallest census areas
+    date: 2021
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Nomis publishes census data under the Open Government Licence without
+      naming a version. The version in force is 3.0.
+    attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
+    tells:
+      - The number of usual residents of each output area on census day in 2021

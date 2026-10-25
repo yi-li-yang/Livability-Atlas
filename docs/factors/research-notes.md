@@ -17,12 +17,11 @@ For the bottom-up pass.
 
 ## Likely datasets for the MVP candidates
 
-Transport and Environment have moved into the catalogue. The rows below are still to research.
+Transport, Environment and Safety have moved into the catalogue. The rows below are still to research.
 
 | Top-level factor | Sub-factors | Likely datasets |
 | --- | --- | --- |
 | Housing and cost | Buying cost (price per m²); renting cost; council tax (Band D, by borough) | HM Land Registry Price Paid with EPC floor areas; ONS private rents (by borough, the finest open rent data); the GLA London rents map if it is current; MHCLG for council tax |
-| Safety | Crime rate by category | Police.uk bulk data |
 | Daily amenities | Everyday amenities and restaurants within a 10-minute walk; cuisine variety; food hygiene | Overture Places, Foursquare Open Source Places or OpenStreetMap; NHS GP list; Food Standards Agency |
 | Community and people | Community composition; places of worship by faith | Census 2021 through ONS and Nomis; OpenStreetMap |
 | Natural hazards | Flood risk | Environment Agency |
@@ -48,6 +47,10 @@ The [Environment research](../specs/2026-10-25-environment-research.md) left thr
 | Tree canopy cover | A threshold from the "3-30-300" rule, which asks for 30% canopy cover in every neighbourhood. Data from ESA WorldCover (global) or Forest Research's map of trees outside woodland (England) |
 | Water nearby | OS Open Rivers and OpenStreetMap, for the walk to a river, canal or lake |
 | Urban heat | Land surface temperature from satellites, scored as a percentile within the region, since no standard threshold exists for it |
+
+## Safety: the sub-factor still to research
+
+The [Safety research](../specs/2026-10-25-safety-research.md) left road collisions as an idea, outside the MVP. The lead is the Department for Transport's road safety data (STATS19), which records each reported collision that injured someone, with its location. Its licence is still to check.
 
 ## Transport: the sub-factors still to research
 

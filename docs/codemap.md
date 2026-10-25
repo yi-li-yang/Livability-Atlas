@@ -49,5 +49,6 @@ Livability-Atlas/
         ├── 2026-10-24-catalogue-format.md
         ├── 2026-10-24-factor-explorer.md
         ├── 2026-10-24-transport-research.md
-        └── 2026-10-25-environment-research.md
+        ├── 2026-10-25-environment-research.md
+        └── 2026-10-25-safety-research.md
 ```
