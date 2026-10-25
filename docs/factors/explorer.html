@@ -747,8 +747,47 @@ factors:
         default_weight: 3
         scales: [within-city]
         children:
-          - {id: river-and-sea-flooding, name: "Rivers and sea", default_weight: 3}
-          - {id: surface-water-flooding, name: "Surface water", default_weight: 3}
+          - id: river-and-sea-flooding
+            name: Rivers and sea
+            description: The share of the area with at least a 1 in 100 chance of flooding from rivers or the sea in any year.
+            default_weight: 3
+            status: researched
+            unit: "% of the area"
+            preference_type: fixed
+            curve: {shape: ramp, t0: 100, t1: 0}
+            curve_reason: &flood-curve-reason >-
+              The score is the share of the hex cell outside the Environment
+              Agency's medium and high bands, which mean a chance of 1 in 100 or
+              more of flooding in any year. The low and very low bands, below 1
+              in 100, count as safe.
+            evidence_type: estimate
+            comparable_across_regions: false
+            method: >-
+              The share of the hex cell's area in the medium or high band of the
+              Environment Agency's 2 m grid, which counts flood defences and the
+              chance that they fail. Spike S5 decides whether to weight the
+              share by homes instead of area. The risk is modelled, so the
+              evidence type is estimate, and countries model and count defences
+              differently, so the share does not compare across regions.
+            datasets: [ea-flood-risk-rivers-sea]
+          - id: surface-water-flooding
+            name: Surface water
+            description: The share of the area with at least a 1 in 100 chance of flooding from rainwater in any year.
+            default_weight: 3
+            status: researched
+            unit: "% of the area"
+            preference_type: fixed
+            curve: {shape: ramp, t0: 100, t1: 0}
+            curve_reason: *flood-curve-reason
+            evidence_type: estimate
+            comparable_across_regions: false
+            method: >-
+              The share of the hex cell's area in the medium or high band of the
+              Environment Agency's 2 m grid of flooding from surface water, when
+              heavy rain cannot drain away. Spike S5 decides whether to weight
+              the share by homes instead of area. The risk is modelled, so the
+              evidence type is estimate, and it does not compare across regions.
+            datasets: [ea-flood-risk-surface-water]
       - {id: subsidence, name: "Subsidence", default_weight: 3, scales: [within-city]}
       - {id: earthquakes, name: "Earthquakes", default_weight: 3, scales: [across-cities]}
       - {id: storms, name: "Storms", default_weight: 3, scales: [across-cities]}
@@ -1352,6 +1391,50 @@ datasets:
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - The average Band D council tax of each billing authority, including precepts
+
+  - id: ea-flood-risk-rivers-sea
+    name: Risk of Flooding from Rivers and Sea (Environment Agency)
+    publisher: Environment Agency
+    url: https://environment.data.gov.uk/explore/96ab4342-82c1-4095-87f1-0082e8d84ef1
+    tier: country
+    area: England
+    resolution: 2 m grid
+    date: National Flood Risk Assessment (NaFRA2), last updated in July 2026
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The product description says the products are available under the Open
+      Government Licence, and the record sets no access constraints. The
+      version in force is 3.0.
+    attribution: >-
+      Risk of Flooding from Rivers and Sea, Environment Agency. Contains public
+      sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The chance of flooding from rivers and the sea in four bands, from very low (under 1 in 1000 a year) to high (1 in 30 or more), counting flood defences
+      - The same for flood depths, and for climate change scenarios
+
+  - id: ea-flood-risk-surface-water
+    name: Risk of Flooding from Surface Water (Environment Agency)
+    publisher: Environment Agency
+    url: https://environment.data.gov.uk/explore/b5aaa28d-6eb9-460e-8d6f-43caa71fbe0e
+    tier: country
+    area: England
+    resolution: 2 m grid
+    date: National Flood Risk Assessment (NaFRA2), last updated in July 2026
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The product description says the products are available under the Open
+      Government Licence, and the record sets no access constraints. The
+      version in force is 3.0.
+    attribution: >-
+      Risk of Flooding from Surface Water, Environment Agency. Contains public
+      sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The chance of flooding from surface water in four bands, from very low (under 1 in 1000 a year) to high (1 in 30 or more)
+      - Flood depth, speed and hazard, and climate change scenarios
 </script>
 <script>
 (function () {

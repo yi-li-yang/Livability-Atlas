@@ -401,7 +401,7 @@
     const value = (x) => {
       const text = number.format(x);
       if (!unit) return text;
-      return unit === "%" ? `${text}%` : `${text} ${unit}`;
+      return unit.startsWith("%") ? `${text}${unit}` : `${text} ${unit}`;
     };
     switch (curve.shape) {
       case "ramp":

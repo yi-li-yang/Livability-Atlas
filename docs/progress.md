@@ -4,11 +4,11 @@
 
 - Step 0.1 is merged into `main` (#1).
 - Step 0.2: the factor explorer (#2), the [catalogue format](specs/2026-10-24-catalogue-format.md) (#3), the [Transport research](specs/2026-10-24-transport-research.md) (#4) and the `/research-factor` command (#5) are merged.
-- Step 0.2: the [Environment research](specs/2026-10-25-environment-research.md) (#6) and the [Safety research](specs/2026-10-25-safety-research.md) (#7) are merged, and the [Housing and cost research](specs/2026-10-25-housing-research.md) is done. 20 of the catalogue's 83 within-city measured indicators are now researched.
+- Step 0.2: the research of [Environment](specs/2026-10-25-environment-research.md) (#6), [Safety](specs/2026-10-25-safety-research.md) (#7) and [Housing and cost](specs/2026-10-25-housing-research.md) (#8) is merged, and the [Natural hazards research](specs/2026-10-25-natural-hazards-research.md) is done. 22 of the catalogue's 83 within-city measured indicators are now researched.
 
 ## Next
 
-1. Research the next MVP factors with `/research-factor`, one top-level factor per pull request, starting from [research-notes.md](factors/research-notes.md): Natural hazards, Daily amenities, Digital connectivity, Education, and Community and people.
+1. Research the next MVP factors with `/research-factor`, one top-level factor per pull request, starting from [research-notes.md](factors/research-notes.md): Daily amenities, Digital connectivity, Education, and Community and people.
 2. Four checks the owner can make at any time:
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
@@ -27,6 +27,8 @@
 
 ### 2026-10-25
 
+- **Natural hazards researched.** Flood risk from rivers and the sea, and from surface water, is researched as the share of each hex cell with a 1 in 100 chance or more of flooding in any year, from the Environment Agency's 2 m maps, which are open. Subsidence stays as an idea: its usual source is licensed commercially.
+- **Housing and cost merged** into `main` as pull request #8.
 - **Housing and cost researched.** Buying cost (£ per m²), renting cost (£ a month, by borough) and council tax (Band D, by borough) are researched, each scored by rank within the region. The ONS rents and MHCLG's council tax are open. Price Paid Data's addresses come with Royal Mail's terms, which may not allow matching sales to energy certificates, so it stays out of public builds until Royal Mail confirms. The certificates themselves are open when located by UPRN.
 - **Safety merged** into `main` as pull request #7.
 - **Safety researched.** Crime becomes five measured indicators: burglary, violence and sexual offences, robbery and theft from the person, vehicle crime, and anti-social behaviour, as rates per 1,000 residents (D08). No standard sets a safe level of crime, so they score by rank within the region. Police.uk and the Census 2021 resident counts are both open. Road collisions stay as an idea.

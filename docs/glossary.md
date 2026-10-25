@@ -24,6 +24,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Fare zone | One of the numbered rings that London's public transport fares are priced by, from zone 1 in the centre outwards | Bank is in zone 1 |
 | Daytime noise level | The average noise level from 7 am to 11 pm, in decibels (dB) | 55 dB (daytime) from road traffic |
 | Band D | The council tax band used to compare councils' charges. A home's own band, from A to H in England, sets its real bill | Band D council tax in Wandsworth |
+| Surface water flooding | Flooding when heavy rain cannot drain away, as opposed to flooding from rivers or the sea | A street that floods in a summer storm |
 
 ### Factors and scores
 
