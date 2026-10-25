@@ -415,3 +415,67 @@ datasets:
       sector information licensed under the Open Government Licence v3.0.
     tells:
       - The food hygiene rating of each food business, from 0 (urgent improvement necessary) to 5 (very good), with the date of its inspection
+
+  - id: ons-output-area-boundaries
+    name: Output Areas (December 2021) Boundaries EW BGC
+    publisher: Office for National Statistics (ONS)
+    url: https://www.data.gov.uk/dataset/4d4e021d-fe98-4a0e-88e2-3ead84538537/output-areas-december-2021-boundaries-ew-bgc-v21
+    tier: country
+    area: England and Wales
+    resolution: census output areas, generalised to 20 m
+    date: 2021
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The data.gov.uk record leaves its licence unset, but the ONS supplies its
+      digital boundary products under the Open Government Licence v3.0, with
+      credits to the ONS and to Ordnance Survey.
+    attribution: >-
+      Source: Office for National Statistics licensed under the Open Government
+      Licence v.3.0. Contains OS data © Crown copyright and database right 2026.
+    tells:
+      - The boundary of each census output area, clipped to the coastline
+
+  - id: ofcom-fixed-coverage
+    name: "Connected Nations 2025: fixed broadband coverage (Ofcom)"
+    publisher: Ofcom
+    url: https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/connected-nations-2025/data-downloads-2025
+    tier: country
+    area: United Kingdom
+    resolution: census output areas and postcodes
+    date: July 2025
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Ofcom provides the data on an open basis under the Open Government
+      Licence, without naming a version. The version in force is 3.0. For
+      output areas and postcodes it reports gigabit-capable coverage, but not
+      full fibre, which providers keep confidential.
+    attribution: >-
+      Ofcom, Connected Nations 2025. Contains public sector information licensed
+      under the Open Government Licence v3.0.
+    tells:
+      - The share of premises, and of homes, in each output area and postcode that can get broadband in each speed band, up to gigabit-capable
+      - Full-fibre coverage and take-up by local authority
+
+  - id: ofcom-mobile-coverage
+    name: "Connected Nations 2025: mobile coverage (Ofcom)"
+    publisher: Ofcom
+    url: https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/connected-nations-2025/data-downloads-2025
+    tier: country
+    area: United Kingdom
+    resolution: local authorities and constituencies, from 100 m pixels
+    date: July 2025
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Ofcom provides the data on an open basis under the Open Government
+      Licence, without naming a version. The version in force is 3.0.
+    attribution: >-
+      Ofcom, Connected Nations 2025. Contains public sector information licensed
+      under the Open Government Licence v3.0.
+    tells:
+      - The share of premises, indoors and outdoors, and of land with 4G and 5G coverage, by how many of the four networks provide it

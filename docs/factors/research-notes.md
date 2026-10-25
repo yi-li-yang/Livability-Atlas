@@ -17,12 +17,11 @@ For the bottom-up pass.
 
 ## Likely datasets for the MVP candidates
 
-Transport, Environment, Safety, Housing and cost, Natural hazards and Daily amenities have moved into the catalogue. The rows below are still to research.
+Transport, Environment, Safety, Housing and cost, Natural hazards, Daily amenities and Digital connectivity have moved into the catalogue. The rows below are still to research.
 
 | Top-level factor | Sub-factors | Likely datasets |
 | --- | --- | --- |
 | Community and people | Community composition; places of worship by faith | Census 2021 through ONS and Nomis; OpenStreetMap |
-| Digital connectivity | Full-fibre availability, 5G coverage | Ofcom Connected Nations, whose resolution is still to be checked |
 | Education | Nearby schools by phase and inspection outcome | DfE GIAS and Ofsted. Ofsted dropped single-word grades in 2024, so "rating" needs a new definition |
 
 Most of these datasets are expected to be under the Open Government Licence. There are three exceptions:
