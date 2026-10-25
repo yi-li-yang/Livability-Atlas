@@ -17,13 +17,12 @@ For the bottom-up pass.
 
 ## Likely datasets for the MVP candidates
 
-Transport, Environment, Safety, and Housing and cost have moved into the catalogue. The rows below are still to research.
+Transport, Environment, Safety, Housing and cost, and Natural hazards have moved into the catalogue. The rows below are still to research.
 
 | Top-level factor | Sub-factors | Likely datasets |
 | --- | --- | --- |
 | Daily amenities | Everyday amenities and restaurants within a 10-minute walk; cuisine variety; food hygiene | Overture Places, Foursquare Open Source Places or OpenStreetMap; NHS GP list; Food Standards Agency |
 | Community and people | Community composition; places of worship by faith | Census 2021 through ONS and Nomis; OpenStreetMap |
-| Natural hazards | Flood risk | Environment Agency |
 | Digital connectivity | Full-fibre availability, 5G coverage | Ofcom Connected Nations, whose resolution is still to be checked |
 | Education | Nearby schools by phase and inspection outcome | DfE GIAS and Ofsted. Ofsted dropped single-word grades in 2024, so "rating" needs a new definition |
 
@@ -54,6 +53,10 @@ The [Safety research](../specs/2026-10-25-safety-research.md) left road collisio
 ## Housing and cost: the sub-factor still to research
 
 The [Housing and cost research](../specs/2026-10-25-housing-research.md) left home energy efficiency as an idea, outside the MVP. The lead is the energy certificates already in `datasets.yaml`, whose energy ratings are open when certificates are located by UPRN.
+
+## Natural hazards: the sub-factor still to research
+
+The [Natural hazards research](../specs/2026-10-25-natural-hazards-research.md) left subsidence as an idea, outside the MVP. The British Geological Survey's GeoSure maps ground movement hazards, but it is licensed commercially, so an open alternative or a licence is needed first.
 
 ## Transport: the sub-factors still to research
 
