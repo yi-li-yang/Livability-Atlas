@@ -520,20 +520,145 @@ factors:
         default_weight: 3
         scales: [within-city]
         children:
-          - {id: groceries, name: "Groceries", default_weight: 3}
-          - {id: pharmacies, name: "Pharmacies", default_weight: 3}
-          - {id: cafes, name: "Cafés", default_weight: 3}
-          - {id: gyms, name: "Gyms", default_weight: 3}
-          - {id: libraries, name: "Libraries", default_weight: 3}
+          - id: groceries
+            name: Groceries
+            description: Walking minutes to the nearest supermarket, convenience shop or greengrocer.
+            default_weight: 3
+            status: researched
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 15, t1: 5}
+            curve_reason: &walk-to-amenity-reason >-
+              1 within 5 minutes and 0 at 15 minutes: about 400 m and 1,200 m
+              at 4.8 km/h, the desirable and the preferred maximum walking
+              distances for trips other than commuting in Table 3.2 of the
+              CIHT's Guidelines for Providing for Journeys on Foot (2000).
+            evidence_type: direct
+            comparable_across_regions: true
+            method: &walk-to-amenity-method >-
+              The walking time along streets and paths from the hex cell's
+              centre to the nearest place of this kind, at 4.8 km/h, from the
+              place data's categories. Spike S6 compares how complete the
+              sources are, and how far walking routes differ from straight
+              lines.
+            datasets: &place-datasets [overture-places, openstreetmap]
+          - id: pharmacies
+            name: Pharmacies
+            description: Walking minutes to the nearest pharmacy.
+            default_weight: 3
+            status: researched
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 15, t1: 5}
+            curve_reason: *walk-to-amenity-reason
+            evidence_type: direct
+            comparable_across_regions: true
+            method: *walk-to-amenity-method
+            datasets: *place-datasets
+          - id: cafes
+            name: Cafés
+            description: The number of cafés within a 10-minute walk.
+            default_weight: 3
+            status: researched
+            unit: cafés
+            preference_type: fixed
+            curve_reason: &count-reason >-
+              The curve waits for spike S6, which counts these places near each
+              of London's hex cells. No standard says how many are enough, so
+              the thresholds should separate the hex cells.
+            evidence_type: direct
+            comparable_across_regions: true
+            method: &count-method >-
+              The number of places of this kind within a 10-minute walk along
+              streets and paths: 800 m at 4.8 km/h, the walking distance CIHT
+              calls acceptable for trips other than commuting. Spike S6
+              compares how complete the sources are.
+            datasets: *place-datasets
+          - id: gyms
+            name: Gyms
+            description: Walking minutes to the nearest gym or fitness centre.
+            default_weight: 3
+            status: researched
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 15, t1: 5}
+            curve_reason: *walk-to-amenity-reason
+            evidence_type: direct
+            comparable_across_regions: true
+            method: *walk-to-amenity-method
+            datasets: *place-datasets
+          - id: libraries
+            name: Libraries
+            description: Walking minutes to the nearest public library.
+            default_weight: 3
+            status: researched
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 15, t1: 5}
+            curve_reason: *walk-to-amenity-reason
+            evidence_type: direct
+            comparable_across_regions: true
+            method: *walk-to-amenity-method
+            datasets: *place-datasets
       - id: food-and-drink
         name: Food and drink
         description: The choice, variety and quality of places to eat.
         default_weight: 3
         children:
-          - {id: restaurant-choice, name: "Restaurant choice", default_weight: 3, scales: [within-city], description: "Restaurants within a 10-minute walk."}
-          - {id: cuisine-variety, name: "Cuisine variety", default_weight: 3}
+          - id: restaurant-choice
+            name: Restaurant choice
+            description: The number of restaurants within a 10-minute walk.
+            default_weight: 3
+            scales: [within-city]
+            status: researched
+            unit: restaurants
+            preference_type: fixed
+            curve_reason: *count-reason
+            evidence_type: direct
+            comparable_across_regions: true
+            method: *count-method
+            datasets: *place-datasets
+          - id: cuisine-variety
+            name: Cuisine variety
+            description: The number of different cuisines served by restaurants within a 10-minute walk.
+            default_weight: 3
+            scales: [within-city]
+            status: researched
+            unit: cuisines
+            preference_type: fixed
+            curve_reason: *count-reason
+            evidence_type: indirect
+            comparable_across_regions: true
+            method: >-
+              The number of distinct cuisines among the restaurants within a
+              10-minute walk along streets and paths (800 m at 4.8 km/h), from
+              OpenStreetMap's cuisine tags and Overture's categories. Variety
+              is a sign of a lively food scene rather than a measure of it, so
+              the evidence type is indirect. Spike S8 checks how complete the
+              cuisine tags are.
+            datasets: [openstreetmap, overture-places]
           - {id: your-cuisines, name: "Your cuisines", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks cuisines (D18)."}
-          - {id: food-hygiene, name: "Food hygiene", default_weight: 3, scales: [within-city]}
+          - id: food-hygiene
+            name: Food hygiene
+            description: The share of the food businesses within a 10-minute walk rated good or very good for hygiene.
+            default_weight: 3
+            scales: [within-city]
+            status: researched
+            unit: "% of food businesses"
+            preference_type: fixed
+            curve: {shape: ramp, t0: 0, t1: 100}
+            curve_reason: >-
+              The score is the share of nearby food businesses rated 4 (good)
+              or 5 (very good) under the Food Hygiene Rating Scheme, whose
+              ratings run from 0 to 5.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              The share of the food businesses with a rating within a 10-minute
+              walk along streets and paths (800 m at 4.8 km/h) that are rated 4
+              or 5. Scotland rates food hygiene under a different scheme, so the
+              share does not compare across regions.
+            datasets: [fsa-food-hygiene-ratings]
           - {id: guide-recognition, name: "Guide recognition", default_weight: 3, description: "Michelin and other guides, through Wikidata."}
           - {id: independents, name: "Independent restaurants", default_weight: 3, scales: [within-city], description: "The share of restaurants that are not chains."}
       - id: brand-presence
@@ -1435,6 +1560,48 @@ datasets:
     tells:
       - The chance of flooding from surface water in four bands, from very low (under 1 in 1000 a year) to high (1 in 30 or more)
       - Flood depth, speed and hazard, and climate change scenarios
+
+  - id: overture-places
+    name: Overture Maps Places
+    publisher: Overture Maps Foundation
+    url: https://docs.overturemaps.org/guides/places/
+    tier: global
+    area: World
+    resolution: points, one for each place
+    date: monthly releases
+    licence: CDLA-Permissive-2.0 AND Apache-2.0 AND CC0-1.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Overture licenses Places by source: most sources under CDLA-Permissive-2.0,
+      Foursquare's records under Apache-2.0 with its notice, and AllThePlaces
+      under CC0-1.0. All three are on D07's list.
+    attribution: >-
+      Overture Maps Foundation, with places from Meta, Microsoft, Foursquare and
+      others. Copyright 2024 Foursquare Labs, Inc. All rights reserved.
+    tells:
+      - Shops, cafés, restaurants, gyms, libraries and other places, each with a category and often a brand
+
+  - id: fsa-food-hygiene-ratings
+    name: Food Hygiene Rating Scheme ratings (Food Standards Agency)
+    publisher: Food Standards Agency, with local authorities
+    url: https://ratings.food.gov.uk/open-data
+    tier: country
+    area: England, Wales and Northern Ireland
+    resolution: points, one for each rated food business
+    date: updated daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The FSA's terms ask users to show current ratings, or the date they were
+      updated, and not to suggest that the FSA endorses a business. The
+      scheme's rating images are trademarks, and the project does not use them.
+    attribution: >-
+      Food hygiene ratings from the Food Standards Agency. Contains public
+      sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The food hygiene rating of each food business, from 0 (urgent improvement necessary) to 5 (very good), with the date of its inspection
 </script>
 <script>
 (function () {
