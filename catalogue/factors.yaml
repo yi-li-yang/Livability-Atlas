@@ -288,17 +288,110 @@ factors:
             datasets: [laei, defra-background-maps]
       - id: noise
         name: Noise
+        description: Daytime noise from roads, railways and aircraft.
         default_weight: 3
         scales: [within-city]
         children:
-          - {id: road-noise, name: "Road traffic noise", default_weight: 3}
-          - {id: rail-noise, name: "Rail noise", default_weight: 3}
-          - {id: aircraft-noise, name: "Aircraft noise", default_weight: 3}
+          - id: road-noise
+            name: Road traffic noise
+            description: The average noise level from road traffic, from 7 am to 11 pm.
+            default_weight: 3
+            status: researched
+            unit: dB (daytime)
+            preference_type: fixed
+            curve: {shape: ramp, t0: 70, t1: 50}
+            curve_reason: >-
+              1 at 50 dB and 0 at 70 dB: the daytime levels at which ProPG, the
+              professional guidance on noise for new homes in England (ANC, IOA
+              and CIEH, 2017), places a site at negligible and at high risk.
+              ProPG applies its scale to all transport noise together, and here
+              it scores each source alone.
+            evidence_type: estimate
+            comparable_across_regions: true
+            method: >-
+              The modelled daytime level, LAeq,16h from 07:00 to 23:00, from
+              Defra's strategic noise maps, averaged over the hex cell. Levels
+              below the maps' 40 dB cut-off count as 40 dB. Spike S5 decides
+              how to average: by area, by sound energy, or at homes only. The
+              noise is modelled, so the evidence type is estimate.
+            datasets: [defra-road-noise]
+          - id: rail-noise
+            name: Rail noise
+            description: The average noise level from railways, from 7 am to 11 pm.
+            default_weight: 3
+            status: researched
+            unit: dB (daytime)
+            preference_type: fixed
+            curve: {shape: ramp, t0: 70, t1: 50}
+            curve_reason: >-
+              1 at 50 dB and 0 at 70 dB: the daytime levels at which ProPG, the
+              professional guidance on noise for new homes in England (ANC, IOA
+              and CIEH, 2017), places a site at negligible and at high risk.
+              ProPG applies its scale to all transport noise together, and here
+              it scores each source alone.
+            evidence_type: estimate
+            comparable_across_regions: true
+            method: >-
+              The modelled daytime level, LAeq,16h from 07:00 to 23:00, from
+              Defra's strategic noise maps, averaged over the hex cell. Levels
+              below the maps' 40 dB cut-off count as 40 dB. Spike S5 decides
+              how to average: by area, by sound energy, or at homes only. The
+              noise is modelled, so the evidence type is estimate.
+            datasets: [defra-rail-noise]
+          - id: aircraft-noise
+            name: Aircraft noise
+            description: The average noise level from aircraft, from 7 am to 11 pm.
+            default_weight: 3
+            status: researched
+            unit: dB (daytime)
+            preference_type: fixed
+            curve: {shape: ramp, t0: 63, t1: 51}
+            curve_reason: >-
+              1 at 51 dB, the lowest level at which the government finds
+              adverse effects from aircraft noise (Air Navigation Guidance,
+              2017), and 0 at 63 dB, the level at which it expects airports to
+              help insulate homes (Aviation Policy Framework, 2013, paragraph
+              3.39). Aircraft noise has its own thresholds: the WHO's 2018
+              guidelines also set a lower level for it than for road or rail
+              noise.
+            evidence_type: estimate
+            comparable_across_regions: true
+            method: >-
+              The modelled daytime level, LAeq,16h from 07:00 to 23:00, from
+              Defra's strategic noise maps of airports, averaged over the hex
+              cell. Each airport's operator modelled its own map, so the lowest
+              level mapped varies by airport, and away from the airports the
+              maps cover, aircraft noise counts as their 40 dB cut-off. Spike
+              S5 decides how to average.
+            datasets: [defra-airport-noise]
       - id: green-space
         name: Green space
         default_weight: 3
         children:
-          - {id: park-area, name: "Park area within a 10-minute walk", default_weight: 3, scales: [within-city]}
+          - id: walk-to-green-space
+            name: Walk to a green space
+            description: Walking minutes to the nearest public park or other green space of at least 2 hectares.
+            default_weight: 3
+            scales: [within-city]
+            status: researched
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 15, t1: 4}
+            curve_reason: >-
+              1 within 4 minutes and 0 at 15 minutes: about 300 m and 1,200 m at
+              4.8 km/h. Natural England's Accessible Greenspace Standard (2024)
+              asks for a natural green space of at least 2 ha within 300 m of
+              home, and 1,200 m is the preferred maximum walking distance for
+              trips other than commuting in Table 3.2 of the CIHT's Guidelines
+              for Providing for Journeys on Foot (2000).
+            evidence_type: direct
+            comparable_across_regions: true
+            method: >-
+              The walking time along streets and paths from the hex cell's
+              centre to the nearest access point of a public green space of at
+              least 2 ha, natural or not, at 4.8 km/h. Spike S6 measures how far
+              walking routes differ from straight lines.
+            datasets: [os-open-greenspace, openstreetmap]
           - {id: tree-canopy, name: "Tree canopy cover", default_weight: 3, scales: [within-city]}
       - {id: water-nearby, name: "Water nearby", default_weight: 3, scales: [within-city], description: "A river, canal or lake."}
       - {id: urban-heat, name: "Urban heat", default_weight: 3, scales: [within-city]}
