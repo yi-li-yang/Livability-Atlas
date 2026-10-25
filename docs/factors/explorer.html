@@ -1117,9 +1117,73 @@ factors:
         default_weight: 0
         weight_reason: Starts at 0, so composition counts only if the user asks for it (D08).
         children:
-          - {id: your-community, name: "Your community", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks a group (D18).", description: "The presence of a group the user picks, by ethnicity, country of birth or language."}
-          - {id: diversity, name: "Diversity", default_weight: 3, scales: [within-city]}
-      - {id: faith, name: "Faith", default_weight: 0, scales: [within-city], weight_reason: "Choice factor: weight 0 until the user picks a faith (D18).", description: "Places of worship of the user's faith, and residents who share it."}
+          - id: your-community
+            name: Your community
+            description: The presence of a group the user picks, by ethnic group, religion, country of birth, main language or age.
+            default_weight: 0
+            weight_reason: "Choice factor: weight 0 until the user picks a group (D18)."
+            scales: [within-city]
+            status: researched
+            unit: "% of residents"
+            preference_type: user-choice
+            curve: {shape: percentile, better: higher}
+            curve_reason: >-
+              No standard sets how present a group should be, so a hex cell
+              scores by its rank within the region by the share of residents in
+              the chosen group. Only presence scores: the direction is fixed, so
+              a group's absence never adds to a score (D08).
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              The share of residents in the chosen group, from Census 2021 by
+              output area, combined over the output areas that overlap the hex
+              cell, weighted by residents. The groups are the census's own
+              categories, which differ between countries, so the share does not
+              compare across regions.
+            datasets: &census-composition-datasets [ons-census-2021-topic-summaries, ons-output-area-boundaries]
+          - id: diversity
+            name: Diversity
+            description: How mixed the area's residents are by ethnic group.
+            default_weight: 3
+            scales: [within-city]
+            status: researched
+            unit: diversity index, from 0 to 1
+            preference_type: fixed
+            curve: {shape: percentile, better: higher}
+            curve_reason: >-
+              No standard sets a level of diversity, so a hex cell scores by its
+              rank within the region. The direction is fixed, because D08 frames
+              composition as the presence of a chosen group and as diversity,
+              never as fewer of any group.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              Simpson's diversity index over the census's 19 ethnic groups: the
+              chance that two residents picked at random belong to different
+              groups. It uses Census 2021 by output area, over the output areas
+              that overlap the hex cell, weighted by residents. The groups are
+              the census's own, so the index does not compare across regions.
+            datasets: *census-composition-datasets
+      - id: faith
+        name: Faith
+        description: Walking minutes to the nearest place of worship of the user's faith.
+        default_weight: 0
+        scales: [within-city]
+        weight_reason: "Choice factor: weight 0 until the user picks a faith (D18)."
+        status: researched
+        unit: minutes on foot
+        preference_type: user-choice
+        curve: {shape: ramp, t0: 15, t1: 5}
+        curve_reason: *walk-to-amenity-reason
+        evidence_type: direct
+        comparable_across_regions: true
+        method: >-
+          The walking time along streets and paths from the hex cell's centre to
+          the nearest place of worship of the chosen faith, at 4.8 km/h, from the
+          religion that the place data records. Residents who share the faith
+          count under Your community, by religion. Spike S6 checks how complete
+          the religion tags are.
+        datasets: [openstreetmap, overture-places]
       - id: community-life
         name: Community life
         default_weight: 3
@@ -1808,6 +1872,24 @@ datasets:
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
+
+  - id: ons-census-2021-topic-summaries
+    name: Census 2021 topic summaries by output area (ONS)
+    publisher: Office for National Statistics (ONS), through Nomis
+    url: https://www.nomisweb.co.uk/sources/census_2021_bulk
+    tier: country
+    area: England and Wales
+    resolution: output areas, the smallest census areas
+    date: 2021
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Nomis publishes census data under the Open Government Licence without
+      naming a version. The version in force is 3.0.
+    attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
+    tells:
+      - Residents of each output area by ethnic group (TS021), religion (TS030), country of birth (TS004), main language (TS024) and five-year age band (TS007A)
 </script>
 <script>
 (function () {
