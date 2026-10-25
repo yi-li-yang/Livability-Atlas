@@ -17,12 +17,12 @@ For the bottom-up pass.
 
 ## Likely datasets for the MVP candidates
 
+Transport and Environment have moved into the catalogue. The rows below are still to research.
+
 | Top-level factor | Sub-factors | Likely datasets |
 | --- | --- | --- |
 | Housing and cost | Buying cost (price per m²); renting cost; council tax (Band D, by borough) | HM Land Registry Price Paid with EPC floor areas; ONS private rents (by borough, the finest open rent data); the GLA London rents map if it is current; MHCLG for council tax |
-| Transport | Getting around in general: PTAL, station proximity, line choice, fare zone. Travel time to the default places and to a user's places | TfL, London Datastore, NaPTAN; GTFS timetables or the TfL API |
 | Safety | Crime rate by category | Police.uk bulk data |
-| Environment | NO₂ and PM2.5; road, rail and aircraft noise; green space within a 10-minute walk | London Atmospheric Emissions Inventory or DEFRA background maps; DEFRA strategic noise maps; OS Open Greenspace and OpenStreetMap |
 | Daily amenities | Everyday amenities and restaurants within a 10-minute walk; cuisine variety; food hygiene | Overture Places, Foursquare Open Source Places or OpenStreetMap; NHS GP list; Food Standards Agency |
 | Community and people | Community composition; places of worship by faith | Census 2021 through ONS and Nomis; OpenStreetMap |
 | Natural hazards | Flood risk | Environment Agency |
@@ -38,6 +38,16 @@ Most of these datasets are expected to be under the Open Government Licence. The
 Non-commercial datasets, such as Ookla's speed tests, never go into public builds (D07).
 
 Each licence still needs checking at the source. The London Atmospheric Emissions Inventory, for one, gives its licence as "Not Specified" ([datasets.yaml](../../catalogue/datasets.yaml)).
+
+## Environment: the sub-factors still to research
+
+The [Environment research](../specs/2026-10-25-environment-research.md) left three sub-factors as ideas, outside the MVP. These are leads, with their licences still to check:
+
+| Sub-factor | Leads |
+| --- | --- |
+| Tree canopy cover | A threshold from the "3-30-300" rule, which asks for 30% canopy cover in every neighbourhood. Data from ESA WorldCover (global) or Forest Research's map of trees outside woodland (England) |
+| Water nearby | OS Open Rivers and OpenStreetMap, for the walk to a river, canal or lake |
+| Urban heat | Land surface temperature from satellites, scored as a percentile within the region, since no standard threshold exists for it |
 
 ## Transport: the sub-factors still to research
 

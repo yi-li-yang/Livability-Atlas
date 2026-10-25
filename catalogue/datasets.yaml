@@ -137,3 +137,82 @@ datasets:
     tells:
       - Streets and paths, for walking routes and times
       - Stations, stops, and the routes of rail, Tube, tram and bus lines
+
+  - id: defra-road-noise
+    name: Strategic noise maps of roads, England (Round 4)
+    publisher: Department for Environment, Food and Rural Affairs (Defra)
+    url: https://environment.data.gov.uk/explore/562c9d56-7c2d-4d42-83bb-578d6e97a517
+    tier: country
+    area: England
+    resolution: 10 m grid, at 4 m above ground
+    date: 2022
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The record names the Open Government Licence without a version, and sets
+      no access constraints. The version in force is 3.0.
+    attribution: >-
+      Strategic noise mapping, Round 4, Defra. Contains public sector
+      information licensed under the Open Government Licence v3.0.
+    tells:
+      - Modelled road traffic noise in 2022, as Lden, LAeq,16h, Lday, Levening and Lnight, down to 40 dB (35 dB at night)
+
+  - id: defra-rail-noise
+    name: Strategic noise maps of railways, England (Round 4)
+    publisher: Department for Environment, Food and Rural Affairs (Defra)
+    url: https://environment.data.gov.uk/explore/3fb3c2d7-292c-4e0a-bd5b-d8e4e1fe2947
+    tier: country
+    area: England
+    resolution: 10 m grid, at 4 m above ground
+    date: 2022
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The record names the Open Government Licence without a version, and sets
+      no access constraints. The version in force is 3.0.
+    attribution: >-
+      Strategic noise mapping, Round 4, Defra. Contains public sector
+      information licensed under the Open Government Licence v3.0.
+    tells:
+      - Modelled railway noise in 2022, as Lden, LAeq,16h, Lday, Levening and Lnight, down to 40 dB (35 dB at night)
+
+  - id: defra-airport-noise
+    name: Strategic noise maps of airports, England (Round 4)
+    publisher: Department for Environment, Food and Rural Affairs (Defra)
+    url: https://environment.data.gov.uk/explore/dac9cba4-abe7-43bd-b8e9-8a83da52edd8
+    tier: country
+    area: England, around the airports that the noise regulations cover
+    resolution: 10 m grid, at 4 m above ground
+    date: 2022
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The record names the Open Government Licence without a version, and sets
+      no access constraints. The version in force is 3.0.
+    attribution: >-
+      Strategic noise mapping, Round 4, Defra. Contains public sector
+      information licensed under the Open Government Licence v3.0.
+    tells:
+      - Modelled aircraft noise in 2022 around each airport the Environmental Noise (England) Regulations 2006 cover, as Lden, LAeq,16h, Lday, Levening and Lnight, down to about 40 dB (35 dB at night)
+
+  - id: os-open-greenspace
+    name: OS Open Greenspace
+    publisher: Ordnance Survey
+    url: https://www.ordnancesurvey.co.uk/products/os-open-greenspace
+    tier: country
+    area: Great Britain
+    resolution: areas, with their access points
+    date: updated every six months
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Ordnance Survey gives its OS OpenData products the Open Government
+      Licence. The licence file in each download names the version, which is
+      3.0 at the time of checking.
+    attribution: Contains OS data © Crown copyright and database right 2026.
+    tells:
+      - Green spaces likely to be open to the public, such as parks, playing fields and sports facilities, with the points where people can get in
