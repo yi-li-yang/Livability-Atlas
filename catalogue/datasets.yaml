@@ -512,3 +512,21 @@ datasets:
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
+
+  - id: ons-census-2021-topic-summaries
+    name: Census 2021 topic summaries by output area (ONS)
+    publisher: Office for National Statistics (ONS), through Nomis
+    url: https://www.nomisweb.co.uk/sources/census_2021_bulk
+    tier: country
+    area: England and Wales
+    resolution: output areas, the smallest census areas
+    date: 2021
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Nomis publishes census data under the Open Government Licence without
+      naming a version. The version in force is 3.0.
+    attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
+    tells:
+      - Residents of each output area by ethnic group (TS021), religion (TS030), country of birth (TS004), main language (TS024) and five-year age band (TS007A)

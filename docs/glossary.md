@@ -28,6 +28,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Food hygiene rating | The rating from 0 to 5 that a council gives a food business for hygiene, from 0 (urgent improvement necessary) to 5 (very good) | A café rated 5 |
 | Gigabit broadband | Broadband that can reach a gigabit, 1,000 megabits, per second, over full fibre or cable | 90% of homes can get gigabit broadband |
 | Ofsted | The body that inspects schools in England and publishes each inspection's results | A school's latest Ofsted inspection |
+| Diversity index | The chance that two residents picked at random belong to different ethnic groups, from 0 (everyone in one group) towards 1 | 0.8: most pairs of residents differ |
 
 ### Factors and scores
 

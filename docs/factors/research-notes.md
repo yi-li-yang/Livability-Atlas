@@ -15,23 +15,15 @@ For the bottom-up pass.
 | EPC register | Home size, energy rating, building age, heating type, likely damp or cold homes |
 | TfL data | Stations, lines, PTAL, fare zones, step-free access, night services |
 
-## Likely datasets for the MVP candidates
+## The MVP candidates
 
-Transport, Environment, Safety, Housing and cost, Natural hazards, Daily amenities, Digital connectivity and Education have moved into the catalogue. The row below is still to research.
+All nine MVP candidates are researched. Their measured indicators are in `catalogue/factors.yaml`, their datasets in [datasets.yaml](../../catalogue/datasets.yaml), and each has a spec in [docs/specs/](../specs/). What the research found about licences:
 
-| Top-level factor | Sub-factors | Likely datasets |
-| --- | --- | --- |
-| Community and people | Community composition; places of worship by faith | Census 2021 through ONS and Nomis; OpenStreetMap |
-
-Most of these datasets are expected to be under the Open Government Licence. There are three exceptions:
-
-- OpenStreetMap is under ODbL.
-- Overture Places is under CDLA-Permissive-2.0.
-- TfL data must carry the line "Powered by TfL Open Data".
+- Most datasets are under the Open Government Licence.
+- OpenStreetMap is under ODbL, Overture Places under three open licences by source, and TfL's data under TfL's own licence, which D07 accepts.
+- Three datasets need the owner's checks before a public build: the London Atmospheric Emissions Inventory and Defra's background maps, for air quality, and Price Paid Data, for buying cost.
 
 Non-commercial datasets, such as Ookla's speed tests, never go into public builds (D07).
-
-Each licence still needs checking at the source. The London Atmospheric Emissions Inventory, for one, gives its licence as "Not Specified" ([datasets.yaml](../../catalogue/datasets.yaml)).
 
 ## Environment: the sub-factors still to research
 
@@ -78,6 +70,17 @@ The [Education research](../specs/2026-10-25-education-research.md) left nurseri
 | --- | --- |
 | Nurseries | Ofsted's records of childcare providers and their inspections |
 | School league tables | The Department for Education's school performance tables, such as results at the end of primary and secondary school |
+
+## Community and people: the sub-factors still to research
+
+The [Community and people research](../specs/2026-10-25-community-research.md) left community life as an idea, outside the MVP. The leads, with their licences still to check:
+
+| Sub-factor | Leads |
+| --- | --- |
+| Community spaces | Community centres and halls in OpenStreetMap and Overture |
+| LGBTQ+-friendly venues | Venues tagged in OpenStreetMap; the tags' completeness needs a check, as for spike S8 |
+| Local election turnout | Results published by London Elects and by councils |
+| How long residents stay | Census 2021's counts of residents who lived at another address a year before |
 
 ## Transport: the sub-factors still to research
 
