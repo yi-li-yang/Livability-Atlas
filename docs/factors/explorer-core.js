@@ -259,8 +259,13 @@
       } else if (typeof dataset.public_build !== "boolean") {
         problem("public_build must be true or false.");
       } else if (dataset.public_build) {
-        if (isText(dataset.licence) && !OPEN_LICENCES.includes(dataset.licence)) {
-          problem(`public_build is true, but ${dataset.licence} is not on D07's list of open licences: ${OPEN_LICENCES.join(", ")}.`);
+        // A dataset under several licences at once joins their ids with AND,
+        // as SPDX expressions do, and each of them must be open.
+        const closed = isText(dataset.licence)
+          ? dataset.licence.split(/\s+AND\s+/).filter((id) => !OPEN_LICENCES.includes(id))
+          : [];
+        if (closed.length > 0) {
+          problem(`public_build is true, but ${closed.join(" and ")} ${closed.length === 1 ? "is" : "are"} not on D07's list of open licences: ${OPEN_LICENCES.join(", ")}.`);
         }
         if (dataset.licence_checked === undefined) problem("public_build is true, so it needs licence_checked, the date its licence was checked at the source.");
         if (dataset.attribution === undefined) problem("public_build is true, so it needs an attribution.");

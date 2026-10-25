@@ -373,3 +373,45 @@ datasets:
     tells:
       - The chance of flooding from surface water in four bands, from very low (under 1 in 1000 a year) to high (1 in 30 or more)
       - Flood depth, speed and hazard, and climate change scenarios
+
+  - id: overture-places
+    name: Overture Maps Places
+    publisher: Overture Maps Foundation
+    url: https://docs.overturemaps.org/guides/places/
+    tier: global
+    area: World
+    resolution: points, one for each place
+    date: monthly releases
+    licence: CDLA-Permissive-2.0 AND Apache-2.0 AND CC0-1.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      Overture licenses Places by source: most sources under CDLA-Permissive-2.0,
+      Foursquare's records under Apache-2.0 with its notice, and AllThePlaces
+      under CC0-1.0. All three are on D07's list.
+    attribution: >-
+      Overture Maps Foundation, with places from Meta, Microsoft, Foursquare and
+      others. Copyright 2024 Foursquare Labs, Inc. All rights reserved.
+    tells:
+      - Shops, cafés, restaurants, gyms, libraries and other places, each with a category and often a brand
+
+  - id: fsa-food-hygiene-ratings
+    name: Food Hygiene Rating Scheme ratings (Food Standards Agency)
+    publisher: Food Standards Agency, with local authorities
+    url: https://ratings.food.gov.uk/open-data
+    tier: country
+    area: England, Wales and Northern Ireland
+    resolution: points, one for each rated food business
+    date: updated daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-25
+    public_build: true
+    licence_note: >-
+      The FSA's terms ask users to show current ratings, or the date they were
+      updated, and not to suggest that the FSA endorses a business. The
+      scheme's rating images are trademarks, and the project does not use them.
+    attribution: >-
+      Food hygiene ratings from the Food Standards Agency. Contains public
+      sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The food hygiene rating of each food business, from 0 (urgent improvement necessary) to 5 (very good), with the date of its inspection

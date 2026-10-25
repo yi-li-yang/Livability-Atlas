@@ -17,11 +17,10 @@ For the bottom-up pass.
 
 ## Likely datasets for the MVP candidates
 
-Transport, Environment, Safety, Housing and cost, and Natural hazards have moved into the catalogue. The rows below are still to research.
+Transport, Environment, Safety, Housing and cost, Natural hazards and Daily amenities have moved into the catalogue. The rows below are still to research.
 
 | Top-level factor | Sub-factors | Likely datasets |
 | --- | --- | --- |
-| Daily amenities | Everyday amenities and restaurants within a 10-minute walk; cuisine variety; food hygiene | Overture Places, Foursquare Open Source Places or OpenStreetMap; NHS GP list; Food Standards Agency |
 | Community and people | Community composition; places of worship by faith | Census 2021 through ONS and Nomis; OpenStreetMap |
 | Digital connectivity | Full-fibre availability, 5G coverage | Ofcom Connected Nations, whose resolution is still to be checked |
 | Education | Nearby schools by phase and inspection outcome | DfE GIAS and Ofsted. Ofsted dropped single-word grades in 2024, so "rating" needs a new definition |
@@ -57,6 +56,21 @@ The [Housing and cost research](../specs/2026-10-25-housing-research.md) left ho
 ## Natural hazards: the sub-factor still to research
 
 The [Natural hazards research](../specs/2026-10-25-natural-hazards-research.md) left subsidence as an idea, outside the MVP. The British Geological Survey's GeoSure maps ground movement hazards, but it is licensed commercially, so an open alternative or a licence is needed first.
+
+## Daily amenities: the sub-factors still to research
+
+The [Daily amenities research](../specs/2026-10-25-daily-amenities-research.md) left these as ideas, outside the MVP. The food and brand sections above hold their signals.
+
+| Sub-factor | Leads |
+| --- | --- |
+| Your cuisines | A count of the restaurants serving the cuisines a user picks, from OpenStreetMap's cuisine tags (spike S8) |
+| Guide recognition | Michelin recognition recorded in Wikidata (CC0) |
+| Independent restaurants | The share of restaurants without a brand tag in OpenStreetMap and Overture (spike S8) |
+| Brand presence | Shopping centres, brand variety and brand groups, from brand tags (spike S8) |
+| Destinations | The walk or travel time to places a user picks, planned for Phase 2 |
+| Cuisine variety across cities | The variety of cuisines in a whole city, for the across-cities scale |
+
+GP access, which the MVP row once listed here, belongs to Health care.
 
 ## Transport: the sub-factors still to research
 

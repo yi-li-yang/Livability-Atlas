@@ -389,6 +389,14 @@ test("a dataset for public builds needs an open licence, the date it was checked
   expectProblem(core.validateDatasets(uncredited), /^dataset laei: public_build is true, so it needs an attribution/);
 });
 
+test("a dataset under several licences at once joins them with AND, and each must be open", () => {
+  assert.deepEqual(core.validateDatasets(openDataset({ licence: "CDLA-Permissive-2.0 AND Apache-2.0 AND CC0-1.0" })), []);
+  expectProblem(
+    core.validateDatasets(openDataset({ licence: "CDLA-Permissive-2.0 AND CC-BY-NC-4.0" })),
+    /^dataset laei: public_build is true, but CC-BY-NC-4.0 is not on D07's list of open licences/,
+  );
+});
+
 test("TfL's open data licence is on D07's list, by its LicenseRef id", () => {
   assert.deepEqual(core.validateDatasets(openDataset({ licence: "LicenseRef-TfL-Open-Data" })), []);
 });
