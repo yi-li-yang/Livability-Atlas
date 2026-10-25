@@ -313,13 +313,142 @@ factors:
         default_weight: 3
         scales: [within-city]
         children:
-          - {id: station-proximity, name: "Station proximity", default_weight: 3, description: "Walking minutes to the nearest station, for each mode."}
-          - {id: line-choice, name: "Line choice", default_weight: 3, description: "Rail and Tube lines within a 10-minute walk, and bus routes within 5 minutes."}
-          - {id: service-level, name: "Service level", default_weight: 3, description: "TfL's PTAL index, which combines walking time and service frequency."}
-          - {id: travel-cost, name: "Travel cost", default_weight: 3, description: "Fare zone of the nearest station."}
+          - id: station-proximity
+            name: Walk to the nearest station
+            description: Walking minutes to the nearest Tube, rail, DLR, Overground, Elizabeth line or tram station.
+            default_weight: 3
+            status: researched
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 25, t1: 6}
+            curve_reason: >-
+              1 within 6 minutes and 0 at 25 minutes: about 500 m and 2,000 m
+              at 4.8 km/h, the desirable and the preferred maximum walking
+              distances for commuting in Table 3.2 of the CIHT's Guidelines for
+              Providing for Journeys on Foot (2000). 4.8 km/h is the walking
+              speed TfL uses for PTAL.
+            evidence_type: direct
+            comparable_across_regions: true
+            method: >-
+              The walking time along streets and paths from the hex cell's
+              centre to the nearest station entrance, at 4.8 km/h. Spike S6
+              measures how far walking routes differ from straight lines.
+            datasets: [tfl-unified-api, naptan, openstreetmap]
+          - id: line-choice
+            name: Line choice
+            description: How many rail and Tube lines and bus routes run within a short walk.
+            default_weight: 3
+            children:
+              - id: rail-lines-nearby
+                name: Rail and Tube lines nearby
+                description: Tube, rail, DLR, Overground, Elizabeth line and tram lines at stations within a 12-minute walk.
+                default_weight: 3
+                status: researched
+                unit: lines
+                preference_type: fixed
+                curve_reason: >-
+                  The curve waits for spike S6, which counts the lines near each
+                  of London's hex cells. No standard says how many lines are
+                  enough, so the thresholds should separate the hex cells.
+                evidence_type: direct
+                comparable_across_regions: false
+                method: >-
+                  The number of distinct lines serving stations within a
+                  12-minute walk (960 m at 4.8 km/h) along streets and paths,
+                  the walk TfL's PTAL allows to a rail or Tube station. National
+                  Rail services count as TfL's data lists them. Cities divide
+                  their networks into lines differently, so the count does not
+                  compare across regions.
+                datasets: [tfl-unified-api, openstreetmap]
+              - id: bus-routes-nearby
+                name: Bus routes nearby
+                description: Day bus routes at stops within an 8-minute walk.
+                default_weight: 3
+                status: researched
+                unit: routes
+                preference_type: fixed
+                curve_reason: >-
+                  The curve waits for spike S6, which counts the routes near
+                  each of London's hex cells. No standard says how many routes
+                  are enough, so the thresholds should separate the hex cells.
+                evidence_type: direct
+                comparable_across_regions: false
+                method: >-
+                  The number of distinct day bus routes stopping within an
+                  8-minute walk (640 m at 4.8 km/h) along streets and paths, the
+                  walk TfL's PTAL allows to a bus stop. Night routes belong to
+                  Night and step-free travel.
+                datasets: [tfl-unified-api, openstreetmap]
+          - id: service-level
+            name: Service level
+            description: TfL's PTAL index, which combines walking time and service frequency.
+            default_weight: 3
+            status: researched
+            unit: PTAL band
+            preference_type: fixed
+            curve: {shape: lookup, scores: {0: 0, 1a: 0.125, 1b: 0.25, 2: 0.375, 3: 0.5, 4: 0.625, 5: 0.75, 6a: 0.875, 6b: 1}}
+            curve_reason: >-
+              TfL grades PTAL in nine bands, from 0 (worst) to 6b (best). The
+              scores rise in equal steps of 1/8, because TfL gives the bands no
+              other weighting.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              The PTAL band that covers most of the hex cell, from TfL's 100 m
+              grid. Spike S1 checks this mapping. The London Datastore's
+              release is from 2015, before the Elizabeth line opened, and
+              TfL's WebCAT team supplies its latest data on request.
+            datasets: [tfl-ptal]
+          - id: travel-cost
+            name: Travel cost
+            description: The fare zone of the nearest station, which sets the cost of travel to central London.
+            default_weight: 3
+            status: researched
+            unit: fare zone
+            preference_type: fixed
+            curve: {shape: lookup, scores: {1: 1, 2: 1, 3: 0.89, 4: 0.73, 5: 0.56, 6: 0.49, 7: 0.38, 8: 0.16, 9: 0}}
+            curve_reason: >-
+              The scores follow TfL's 2026 weekly caps for pay-as-you-go travel
+              from zone 1. Zones 1 and 2 score 1, because £44.70 for zones 1–2
+              is the lowest cap that includes zone 1, and zone 9 scores 0, at
+              £116.40 for zones 1–9, the highest. Between them, a zone's score
+              falls in proportion to its cap: zone 4's £64.20 scores 0.73.
+              Source: TfL, Adult rate prices 2026. Update the scores when fares
+              change.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              The fare zone of the nearest Tube, rail, DLR, Overground or
+              Elizabeth line station inside TfL's fare zones. A station in two
+              zones counts as the lower one.
+            datasets: [tfl-unified-api]
           - {id: night-and-step-free, name: "Night and step-free travel", default_weight: 3}
           - {id: cycling, name: "Cycling", default_weight: 3, description: "Protected lanes, cycle-hire docks and slope."}
-      - {id: travel-time-to-places, name: "Travel time to places", default_weight: 3, scales: [within-city], description: "Door-to-door public-transport time to the default places, or to the user's own places."}
+      - id: travel-time-to-places
+        name: Travel time to places
+        description: Door-to-door public-transport time to the default places, or to the user's own places.
+        default_weight: 3
+        scales: [within-city]
+        status: researched
+        unit: minutes
+        preference_type: fixed
+        curve_reason: >-
+          The curve waits for spike S4, which computes London's travel times.
+          One candidate is 1 at 15 minutes or less, falling to 0 at 90 minutes:
+          the ONS reported in 2014 that personal well-being was lowest for
+          commutes of 61 to 90 minutes, against those of 15 minutes or less.
+          But the GLA found the effect of commute length small in London
+          (Commuting and individual well-being in London, 2015), so the
+          thresholds should be checked against how London's hex cells spread.
+        evidence_type: direct
+        comparable_across_regions: true
+        method: >-
+          The mean door-to-door time by public transport from the hex cell's
+          centre to the default places (D09), on a weekday morning. A user's
+          own places get an estimate in the browser instead, labelled with the
+          evidence type estimate (D10). Spike S4 picks the routing engine and
+          the time of departure.
+        datasets: [tfl-unified-api, openstreetmap]
       - {id: airport-connectivity, name: "Airport connectivity", default_weight: 3, scales: [across-cities]}
       - {id: intercity-rail, name: "Intercity rail", default_weight: 3, scales: [across-cities]}
 
@@ -718,6 +847,85 @@ datasets:
     tells:
       - Modelled annual mean background concentrations of NOx, NO₂, PM10 and PM2.5, for each year from 2021 to 2040
       - An estimated split of those concentrations by source sector
+
+  - id: tfl-unified-api
+    name: TfL Unified API
+    publisher: Transport for London
+    url: https://api-portal.tfl.gov.uk/
+    tier: city
+    area: Greater London, and TfL services beyond it
+    resolution: points, for stations and stops
+    date: live, updated continually
+    licence: LicenseRef-TfL-Open-Data
+    licence_checked: 2026-10-24
+    public_build: true
+    licence_note: >-
+      TfL's licence is version 2.0 of the Open Government Licence with TfL's
+      amendments. It allows commercial use and redistribution with attribution,
+      but needs registration for the live feeds and limits requests to 500 a
+      minute per feed, and TfL may revise it without notice. Check it again
+      before each public build.
+    attribution: >-
+      Powered by TfL Open Data. Contains OS data © Crown copyright and database
+      rights 2016 and Geomni UK Map data © and database rights [2019].
+    tells:
+      - The location of every station and stop, and the lines that serve it
+      - The fare zone of each station
+      - Journey plans by public transport between any two places
+
+  - id: tfl-ptal
+    name: Public Transport Accessibility Levels (PTAL)
+    publisher: Transport for London, on the London Datastore
+    url: https://data.london.gov.uk/dataset/public-transport-accessibility-levels
+    tier: city
+    area: Greater London
+    resolution: 100 m grid
+    date: 2015
+    licence: OGL-UK-2.0
+    licence_checked: 2026-10-24
+    public_build: true
+    attribution: >-
+      Public Transport Accessibility Levels, Transport for London. Contains
+      public sector information licensed under the Open Government Licence
+      v2.0. The Greater London Authority cannot warrant the quality or accuracy
+      of the data.
+    tells:
+      - The PTAL band of each 100 m grid square in 2015, from 0 (worst) to 6b (best)
+      - The average access index of census areas, wards and boroughs
+
+  - id: naptan
+    name: National Public Transport Access Nodes (NaPTAN)
+    publisher: Department for Transport
+    url: https://beta-naptan.dft.gov.uk/
+    tier: country
+    area: Great Britain
+    resolution: points, for every stop and station
+    date: updated daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-24
+    public_build: true
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The location and type of every public transport stop and station, for bus, coach, rail, metro, Underground, tram, ferry and air
+
+  - id: openstreetmap
+    name: OpenStreetMap
+    publisher: OpenStreetMap contributors
+    url: https://www.openstreetmap.org/
+    tier: global
+    area: World
+    resolution: points, lines and areas, mapped by volunteers
+    date: updated continually
+    licence: ODbL-1.0
+    licence_checked: 2026-10-24
+    public_build: true
+    licence_note: >-
+      The ODbL is share-alike: a database built from OpenStreetMap must be
+      published under the ODbL too, as D12 expects for data bundles.
+    attribution: © OpenStreetMap contributors, available under the Open Database License.
+    tells:
+      - Streets and paths, for walking routes and times
+      - Stations, stops, and the routes of rail, Tube, tram and bus lines
 </script>
 <script>
 (function () {
@@ -1191,7 +1399,7 @@ datasets:
   // evidence type and datasets. An idea has none of it yet.
   function research(view) {
     const lines = [];
-    if (view.unit) lines.push(el("p", {}, `Measured in ${view.unit}`));
+    if (view.unit) lines.push(el("p", {}, `Unit: ${view.unit}`));
     if (view.curve) lines.push(el("p", {}, `Scoring curve: ${core.describeCurve(view.curve, view.unit)}`));
     if (view.evidenceType) lines.push(el("p", {}, `Evidence type: ${view.evidenceType}`));
     if (view.datasets.length > 0) {

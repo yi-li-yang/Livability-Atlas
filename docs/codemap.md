@@ -40,8 +40,10 @@ Livability-Atlas/
     │   └── validation.md  # how the data and the method are checked
     ├── plans/             # implementation plans, one per work item
     │   ├── 2026-10-24-catalogue-format.md
-    │   └── 2026-10-24-factor-explorer.md
+    │   ├── 2026-10-24-factor-explorer.md
+    │   └── 2026-10-24-transport-research.md
     └── specs/             # design specs, one per work item
         ├── 2026-10-24-catalogue-format.md
-        └── 2026-10-24-factor-explorer.md
+        ├── 2026-10-24-factor-explorer.md
+        └── 2026-10-24-transport-research.md
 ```

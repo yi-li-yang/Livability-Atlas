@@ -39,16 +39,16 @@ Non-commercial datasets, such as Ookla's speed tests, never go into public build
 
 Each licence still needs checking at the source. The London Atmospheric Emissions Inventory, for one, gives its licence as "Not Specified" ([datasets.yaml](../../catalogue/datasets.yaml)).
 
-## Transport: getting around in general
+## Transport: the sub-factors still to research
 
-| Sub-factor | Measured indicator | London dataset | MVP |
-| --- | --- | --- | --- |
-| Station proximity | Walking minutes to the nearest station, for each mode | TfL StopPoint data or NaPTAN, with a walking network | yes |
-| Line choice | Distinct rail and Tube lines within a 10-minute walk; bus routes within a 5-minute walk | TfL Line and StopPoint data, BODS | yes |
-| Service level | PTAL | London Datastore | yes |
-| Travel cost | Fare zone of the nearest station | TfL | yes |
-| Night and step-free travel | Night services within a walk; the nearest step-free station | TfL | later |
-| Cycling | Protected lanes, cycle-hire docks, slope | TfL Cycle Infrastructure Database, OpenStreetMap, elevation data | later |
+The MVP rows moved into the catalogue with the [Transport research](../specs/2026-10-24-transport-research.md). Two sub-factors remain for later:
+
+| Sub-factor | Measured indicator | London dataset |
+| --- | --- | --- |
+| Night and step-free travel | Night services within a walk; the nearest step-free station | TfL |
+| Cycling | Protected lanes, cycle-hire docks, slope | TfL Cycle Infrastructure Database, OpenStreetMap, elevation data |
+
+Outside London, the Bus Open Data Service (BODS) publishes bus timetables for England. It becomes the country-tier dataset for bus routes when a second English city is added.
 
 ## Credibility of published rankings
 
