@@ -39,6 +39,8 @@ These checklists define when a repeated job is done.
 
 ### Add a factor
 
+Steps 1 to 3 are the research. In Claude Code, `/research-factor <id>` runs them for one factor, through to a pull request.
+
 1. Tree node in `catalogue/factors.yaml`: plain name, description, default weight with its reason, parent.
 2. Measured indicators, each with its unit, preference type, a scoring curve with its justification, an evidence type, a method, and whether it is comparable across regions. The fields are listed in [catalogue/README.md](catalogue/README.md#measured-indicators).
 3. A dataset entry in `catalogue/datasets.yaml`, with its tier and licence checked.
