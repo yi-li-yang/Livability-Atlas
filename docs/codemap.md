@@ -40,6 +40,7 @@ Livability-Atlas/
     │   ├── rankings.md          # the published rankings, rated for credibility
     │   └── research-notes.md    # research tables from the Phase 0 plan
     ├── methodology/
+    │   ├── hard-to-measure.md  # the evidence ladder for factors without a direct measure
     │   ├── scoring.md     # spatial framework and scoring method v0
     │   └── validation.md  # how the data and the method are checked
     ├── plans/             # implementation plans, one per work item

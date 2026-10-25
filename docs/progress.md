@@ -10,7 +10,6 @@
 ## Next
 
 1. The rest of step 0.2, in the roadmap's order:
-   - Draft `docs/methodology/hard-to-measure.md`.
    - Set default weights from evidence, with reasons, and compute the build order (D14).
    - Propose the MVP set of about 10 top-level factors.
 2. Four checks the owner can make at any time:
@@ -31,6 +30,8 @@
 
 ### 2026-10-25
 
+- **Hard-to-measure factors drafted** in [hard-to-measure.md](methodology/hard-to-measure.md): the evidence ladder, seven rules for using it, and the ladder applied to culture, food quality, brand presence, community life, feeling safe and industry strength. One new rule guards against bias in models that rate streets from photos (D08). The matching sections leave the research notes.
+- **Published rankings merged** into `main` as pull request #14.
 - **Published rankings assessed** in [rankings.md](factors/rankings.md). Of six, the EIU and the OECD rate high, the Sunday Times medium, and Time Out, Mercer and Monocle low. Each joins `datasets.yaml` with its rating and reason. None may go into public builds: five are proprietary, and the OECD's data terms are still to confirm. Within London, the Sunday Times and Time Out become listings, researched as measured indicators.
 - **Community and people merged** into `main` as pull request #13.
 - **Community and people researched, the last MVP candidate.** Your community scores the presence of a group the user picks, and diversity scores Simpson's index over the census's ethnic groups, both by rank and both in a fixed direction, as D08 requires. Faith scores the walk to the nearest place of worship of the user's faith. The Census 2021 topic summaries join the catalogue. All nine MVP candidates are now researched.
