@@ -476,6 +476,7 @@ test("describeCurve puts a scoring curve into words", () => {
     [{ shape: "ramp", t0: 2, t1: 8 }, "km²", "0 at 2 km² or less, rising to 1 at 8 km² or more"],
     [{ shape: "ramp", t0: 0, t1: 1500 }, "", "0 at 0 or less, rising to 1 at 1,500 or more"],
     [{ shape: "ramp", t0: 0, t1: 30 }, "%", "0 at 0% or less, rising to 1 at 30% or more"],
+    [{ shape: "ramp", t0: 100, t1: 0 }, "% of the area", "1 at 0% of the area or less, falling to 0 at 100% of the area or more"],
     [{ shape: "ideal-range", l0: 14, l1: 20, u1: 26, u0: 32 }, "°C", "1 from 20 to 26 °C, falling to 0 at 14 °C or less and at 32 °C or more"],
     [{ shape: "ideal-range", l0: 14, l1: 20, u1: 20, u0: 32 }, "°C", "1 at 20 °C, falling to 0 at 14 °C or less and at 32 °C or more"],
     [{ shape: "lookup", scores: { "very low": 1, low: 0.75, high: 0 } }, "", "by category: very low → 1, low → 0.75, high → 0"],
