@@ -1072,8 +1072,42 @@ factors:
     weight_reason: Supporting factor. It partly repeats the other factors, so it starts low (D14).
     scales: [within-city, across-cities]
     children:
-      - {id: sunday-times-best-places, name: "Sunday Times Best Places to Live", default_weight: 3, scales: [within-city]}
-      - {id: time-out-neighbourhoods, name: "Time Out neighbourhood lists", default_weight: 3, scales: [within-city]}
+      - id: sunday-times-best-places
+        name: Sunday Times Best Places to Live
+        description: Whether the latest Sunday Times guide names the area.
+        default_weight: 3
+        scales: [within-city]
+        status: researched
+        unit: listing
+        preference_type: fixed
+        curve: {shape: lookup, scores: {listed: 1, not listed: 0}}
+        curve_reason: &listing-reason >-
+          A ranking names a few places and says nothing about the rest, so a
+          hex cell in a named place scores 1 and any other 0. Published
+          rankings start at a low default weight, so a listing cannot outweigh
+          the measured factors (D14).
+        evidence_type: ranking
+        comparable_across_regions: false
+        method: &listing-method >-
+          The hex cells inside the neighbourhoods that the latest edition names,
+          matched to the neighbourhoods' boundaries by name. Only the list of
+          names and a citation are stored. The assessment of the ranking is in
+          docs/factors/rankings.md.
+        datasets: [sunday-times-best-places-to-live]
+      - id: time-out-neighbourhoods
+        name: Time Out neighbourhood lists
+        description: Whether Time Out's latest list of the world's coolest neighbourhoods names the area.
+        default_weight: 3
+        scales: [within-city]
+        status: researched
+        unit: listing
+        preference_type: fixed
+        curve: {shape: lookup, scores: {listed: 1, not listed: 0}}
+        curve_reason: *listing-reason
+        evidence_type: ranking
+        comparable_across_regions: false
+        method: *listing-method
+        datasets: [time-out-coolest-neighbourhoods]
       - {id: eiu-liveability, name: "EIU Global Liveability Index", default_weight: 3, scales: [across-cities]}
       - {id: mercer-quality-of-living, name: "Mercer Quality of Living", default_weight: 3, scales: [across-cities]}
       - {id: monocle-quality-of-life, name: "Monocle Quality of Life", default_weight: 3, scales: [across-cities]}
