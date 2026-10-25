@@ -17,11 +17,10 @@ For the bottom-up pass.
 
 ## Likely datasets for the MVP candidates
 
-Transport, Environment and Safety have moved into the catalogue. The rows below are still to research.
+Transport, Environment, Safety, and Housing and cost have moved into the catalogue. The rows below are still to research.
 
 | Top-level factor | Sub-factors | Likely datasets |
 | --- | --- | --- |
-| Housing and cost | Buying cost (price per m²); renting cost; council tax (Band D, by borough) | HM Land Registry Price Paid with EPC floor areas; ONS private rents (by borough, the finest open rent data); the GLA London rents map if it is current; MHCLG for council tax |
 | Daily amenities | Everyday amenities and restaurants within a 10-minute walk; cuisine variety; food hygiene | Overture Places, Foursquare Open Source Places or OpenStreetMap; NHS GP list; Food Standards Agency |
 | Community and people | Community composition; places of worship by faith | Census 2021 through ONS and Nomis; OpenStreetMap |
 | Natural hazards | Flood risk | Environment Agency |
@@ -51,6 +50,10 @@ The [Environment research](../specs/2026-10-25-environment-research.md) left thr
 ## Safety: the sub-factor still to research
 
 The [Safety research](../specs/2026-10-25-safety-research.md) left road collisions as an idea, outside the MVP. The lead is the Department for Transport's road safety data (STATS19), which records each reported collision that injured someone, with its location. Its licence is still to check.
+
+## Housing and cost: the sub-factor still to research
+
+The [Housing and cost research](../specs/2026-10-25-housing-research.md) left home energy efficiency as an idea, outside the MVP. The lead is the energy certificates already in `datasets.yaml`, whose energy ratings are open when certificates are located by UPRN.
 
 ## Transport: the sub-factors still to research
 

@@ -4,15 +4,16 @@
 
 - Step 0.1 is merged into `main` (#1).
 - Step 0.2: the factor explorer (#2), the [catalogue format](specs/2026-10-24-catalogue-format.md) (#3), the [Transport research](specs/2026-10-24-transport-research.md) (#4) and the `/research-factor` command (#5) are merged.
-- Step 0.2: the [Environment research](specs/2026-10-25-environment-research.md) (#6) is merged, and the [Safety research](specs/2026-10-25-safety-research.md) is done. 17 of the catalogue's 83 within-city measured indicators are now researched.
+- Step 0.2: the [Environment research](specs/2026-10-25-environment-research.md) (#6) and the [Safety research](specs/2026-10-25-safety-research.md) (#7) are merged, and the [Housing and cost research](specs/2026-10-25-housing-research.md) is done. 20 of the catalogue's 83 within-city measured indicators are now researched.
 
 ## Next
 
-1. Research the next MVP factors with `/research-factor`, one top-level factor per pull request, starting from [research-notes.md](factors/research-notes.md): Housing and cost, Natural hazards, Daily amenities, Digital connectivity, Education, and Community and people.
-2. Three checks the owner can make at any time:
+1. Research the next MVP factors with `/research-factor`, one top-level factor per pull request, starting from [research-notes.md](factors/research-notes.md): Natural hazards, Daily amenities, Digital connectivity, Education, and Community and people.
+2. Four checks the owner can make at any time:
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
    - Ask TfL's WebCAT team for its latest PTAL data, since the open release is from 2015, before the Elizabeth line (spike S1).
+   - Ask Royal Mail whether matching Price Paid Data to energy certificates by address, to publish prices per m² by area, is allowed. Until then, buying cost stays out of public builds (spike S3).
 3. Before step 0.3:
    - Install uv and just with winget.
    - Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`.
@@ -26,6 +27,8 @@
 
 ### 2026-10-25
 
+- **Housing and cost researched.** Buying cost (£ per m²), renting cost (£ a month, by borough) and council tax (Band D, by borough) are researched, each scored by rank within the region. The ONS rents and MHCLG's council tax are open. Price Paid Data's addresses come with Royal Mail's terms, which may not allow matching sales to energy certificates, so it stays out of public builds until Royal Mail confirms. The certificates themselves are open when located by UPRN.
+- **Safety merged** into `main` as pull request #7.
 - **Safety researched.** Crime becomes five measured indicators: burglary, violence and sexual offences, robbery and theft from the person, vehicle crime, and anti-social behaviour, as rates per 1,000 residents (D08). No standard sets a safe level of crime, so they score by rank within the region. Police.uk and the Census 2021 resident counts are both open. Road collisions stay as an idea.
 - **Environment merged** into `main` as pull request #6.
 - **Environment researched.** Road, rail and aircraft noise, and the walk to a green space, are researched, with the [spec](specs/2026-10-25-environment-research.md) recording each choice. The road and rail noise curves come from ProPG, aircraft noise from the government's aviation thresholds, and the green space walk from Natural England's standard and CIHT's guidance. All four new datasets, Defra's noise maps and OS Open Greenspace, may go into public builds. Tree canopy, water nearby and urban heat stay as ideas, with leads in the research notes.
