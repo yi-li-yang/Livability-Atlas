@@ -75,7 +75,7 @@ A `user-range` measured indicator needs an `ideal-range` curve, because its user
 | `area` | yes | The area it covers |
 | `resolution` | yes | How fine it is, such as `20 m grid` or `points` |
 | `date` | yes | The period it describes, such as `2022` |
-| `licence` | yes | An [SPDX licence id](https://spdx.org/licenses/), such as `OGL-UK-3.0`, or `unknown` until the licence is confirmed at the source. A licence that SPDX does not list takes a `LicenseRef-` id, such as `LicenseRef-TfL-Open-Data` |
+| `licence` | yes | An [SPDX licence id](https://spdx.org/licenses/), such as `OGL-UK-3.0`, or `unknown` until the licence is confirmed at the source. A licence that SPDX does not list takes a `LicenseRef-` id, such as `LicenseRef-TfL-Open-Data`. A dataset under several licences at once joins them with AND, such as `CDLA-Permissive-2.0 AND Apache-2.0` |
 | `licence_checked` | when `public_build` is true | The date the licence was last checked at the source |
 | `public_build` | yes | Whether public builds may use it (D07) |
 | `licence_note` | when `public_build` is false | Why public builds may not use it, and what would change that |
@@ -93,7 +93,7 @@ A `user-range` measured indicator needs an `ideal-range` curve, because its user
 - `Apache-2.0`
 - `LicenseRef-TfL-Open-Data`: TfL's open data licence, version 2.0 of the Open Government Licence with TfL's amendments
 
-A dataset marked `public_build: true` also needs its `licence_checked` date and its `attribution`.
+A dataset marked `public_build: true` also needs its `licence_checked` date and its `attribution`. When its licences are joined with AND, every one of them must be on the list.
 
 ## Checks
 

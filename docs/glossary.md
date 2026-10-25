@@ -25,6 +25,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Daytime noise level | The average noise level from 7 am to 11 pm, in decibels (dB) | 55 dB (daytime) from road traffic |
 | Band D | The council tax band used to compare councils' charges. A home's own band, from A to H in England, sets its real bill | Band D council tax in Wandsworth |
 | Surface water flooding | Flooding when heavy rain cannot drain away, as opposed to flooding from rivers or the sea | A street that floods in a summer storm |
+| Food hygiene rating | The rating from 0 to 5 that a council gives a food business for hygiene, from 0 (urgent improvement necessary) to 5 (very good) | A café rated 5 |
 
 ### Factors and scores
 
