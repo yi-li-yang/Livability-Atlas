@@ -51,6 +51,7 @@ Livability-Atlas/
         ├── 2026-10-24-transport-research.md
         ├── 2026-10-25-daily-amenities-research.md
         ├── 2026-10-25-digital-connectivity-research.md
+        ├── 2026-10-25-education-research.md
         ├── 2026-10-25-environment-research.md
         ├── 2026-10-25-housing-research.md
         ├── 2026-10-25-natural-hazards-research.md

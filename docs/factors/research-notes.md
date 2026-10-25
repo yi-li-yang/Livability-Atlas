@@ -17,12 +17,11 @@ For the bottom-up pass.
 
 ## Likely datasets for the MVP candidates
 
-Transport, Environment, Safety, Housing and cost, Natural hazards, Daily amenities and Digital connectivity have moved into the catalogue. The rows below are still to research.
+Transport, Environment, Safety, Housing and cost, Natural hazards, Daily amenities, Digital connectivity and Education have moved into the catalogue. The row below is still to research.
 
 | Top-level factor | Sub-factors | Likely datasets |
 | --- | --- | --- |
 | Community and people | Community composition; places of worship by faith | Census 2021 through ONS and Nomis; OpenStreetMap |
-| Education | Nearby schools by phase and inspection outcome | DfE GIAS and Ofsted. Ofsted dropped single-word grades in 2024, so "rating" needs a new definition |
 
 Most of these datasets are expected to be under the Open Government Licence. There are three exceptions:
 
@@ -70,6 +69,15 @@ The [Daily amenities research](../specs/2026-10-25-daily-amenities-research.md) 
 | Cuisine variety across cities | The variety of cuisines in a whole city, for the across-cities scale |
 
 GP access, which the MVP row once listed here, belongs to Health care.
+
+## Education: the sub-factors still to research
+
+The [Education research](../specs/2026-10-25-education-research.md) left nurseries and school league tables as ideas, outside the MVP, and the definition of an inspection that meets the standard open. The leads, with their licences still to check:
+
+| Sub-factor | Leads |
+| --- | --- |
+| Nurseries | Ofsted's records of childcare providers and their inspections |
+| School league tables | The Department for Education's school performance tables, such as results at the end of primary and secondary school |
 
 ## Transport: the sub-factors still to research
 

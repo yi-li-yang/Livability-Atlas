@@ -27,6 +27,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Surface water flooding | Flooding when heavy rain cannot drain away, as opposed to flooding from rivers or the sea | A street that floods in a summer storm |
 | Food hygiene rating | The rating from 0 to 5 that a council gives a food business for hygiene, from 0 (urgent improvement necessary) to 5 (very good) | A café rated 5 |
 | Gigabit broadband | Broadband that can reach a gigabit, 1,000 megabits, per second, over full fibre or cable | 90% of homes can get gigabit broadband |
+| Ofsted | The body that inspects schools in England and publishes each inspection's results | A school's latest Ofsted inspection |
 
 ### Factors and scores
 

@@ -4,11 +4,11 @@
 
 - Step 0.1 is merged into `main` (#1).
 - Step 0.2: the factor explorer (#2), the [catalogue format](specs/2026-10-24-catalogue-format.md) (#3), the [Transport research](specs/2026-10-24-transport-research.md) (#4) and the `/research-factor` command (#5) are merged.
-- Step 0.2: the research of [Environment](specs/2026-10-25-environment-research.md) (#6), [Safety](specs/2026-10-25-safety-research.md) (#7), [Housing and cost](specs/2026-10-25-housing-research.md) (#8) and [Natural hazards](specs/2026-10-25-natural-hazards-research.md) (#9) and [Daily amenities](specs/2026-10-25-daily-amenities-research.md) (#10) is merged, and the [Digital connectivity research](specs/2026-10-25-digital-connectivity-research.md) is done. 32 of the catalogue's 83 within-city measured indicators are now researched.
+- Step 0.2: the research of [Environment](specs/2026-10-25-environment-research.md) (#6), [Safety](specs/2026-10-25-safety-research.md) (#7), [Housing and cost](specs/2026-10-25-housing-research.md) (#8) and [Natural hazards](specs/2026-10-25-natural-hazards-research.md) (#9), [Daily amenities](specs/2026-10-25-daily-amenities-research.md) (#10) and [Digital connectivity](specs/2026-10-25-digital-connectivity-research.md) (#11) is merged, and the [Education research](specs/2026-10-25-education-research.md) is done. 35 of the catalogue's 85 within-city measured indicators are now researched.
 
 ## Next
 
-1. Research the next MVP factors with `/research-factor`, one top-level factor per pull request, starting from [research-notes.md](factors/research-notes.md): Education, and Community and people.
+1. Research the last MVP factor with `/research-factor`, starting from [research-notes.md](factors/research-notes.md): Community and people.
 2. Four checks the owner can make at any time:
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
@@ -27,6 +27,8 @@
 
 ### 2026-10-25
 
+- **Education researched.** Schools become three measured indicators: the walk to the nearest state primary school and the nearest secondary school, from CIHT's distances for school trips, and the inspection results of nearby schools. Ofsted's report cards, in force since November 2025, do not compare directly with its earlier grades, so the inspection curve waits for a definition that spans both. The DfE's register of schools and Ofsted's inspection records are open.
+- **Digital connectivity merged** into `main` as pull request #11.
 - **Digital connectivity researched.** Ofcom's open data gives gigabit-capable broadband down to output areas, but full fibre only by local authority, so full-fibre availability becomes gigabit broadband. 5G comes only by borough, and is measured from all four networks, since nearly every London premises has 5G from at least one. The ONS output area boundaries join the catalogue, for gigabit broadband and for the crime rates.
 - **Daily amenities merged** into `main` as pull request #10.
 - **Daily amenities researched.** Groceries, pharmacies, gyms and libraries score by the walk to the nearest one, from CIHT's walking distances; cafés, restaurants and cuisines by how many lie within a 10-minute walk, their curves waiting for spike S6; and food hygiene by the share of nearby businesses rated good or very good. Overture Places joins the catalogue under three open licences, which the checks now accept joined by AND, with the Food Standards Agency's ratings.

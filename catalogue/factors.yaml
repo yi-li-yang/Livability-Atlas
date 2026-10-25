@@ -766,7 +766,72 @@ factors:
     default_weight: 3
     scales: [within-city, across-cities]
     children:
-      - {id: schools, name: "Schools by phase and inspection outcome", default_weight: 3, scales: [within-city]}
+      - id: schools
+        name: Schools
+        description: State schools nearby, by phase, and how their inspections went.
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - id: primary-schools
+            name: Primary schools
+            description: Walking minutes to the nearest state primary school.
+            default_weight: 3
+            status: researched
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 25, t1: 6}
+            curve_reason: &school-walk-reason >-
+              1 within 6 minutes and 0 at 25 minutes: about 500 m and 2,000 m
+              at 4.8 km/h, the desirable and the preferred maximum walking
+              distances for school trips in Table 3.2 of the CIHT's Guidelines
+              for Providing for Journeys on Foot (2000).
+            evidence_type: direct
+            comparable_across_regions: true
+            method: &school-walk-method >-
+              The walking time along streets and paths from the hex cell's
+              centre to the nearest open state-funded school of this phase, from
+              the DfE's register of schools, at 4.8 km/h. Admission follows each
+              school's own criteria, often distance, so the nearest school is
+              not always one a child can attend.
+            datasets: [dfe-gias, openstreetmap]
+          - id: secondary-schools
+            name: Secondary schools
+            description: Walking minutes to the nearest state secondary school.
+            default_weight: 3
+            status: researched
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 25, t1: 6}
+            curve_reason: *school-walk-reason
+            evidence_type: direct
+            comparable_across_regions: true
+            method: *school-walk-method
+            datasets: [dfe-gias, openstreetmap]
+          - id: school-inspections
+            name: School inspection results
+            description: The share of nearby state schools whose latest Ofsted inspection meets the standard.
+            default_weight: 3
+            status: researched
+            unit: "% of nearby schools"
+            preference_type: fixed
+            curve_reason: >-
+              The curve waits for a definition of meeting the standard that spans
+              Ofsted's frameworks. Since 10 November 2025, report cards grade up
+              to eight areas on a five-point scale, from urgent improvement to
+              exceptional, and Ofsted says these grades do not compare directly
+              with earlier ones. One candidate is the expected standard or
+              better in every graded area, matched with good or better under
+              the earlier framework, decided once report cards cover more
+              schools.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              The share of the state-funded schools within a 2,000 m walk whose
+              latest inspection meets the standard, from Ofsted's monthly
+              records of each school's latest inspection. Ofsted inspects
+              schools in England only, so the share does not compare across
+              regions.
+            datasets: [ofsted-school-inspections, dfe-gias]
       - {id: nurseries, name: "Nurseries", default_weight: 3, scales: [within-city]}
       - {id: school-league-tables, name: "School league tables", default_weight: 3, scales: [within-city]}
       - {id: school-quality, name: "School quality", default_weight: 3, scales: [across-cities]}
