@@ -438,7 +438,92 @@ factors:
     default_weight: 3
     scales: [within-city, across-cities]
     children:
-      - {id: crime, name: "Crime by category", default_weight: 3, scales: [within-city]}
+      - id: crime
+        name: Crime
+        description: Recorded crime and anti-social behaviour nearby, as rates, by kind.
+        default_weight: 3
+        scales: [within-city]
+        children:
+          - id: burglary
+            name: Burglary
+            description: Recorded burglaries, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: crimes a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: &crime-curve-reason >-
+              No standard sets a safe level of crime, and countries record crime
+              differently, so a hex cell scores by its rank within the region:
+              the share of hex cells with a higher rate.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: &crime-method >-
+              Police.uk's recorded crimes of this kind over the last 12 months,
+              counted at their anonymised map points, per 1,000 residents from
+              Census 2021, smoothed over neighbouring hex cells. Spike S2 sets
+              the smoothing, and compares rates per resident with rates per
+              area: rates per resident overstate crime where few people live
+              but many visit. Not every crime is reported, and recording varies
+              between police forces.
+            datasets: [police-uk, ons-census-2021-residents]
+          - id: violence-and-sexual-offences
+            name: Violence and sexual offences
+            description: Recorded violent and sexual crimes, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: crimes a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: *crime-curve-reason
+            evidence_type: direct
+            comparable_across_regions: false
+            method: *crime-method
+            datasets: [police-uk, ons-census-2021-residents]
+          - id: robbery-and-theft-from-the-person
+            name: Robbery and theft from the person
+            description: Robbery, and theft such as pickpocketing and bag snatching, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: crimes a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: *crime-curve-reason
+            evidence_type: direct
+            comparable_across_regions: false
+            method: *crime-method
+            datasets: [police-uk, ons-census-2021-residents]
+          - id: vehicle-crime
+            name: Vehicle crime
+            description: Theft of and from vehicles, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: crimes a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: *crime-curve-reason
+            evidence_type: direct
+            comparable_across_regions: false
+            method: *crime-method
+            datasets: [police-uk, ons-census-2021-residents]
+          - id: anti-social-behaviour
+            name: Anti-social behaviour
+            description: Incidents of anti-social behaviour reported to the police, as a rate per resident.
+            default_weight: 3
+            status: researched
+            unit: incidents a year per 1,000 residents
+            preference_type: fixed
+            curve: {shape: percentile, better: lower}
+            curve_reason: *crime-curve-reason
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              Police.uk's incidents of anti-social behaviour over the last 12
+              months, counted at their anonymised map points, per 1,000
+              residents from Census 2021, smoothed over neighbouring hex cells
+              as for crime (spike S2). Not every incident is reported, and
+              Police.uk notes that some forces may count some incidents twice.
+            datasets: [police-uk, ons-census-2021-residents]
       - {id: road-collisions, name: "Road collisions", default_weight: 3, scales: [within-city]}
       - {id: homicide-rate, name: "Homicide rate", default_weight: 3, scales: [across-cities]}
       - {id: political-stability, name: "Political stability", default_weight: 3, scales: [across-cities]}
