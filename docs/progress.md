@@ -10,7 +10,6 @@
 ## Next
 
 1. The rest of step 0.2, in the roadmap's order:
-   - Assess the published rankings against the credibility rubric (`docs/factors/rankings.md`).
    - Draft `docs/methodology/hard-to-measure.md`.
    - Set default weights from evidence, with reasons, and compute the build order (D14).
    - Propose the MVP set of about 10 top-level factors.
@@ -32,6 +31,8 @@
 
 ### 2026-10-25
 
+- **Published rankings assessed** in [rankings.md](factors/rankings.md). Of six, the EIU and the OECD rate high, the Sunday Times medium, and Time Out, Mercer and Monocle low. Each joins `datasets.yaml` with its rating and reason. None may go into public builds: five are proprietary, and the OECD's data terms are still to confirm. Within London, the Sunday Times and Time Out become listings, researched as measured indicators.
+- **Community and people merged** into `main` as pull request #13.
 - **Community and people researched, the last MVP candidate.** Your community scores the presence of a group the user picks, and diversity scores Simpson's index over the census's ethnic groups, both by rank and both in a fixed direction, as D08 requires. Faith scores the walk to the nearest place of worship of the user's faith. The Census 2021 topic summaries join the catalogue. All nine MVP candidates are now researched.
 - **Education merged** into `main` as pull request #12.
 - **Education researched.** Schools become three measured indicators: the walk to the nearest state primary school and the nearest secondary school, from CIHT's distances for school trips, and the inspection results of nearby schools. Ofsted's report cards, in force since November 2025, do not compare directly with its earlier grades, so the inspection curve waits for a definition that spans both. The DfE's register of schools and Ofsted's inspection records are open.

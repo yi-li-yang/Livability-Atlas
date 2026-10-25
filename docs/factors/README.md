@@ -9,6 +9,7 @@ Tools and notes for building the factor catalogue in step 0.2 of Phase 0.
 | `embed-catalogue.mjs` | Copies `catalogue/factors.yaml` and `catalogue/datasets.yaml` into the page |
 | `artifact-page.mjs` | Writes the copy of the page that is published as an Artifact |
 | `*.test.mjs` | The tests, run with Node's built-in test runner |
+| [rankings.md](rankings.md) | The published rankings, rated against the credibility rubric |
 | [research-notes.md](research-notes.md) | Starting points for the rest of step 0.2, carried over from the Phase 0 plan |
 
 ## Open the explorer
