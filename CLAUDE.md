@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Operating manual for Claude Code in this repository. Keep it under 150 lines.
+Operating manual for the coding agents in this repository. Claude Code reads it directly, and Google Antigravity through [AGENTS.md](AGENTS.md). Keep it under 150 lines.
 
 ## The project
 
@@ -17,6 +17,7 @@ The project is in **Phase 0**: decisions, factor catalogue, spikes and scaffold.
 
 - `docs/`: the living documents. The index is [docs/README.md](docs/README.md).
 - The planned layout (`catalogue/`, `pipeline/`, `web/`, `shared/`) is in [docs/architecture.md](docs/architecture.md#planned-layout). The current tree is in [docs/codemap.md](docs/codemap.md).
+- `AGENTS.md` bridges other agents to this file (D20). Put rules here, never there.
 - `data/` is gitignored. `ATLAS_DATA_DIR` overrides its location.
 
 ## Commands

@@ -5,7 +5,8 @@ A map of the repository as it is now. It is kept by hand until the tree reaches 
 ```text
 Livability-Atlas/
 ├── README.md              # what the project is, status, licences
-├── CLAUDE.md              # operating manual for Claude Code
+├── CLAUDE.md              # operating manual for the coding agents; the one source of rules
+├── AGENTS.md              # bridge for other agents (Antigravity): includes CLAUDE.md
 ├── CONTRIBUTING.md        # how to contribute; the CLA; recipes
 ├── LICENSE                # AGPL-3.0
 ├── .gitignore             # keeps data/, .env files and build output out of git

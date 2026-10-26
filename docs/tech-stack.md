@@ -49,6 +49,7 @@ The "From" column gives the step or phase in which a tool arrives.
 | --- | --- | --- | --- | --- |
 | [just](https://just.systems/man/en/) | One command runner for people, Claude and CI | Cross-platform | Make (not on Windows by default), npm scripts | 0.3 |
 | [Node's test runner](https://nodejs.org/api/test.html) (`node --test`) | Tests for the factor explorer before the scaffold exists | Built into Node 24, so nothing is installed | Vitest, which arrives with the web app | 0.2 |
+| [Google Antigravity](https://antigravity.google/docs/rules) | An optional second coding agent beside Claude Code | It loads the root `AGENTS.md`, which includes `CLAUDE.md`, so both follow one set of rules (D20) | Copies of the rules in `GEMINI.md`, which would drift | 0.2 |
 | [pre-commit](https://pre-commit.com/) with ruff, Biome, [gitleaks](https://github.com/gitleaks/gitleaks) and a large-file check | Checks before each commit | Stops secrets and data from reaching a public repo | Husky | 0.3 |
 | [GitHub Actions](https://docs.github.com/actions) | CI running `just check` | Free for public repos | — | 0.3 |
 | [CLA Assistant](https://cla-assistant.io/) | CLA signatures on pull requests | The common choice on GitHub | — | Before the first outside contribution |

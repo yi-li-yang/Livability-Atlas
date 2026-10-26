@@ -79,7 +79,7 @@ FastAPI with PostgreSQL/PostGIS will hold accounts and saved preference profiles
 
 ```text
 Livability-Atlas/
-├── README.md  LICENSE  CONTRIBUTING.md  CLAUDE.md
+├── README.md  LICENSE  CONTRIBUTING.md  CLAUDE.md  AGENTS.md
 ├── justfile                # every command: setup, check, test, validate, build, dev, docs
 ├── .claude/settings.json   # shared permissions; commands/ added once a recipe repeats
 ├── .github/workflows/ci.yml
@@ -89,7 +89,7 @@ Livability-Atlas/
 │   ├── presets/            #   ready-made preference profiles
 │   └── regions/london.yaml #   boundary, grid, buffer zone, default places
 ├── pipeline/               # Python package `atlas` (uv project)
-│   ├── CLAUDE.md
+│   ├── CLAUDE.md  AGENTS.md
 │   ├── src/atlas/
 │   │   ├── cli.py
 │   │   ├── catalogue/      # Pydantic models and loaders
@@ -106,7 +106,7 @@ Livability-Atlas/
 │   ├── tests/
 │   └── notebooks/          # exploration and spikes; never imported by the package
 ├── web/                    # Vite + React + TypeScript, static build
-│   ├── CLAUDE.md
+│   ├── CLAUDE.md  AGENTS.md
 │   ├── src/
 │   │   ├── features/       # map, preferences, factor-tree, ranking, cell-detail
 │   │   ├── scoring/        # the TypeScript scoring engine

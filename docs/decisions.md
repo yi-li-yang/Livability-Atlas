@@ -32,6 +32,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D17](#d17-interface) | Interface | Progressive disclosure; visual factor tree as a treemap or a sunburst, one colour per factor | accepted |
 | [D18](#d18-preference-types) | Preference types | Fixed, user direction, user range, user choice | proposed |
 | [D19](#d19-food-quality) | Food quality | Open signals first | proposed |
+| [D20](#d20-agent-rules) | Agent rules | One rule file, `CLAUDE.md`, bridged to other agents by `AGENTS.md` | proposed |
 
 ## D01 First slice
 
@@ -287,3 +288,20 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** Spike S8 has tested the open signals, or a ratings platform offers an affordable licence.
 - **History:**
   - 2026-10-23: proposed after review asked how to measure restaurant quality and taste.
+
+## D20 Agent rules
+
+- **Status:** proposed
+- **Choice:**
+  - `CLAUDE.md` is the one source of rules for every coding agent.
+  - `AGENTS.md` at the root is the bridge for other agents, Google Antigravity first. Antigravity always loads a root `AGENTS.md` or `GEMINI.md`, and its documentation does not mention `CLAUDE.md`. So `AGENTS.md` holds the line `@[CLAUDE.md](CLAUDE.md)`, which Antigravity replaces with that file's text. It resolves the path from the folder of the file that holds the line, and caps the result at 24,000 bytes. Any other tool shows the line as a plain link.
+  - Beyond the include, `AGENTS.md` holds only a translation of the Claude Code tools that `CLAUDE.md` names, and the rules for two agents sharing a clone.
+  - Each nested `CLAUDE.md` gets a sibling `AGENTS.md` made of one such line, because Antigravity loads `AGENTS.md` folder by folder.
+- **Why:** One copy of the rules cannot drift. `AGENTS.md` is the file other agents look for, and the owner wants Claude Code and Antigravity to follow the same rules.
+- **Alternatives considered:**
+  - Copy the rules into `AGENTS.md` or `GEMINI.md`: the two copies would drift.
+  - Symlink `AGENTS.md` to `CLAUDE.md`: symlinks need extra rights on Windows, and a third-party report says Antigravity does not follow them.
+  - Make `AGENTS.md` the source and have `CLAUDE.md` import it: it rewrites the manual that already works, for no gain.
+- **Revisit when:** The owner has run Antigravity in this repo and seen it follow the rules, Antigravity reads `CLAUDE.md` itself, or its include syntax changes.
+- **History:**
+  - 2026-10-26: proposed after the owner asked for Claude Code and Antigravity to share one set of rules. Built from Antigravity's documentation; not yet run in Antigravity.

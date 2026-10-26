@@ -24,7 +24,7 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [ ] `pipeline/`: a uv project with ruff, pyright and pytest. `atlas --help` runs, and `atlas validate` checks `catalogue/`.
   - [ ] `web/`: a Vite + React + TypeScript app showing a MapLibre basemap of London, with Biome, Vitest and one Playwright smoke test.
   - [ ] `shared/schemas/`, TypeScript type generation, and a CI check that the generated files are current.
-  - [ ] `justfile`, pre-commit, GitHub Actions running `just check`, `.claude/settings.json`, and the nested `CLAUDE.md` files.
+  - [ ] `justfile`, pre-commit, GitHub Actions running `just check`, `.claude/settings.json`, and the nested `CLAUDE.md` files, each with an `AGENTS.md` beside it (D20).
 - [ ] **0.4 Spikes S1–S8** (listed below).
 - [ ] **0.5 Method and freeze.**
   - [ ] Finalise `methodology/scoring.md`.

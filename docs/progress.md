@@ -6,13 +6,15 @@
 - Step 0.2: the factor explorer (#2), the [catalogue format](specs/2026-10-24-catalogue-format.md) (#3), the [Transport research](specs/2026-10-24-transport-research.md) (#4) and the `/research-factor` command (#5) are merged.
 - Step 0.2: the research of [Environment](specs/2026-10-25-environment-research.md) (#6), [Safety](specs/2026-10-25-safety-research.md) (#7), [Housing and cost](specs/2026-10-25-housing-research.md) (#8), [Natural hazards](specs/2026-10-25-natural-hazards-research.md) (#9), [Daily amenities](specs/2026-10-25-daily-amenities-research.md) (#10), [Digital connectivity](specs/2026-10-25-digital-connectivity-research.md) (#11) and [Education](specs/2026-10-25-education-research.md) (#12) is merged, and the [Community and people research](specs/2026-10-25-community-research.md) is done.
 - All nine MVP candidates are researched: 38 of the catalogue's 85 within-city measured indicators, from 26 datasets.
+- `AGENTS.md` now bridges Google Antigravity to `CLAUDE.md` (D20). It is committed on `docs/agents-md`, not yet pushed, and not yet run in Antigravity.
 
 ## Next
 
 1. The rest of step 0.2, in the roadmap's order:
    - Set default weights from evidence, with reasons, and compute the build order (D14).
    - Propose the MVP set of about 10 top-level factors.
-2. Four checks the owner can make at any time:
+2. Five checks the owner can make at any time:
+   - Open the repo in Antigravity and ask it to list the project's guardrails. If it names the public repo, D07 and D08, the include works and D20 can be accepted.
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
    - Ask TfL's WebCAT team for its latest PTAL data, since the open release is from 2015, before the Elizabeth line (spike S1).
@@ -27,6 +29,10 @@
 - Nothing.
 
 ## Log
+
+### 2026-10-26
+
+- **Agent rules bridged** for Google Antigravity (D20). Antigravity always loads a root `AGENTS.md` and its documentation does not mention `CLAUDE.md`, so the new [AGENTS.md](../AGENTS.md) includes `CLAUDE.md`, which stays the one source of rules. It also translates the Claude Code tools that `CLAUDE.md` names (the superpowers skills, `/research-factor`, `/code-review`) and sets rules for two agents sharing a clone: one agent per branch, a worktree each when they work at once, and a commit as the hand-over. Step 0.3's nested `CLAUDE.md` files will each need an `AGENTS.md` beside them. Built from Antigravity's documentation; it has not been run in Antigravity, hence the new check in "Next".
 
 ### 2026-10-25
 
