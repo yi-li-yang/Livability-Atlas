@@ -32,7 +32,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D17](#d17-interface) | Interface | Progressive disclosure; visual factor tree as a treemap or a sunburst, one colour per factor | accepted |
 | [D18](#d18-preference-types) | Preference types | Fixed, user direction, user range, user choice | proposed |
 | [D19](#d19-food-quality) | Food quality | Open signals first | proposed |
-| [D20](#d20-agent-rules) | Agent rules | One rule file, `CLAUDE.md`, bridged to other agents by `AGENTS.md` | proposed |
+| [D20](#d20-agent-rules) | Agent rules | One rule file, `CLAUDE.md`, bridged to other agents by `AGENTS.md` | accepted |
 
 ## D01 First slice
 
@@ -291,7 +291,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 
 ## D20 Agent rules
 
-- **Status:** proposed
+- **Status:** accepted
 - **Choice:**
   - `CLAUDE.md` is the one source of rules for every coding agent.
   - `AGENTS.md` at the root is the bridge for other agents, Google Antigravity first. Antigravity always loads a root `AGENTS.md` or `GEMINI.md`, and its documentation does not mention `CLAUDE.md`. So `AGENTS.md` holds the line `@[CLAUDE.md](CLAUDE.md)`, which Antigravity replaces with that file's text. It resolves the path from the folder of the file that holds the line, and caps the result at 24,000 bytes. Any other tool shows the line as a plain link.
@@ -305,3 +305,4 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** The owner has run Antigravity in this repo and seen it follow the rules, Antigravity reads `CLAUDE.md` itself, or its include syntax changes.
 - **History:**
   - 2026-10-26: proposed after the owner asked for Claude Code and Antigravity to share one set of rules. Built from Antigravity's documentation; not yet run in Antigravity.
+  - 2026-10-26: accepted after the owner opened the repo in Antigravity and it saw the whole of `CLAUDE.md`. Antigravity runs only when the owner starts it: it is not a background process of Claude Code.
