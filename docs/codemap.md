@@ -26,6 +26,12 @@ Livability-Atlas/
 │   │   ├── paths.py       # the repository's folders
 │   │   └── catalogue/     # models.py (the one definition of the catalogue files), checks.py, load.py, schema.py
 │   └── tests/
+├── web/                   # the web app: Vite, React and TypeScript
+│   ├── CLAUDE.md          # its rules for agents (AGENTS.md beside it includes this)
+│   ├── src/
+│   │   ├── features/map/  # the MapLibre basemap of London
+│   │   └── generated/     # TypeScript types from shared/schemas (generated)
+│   └── e2e/               # the Playwright smoke tests
 ├── shared/
 │   └── schemas/           # JSON Schema exported from the Pydantic models (generated)
 ├── catalogue/             # the factor catalogue
