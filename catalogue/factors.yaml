@@ -459,8 +459,10 @@ factors:
             comparable_across_regions: true
             method: >-
               The area-weighted mean, over the hex cell, of the modelled annual
-              mean concentration. Spike S5 settles how rasters are aggregated
-              to hex cells. Both datasets are modelled from emissions and
+              mean concentration. Spike S5 found for noise that the mean at a
+              cell's addresses beats the mean over its area, but could not test
+              it on air quality, whose LAEI licence is unconfirmed, so the
+              area-weighted mean stays until it can. Both datasets are modelled from emissions and
               monitoring, so the evidence type is estimate. The LAEI's 20 m
               grid resolves the higher concentrations beside roads. Defra's
               background maps leave out local sources such as roads, so they
@@ -487,8 +489,10 @@ factors:
             comparable_across_regions: true
             method: >-
               The area-weighted mean, over the hex cell, of the modelled annual
-              mean concentration. Spike S5 settles how rasters are aggregated
-              to hex cells. Both datasets are modelled from emissions and
+              mean concentration. Spike S5 found for noise that the mean at a
+              cell's addresses beats the mean over its area, but could not test
+              it on air quality, whose LAEI licence is unconfirmed, so the
+              area-weighted mean stays until it can. Both datasets are modelled from emissions and
               monitoring, so the evidence type is estimate.
             datasets: [laei, defra-background-maps]
       - id: noise
@@ -501,7 +505,7 @@ factors:
             name: Road traffic noise
             description: The average noise level from road traffic, from 7 am to 11 pm.
             default_weight: 3
-            status: researched
+            status: spiked
             unit: dB (daytime)
             preference_type: fixed
             curve: {shape: ramp, t0: 70, t1: 50}
@@ -515,10 +519,16 @@ factors:
             comparable_across_regions: true
             method: >-
               The modelled daytime level, LAeq,16h from 07:00 to 23:00, from
-              Defra's strategic noise maps, averaged over the hex cell. Levels
-              below the maps' 40 dB cut-off count as 40 dB. Spike S5 decides
-              how to average: by area, by sound energy, or at homes only. The
-              noise is modelled, so the evidence type is estimate.
+              Defra's strategic noise maps, at the cell's address points: the
+              arithmetic mean, in dB, of the level at each address, with levels
+              below the maps' 40 dB cut-off counted as 40 dB. A cell with no
+              address, such as a park, takes the arithmetic mean over its
+              area. Spike S5 found that this matches the average of the
+              addresses' own scores almost exactly (rank correlation 0.97),
+              and that averaging over the cell's area does not (0.76 for the
+              arithmetic mean, 0.82 for the sound energy mean, 0.75 for the
+              highest pixel). The noise is modelled, so the evidence type is
+              estimate.
             datasets: [defra-road-noise]
           - id: rail-noise
             name: Rail noise
@@ -538,10 +548,16 @@ factors:
             comparable_across_regions: true
             method: >-
               The modelled daytime level, LAeq,16h from 07:00 to 23:00, from
-              Defra's strategic noise maps, averaged over the hex cell. Levels
-              below the maps' 40 dB cut-off count as 40 dB. Spike S5 decides
-              how to average: by area, by sound energy, or at homes only. The
-              noise is modelled, so the evidence type is estimate.
+              Defra's strategic noise maps, at the cell's address points: the
+              arithmetic mean, in dB, of the level at each address, with levels
+              below the maps' 40 dB cut-off counted as 40 dB. A cell with no
+              address, such as a park, takes the arithmetic mean over its
+              area. Spike S5 found, for road noise, that this matches the average of the
+              addresses' own scores almost exactly (rank correlation 0.97),
+              and that averaging over the cell's area does not (0.76 for the
+              arithmetic mean, 0.82 for the sound energy mean, 0.75 for the
+              highest pixel). The noise is modelled, so the evidence type is
+              estimate.
             datasets: [defra-rail-noise]
           - id: aircraft-noise
             name: Aircraft noise
@@ -563,11 +579,12 @@ factors:
             comparable_across_regions: true
             method: >-
               The modelled daytime level, LAeq,16h from 07:00 to 23:00, from
-              Defra's strategic noise maps of airports, averaged over the hex
-              cell. Each airport's operator modelled its own map, so the lowest
-              level mapped varies by airport, and away from the airports the
-              maps cover, aircraft noise counts as their 40 dB cut-off. Spike
-              S5 decides how to average.
+              Defra's strategic noise maps of airports, at the cell's address
+              points, averaged as road noise is. Each airport's operator
+              modelled its own map, so the lowest level mapped varies by
+              airport, and away from the airports the maps cover, aircraft
+              noise counts as their 40 dB cut-off. Spike S5 tested the
+              averaging on road noise only.
             datasets: [defra-airport-noise]
       - id: green-space
         name: Green space
