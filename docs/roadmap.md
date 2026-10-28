@@ -27,7 +27,7 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [x] `shared/schemas/`, TypeScript type generation, and a CI check that the generated files are current.
   - [x] `justfile`, pre-commit, GitHub Actions running `just check`, and `.claude/settings.json`.
   - [x] The nested `CLAUDE.md` files, each with an `AGENTS.md` beside it (D20), for `pipeline/` and `web/`.
-- [ ] **0.4 Spikes S1–S8** (listed below).
+- [x] **0.4 Spikes S1–S8** (listed below). S1, S2 and S8 are done. S3 to S7 are partly done, each waiting on something the write-up names.
 - [ ] **0.5 Method and freeze.**
   - [ ] Finalise `methodology/scoring.md`.
   - [ ] Commit golden test cases to `shared/fixtures/scoring/`, covering nested trees, missing data, flipped directions and ideal ranges.
@@ -47,14 +47,14 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 | S5 | How should raster data (air quality, noise) be aggregated to hex cells? Partly done: [S5](spikes/S5-noise-aggregation.md); noise is settled, air quality and flooding are not |
 | S6 | How complete are Overture, Foursquare Open Source Places and OpenStreetMap, brand tags included? How much do straight-line and network walking distances differ? Partly done: [S6](spikes/S6-places.md); food, supermarkets and shops are tested, other kinds are not |
 | S7 | Does the culture evidence ladder work on a sample of neighbourhoods, with a known-fact assertion for each kind of evidence? Partly done: [S7](spikes/S7-culture-ladder.md); four rungs tested |
-| S8 | Do the food signals (hygiene ratings, Michelin in Wikidata, cuisine variety, the independents' share) work for London? Do the brand groups track house prices? |
+| S8 | Do the food signals (hygiene ratings, Michelin in Wikidata, cuisine variety, the independents' share) work for London? Do the brand groups track house prices? Done: [S8](spikes/S8-food-signals.md) |
 
 ### Exit criteria
 
 - [ ] Decisions D01–D21 are accepted, or marked "revisit" with a reason.
 - [ ] `just validate` passes. Default weights carry reasons. The MVP factor list is frozen, with each dataset's licence checked.
 - [ ] The factor explorer shows the full catalogue, and the D17 layout is chosen.
-- [ ] Spikes S1–S8 are written up with their decisions.
+- [x] Spikes S1–S8 are written up with their decisions.
 - [ ] The scoring specification v0 and the golden test cases are committed.
 - [x] `just check` passes locally and in GitHub Actions.
 - [ ] A fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and `docs/progress.md` alone.

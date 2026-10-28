@@ -53,10 +53,10 @@ The [Daily amenities research](../specs/2026-10-25-daily-amenities-research.md) 
 
 | Sub-factor | Leads |
 | --- | --- |
-| Your cuisines | A count of the restaurants serving the cuisines a user picks, from OpenStreetMap's cuisine tags (spike S8) |
-| Guide recognition | Michelin recognition recorded in Wikidata (CC0) |
-| Independent restaurants | The share of restaurants without a brand tag in OpenStreetMap and Overture (spike S8) |
-| Brand presence | Shopping centres, brand variety and brand groups, from brand tags (spike S8) |
+| Your cuisines | A count of the restaurants serving the cuisines a user picks, from Overture's categories and OpenStreetMap's cuisine tags (spike S8 found both fairly complete: 77% and 73% of restaurants) |
+| Guide recognition | Michelin recognition recorded in Wikidata (CC0). Spike S8's query found 27 London items with a Michelin star, including three of the four starred restaurants it looked for and not The Clove Club, so counts would understate |
+| Independent restaurants | The share of restaurants without a brand tag in OpenStreetMap and Overture. Spike S8 found brand tags on 13% of eating places, and a chain share from them that ranks homes cells like the chain share from the FSA's names with a rank correlation of 0.71: usable as an indirect signal, noisy |
+| Brand presence | Shopping centres, brand variety and brand groups, from brand tags. Spike S8: premium brands (Waitrose, Gail's) track the median sale price nearby (rank correlation 0.44) and Lidl runs against it (−0.22), while Aldi, Costco and IKEA show no pattern, so they are dropped |
 | Destinations | The walk or travel time to places a user picks, planned for Phase 2 |
 | Cuisine variety across cities | The variety of cuisines in a whole city, for the across-cities scale |
 

@@ -112,6 +112,7 @@ def fsa() -> pd.DataFrame:
                         "lng": lng,
                         "lat": lat,
                         "authority": authority["Name"],
+                        "rating": e.get("RatingValue"),
                     }
                 )
         pd.DataFrame(rows).to_parquet(path)
