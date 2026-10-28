@@ -33,6 +33,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D18](#d18-preference-types) | Preference types | Fixed, user direction, user range, user choice | proposed |
 | [D19](#d19-food-quality) | Food quality | Open signals first | proposed |
 | [D20](#d20-agent-rules) | Agent rules | One rule file, `CLAUDE.md`, bridged to other agents by `AGENTS.md` | accepted |
+| [D21](#d21-mvp-factor-set) | MVP factor set | The nine top-level factors already researched | proposed |
 
 ## D01 First slice
 
@@ -307,3 +308,27 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **History:**
   - 2026-10-26: proposed after the owner asked for Claude Code and Antigravity to share one set of rules. Built from Antigravity's documentation; not yet run in Antigravity.
   - 2026-10-26: accepted after the owner opened the repo in Antigravity and it saw the whole of `CLAUDE.md`. Antigravity runs only when the owner starts it: it is not a background process of Claude Code.
+
+## D21 MVP factor set
+
+- **Status:** proposed
+- **Choice:** The MVP's factor tree holds the nine top-level factors already researched: Housing and cost, Transport, Daily amenities, Environment, Natural hazards, Safety, Education, Digital connectivity, and Community and people. [vision.md's MVP success criterion](vision.md#mvp-success-criteria-end-of-phase-1) asks for "about 10", and nine is close enough to start building from.
+- **Why:** Each of the nine already has measured indicators, a scoring curve (where S4 and S6 do not block it) and at least one dataset, from step 0.2's research. Phase 1 can start building without a further research pass.
+- **The weight table, and the one gap it shows:**
+
+  | Weight (D14) | Researched | Not researched |
+  | --- | --- | --- |
+  | 4 | Housing and cost, Environment, Safety, Education | **Health care** |
+  | 3 | Transport | Work and economy |
+  | 2 | Daily amenities, Community and people | Culture and leisure, Governance and rights |
+  | 1 | Natural hazards, Digital connectivity | Climate, Animal friendliness, Urban form and change, Published rankings, Resident wellbeing |
+
+  Health care ties D14's highest weight, with Housing and cost, Environment and Safety, but was not among the nine: the original MVP candidates (`docs/factors/research-notes.md`) were chosen before D14's weights existed. This is the one gap the nine-factor set leaves at the top of the evidence. The owner's call:
+  - keep the MVP at nine, and research Health care for Phase 2, or
+  - add Health care as a tenth MVP factor, and research it with `/research-factor health-care` before step 0.3.
+- **Alternatives considered:**
+  - The top ten factors by weight alone (the five at weight 4, Transport and Work and economy at weight 3, then three of the weight-2 factors): drops three already-researched factors (Natural hazards, Digital connectivity, one of Daily amenities or Community and people) in favour of unresearched ones, for a small weight gain and a larger research cost before step 0.3.
+  - All 18 factors in the MVP: against the vision's "about 10", and nine of them have no measured indicators yet.
+- **Revisit when:** The owner decides Health care's place, or Phase 1 planning finds that the nine do not cover a factor well enough to ship.
+- **History:**
+  - 2026-10-28: proposed, the last item of step 0.2.
