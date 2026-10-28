@@ -4,6 +4,8 @@ export default defineConfig({
   testDir: "./e2e",
   webServer: {
     command: "npm run preview -- --port 4173 --strictPort",
+    // The tests read a small bundle that is kept in the repository, not the real data.
+    env: { ATLAS_BUNDLES_DIR: "./e2e/fixtures/bundles" },
     url: "http://localhost:4173",
     reuseExistingServer: false,
     timeout: 30_000,

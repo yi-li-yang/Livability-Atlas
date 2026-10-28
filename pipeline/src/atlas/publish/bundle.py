@@ -138,7 +138,7 @@ def write_bundle(
         }
     )
     buffer = io.BytesIO()
-    pq.write_table(table, buffer, compression="zstd")
+    pq.write_table(table, buffer, compression="snappy")
     parquet = buffer.getvalue()
 
     digest = hashlib.sha256(parquet + _json(manifest).encode("utf-8")).hexdigest()[:12]
