@@ -76,7 +76,8 @@ Livability-Atlas/
     │   ├── S3-sales-and-rents.md
     │   ├── S4-routing.md
     │   ├── S5-noise-aggregation.md
-    │   └── S6-places.md
+    │   ├── S6-places.md
+    │   └── S7-culture-ladder.md
     └── specs/             # design specs, one per work item
         ├── 2026-10-24-catalogue-format.md
         ├── 2026-10-24-factor-explorer.md
