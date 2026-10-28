@@ -18,3 +18,11 @@ repos:
     rev: v8.30.0
     hooks:
       - id: gitleaks
+  - repo: local
+    hooks:
+      - id: biome
+        name: biome
+        entry: npm --prefix web run lint
+        language: system
+        files: ^web/
+        pass_filenames: false

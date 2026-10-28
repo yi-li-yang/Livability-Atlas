@@ -6,7 +6,13 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!**/dist", "!!src/generated"]
+    "includes": [
+      "**",
+      "!!**/dist",
+      "!!src/generated",
+      "!!test-results",
+      "!!playwright-report"
+    ]
   },
   "formatter": {
     "enabled": true,
