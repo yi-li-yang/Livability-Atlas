@@ -15,13 +15,14 @@ from atlas.datasets.cities.london import ptal
 from atlas.datasets.countries.gb import (
     census_residents,
     ea_flood_risk,
+    gias,
     naptan,
     ons_regions,
     output_areas,
     police_uk,
 )
 from atlas.datasets.world import openstreetmap
-from atlas.indicators import crime, flood, transport
+from atlas.indicators import crime, education, flood, transport
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
 from atlas.publish.bundle import write_bundle
@@ -108,4 +109,10 @@ def _walking_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[s
     network = walking.Network.from_ways(ways)
     stations = naptan.read_stations(naptan.fetch(data_dir))
     minutes = transport.station_minutes(network, stations, cells)
-    return {"station-proximity": [None if pd.isna(m) else float(m) for m in minutes]}
+    columns: dict[str, Sequence[Any]] = {
+        "station-proximity": [None if pd.isna(m) else float(m) for m in minutes]
+    }
+    schools = gias.read_schools(gias.fetch(data_dir))
+    for indicator, walk in education.school_minutes(network, schools, cells).items():
+        columns[indicator] = [None if pd.isna(m) else float(m) for m in walk]
+    return columns

@@ -6,6 +6,7 @@ from pyproj import Transformer
 
 from atlas.datasets.countries.gb import naptan
 from atlas.indicators import transport
+from atlas.spatial.grid import cell_centres_bng
 from atlas.spatial.walking import SPEED, Network
 
 TO_BNG = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
@@ -38,14 +39,14 @@ def test_naptan_stations_are_the_active_rail_and_metro_entrances(tmp_path):
 
 
 def test_the_centres_of_cells_are_in_metres_of_british_national_grid():
-    centres = transport.cell_centres([SOHO])
+    centres = cell_centres_bng([SOHO])
     assert 528_000 < centres[0, 0] < 531_000
     assert 180_000 < centres[0, 1] < 182_000
 
 
 def test_the_minutes_to_a_station_follow_the_street():
     network = street_through(SOHO)
-    x, y = transport.cell_centres([SOHO])[0]
+    x, y = cell_centres_bng([SOHO])[0]
     lng, lat = FROM_BNG.transform(x + 240, y)  # an entrance 240 m east, on the street
     stations = pd.DataFrame({"Longitude": [lng], "Latitude": [lat]})
     minutes = transport.station_minutes(network, stations, [SOHO])
@@ -55,7 +56,7 @@ def test_the_minutes_to_a_station_follow_the_street():
 def test_a_cell_far_from_the_street_walks_to_it_in_a_straight_line_first():
     network = street_through(SOHO)
     far = h3.latlng_to_cell(51.60, -0.30, 9)  # kilometres from the street
-    x, y = transport.cell_centres([SOHO])[0]
+    x, y = cell_centres_bng([SOHO])[0]
     lng, lat = FROM_BNG.transform(x + 240, y)
     stations = pd.DataFrame({"Longitude": [lng], "Latitude": [lat]})
     minutes = transport.station_minutes(network, stations, [SOHO, far])

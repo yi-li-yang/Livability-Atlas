@@ -95,3 +95,11 @@ def test_most_of_london_is_within_a_30_minute_walk_of_a_station(bundle):
     minutes = bundle["station_proximity"]
     assert 8 < minutes.median() < 25
     assert (minutes <= 30).mean() > 0.75
+
+
+def test_primary_schools_are_nearer_than_secondary_schools_and_every_cell_has_both(bundle):
+    primary, secondary = bundle["primary_schools"], bundle["secondary_schools"]
+    assert primary.notna().all() and secondary.notna().all()
+    assert primary.median() < secondary.median()  # there are far more primary schools
+    assert 4 < primary.median() < 20
+    assert 8 < secondary.median() < 30

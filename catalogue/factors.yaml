@@ -949,7 +949,7 @@ factors:
             name: Primary schools
             description: Walking minutes to the nearest state primary school.
             default_weight: 3
-            status: researched
+            status: built
             unit: minutes on foot
             preference_type: fixed
             curve: {shape: ramp, t0: 25, t1: 6}
@@ -971,7 +971,7 @@ factors:
             name: Secondary schools
             description: Walking minutes to the nearest state secondary school.
             default_weight: 3
-            status: researched
+            status: built
             unit: minutes on foot
             preference_type: fixed
             curve: {shape: ramp, t0: 25, t1: 6}
@@ -1004,6 +1004,8 @@ factors:
               records of each school's latest inspection. Ofsted inspects
               schools in England only, so the share does not compare across
               regions.
+              The build reads the register's open, state-funded, mainstream schools (local authority maintained schools, academies and free schools, leaving out special schools, alternative provision, nurseries and sixth-form centres), and measures along the streets and paths of OpenStreetMap from the cell's centre to the nearest school of the phase, as for the station walk. An all-through school counts for both phases.
+              The build reads the register's open, state-funded, mainstream schools (local authority maintained schools, academies and free schools, leaving out special schools, alternative provision, nurseries and sixth-form centres), and measures along the streets and paths of OpenStreetMap from the cell's centre to the nearest school of the phase, as for the station walk. An all-through school counts for both phases.
             datasets: [ofsted-school-inspections, dfe-gias]
       - {id: nurseries, name: "Nurseries", default_weight: 3, scales: [within-city]}
       - {id: school-league-tables, name: "School league tables", default_weight: 3, scales: [within-city]}
