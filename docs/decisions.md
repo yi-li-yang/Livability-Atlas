@@ -26,7 +26,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D11](#d11-documentation) | Documentation | Living documents | accepted |
 | [D12](#d12-licences) | Licences | Code AGPL-3.0 + CLA; docs CC BY 4.0; data per dataset | accepted |
 | [D13](#d13-development-environment) | Development environment | Windows; `E:` on NTFS | accepted |
-| [D14](#d14-default-weights) | Default weights | From evidence of what people value | proposed |
+| [D14](#d14-default-weights) | Default weights | From evidence of what people value | accepted |
 | [D15](#d15-llm-use) | LLM use | Free options first | proposed |
 | [D16](#d16-scaling) | Scaling | Dataset tiers + region recipe | proposed |
 | [D17](#d17-interface) | Interface | Progressive disclosure; visual factor tree as a treemap or a sunburst, one colour per factor | accepted |
@@ -222,6 +222,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Why:** Defaults only need to be a sensible starting point, and evidence makes them defensible for any user.
 - **History:**
   - 2026-10-23: first proposed as importance ratings by the first user. In review it changed to evidence-based defaults that users adjust in the app.
+  - 2026-10-28: accepted. The 18 top-level factors' weights are set by how many of the five sources weigh each one, with the mapping and the build order in the [spec](specs/2026-10-28-default-weights.md). Matching a source's own category to one of ours took judgement, which the spec flags; sub-factor weights stay at the engineering default of 3 until their own evidence arrives.
 
 ## D15 LLM use
 

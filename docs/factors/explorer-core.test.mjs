@@ -51,7 +51,9 @@ test("each check names its problem and the factor it concerns", () => {
     [(c) => { delete c.factors[0].name; }, /^housing: name is missing/],
     [(c) => { c.factors[0].default_weight = 7; }, /^housing: default_weight must be a whole number from 0 to 5/],
     [(c) => { c.factors[0].default_weight = 2.5; }, /default_weight must be a whole number/],
-    [(c) => { delete c.factors[0].weight_reason; }, /^housing: a default_weight other than 3 needs a weight_reason/],
+    [(c) => { delete c.factors[0].weight_reason; }, /^housing: a top-level factor needs a weight_reason \(D14\)\./],
+    [(c) => { c.factors[1].default_weight = 3; delete c.factors[1].weight_reason; }, /^transport: a top-level factor needs a weight_reason \(D14\)\./],
+    [(c) => { delete c.factors[2].children[0].children[0].weight_reason; }, /^no2: a default_weight other than 3 needs a weight_reason/],
     [(c) => { c.factors[0].scales = ["regional"]; }, /^housing: scales must list/],
     [(c) => { delete c.factors[0].scales; }, /^housing: a top-level factor must list its scales/],
     [(c) => { c.factors[2].children[1].scales = ["across-cities"]; }, /^noise: it lists a scale that its parent does not have/],
@@ -192,7 +194,11 @@ function without(record, field) {
 
 // A catalogue whose only measured indicator sits under Environment.
 function catalogueWith(indicator) {
-  return { factors: [{ id: "environment", name: "Environment", default_weight: 3, scales: ["within-city"], children: [indicator] }] };
+  return {
+    factors: [
+      { id: "environment", name: "Environment", default_weight: 3, weight_reason: "Example.", scales: ["within-city"], children: [indicator] },
+    ],
+  };
 }
 
 // datasets.yaml with one valid dataset.

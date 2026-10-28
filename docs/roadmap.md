@@ -17,7 +17,7 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [ ] Bottom-up pass: inventory city, country and global datasets, each with its tier and what it can tell us (`catalogue/datasets.yaml`).
   - [x] Assess published rankings against the credibility rubric (`docs/factors/rankings.md`).
   - [x] Draft `docs/methodology/hard-to-measure.md`.
-  - [ ] Set default weights from evidence, with reasons, and compute the build order (D14).
+  - [x] Set default weights from evidence, with reasons, and compute the build order (D14).
   - [ ] Propose the MVP set: about 10 top-level factors.
 - [ ] **Before 0.3: install the tools.** Install uv and just with winget. Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`. Java 21 waits for spike S4.
 - [ ] **0.3 Scaffold and CI.** Starts with `superpowers:writing-plans`.
