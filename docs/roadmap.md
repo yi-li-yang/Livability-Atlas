@@ -55,7 +55,7 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 - [ ] The factor explorer shows the full catalogue, and the D17 layout is chosen.
 - [ ] Spikes S1–S8 are written up with their decisions.
 - [ ] The scoring specification v0 and the golden test cases are committed.
-- [ ] `just check` passes locally and in GitHub Actions.
+- [x] `just check` passes locally and in GitHub Actions.
 - [ ] A fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and `docs/progress.md` alone.
 
 ## Phase 1: London MVP
