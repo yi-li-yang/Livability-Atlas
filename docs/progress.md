@@ -8,7 +8,7 @@
 - All nine MVP candidates are researched: 40 of the catalogue's 85 within-city measured indicators, from 26 datasets.
 - Step 0.2: [default weights and the build order](specs/2026-10-28-default-weights.md) (D14) are done.
 - `AGENTS.md` now bridges Google Antigravity to `CLAUDE.md` (D20). The owner has run Antigravity on it, and it saw the whole of `CLAUDE.md`. Merged as pull request #16.
-- Step 0.3, part 1 is built on the branch `feat/pipeline-scaffold` ([plan](plans/2026-10-28-scaffold.md)): uv and just are installed, `pipeline/` holds the `atlas` command with `validate` and `schemas`, the catalogue's Pydantic models are exported to `shared/schemas/`, and `just check` runs in CI. `atlas validate` passes on the real catalogue.
+- Step 0.3, part 1 is built and open as pull request #19, with CI green ([plan](plans/2026-10-28-scaffold.md)): uv and just are installed, `pipeline/` holds the `atlas` command with `validate` and `schemas`, the catalogue's Pydantic models are exported to `shared/schemas/`, and `just check` runs in CI. `atlas validate` passes on the real catalogue.
 
 ## Next
 
