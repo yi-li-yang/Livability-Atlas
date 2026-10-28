@@ -9,7 +9,7 @@
 - Step 0.2: [default weights and the build order](specs/2026-10-28-default-weights.md) (D14) are done.
 - `AGENTS.md` now bridges Google Antigravity to `CLAUDE.md` (D20). The owner has run Antigravity on it, and it saw the whole of `CLAUDE.md`. Merged as pull request #16.
 - Step 0.3 is built, in two pull requests ([plan](plans/2026-10-28-scaffold.md)). Part 1 is merged as #19 and part 2 as #20, both with CI green. Part 1: uv and just are installed, `pipeline/` holds the `atlas` command with `validate` and `schemas`, the catalogue's Pydantic models are exported to `shared/schemas/`, and `just check` runs in CI. `atlas validate` passes on the real catalogue. Part 2: `web/` shows a MapLibre basemap of London, with TypeScript types generated from the schemas, and CI runs its checks and a Playwright smoke test.
-- The MVP factor set ([D21](decisions.md#d21-mvp-factor-set)), the last item of step 0.2, is decided: the nine researched top-level factors and Health care as a tenth. The owner delegated the call, and it can be reversed. The [Health care research](specs/2026-10-28-health-care-research.md) is done.
+- The MVP factor set ([D21](decisions.md#d21-mvp-factor-set)), the last item of step 0.2, is decided: the nine researched top-level factors and Health care as a tenth. The owner delegated the call, and it can be reversed. The [Health care research](specs/2026-10-28-health-care-research.md) is done, and with it step 0.2: the top-down and bottom-up passes are ticked for the ten MVP factors, and the other eight factors stay ideas until Phase 2.
 
 ## Next
 

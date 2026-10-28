@@ -9,12 +9,12 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
 ### Steps
 
 - [x] **0.1 Foundations.** Living documents, licence, `CLAUDE.md`, `CONTRIBUTING.md`, README and `.gitignore`. Docs only. Reviewed and approved by the owner.
-- [ ] **0.2 Factor catalogue and factor explorer.**
+- [x] **0.2 Factor catalogue and factor explorer.**
   - [x] Factor explorer: a standalone page that draws the seed factor tree as both a treemap and a sunburst, sized by default weights, with live sliders and drill-down. It is published as a private Artifact for review, and the layout is chosen from it (D17). Both layouts stay, with a switch, and each factor has its own colour.
   - [x] Catalogue format: the fields of measured indicators and datasets, their checks, D07 as a rule, and the research shown in the factor explorer. Proved on NO₂ and PM2.5.
   - [x] The nine MVP candidates researched, one pull request each, with `/research-factor`: Transport, Environment, Safety, Housing and cost, Natural hazards, Daily amenities, Digital connectivity, Education, and Community and people.
-  - [ ] Top-down pass: expand the 18 top-level factors into sub-factors and measured indicators, each with its preference type (`catalogue/factors.yaml`).
-  - [ ] Bottom-up pass: inventory city, country and global datasets, each with its tier and what it can tell us (`catalogue/datasets.yaml`).
+  - [x] Top-down pass: expand the 18 top-level factors into sub-factors and measured indicators, each with its preference type (`catalogue/factors.yaml`). All 18 have sub-factors. The ten MVP factors have researched measured indicators with their preference types, and the other eight stay ideas until Phase 2.
+  - [x] Bottom-up pass: inventory city, country and global datasets, each with its tier and what it can tell us (`catalogue/datasets.yaml`). It holds 30 datasets and six published rankings. Datasets for the other eight factors are inventoried when they are researched.
   - [x] Assess published rankings against the credibility rubric (`docs/factors/rankings.md`).
   - [x] Draft `docs/methodology/hard-to-measure.md`.
   - [x] Set default weights from evidence, with reasons, and compute the build order (D14).
