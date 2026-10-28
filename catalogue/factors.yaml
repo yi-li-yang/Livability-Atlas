@@ -294,9 +294,15 @@ factors:
             method: &walk-to-amenity-method >-
               The walking time along streets and paths from the hex cell's
               centre to the nearest place of this kind, at 4.8 km/h, from the
-              place data's categories. Spike S6 compares how complete the
-              sources are, and how far walking routes differ from straight
-              lines.
+              place data's categories, from Overture (leaving out those it
+              marks permanently closed) and OpenStreetMap together. Spike S6
+              found that a straight line understates a walk: along streets it is
+              a median 1.33 times longer, from 1.13 to 1.88 times for 90% of
+              routes, and over 1.5 times for 23%, so the walk is measured along
+              streets. It also found that the two sources together match 76% of
+              the Food Standards Agency's supermarkets and convenience shops by
+              name within 100 m (Overture 67%, OpenStreetMap 61%), a lower
+              bound, since the register holds legal names.
             datasets: &place-datasets [overture-places, openstreetmap]
           - id: pharmacies
             name: Pharmacies
@@ -315,20 +321,29 @@ factors:
             name: Cafés
             description: The number of cafés within a 10-minute walk.
             default_weight: 3
-            status: researched
+            status: spiked
             unit: cafés
             preference_type: fixed
+            curve: {shape: percentile, better: higher}
             curve_reason: &count-reason >-
-              The curve waits for spike S6, which counts these places near each
-              of London's hex cells. No standard says how many are enough, so
-              the thresholds should separate the hex cells.
+              No standard says how many are enough, so a hex cell scores by its
+              rank within the region: the share of hex cells with fewer. Spike
+              S6 counted cafés and restaurants within 800 m of London's homes.
+              The counts are too skewed for a ramp: the median home has 11
+              cafés and 35 restaurants, and the 95th percentile has 76 and 194.
             evidence_type: direct
             comparable_across_regions: true
             method: &count-method >-
               The number of places of this kind within a 10-minute walk along
               streets and paths: 800 m at 4.8 km/h, the walking distance CIHT
-              calls acceptable for trips other than commuting. Spike S6
-              compares how complete the sources are.
+              calls acceptable for trips other than commuting. Places come from
+              Overture (leaving out those it marks permanently closed) and
+              OpenStreetMap together, counting a place once when both list it.
+              Spike S6 found that the two together match 66% of the Food
+              Standards Agency's cafés, restaurants and takeaways by name
+              within 100 m (Overture 60%, OpenStreetMap 43%). That is a lower
+              bound, since the register holds legal names, so the counts
+              understate.
             datasets: *place-datasets
           - id: gyms
             name: Gyms
@@ -366,9 +381,10 @@ factors:
             description: The number of restaurants within a 10-minute walk.
             default_weight: 3
             scales: [within-city]
-            status: researched
+            status: spiked
             unit: restaurants
             preference_type: fixed
+            curve: {shape: percentile, better: higher}
             curve_reason: *count-reason
             evidence_type: direct
             comparable_across_regions: true
@@ -382,7 +398,10 @@ factors:
             status: researched
             unit: cuisines
             preference_type: fixed
-            curve_reason: *count-reason
+            curve_reason: >-
+              The curve waits for spike S8, which checks how complete the
+              cuisine tags are. No standard says how many cuisines are enough,
+              so the thresholds should separate the hex cells.
             evidence_type: indirect
             comparable_across_regions: true
             method: >-
