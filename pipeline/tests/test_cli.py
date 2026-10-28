@@ -24,3 +24,10 @@ def test_validate_lists_every_problem_and_fails(tmp_path):
     assert result.exit_code == 1
     assert "factors.yaml" in result.output and "datasets.yaml" in result.output
     assert "2 problems" in result.output
+
+
+def test_validate_says_problem_in_the_singular(tmp_path):
+    (tmp_path / "factors.yaml").write_text("factors: []\n", encoding="utf-8")
+    (tmp_path / "datasets.yaml").write_text("datasets: []\n", encoding="utf-8")
+    result = runner.invoke(app, ["validate", "--catalogue-dir", str(tmp_path)])
+    assert "1 problem in" in result.output

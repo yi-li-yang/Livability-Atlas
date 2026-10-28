@@ -94,7 +94,7 @@ class IdealRange(_Strict):
 
 class Lookup(_Strict):
     shape: Literal["lookup"]
-    scores: dict[str | int, Score] = Field(min_length=1)
+    scores: dict[str | StrictInt, Score] = Field(min_length=1)
 
 
 class Percentile(_Strict):

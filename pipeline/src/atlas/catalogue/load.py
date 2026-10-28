@@ -41,6 +41,9 @@ def _parse[T: BaseModel](model: type[T], path: Path, problems: list[str]) -> T |
     except OSError as error:
         problems.append(f"{path.name}: cannot be read ({error.strerror}).")
         return None
+    except UnicodeDecodeError:
+        problems.append(f"{path.name}: is not UTF-8 text.")
+        return None
     except yaml.YAMLError as error:
         problems.append(f"{path.name}: is not valid YAML ({error}).")
         return None

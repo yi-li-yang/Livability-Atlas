@@ -190,3 +190,13 @@ def test_a_dataset_date_may_be_a_year_or_text():
 
 def test_a_dataset_url_must_be_web_address():
     assert "url" in problem(Dataset, dataset(url="data.london.gov.uk"))
+
+
+def test_a_lookup_category_is_text_or_a_number_never_a_yes_or_no():
+    # YAML reads an unquoted yes or no as true or false.
+    curve = {"shape": "lookup", "scores": {True: 1, False: 0}}
+    assert "scores" in problem(Factor, factor(curve_reason="Why.", curve=curve))
+
+
+def test_an_id_cannot_end_in_a_newline():
+    assert "id" in problem(Factor, factor(id="air-quality\n"))

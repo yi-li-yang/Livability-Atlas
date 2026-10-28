@@ -63,3 +63,9 @@ def test_a_missing_file_is_a_problem_not_a_crash(tmp_path):
     (tmp_path / "datasets.yaml").write_text("datasets: []\n", encoding="utf-8")
     found = validate_catalogue(tmp_path)
     assert len(found) == 1 and found[0].startswith("factors.yaml: cannot be read")
+
+
+def test_a_file_that_is_not_utf8_is_a_problem_not_a_crash(tmp_path):
+    write(tmp_path, "factors: []\n")
+    (tmp_path / "factors.yaml").write_bytes(b"factors: \x92\n")
+    assert validate_catalogue(tmp_path) == ["factors.yaml: is not UTF-8 text."]

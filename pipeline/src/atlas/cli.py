@@ -30,7 +30,8 @@ def validate(
         return
     for problem in problems:
         typer.echo(problem, err=True)
-    typer.echo(f"{len(problems)} problems in {catalogue_dir}.", err=True)
+    noun = "problem" if len(problems) == 1 else "problems"
+    typer.echo(f"{len(problems)} {noun} in {catalogue_dir}.", err=True)
     raise typer.Exit(code=1)
 
 
