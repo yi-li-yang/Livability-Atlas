@@ -25,7 +25,8 @@ Livability-Atlas/
 │   │   ├── cli.py         # the `atlas` command: validate, schemas
 │   │   ├── paths.py       # the repository's folders
 │   │   └── catalogue/     # models.py (the one definition of the catalogue files), checks.py, load.py, schema.py
-│   └── tests/
+│   ├── tests/
+│   └── notebooks/         # spike scripts: throwaway, never imported by the package
 ├── web/                   # the web app: Vite, React and TypeScript
 │   ├── CLAUDE.md          # its rules for agents (AGENTS.md beside it includes this)
 │   ├── src/
@@ -69,6 +70,8 @@ Livability-Atlas/
     │   ├── 2026-10-24-factor-explorer.md
     │   ├── 2026-10-24-transport-research.md
     │   └── 2026-10-28-scaffold.md
+    ├── spikes/            # one page per feasibility experiment (step 0.4)
+    │   └── S1-ptal.md
     └── specs/             # design specs, one per work item
         ├── 2026-10-24-catalogue-format.md
         ├── 2026-10-24-factor-explorer.md

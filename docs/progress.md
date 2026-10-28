@@ -13,7 +13,7 @@
 
 ## Next
 
-1. Step 0.4, the spikes S1 to S8 ([roadmap](roadmap.md#spikes)). S1 (the PTAL grid to hex cells) comes first, and the first spike that imports GeoPandas or h3 adds them and tests their Windows wheels.
+1. Step 0.4, the spikes S2 to S8 ([roadmap](roadmap.md#spikes)), in the order of their dependencies. S1 is done.
 2. Five checks the owner can make at any time:
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
@@ -30,6 +30,7 @@
 
 ### 2026-10-28
 
+- **Spike S1 done: PTAL to hex cells** ([write-up](spikes/S1-ptal.md)). TfL's 100 m grid maps cleanly to resolution 9 cells, and the band that covers most of a cell matches the band at its centre in 82% of cells, against 69% for the band of the mean index, so the catalogue's method stands. The London Datastore has only the 2015 release, with no newer open release, so the owner's WebCAT request stays. Greater London comes to 16,883 cells, so "about 15,000" is now "about 17,000" in the docs. The geospatial libraries are installed in the pipeline's `spikes` dependency group, and their Windows wheels work.
 - **Health care researched, the tenth MVP factor,** with the [spec](specs/2026-10-28-health-care-research.md). GP access becomes two measured indicators, the walk to a GP practice (the pharmacies curve, from CIHT) and patients per GP (1,800 per GP is the planning benchmark of the Healthy Urban Development Unit; the zero end waits for London's data). A&E travel time becomes distance to A&E in straight-line kilometres, which is how the one published study measures it. NHS England's registers, patient counts and workforce data are under the Open Government Licence. The ONS Postcode Directory, which turns practices' postcodes into places, stays out of public builds until its own page states a licence, so public builds place GP surgeries from OpenStreetMap for now. Dentists stay an idea: no open source says which practices take new NHS patients.
 - **Line endings fixed** (#22). Windows checkouts got CRLF and Biome failed on them, so `.gitattributes` now sets LF everywhere.
 

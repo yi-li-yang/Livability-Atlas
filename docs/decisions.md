@@ -53,7 +53,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Choice:** Static-first. An offline data pipeline (Python) precomputes measured indicators and publishes one data bundle per region as static files. The web app scores everything in the browser.
 - **Why:**
   - Most datasets change yearly or monthly, so precomputing them costs little.
-  - Scoring about 15,000 hex cells in the browser takes milliseconds, so sliders respond at once.
+  - Scoring about 17,000 hex cells in the browser takes milliseconds, so sliders respond at once.
   - Hosting static files is free.
   - Personal data never needs to leave the browser.
 - **Alternatives considered:**
@@ -75,7 +75,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 
 - **Status:** proposed
 - **Choice:**
-  - Score H3 resolution 9 hex cells: about 0.1 km² and 350 m across each, and about 15,000 for Greater London.
+  - Score H3 resolution 9 hex cells: about 0.1 km² and 350 m across each, and about 17,000 for Greater London.
   - Compute measured indicators over the region plus a 2 km buffer zone.
   - Name areas with MSOAs, using the House of Commons Library's readable names.
 - **Why:**
@@ -86,10 +86,11 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Alternatives considered:**
   - Administrative areas only: their sizes are unequal, and results change with the boundaries chosen.
   - Resolution 8: about 0.7 km² per cell, too coarse for streets.
-  - Resolution 10: about 100,000 cells for London, heavier for little gain.
+  - Resolution 10: about 120,000 cells for London, heavier for little gain.
 - **Revisit when:** Spikes S1 and S5 show that the grid misrepresents key datasets, or the browser struggles.
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.
+  - 2026-10-28: spike S1 counted 16,883 resolution 9 cells under the PTAL contours, which cover Greater London, so "about 15,000" became "about 17,000", and the resolution 10 figure became about 120,000. Neither changes the choice.
 
 ## D05 Factor structure
 

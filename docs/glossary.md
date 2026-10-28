@@ -15,7 +15,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 
 | Term | Meaning | Example |
 | --- | --- | --- |
-| Hex cell | One hexagon of the map grid, about 350 m across. The smallest area the app scores | Greater London has about 15,000 |
+| Hex cell | One hexagon of the map grid, about 350 m across. The smallest area the app scores | Greater London has about 17,000 |
 | Neighbourhood | A named area of about 8,000 residents, used for names on the map and in the ranked list | About 1,000 in London |
 | Region | The whole area one map covers | Greater London |
 | Within-city scale | Comparing small areas inside one city | Hex cells across London |
