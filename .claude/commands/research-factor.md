@@ -28,8 +28,8 @@ Research the factor `$ARGUMENTS` in the factor catalogue, as step 0.2 of the roa
 ## 4. Each dataset
 
 - Check the licence at the source: the publisher's own page, API record or terms. A secondary source, such as a mirror or a news report, is not enough.
-- Record an SPDX id, a `LicenseRef-` id for a licence that SPDX does not list, or `unknown`. Add `licence_checked` with the date, `public_build` under D07, `attribution`, and `tells`.
-- If the licence cannot be confirmed, or is not on D07's list, set `public_build: false` and say why in `licence_note`.
+- Record an SPDX id, a `LicenseRef-` id for a licence that SPDX does not list, or `unknown`. Add `licence_checked` with the date, `commercial_use` under D07, `attribution`, and `tells`.
+- If the licence cannot be confirmed, or is not on D07's list, set `commercial_use: false` and say why in `licence_note`. The project is non-commercial for now (D07), so such a dataset can still be used in the build.
 - A licence that should join D07's list is a decision for the owner: record it in the spec, and stop at the open pull request.
 
 ## 5. Check

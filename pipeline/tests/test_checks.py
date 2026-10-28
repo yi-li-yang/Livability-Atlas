@@ -12,7 +12,7 @@ DATASET = {
     "date": 2022,
     "licence": "OGL-UK-3.0",
     "licence_checked": "2026-10-24",
-    "public_build": True,
+    "commercial_use": True,
     "attribution": "GLA.",
     "tells": ["NO2"],
 }

@@ -54,7 +54,7 @@ Steps 1 to 3 are the research. In Claude Code, `/research-factor <id>` runs them
 ### Add a dataset
 
 1. Add it to `catalogue/datasets.yaml` with the fields in [catalogue/README.md](catalogue/README.md#datasetsyaml): its tier, URL, date, attribution text, and what it can tell us.
-2. Check its licence at the source, against decision D07, and record the date you checked. If the licence cannot be confirmed, record `unknown` and keep the dataset out of public builds, with a note saying why.
+2. Check its licence at the source, against decision D07, and record the date you checked. If the licence cannot be confirmed, record `unknown`, set `commercial_use: false`, and say why in a note. The project is non-commercial for now, so the dataset can still be used.
 3. From step 0.4, the data pipeline fetches it: record its update cadence, and cache the raw file with its checksum.
 
 ### Add a region

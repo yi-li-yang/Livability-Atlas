@@ -496,7 +496,7 @@ factors:
               cell's addresses beats the mean over its area, but could not test
               it on air quality, so the area mean stays until it can. The data
               are modelled from emissions and monitoring, so the evidence type
-              is estimate. The LAEI has no stated licence, so public builds
+              is estimate. The LAEI has no stated licence, so commercial builds
               leave this out. The LAEI's 20 m
               grid resolves the higher concentrations beside roads. Defra's
               background maps leave out local sources such as roads, so they
@@ -529,7 +529,7 @@ factors:
               cell's addresses beats the mean over its area, but could not test
               it on air quality, so the area mean stays until it can. The data
               are modelled from emissions and monitoring, so the evidence type
-              is estimate. The LAEI has no stated licence, so public builds
+              is estimate. The LAEI has no stated licence, so commercial builds
               leave this out.
             datasets: [laei, defra-background-maps]
       - id: noise

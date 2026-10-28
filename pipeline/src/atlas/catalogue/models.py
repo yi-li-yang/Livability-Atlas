@@ -37,7 +37,7 @@ Credibility = Literal["high", "medium", "low"]
 SCALES: tuple[str, ...] = ("within-city", "across-cities")
 
 # Licences that allow redistribution and commercial use, by SPDX id (D07).
-# Only datasets under one of them may go into public builds. A licence that
+# Only datasets under one of them may go into commercial builds. A licence that
 # SPDX does not list takes a LicenseRef- id: TfL's open data licence is
 # version 2.0 of the Open Government Licence with TfL's amendments.
 OPEN_LICENCES: tuple[str, ...] = (
@@ -206,7 +206,7 @@ class Dataset(_Strict):
     date: Text | StrictInt
     licence: Text
     licence_checked: datetime.date | None = None
-    public_build: StrictBool
+    commercial_use: StrictBool
     licence_note: Text | None = None
     attribution: Text | None = None
     tells: list[Text] = Field(min_length=1)
@@ -214,8 +214,8 @@ class Dataset(_Strict):
     credibility_reason: Text | None = None
 
     @model_validator(mode="after")
-    def _public_build_follows_d07(self) -> Self:
-        if self.public_build:
+    def _commercial_use_follows_d07(self) -> Self:
+        if self.commercial_use:
             # A dataset under several licences at once joins their ids with
             # AND, as SPDX expressions do, and each of them must be open.
             closed = [
@@ -223,19 +223,19 @@ class Dataset(_Strict):
             ]
             if closed:
                 raise ValueError(
-                    f"public_build is true, but {' and '.join(closed)} "
+                    f"commercial_use is true, but {' and '.join(closed)} "
                     f"{'is' if len(closed) == 1 else 'are'} not on D07's list of open licences: "
                     f"{', '.join(OPEN_LICENCES)}"
                 )
             if self.licence_checked is None:
                 raise ValueError(
-                    "public_build is true, so it needs licence_checked, "
+                    "commercial_use is true, so it needs licence_checked, "
                     "the date its licence was checked at the source"
                 )
             if self.attribution is None:
-                raise ValueError("public_build is true, so it needs an attribution")
+                raise ValueError("commercial_use is true, so it needs an attribution")
         elif self.licence_note is None:
-            raise ValueError("public_build is false, so it needs a licence_note saying why")
+            raise ValueError("commercial_use is false, so it needs a licence_note saying why")
         if self.credibility is not None and self.credibility_reason is None:
             raise ValueError("credibility needs a credibility_reason")
         return self

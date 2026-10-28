@@ -10,7 +10,7 @@ export type Resolution = string;
 export type Date = string | number;
 export type Licence = string;
 export type LicenceChecked = string | null;
-export type PublicBuild = boolean;
+export type CommercialUse = boolean;
 export type LicenceNote = string | null;
 export type Attribution = string | null;
 /**
@@ -35,7 +35,7 @@ export interface Dataset {
   date: Date;
   licence: Licence;
   licence_checked?: LicenceChecked;
-  public_build: PublicBuild;
+  commercial_use: CommercialUse;
   licence_note?: LicenceNote;
   attribution?: Attribution;
   tells: Tells;

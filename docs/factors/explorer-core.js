@@ -41,11 +41,11 @@
 
   // The fields of a dataset in datasets.yaml, and the values they allow.
   const DATASET_FIELDS = ["id", "name", "publisher", "url", "tier", "area", "resolution", "date", "licence",
-    "licence_checked", "public_build", "licence_note", "attribution", "tells", "credibility", "credibility_reason"];
+    "licence_checked", "commercial_use", "licence_note", "attribution", "tells", "credibility", "credibility_reason"];
   const TIERS = ["city", "country", "global"];
   const CREDIBILITY = ["high", "medium", "low"];
   // Licences that allow redistribution and commercial use, by SPDX id (D07).
-  // Only datasets under one of them may go into public builds. A licence that
+  // Only datasets under one of them may go into commercial builds. A licence that
   // SPDX does not list takes a LicenseRef- id: TfL's open data licence is
   // version 2.0 of the Open Government Licence with TfL's amendments.
   const OPEN_LICENCES = ["OGL-UK-1.0", "OGL-UK-2.0", "OGL-UK-3.0", "CC-BY-3.0", "CC-BY-4.0", "CC-BY-SA-3.0",
@@ -217,7 +217,7 @@
 
   // Returns a list of problems in datasets.yaml, each naming the dataset it
   // concerns. It enforces D07: only openly licensed datasets, with their
-  // licence checked, may go into public builds.
+  // licence checked, may go into commercial builds.
   function validateDatasets(datasetsDoc) {
     if (!isMapping(datasetsDoc) || !Array.isArray(datasetsDoc.datasets)) {
       return ["datasets.yaml needs a list under datasets."];
@@ -259,23 +259,23 @@
       if (dataset.licence_checked !== undefined && isoDate(dataset.licence_checked) === null) {
         problem("licence_checked must be a date, such as 2026-10-24.");
       }
-      if (dataset.public_build === undefined) {
-        problem("public_build is missing.");
-      } else if (typeof dataset.public_build !== "boolean") {
-        problem("public_build must be true or false.");
-      } else if (dataset.public_build) {
+      if (dataset.commercial_use === undefined) {
+        problem("commercial_use is missing.");
+      } else if (typeof dataset.commercial_use !== "boolean") {
+        problem("commercial_use must be true or false.");
+      } else if (dataset.commercial_use) {
         // A dataset under several licences at once joins their ids with AND,
         // as SPDX expressions do, and each of them must be open.
         const closed = isText(dataset.licence)
           ? dataset.licence.split(/\s+AND\s+/).filter((id) => !OPEN_LICENCES.includes(id))
           : [];
         if (closed.length > 0) {
-          problem(`public_build is true, but ${closed.join(" and ")} ${closed.length === 1 ? "is" : "are"} not on D07's list of open licences: ${OPEN_LICENCES.join(", ")}.`);
+          problem(`commercial_use is true, but ${closed.join(" and ")} ${closed.length === 1 ? "is" : "are"} not on D07's list of open licences: ${OPEN_LICENCES.join(", ")}.`);
         }
-        if (dataset.licence_checked === undefined) problem("public_build is true, so it needs licence_checked, the date its licence was checked at the source.");
-        if (dataset.attribution === undefined) problem("public_build is true, so it needs an attribution.");
+        if (dataset.licence_checked === undefined) problem("commercial_use is true, so it needs licence_checked, the date its licence was checked at the source.");
+        if (dataset.attribution === undefined) problem("commercial_use is true, so it needs an attribution.");
       } else if (dataset.licence_note === undefined) {
-        problem("public_build is false, so it needs a licence_note saying why.");
+        problem("commercial_use is false, so it needs a licence_note saying why.");
       }
       if (dataset.credibility !== undefined) {
         if (!CREDIBILITY.includes(dataset.credibility)) problem(`credibility must be one of ${CREDIBILITY.join(", ")}.`);
@@ -389,7 +389,7 @@
         date: String(dataset.date),
         licence: dataset.licence,
         licenceChecked: isoDate(dataset.licence_checked) || "",
-        publicBuild: dataset.public_build === true,
+        commercialUse: dataset.commercial_use === true,
         licenceNote: dataset.licence_note || "",
         attribution: dataset.attribution || "",
         tells: dataset.tells || [],

@@ -76,15 +76,15 @@ A `user-range` measured indicator needs an `ideal-range` curve, because its user
 | `resolution` | yes | How fine it is, such as `20 m grid` or `points` |
 | `date` | yes | The period it describes, such as `2022` |
 | `licence` | yes | An [SPDX licence id](https://spdx.org/licenses/), such as `OGL-UK-3.0`, or `unknown` until the licence is confirmed at the source. A licence that SPDX does not list takes a `LicenseRef-` id, such as `LicenseRef-TfL-Open-Data`. A dataset under several licences at once joins them with AND, such as `CDLA-Permissive-2.0 AND Apache-2.0` |
-| `licence_checked` | when `public_build` is true | The date the licence was last checked at the source |
-| `public_build` | yes | Whether public builds may use it (D07) |
-| `licence_note` | when `public_build` is false | Why public builds may not use it, and what would change that |
-| `attribution` | when `public_build` is true | The credit the licence requires |
+| `licence_checked` | when `commercial_use` is true | The date the licence was last checked at the source |
+| `commercial_use` | yes | Whether its licence allows commercial use (D07). The build is non-commercial for now and uses every dataset, with its credit; a commercial build leaves out those marked `false` |
+| `licence_note` | when `commercial_use` is false | Why it has no commercial licence, and what would change that |
+| `attribution` | when `commercial_use` is true | The credit the licence requires |
 | `tells` | yes | A list of what it can tell us |
 | `credibility` | for published rankings | `high`, `medium` or `low`. A measured indicator of evidence type `ranking` needs it on each of its datasets |
 | `credibility_reason` | with `credibility` | Why |
 
-**Public builds (D07).** A dataset may go into public builds only under a licence that allows redistribution and commercial use. By SPDX id, those are:
+**Commercial use (D07).** For now the project is non-commercial, so every dataset may be used, with its attribution. A dataset is marked `commercial_use: true` only under a licence that allows redistribution and commercial use, so that a future commercial edition knows what it may keep. By SPDX id, those are:
 
 - `OGL-UK-1.0`, `OGL-UK-2.0` and `OGL-UK-3.0`
 - `CC-BY-3.0`, `CC-BY-4.0`, `CC-BY-SA-3.0`, `CC-BY-SA-4.0` and `CC0-1.0`
@@ -93,7 +93,7 @@ A `user-range` measured indicator needs an `ideal-range` curve, because its user
 - `Apache-2.0`
 - `LicenseRef-TfL-Open-Data`: TfL's open data licence, version 2.0 of the Open Government Licence with TfL's amendments
 
-A dataset marked `public_build: true` also needs its `licence_checked` date and its `attribution`. When its licences are joined with AND, every one of them must be on the list.
+A dataset marked `commercial_use: true` also needs its `licence_checked` date and its `attribution`. When its licences are joined with AND, every one of them must be on the list.
 
 ## Checks
 

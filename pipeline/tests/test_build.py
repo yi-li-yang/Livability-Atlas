@@ -437,11 +437,11 @@ def test_the_bundle_holds_the_mean_nitrogen_dioxide_and_fine_particles_of_each_c
     assert {"no2", "pm25"} <= {i["id"] for i in manifest["indicators"]}
 
 
-def test_a_public_build_leaves_out_the_indicators_whose_dataset_is_not_cleared(
+def test_a_commercial_build_leaves_out_the_indicators_whose_dataset_has_no_commercial_licence(
     monkeypatch, tmp_path
 ):
     use_synthetic_data(monkeypatch, tmp_path)
-    bundle = build_region("london", data_dir=tmp_path / "data", public=True)
+    bundle = build_region("london", data_dir=tmp_path / "data", commercial=True)
     table = pq.read_table(bundle / "cells.parquet")
     assert "no2" not in table.column_names and "pm25" not in table.column_names
     assert "gp_walk" in table.column_names  # the cleared ones stay
@@ -449,8 +449,8 @@ def test_a_public_build_leaves_out_the_indicators_whose_dataset_is_not_cleared(
     assert "laei" not in {d["id"] for d in manifest["datasets"]}
 
 
-def test_the_command_has_a_public_option(monkeypatch, tmp_path):
+def test_the_command_has_a_commercial_option(monkeypatch, tmp_path):
     use_synthetic_data(monkeypatch, tmp_path)
-    args = ["build", "london", "--public", "--data-dir", str(tmp_path / "data")]
+    args = ["build", "london", "--commercial", "--data-dir", str(tmp_path / "data")]
     result = CliRunner().invoke(app, args)
     assert result.exit_code == 0, result.output

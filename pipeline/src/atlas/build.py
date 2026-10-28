@@ -33,15 +33,16 @@ from atlas.publish.bundle import write_bundle
 from atlas.spatial import walking
 from atlas.spatial.grid import boundary_from_geojson, bounds_bng, region_cells
 
-# The measured indicators that are built from a dataset whose licence may not allow a public
-# build (D07), with that dataset. A public build leaves out those whose dataset is not cleared.
+# The measured indicators that are built from a dataset without a licence for commercial use (D07),
+# with that dataset. The build is non-commercial and uses them; a commercial build leaves them out.
 BUILT_FROM = {"no2": "laei", "pm25": "laei"}
 
 
-def local_only(catalogue: Catalogue, indicators: Sequence[str]) -> list[str]:
-    """The indicators among `indicators` that are built from a dataset kept out of public builds."""
-    public = {d.id for d in catalogue.datasets.datasets if d.public_build}
-    return [i for i in indicators if i in BUILT_FROM and BUILT_FROM[i] not in public]
+def needs_commercial_licence(catalogue: Catalogue, indicators: Sequence[str]) -> list[str]:
+    """The indicators among `indicators` that are built from a dataset without a licence for
+    commercial use."""
+    allowed = {d.id for d in catalogue.datasets.datasets if d.commercial_use}
+    return [i for i in indicators if i in BUILT_FROM and BUILT_FROM[i] not in allowed]
 
 
 def build_region(
@@ -49,12 +50,13 @@ def build_region(
     *,
     catalogue_dir: Path = CATALOGUE_DIR,
     data_dir: Path | None = None,
-    public: bool = False,
+    commercial: bool = False,
 ) -> Path:
     """Fetches what the region needs (each download is cached), and builds its bundle.
 
-    `data_dir` defaults to `ATLAS_DATA_DIR`, or `data/` in the repository. A `public` build leaves
-    out the indicators from datasets that D07 keeps out of public builds.
+    `data_dir` defaults to `ATLAS_DATA_DIR`, or `data/` in the repository. The build is
+    non-commercial, and uses every dataset. A `commercial` build leaves out the indicators from
+    datasets without a licence for commercial use (D07).
     """
     data_dir = data_dir or default_data_dir()
     catalogue = load_catalogue(catalogue_dir)
@@ -77,8 +79,8 @@ def build_region(
     columns.update(_flood_columns(cells, region.grid.resolution, data_dir))
     columns.update(_walking_columns(region_id, cells, data_dir))
     columns.update(_air_columns(cells, region.grid.resolution, data_dir))
-    if public:
-        for indicator in local_only(catalogue, list(columns)):
+    if commercial:
+        for indicator in needs_commercial_licence(catalogue, list(columns)):
             del columns[indicator]
 
     return write_bundle(

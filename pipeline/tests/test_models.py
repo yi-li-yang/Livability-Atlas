@@ -35,7 +35,7 @@ def dataset(**fields):
         "date": 2022,
         "licence": "OGL-UK-3.0",
         "licence_checked": "2026-10-24",
-        "public_build": True,
+        "commercial_use": True,
         "attribution": "Contains public sector information.",
         "tells": ["Annual mean NO2"],
         **fields,
@@ -155,11 +155,11 @@ def test_an_ideal_range_rejects_numbers_out_of_order(values):
 # --- datasets ---
 
 
-def test_a_complete_public_dataset_passes():
-    assert Dataset.model_validate(dataset()).public_build is True
+def test_a_complete_commercial_dataset_passes():
+    assert Dataset.model_validate(dataset()).commercial_use is True
 
 
-def test_a_public_dataset_needs_an_open_licence():
+def test_a_commercial_dataset_needs_an_open_licence():
     assert "not on D07's list" in problem(Dataset, dataset(licence="proprietary"))
 
 
@@ -168,13 +168,13 @@ def test_licences_joined_by_and_must_all_be_open():
     assert "CC-BY-NC-4.0 is not" in problem(Dataset, dataset(licence="CC-BY-4.0 AND CC-BY-NC-4.0"))
 
 
-def test_a_public_dataset_needs_its_check_date_and_attribution():
+def test_a_commercial_dataset_needs_its_check_date_and_attribution():
     assert "licence_checked" in problem(Dataset, dataset(licence_checked=None))
     assert "attribution" in problem(Dataset, dataset(attribution=None))
 
 
 def test_a_private_dataset_needs_a_licence_note():
-    data = dataset(public_build=False, licence="unknown", licence_checked=None, attribution=None)
+    data = dataset(commercial_use=False, licence="unknown", licence_checked=None, attribution=None)
     assert "licence_note" in problem(Dataset, data)
     assert Dataset.model_validate({**data, "licence_note": "Not confirmed."})
 

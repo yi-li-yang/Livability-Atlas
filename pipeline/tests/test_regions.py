@@ -74,7 +74,7 @@ def write(directory: Path, region_yaml: str, name: str = "london.yaml") -> Path:
     date: 2025
     licence: OGL-UK-3.0
     licence_checked: 2026-10-28
-    public_build: true
+    commercial_use: true
     attribution: ONS.
     tells: [Boundaries]
 """,
