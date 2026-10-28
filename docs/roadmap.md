@@ -49,7 +49,7 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 
 ### Exit criteria
 
-- [ ] Decisions D01–D19 are accepted, or marked "revisit" with a reason.
+- [ ] Decisions D01–D21 are accepted, or marked "revisit" with a reason.
 - [ ] `just validate` passes. Default weights carry reasons. The MVP factor list is frozen, with each dataset's licence checked.
 - [ ] The factor explorer shows the full catalogue, and the D17 layout is chosen.
 - [ ] Spikes S1–S8 are written up with their decisions.

@@ -8,10 +8,11 @@
 - All nine MVP candidates are researched: 40 of the catalogue's 85 within-city measured indicators, from 26 datasets.
 - Step 0.2: [default weights and the build order](specs/2026-10-28-default-weights.md) (D14) are done.
 - `AGENTS.md` now bridges Google Antigravity to `CLAUDE.md` (D20). The owner has run Antigravity on it, and it saw the whole of `CLAUDE.md`. Merged as pull request #16.
+- The last item of step 0.2, the [MVP factor set](decisions.md#d21-mvp-factor-set) (D21), is proposed and waits for the owner: whether Health care joins the nine already researched.
 
 ## Next
 
-1. Propose the MVP set of about 10 top-level factors, the last item of step 0.2. A natural point to stop for the owner's review.
+1. The owner's decision on D21: keep the MVP at nine top-level factors, or add Health care as a tenth and research it first.
 2. Four checks the owner can make at any time:
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
@@ -30,6 +31,7 @@
 
 ### 2026-10-28
 
+- **MVP factor set proposed (D21)**, the last item of step 0.2: the nine top-level factors already researched. The weight table it carries shows the one gap worth the owner's decision: Health care ties D14's highest weight but was not among the nine, because the original MVP candidates predate D14. Open for the owner's review, not merged.
 - **Default weights and the build order set from evidence (D14),** with the [spec](specs/2026-10-28-default-weights.md) recording the method. Each of the 18 top-level factors' weight counts how many of five sources weigh it: the OECD, EIU, Mercer and AARP livability frameworks, and the English Housing Survey's reasons for moving. Housing and cost, Environment, Safety, Health care and Education come out highest, at 4; Climate, Natural hazards, Animal friendliness, Digital connectivity and Urban form and change come out lowest, at the floor of 1. The factor explorer now requires every top-level factor to give its reason, not only those away from the engineering default of 3. The build order ranks the nine researched MVP candidates by weight, then by how many of their measured indicators are already clear for public builds: Safety first, Digital connectivity last.
 - Fixed a stale count in this file's "Now": published rankings had added two more researched measured indicators since the "38" figure was written.
 
