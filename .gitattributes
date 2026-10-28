@@ -1,2 +1,3 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# LF everywhere, including Windows checkouts: Biome and ruff format expect it,
+# and the generated files must match what CI regenerates.
+* text=auto eol=lf
