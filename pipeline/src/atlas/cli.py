@@ -6,7 +6,8 @@ from typing import Annotated
 import typer
 
 from atlas.catalogue.load import validate_catalogue
-from atlas.paths import CATALOGUE_DIR
+from atlas.catalogue.schema import write_schemas
+from atlas.paths import CATALOGUE_DIR, SCHEMAS_DIR
 
 app = typer.Typer(help="Livability Atlas data pipeline.", no_args_is_help=True)
 
@@ -31,3 +32,14 @@ def validate(
         typer.echo(problem, err=True)
     typer.echo(f"{len(problems)} problems in {catalogue_dir}.", err=True)
     raise typer.Exit(code=1)
+
+
+@app.command()
+def schemas(
+    output_dir: Annotated[
+        Path, typer.Option(help="Where to write the JSON Schema files.")
+    ] = SCHEMAS_DIR,
+) -> None:
+    """Export the catalogue models to JSON Schema, for the web app's types."""
+    for path in write_schemas(output_dir):
+        typer.echo(f"wrote {path}")
