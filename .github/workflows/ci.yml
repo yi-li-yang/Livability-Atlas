@@ -24,6 +24,11 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: just setup
+      - name: Generated files are current
+        run: |
+          just generate
+          just docs
+          test -z "$(git status --porcelain)" || { git status --short; git diff; exit 1; }
       - run: just check
       - run: just build
       - name: End-to-end smoke test
@@ -31,8 +36,3 @@ jobs:
           cd web
           npx playwright install --with-deps chromium
           npm run e2e
-      - name: Generated files are current
-        run: |
-          just generate
-          just docs
-          test -z "$(git status --porcelain)" || { git status --short; git diff; exit 1; }

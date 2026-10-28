@@ -47,8 +47,8 @@ generate:
 build:
     cd web; npm run build
 
-# Run the web app's end-to-end test (it downloads a browser the first time)
-e2e:
+# Build the web app, then run its end-to-end test (it downloads a browser the first time)
+e2e: build
     cd web; npm run e2e
 
 # Start the web app
