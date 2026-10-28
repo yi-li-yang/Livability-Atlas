@@ -74,7 +74,7 @@ function fitsPalette(after: number[], before: number[]): boolean {
 }
 
 /**
- * Screenshots the map with the hex layer shown, then hidden, and compares them. Returns how many
+ * Screenshots the map with the hex layer shown, hidden and shown again, and compares them. Returns how many
  * pixels the layer changed, and how many of those are a palette colour drawn at the cells'
  * opacity over the pixel that was there before.
  */
@@ -97,6 +97,7 @@ async function hexLayerPixels(
   await show(false);
   const without = PNG.sync.read(await page.screenshot({ clip }));
   await show(true);
+  const again = PNG.sync.read(await page.screenshot({ clip }));
 
   let changed = 0;
   let explained = 0;
@@ -108,6 +109,9 @@ async function hexLayerPixels(
     ];
     const before = [without.data[i], without.data[i + 1], without.data[i + 2]];
     if (after.every((c, k) => Math.abs(c - before[k]) < 4)) continue;
+    // A pixel that is not the same in two shots with the cells shown is still changing, such as
+    // a basemap tile that arrives meanwhile (it did, on a slow runner): it says nothing of the cells.
+    if (after.some((c, k) => Math.abs(c - again.data[i + k]) >= 4)) continue;
     changed++;
     if (fitsPalette(after, before)) explained++;
   }
