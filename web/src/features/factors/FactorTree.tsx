@@ -18,10 +18,13 @@ export function FactorTree({
   factors,
   profile,
   onChange,
+  onReset,
 }: {
   factors: readonly ManifestFactor[];
   profile: Profile;
   onChange: (profile: Profile) => void;
+  /** Returns every weight to its default. */
+  onReset: () => void;
 }) {
   const [path, setPath] = useState<string[]>([]);
   const level = useMemo(
@@ -114,6 +117,13 @@ export function FactorTree({
           </li>
         ))}
       </ul>
+
+      {(Object.keys(profile.weights).length > 0 ||
+        (profile.flipped?.length ?? 0) > 0) && (
+        <button type="button" className="underline" onClick={onReset}>
+          Reset to defaults
+        </button>
+      )}
 
       {level.notCounted.length > 0 && (
         <div>

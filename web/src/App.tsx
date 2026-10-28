@@ -7,6 +7,13 @@ import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
+import type { ManifestFactor } from "./generated/manifest.schema";
+import {
+  encodeProfile,
+  loadProfile,
+  pruneProfile,
+  saveProfile,
+} from "./profile/storage";
 import { explainCell, rankOf, sortedScores } from "./scoring/explain";
 import { allLeafScores, type Profile, scoreRegion } from "./scoring/region";
 
@@ -18,12 +25,32 @@ type State =
   | { status: "ready"; bundle: Bundle }
   | { status: "failed" };
 
-// The weights the user has set. None yet: every factor starts at its default weight.
-const DEFAULT_PROFILE: Profile = { weights: {} };
+/** The browser's storage, or null where it is blocked, as in some private windows. */
+function browserStorage(): Storage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+/** The ids of every factor and measured indicator in a factor tree. */
+function idsIn(factors: readonly ManifestFactor[]): Set<string> {
+  const ids = new Set<string>();
+  const visit = (factor: ManifestFactor) => {
+    ids.add(factor.id);
+    if (factor.indicator) ids.add(factor.indicator);
+    for (const child of factor.children ?? []) visit(child);
+  };
+  for (const factor of factors) visit(factor);
+  return ids;
+}
 
 export function App() {
   const [state, setState] = useState<State>({ status: "loading" });
-  const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
+  const [profile, setProfile] = useState<Profile>(() =>
+    loadProfile(window.location.hash, browserStorage()),
+  );
   const [hover, setHover] = useState<Hover | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [opacity, setOpacity] = useState(CELL_OPACITY);
@@ -37,6 +64,32 @@ export function App() {
       },
     );
   }, []);
+
+  // The weights stay in this browser: in its storage, and in the link's fragment, which is never
+  // sent to a server, so that a link carries them to a friend (D08).
+  const loaded = state.status === "ready";
+  useEffect(() => {
+    if (!loaded) return;
+    saveProfile(profile, browserStorage());
+    const text = encodeProfile(profile);
+    const { pathname, search } = window.location;
+    window.history.replaceState(
+      null,
+      "",
+      text ? `#${text}` : `${pathname}${search}`,
+    );
+  }, [loaded, profile]);
+  // A saved profile or link may name factors that this bundle does not have.
+  useEffect(() => {
+    if (state.status !== "ready") return;
+    const known = idsIn(state.bundle.manifest.factors);
+    setProfile((current) => {
+      const pruned = pruneProfile(current, known);
+      return encodeProfile(pruned) === encodeProfile(current)
+        ? current
+        : pruned;
+    });
+  }, [state]);
 
   const flipped = profile.flipped;
   const bundle = state.status === "ready" ? state.bundle : null;
@@ -107,6 +160,7 @@ export function App() {
               factors={state.bundle.manifest.factors}
               profile={profile}
               onChange={setProfile}
+              onReset={() => setProfile({ weights: {} })}
             />
           </aside>
         )}
