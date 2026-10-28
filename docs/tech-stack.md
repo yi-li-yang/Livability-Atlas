@@ -1,6 +1,6 @@
 # Tech stack
 
-Status: the pipeline's tools (uv, Pydantic, Typer, ruff, pyright, pytest, Hypothesis, pre-commit) and the tooling (just, GitHub Actions) are in place, with exact versions pinned in `pipeline/uv.lock`. The web app's tools arrive in the second part of step 0.3 and will be pinned in `package-lock.json`. The factor explorer (step 0.2) still loads its two libraries from cdnjs and runs its tests with Node's built-in test runner. The geospatial libraries wait for the first spike that imports them, so that their Windows wheels are tested then. Update this file whenever a tool is added, swapped or upgraded, and record large changes in [decisions.md](decisions.md#d03-tech-stack).
+Status: both projects are scaffolded. The pipeline's tools (uv, Pydantic, Typer, ruff, pyright, pytest, Hypothesis, pre-commit) are pinned in `pipeline/uv.lock`, and the web app's (Vite, React, TypeScript, MapLibre, Tailwind, Biome, Vitest, Playwright, json-schema-to-typescript) in `web/package-lock.json`. just and GitHub Actions run both. The factor explorer (step 0.2) still loads its two libraries from cdnjs and runs its tests with Node's built-in test runner. The geospatial libraries wait for the first spike that imports them, so that their Windows wheels are tested then. Update this file whenever a tool is added, swapped or upgraded, and record large changes in [decisions.md](decisions.md#d03-tech-stack).
 
 The "From" column gives the step or phase in which a tool arrives.
 

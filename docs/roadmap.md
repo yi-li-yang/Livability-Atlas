@@ -20,12 +20,12 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [x] Set default weights from evidence, with reasons, and compute the build order (D14).
   - [ ] Propose the MVP set: about 10 top-level factors.
 - [x] **Before 0.3: install the tools.** Install uv and just with winget. Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`. Java 21 waits for spike S4.
-- [ ] **0.3 Scaffold and CI.** Starts with `superpowers:writing-plans`.
+- [x] **0.3 Scaffold and CI.** Starts with `superpowers:writing-plans`.
   - [x] `pipeline/`: a uv project with ruff, pyright and pytest. `atlas --help` runs, and `atlas validate` checks `catalogue/`.
-  - [ ] `web/`: a Vite + React + TypeScript app showing a MapLibre basemap of London, with Biome, Vitest and one Playwright smoke test.
-  - [ ] `shared/schemas/`, TypeScript type generation, and a CI check that the generated files are current. The schemas are exported by `atlas schemas`, and CI checks them. The type generation arrives with `web/`.
+  - [x] `web/`: a Vite + React + TypeScript app showing a MapLibre basemap of London, with Biome, Vitest and one Playwright smoke test.
+  - [x] `shared/schemas/`, TypeScript type generation, and a CI check that the generated files are current.
   - [x] `justfile`, pre-commit, GitHub Actions running `just check`, and `.claude/settings.json`.
-  - [ ] The nested `CLAUDE.md` files, each with an `AGENTS.md` beside it (D20). `pipeline/` has its pair, and `web/` gets one with the app.
+  - [x] The nested `CLAUDE.md` files, each with an `AGENTS.md` beside it (D20), for `pipeline/` and `web/`.
 - [ ] **0.4 Spikes S1–S8** (listed below).
 - [ ] **0.5 Method and freeze.**
   - [ ] Finalise `methodology/scoring.md`.
@@ -55,7 +55,7 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 - [ ] The factor explorer shows the full catalogue, and the D17 layout is chosen.
 - [ ] Spikes S1–S8 are written up with their decisions.
 - [ ] The scoring specification v0 and the golden test cases are committed.
-- [ ] `just check` passes locally and in GitHub Actions.
+- [x] `just check` passes locally and in GitHub Actions.
 - [ ] A fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and `docs/progress.md` alone.
 
 ## Phase 1: London MVP

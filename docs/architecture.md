@@ -1,6 +1,6 @@
 # Architecture
 
-Status: planned (D02, accepted). `catalogue/`, `pipeline/` (its command line, catalogue models and checks) and `shared/schemas/` exist. The rest is built from step 0.3's second part onwards.
+Status: planned (D02, accepted). `catalogue/`, `pipeline/` (its command line, catalogue models and checks), `shared/schemas/` and `web/` (a basemap of London, and types generated from the schemas) exist. The rest is built from Phase 1.
 
 ## Overview
 

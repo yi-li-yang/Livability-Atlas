@@ -13,6 +13,7 @@ default:
 setup:
     cd pipeline; uv sync
     cd pipeline; uv run pre-commit install
+    cd web; npm ci
 
 # Everything CI checks: lint, types, tests, the catalogue, and the factor explorer's tests
 check: lint types test validate explorer
@@ -21,14 +22,17 @@ check: lint types test validate explorer
 lint:
     cd pipeline; uv run ruff check .
     cd pipeline; uv run ruff format --check .
+    cd web; npm run lint
 
 # Type-check
 types:
     cd pipeline; uv run pyright
+    cd web; npm run types
 
 # Run the tests
 test:
     cd pipeline; uv run pytest
+    cd web; npm test
 
 # Check the factor catalogue
 validate:
@@ -37,6 +41,19 @@ validate:
 # Regenerate every generated file from its source (never edit those by hand)
 generate:
     cd pipeline; uv run atlas schemas
+    cd web; npm run generate
+
+# Build the web app
+build:
+    cd web; npm run build
+
+# Build the web app, then run its end-to-end test (it downloads a browser the first time)
+e2e: build
+    cd web; npm run e2e
+
+# Start the web app
+dev:
+    cd web; npm run dev
 
 # Run the factor explorer's tests
 explorer:
