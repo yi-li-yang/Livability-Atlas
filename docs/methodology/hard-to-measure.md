@@ -26,12 +26,12 @@ From the most direct evidence to the least. Each rung names its evidence type.
 | Access | The same places, within a journey | Cultural venues within 30 minutes by public transport | direct |
 | Variety | How many different kinds are near | The number of distinct cuisines nearby | indirect |
 | Character | Lasting signs in the built environment | Listed buildings and conservation areas (Historic England) | indirect |
-| Activity | What happens there, and how much attention it draws | Event listings; geotagged Wikipedia articles and their page views | indirect |
+| Activity | What happens there, and how much attention it draws | Event listings; geotagged Wikipedia articles (their page views follow fame, spike S7) | indirect |
 | Perception | How a place looks or reads to people, judged by a model | Street-level photos rated for liveliness and beauty; area descriptions tagged by an LLM | perception |
 | Published rankings | What others have listed | Time Out's neighbourhood lists, the Sunday Times Best Places to Live | ranking |
 | A user's own ratings | What the user has noted | A personal notes layer, stored in the browser | the user's own |
 
-Spike S7 tests the ladder on a sample of neighbourhoods, with a known-fact assertion for each rung.
+[Spike S7](../spikes/S7-culture-ladder.md) tested the ladder on twelve places, with a known-fact assertion for each rung that open data can test. The direct, variety and character rungs, and the count of geotagged Wikipedia articles, all separate cultural centres from suburbs, and agree with each other. Wikipedia page views do not: they follow how famous a place's landmarks are, so they are dropped. The access rung waits for the station matrix, and the perception, ranking and user's-own rungs were not testable. The test is coarse: it does not show which rung ranks two alike places correctly.
 
 ## Culture
 
