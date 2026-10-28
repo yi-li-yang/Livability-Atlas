@@ -135,3 +135,20 @@ test("the panel and the legend are stacked above the hex cells, so none are draw
   expect(stacking.panel).toBeGreaterThan(stacking.cells);
   expect(stacking.legend).toBeGreaterThan(stacking.cells);
 });
+
+test("the cell opacity slider fades the cells, so the map shows through", async ({
+  page,
+}) => {
+  await openApp(page);
+  const map = page.getByTestId("map");
+  const slider = page.getByRole("slider", { name: "Cell opacity" });
+  await expect(slider).toHaveValue("50");
+  const clip = await clearOfPanel(page, map);
+  const normal = await page.screenshot({ clip });
+  await slider.fill("0");
+  await expect
+    .poll(async () => differing(normal, await page.screenshot({ clip })), {
+      timeout: 10_000,
+    })
+    .toBeGreaterThan(2000);
+});

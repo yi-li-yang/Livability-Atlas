@@ -4,7 +4,7 @@ import { Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { useEffect, useRef } from "react";
-import { CELL_OPACITY, type Rgba } from "./colour";
+import type { Rgba } from "./colour";
 import type { HexCell } from "./hexcells";
 import { LONDON_BOUNDS, LONDON_CENTRE } from "./london";
 
@@ -12,10 +12,10 @@ import { LONDON_BOUNDS, LONDON_CENTRE } from "./london";
 // put it. Importing it with ?url makes Vite emit it, and this points MapLibre there.
 setWorkerUrl(workerUrl);
 
-// OpenFreeMap needs no key (docs/tech-stack.md).
-const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
+// OpenFreeMap needs no key (docs/tech-stack.md). Positron is its light grey style, made to sit
+// under data: its own colours stay out of the way of the cells'.
+const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
-/** A basemap of London with the hex cells drawn over it, coloured by their score. */
 /** Where the pointer is over a cell, in pixels from the map's top left corner. */
 export interface Hover {
   index: number;
@@ -23,9 +23,18 @@ export interface Hover {
   y: number;
 }
 
+/**
+ * A basemap of London with the hex cells drawn over it, coloured by their score. The cells are
+ * translucent so that the streets show through; the user sets how much.
+ *
+ * deck.gl's interleaved mode would draw the cells beneath the basemap's place names, but deck.gl
+ * 9.4 fails against MapLibre 6 there (its `getViewport` reads a transform that has changed), so
+ * the cells go in a canvas of their own over the map.
+ */
 export function HexMap({
   cells,
   colours,
+  opacity,
   selected,
   onHover,
   onSelect,
@@ -33,6 +42,8 @@ export function HexMap({
   cells: HexCell[];
   /** The colour of each cell, in the order of `cells`. */
   colours: Rgba[];
+  /** How much of a cell's colour shows over the basemap, from 0 to 1. */
+  opacity: number;
   /** The index of the cell the user has clicked, outlined on the map. */
   selected: number | null;
   onHover: (hover: Hover | null) => void;
@@ -75,7 +86,7 @@ export function HexMap({
           updateTriggers: { getFillColor: colours },
           filled: true,
           stroked: false,
-          opacity: CELL_OPACITY,
+          opacity,
           pickable: true,
           autoHighlight: true,
           highlightColor: [255, 255, 255, 110],
@@ -94,7 +105,7 @@ export function HexMap({
         }),
       ],
     });
-  }, [cells, colours, selected, onHover, onSelect]);
+  }, [cells, colours, opacity, selected, onHover, onSelect]);
 
   return (
     <div

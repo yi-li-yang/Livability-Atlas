@@ -10,10 +10,15 @@ export function Legend({
   title,
   low,
   high,
+  opacity,
+  onOpacity,
 }: {
   title: string;
   low: string;
   high: string;
+  /** How strongly the cells show over the map, from 0 to 1. */
+  opacity: number;
+  onOpacity: (opacity: number) => void;
 }) {
   const gradient = `linear-gradient(to right, ${[0, 0.25, 0.5, 0.75, 1].map(css).join(", ")})`;
   return (
@@ -31,6 +36,24 @@ export function Legend({
         <span>{low}</span>
         <span>{high}</span>
       </div>
+      <label className="mt-2 block text-xs text-neutral-600">
+        Cell opacity
+        <input
+          type="range"
+          min={0}
+          max={100}
+          step={5}
+          value={Math.round(opacity * 100)}
+          aria-label="Cell opacity"
+          aria-valuetext={`${Math.round(opacity * 100)}%`}
+          className="block w-full"
+          onChange={(event) => onOpacity(Number(event.target.value) / 100)}
+        />
+        <span className="flex justify-between">
+          <span>Map</span>
+          <span>Cells</span>
+        </span>
+      </label>
     </section>
   );
 }

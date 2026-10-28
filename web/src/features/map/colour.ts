@@ -13,8 +13,8 @@ export const PALETTE: [number, number, number][] = [
   [253, 231, 37],
 ];
 
-/** How much of a cell's colour shows over the basemap: the streets stay readable beneath it. */
-export const CELL_OPACITY = 0.7;
+/** How much of a cell's colour shows over the basemap, until the user changes it. */
+export const CELL_OPACITY = 0.5;
 
 /** A hex cell that has no score: transparent, so that the map shows through. */
 export const UNSCORED: Rgba = [128, 128, 128, 60];

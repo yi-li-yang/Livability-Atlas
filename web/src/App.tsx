@@ -3,6 +3,7 @@ import { type Bundle, loadBundle } from "./data/bundle";
 import { FactorTree } from "./features/factors/FactorTree";
 import { QuickLook } from "./features/factors/QuickLook";
 import { WhyPanel } from "./features/factors/WhyPanel";
+import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
@@ -25,6 +26,7 @@ export function App() {
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [hover, setHover] = useState<Hover | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  const [opacity, setOpacity] = useState(CELL_OPACITY);
 
   useEffect(() => {
     loadBundle(BUNDLES_URL, REGION).then(
@@ -83,6 +85,7 @@ export function App() {
         <HexMap
           cells={cells}
           colours={colours}
+          opacity={opacity}
           selected={selected}
           onHover={setHover}
           onSelect={setSelected}
@@ -127,7 +130,13 @@ export function App() {
         )}
         {chosen && <WhyPanel {...chosen} onClose={() => setSelected(null)} />}
         {state.status === "ready" && (
-          <Legend title="Livability score" low="Worse" high="Better" />
+          <Legend
+            title="Livability score"
+            low="Worse"
+            high="Better"
+            opacity={opacity}
+            onOpacity={setOpacity}
+          />
         )}
       </main>
       {state.status === "ready" && (
