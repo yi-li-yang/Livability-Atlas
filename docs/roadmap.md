@@ -71,7 +71,7 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [x] The web app loads the bundle and colours every cell with deck.gl, and a Playwright test sees the coloured map. The test hides the hex layer, compares screenshots, and requires that the pixels it changed are palette colours; it fails with the cells drawn red.
   - Check: the same command run twice gives byte-identical bundles. Tested on synthetic data, and run twice on the real London data, which gave the same version.
 - [ ] **Scoring and the visual factor tree.** The scoring engine, the chosen treemap or sunburst with sliders and drill-down for 3 factors, and default weights.
-  - [ ] The TypeScript engine reproduces all 15 golden cases of `shared/fixtures/scoring/`, and CI runs it and the Python reference scorer against them.
+  - [x] The TypeScript engine reproduces all 15 golden cases of `shared/fixtures/scoring/`, and CI runs it and the Python reference scorer against them (`just check` runs both test suites).
   - [ ] The factor tree (D17: both layouts, with a switch) with sliders and drill-down, and the default weights from the catalogue. The profile lives in the browser's storage and the URL, never on a server (D08).
   - Check: the map recolours within about 100 ms of a weight change over about 17,000 cells, measured in a test.
 - [ ] **MVP factors.** The remaining factors, each added through the factor recipe.
