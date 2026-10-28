@@ -3,6 +3,7 @@ import zipfile
 from pathlib import Path
 
 import h3
+import numpy as np
 import pyarrow.parquet as pq
 from openpyxl import Workbook
 from pyproj import Transformer
@@ -14,6 +15,7 @@ from atlas.build import build_region
 from atlas.cli import app
 from atlas.datasets.cities.london import ptal
 from atlas.datasets.countries.gb import ons_regions
+from atlas.datasets.countries.gb.ea_flood_risk import LOW, MEDIUM, VERY_LOW, Mosaic
 from atlas.indicators import crime
 
 TO_BNG = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
@@ -108,6 +110,21 @@ def synthetic_crimes(tmp_path: Path) -> tuple[Path, list[str]]:
     return path, ["2026-07"]
 
 
+def synthetic_flood_risk(which: str, bounds) -> Mosaic:
+    """Rivers and sea: medium risk in the west half of AREA and very low in the east. Surface water:
+    low everywhere, so no area at risk."""
+    x0, y0, x1, y1 = bounds
+    xm, _ = TO_BNG.transform(MIDDLE, 51.51)
+    rows, cols = int((y1 - y0) / 10) + 1, int((x1 - x0) / 10) + 1
+    if which == "surface-water":
+        classes = np.full((rows, cols), LOW, dtype=np.uint8)
+    else:
+        classes = np.full((rows, cols), VERY_LOW, dtype=np.uint8)
+        xs = x0 + (np.arange(cols) + 0.5) * 10
+        classes[:, xs < xm] = MEDIUM
+    return Mosaic(classes=classes, x=x0, y=y1, resolution=10)
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -117,6 +134,11 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.output_areas, "fetch", lambda data_dir, bounds: areas)
     monkeypatch.setattr(build_module.census_residents, "fetch", lambda data_dir: people)
     monkeypatch.setattr(build_module.police_uk, "fetch", lambda data_dir: crimes)
+    monkeypatch.setattr(
+        build_module.ea_flood_risk,
+        "fetch",
+        lambda data_dir, which, bounds: synthetic_flood_risk(which, bounds),
+    )
 
 
 def test_a_region_is_built_into_a_bundle(monkeypatch, tmp_path):
@@ -211,3 +233,21 @@ def test_the_bundle_holds_each_crime_rate_per_1000_residents(monkeypatch, tmp_pa
     ids = {i["id"] for i in manifest["indicators"]}
     assert set(crime.CATEGORIES) <= ids and "service-level" in ids
     assert any(d["id"] == "police-uk" for d in manifest["datasets"])
+
+
+def test_the_bundle_holds_the_share_of_each_cell_at_risk_of_flooding(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = [h3.cell_to_latlng(c)[1] for c in table["cell"]]
+    west = table[[x < MIDDLE - 0.002 for x in lng]]
+    east = table[[x > MIDDLE + 0.002 for x in lng]]
+    assert (west["river_and_sea_flooding"] > 90).all()
+    assert (east["river_and_sea_flooding"] < 10).all()
+    assert (table["surface_water_flooding"] == 0).all()
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    ids = {i["id"] for i in manifest["indicators"]}
+    assert {"river-and-sea-flooding", "surface-water-flooding"} <= ids
+    assert {"ea-flood-risk-rivers-sea", "ea-flood-risk-surface-water"} <= {
+        d["id"] for d in manifest["datasets"]
+    }

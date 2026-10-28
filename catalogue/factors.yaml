@@ -682,7 +682,7 @@ factors:
             name: Rivers and sea
             description: The share of the area with at least a 1 in 100 chance of flooding from rivers or the sea in any year.
             default_weight: 3
-            status: researched
+            status: built
             unit: "% of the area"
             preference_type: fixed
             curve: {shape: ramp, t0: 100, t1: 0}
@@ -700,12 +700,13 @@ factors:
               share by homes instead of area. The risk is modelled, so the
               evidence type is estimate, and countries model and count defences
               differently, so the share does not compare across regions.
+              The Environment Agency serves the bands as a map, not as polygons, so the build draws the region at 10 m a pixel, reads each band off its colour, and takes the share of 49 points spread over the hex cell that fall in the medium or high band. Outlines are not a band and are left out of the count.
             datasets: [ea-flood-risk-rivers-sea]
           - id: surface-water-flooding
             name: Surface water
             description: The share of the area with at least a 1 in 100 chance of flooding from rainwater in any year.
             default_weight: 3
-            status: researched
+            status: built
             unit: "% of the area"
             preference_type: fixed
             curve: {shape: ramp, t0: 100, t1: 0}
@@ -718,6 +719,7 @@ factors:
               heavy rain cannot drain away. Spike S5 decides whether to weight
               the share by homes instead of area. The risk is modelled, so the
               evidence type is estimate, and it does not compare across regions.
+              The Environment Agency serves the bands as a map, not as polygons, so the build draws the region at 10 m a pixel, reads each band off its colour, and takes the share of 49 points spread over the hex cell that fall in the medium or high band. Outlines are not a band and are left out of the count.
             datasets: [ea-flood-risk-surface-water]
       - {id: subsidence, name: "Subsidence", default_weight: 3, scales: [within-city]}
       - {id: earthquakes, name: "Earthquakes", default_weight: 3, scales: [across-cities]}
