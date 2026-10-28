@@ -542,7 +542,7 @@ factors:
             name: Road traffic noise
             description: The average noise level from road traffic, from 7 am to 11 pm.
             default_weight: 3
-            status: spiked
+            status: built
             unit: dB (daytime)
             preference_type: fixed
             curve: {shape: ramp, t0: 70, t1: 50}
@@ -571,7 +571,7 @@ factors:
             name: Rail noise
             description: The average noise level from railways, from 7 am to 11 pm.
             default_weight: 3
-            status: researched
+            status: built
             unit: dB (daytime)
             preference_type: fixed
             curve: {shape: ramp, t0: 70, t1: 50}
@@ -600,7 +600,7 @@ factors:
             name: Aircraft noise
             description: The average noise level from aircraft, from 7 am to 11 pm.
             default_weight: 3
-            status: researched
+            status: built
             unit: dB (daytime)
             preference_type: fixed
             curve: {shape: ramp, t0: 63, t1: 51}

@@ -1,8 +1,8 @@
 """Builds a region's data bundle from raw downloads.
 
 London so far has the service level (PTAL), the crime rates of Safety, the flood shares of
-Natural hazards, the walks to a station, a school, a GP practice and a park, and the air quality.
-Each indicator that arrives later adds its columns here, through the factor recipe.
+Natural hazards, the walks to a station, a school, a GP practice and a park, the air quality and
+the noise. Each indicator that arrives later adds its columns here, through the factor recipe.
 """
 
 from collections.abc import Sequence
@@ -16,6 +16,7 @@ from atlas.datasets.cities.london import laei, ptal
 from atlas.datasets.countries.gb import (
     census_residents,
     code_point,
+    defra_noise,
     ea_flood_risk,
     gias,
     naptan,
@@ -26,7 +27,16 @@ from atlas.datasets.countries.gb import (
     police_uk,
 )
 from atlas.datasets.world import openstreetmap
-from atlas.indicators import air_quality, crime, education, environment, flood, health, transport
+from atlas.indicators import (
+    air_quality,
+    crime,
+    education,
+    environment,
+    flood,
+    health,
+    noise,
+    transport,
+)
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
 from atlas.publish.bundle import write_bundle
@@ -77,7 +87,9 @@ def build_region(
     columns: dict[str, Sequence[Any]] = {"service-level": service_level}
     columns.update(_crime_columns(cells, region.grid.resolution, data_dir))
     columns.update(_flood_columns(cells, region.grid.resolution, data_dir))
-    columns.update(_walking_columns(region_id, cells, data_dir))
+    postcodes = code_point.read_postcodes(code_point.fetch(data_dir))
+    columns.update(_walking_columns(region_id, cells, data_dir, postcodes))
+    columns.update(_noise_columns(cells, region.grid.resolution, data_dir, postcodes))
     columns.update(_air_columns(cells, region.grid.resolution, data_dir))
     if commercial:
         for indicator in needs_commercial_licence(catalogue, list(columns)):
@@ -140,7 +152,29 @@ def _air_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[str,
     return columns
 
 
-def _walking_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[str, Sequence[Any]]:
+# The catalogue's indicator for each kind of noise of Defra's maps.
+NOISE_INDICATORS = {"road": "road-noise", "rail": "rail-noise", "aircraft": "aircraft-noise"}
+
+
+def _noise_columns(
+    cells: list[str], resolution: int, data_dir: Path, postcodes: pd.DataFrame
+) -> dict[str, Sequence[Any]]:
+    """The mean daytime noise level in each cell from roads, railways and aircraft, taken at the
+    cell's addresses (spike S5), which stand in as the postcodes of Code-Point Open."""
+    west, south, east, north = bounds_bng(cells, margin=500)
+    inside = postcodes["Easting"].between(west, east) & postcodes["Northing"].between(south, north)
+    addresses = postcodes.loc[inside, ["Easting", "Northing"]].to_numpy(dtype=float)
+    columns: dict[str, Sequence[Any]] = {}
+    for kind, indicator in NOISE_INDICATORS.items():
+        tiles = defra_noise.fetch(data_dir, kind, bounds_bng(cells))
+        mean = noise.mean_level(defra_noise.read_levels(tiles), addresses, cells, resolution)
+        columns[indicator] = [None if pd.isna(v) else float(v) for v in mean]
+    return columns
+
+
+def _walking_columns(
+    region_id: str, cells: list[str], data_dir: Path, postcodes: pd.DataFrame
+) -> dict[str, Sequence[Any]]:
     """The indicators that are walks along streets (spike S6): minutes to the nearest station,
     school, GP practice and way into a park."""
     ways = walking.read_ways(openstreetmap.fetch(data_dir, region_id))
@@ -154,7 +188,7 @@ def _walking_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[s
     for indicator, walk in education.school_minutes(network, schools, cells).items():
         columns[indicator] = [None if pd.isna(m) else float(m) for m in walk]
     sites = nhs_ods.read_gp_sites(*nhs_ods.fetch(data_dir))
-    places = health.gp_places(sites, code_point.read_postcodes(code_point.fetch(data_dir)))
+    places = health.gp_places(sites, postcodes)
     columns["gp-walk"] = [
         None if pd.isna(m) else float(m) for m in health.gp_minutes(network, places, cells)
     ]

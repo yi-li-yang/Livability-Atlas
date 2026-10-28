@@ -7,8 +7,11 @@ import h3
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
+import pytest
+import rasterio
 from openpyxl import Workbook
 from pyproj import Transformer
+from rasterio.transform import from_origin
 from shapely.geometry import Point, box
 from typer.testing import CliRunner
 
@@ -227,6 +230,33 @@ def synthetic_air(tmp_path: Path) -> Path:
     return path
 
 
+def synthetic_noise_tile(tmp_path: Path, kind: str, east_level: float) -> Path:
+    """A tile of 10 m pixels over AREA and around it: 45 dB in the west half, `east_level` in the
+    east half."""
+    x0, y0 = TO_BNG.transform(-0.160, 51.500)
+    x1, y1 = TO_BNG.transform(-0.115, 51.525)
+    west, north = (x0 // 10) * 10, (y1 // 10 + 1) * 10
+    columns, rows = int((x1 - west) // 10) + 2, int((north - y0) // 10) + 2
+    split = int((TO_BNG.transform(-0.1375, 51.5)[0] - west) // 10)
+    levels = np.full((rows, columns), 45.0, dtype="float32")
+    levels[:, split:] = east_level
+    path = tmp_path / f"{kind}.tif"
+    with rasterio.open(
+        path,
+        "w",
+        driver="GTiff",
+        height=rows,
+        width=columns,
+        count=1,
+        dtype="float32",
+        crs="EPSG:27700",
+        transform=from_origin(west, north, 10, 10),
+        nodata=-96.0,
+    ) as file:
+        file.write(levels, 1)
+    return path
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -241,6 +271,11 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.naptan, "fetch", lambda data_dir: stations)
     schools = synthetic_schools(tmp_path)
     monkeypatch.setattr(build_module.gias, "fetch", lambda data_dir: schools)
+    tiles = {
+        kind: [synthetic_noise_tile(tmp_path, kind, level)]
+        for kind, level in (("road", 65.0), ("rail", 50.0), ("aircraft", 60.0))
+    }
+    monkeypatch.setattr(build_module.defra_noise, "fetch", lambda data_dir, kind, b: tiles[kind])
     air = synthetic_air(tmp_path)
     monkeypatch.setattr(build_module.laei, "fetch", lambda data_dir: air)
     park = synthetic_greenspace(tmp_path)
@@ -454,3 +489,18 @@ def test_the_command_has_a_commercial_option(monkeypatch, tmp_path):
     args = ["build", "london", "--commercial", "--data-dir", str(tmp_path / "data")]
     result = CliRunner().invoke(app, args)
     assert result.exit_code == 0, result.output
+
+
+def test_the_bundle_holds_the_noise_of_roads_railways_and_aircraft(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    east, west = table[lng > -0.130], table[lng < -0.145]
+    for column, level in (("road_noise", 65.0), ("rail_noise", 50.0), ("aircraft_noise", 60.0)):
+        assert table[column].notna().all()
+        assert west[column].median() == pytest.approx(45.0, abs=1.0)
+        assert east[column].median() == pytest.approx(level, abs=1.0)
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    ids = {i["id"] for i in manifest["indicators"]}
+    assert {"road-noise", "rail-noise", "aircraft-noise"} <= ids
