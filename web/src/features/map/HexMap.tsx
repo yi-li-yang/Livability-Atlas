@@ -16,13 +16,28 @@ setWorkerUrl(workerUrl);
 const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 
 /** A basemap of London with the hex cells drawn over it, coloured by their score. */
+/** Where the pointer is over a cell, in pixels from the map's top left corner. */
+export interface Hover {
+  index: number;
+  x: number;
+  y: number;
+}
+
 export function HexMap({
   cells,
   colours,
+  selected,
+  onHover,
+  onSelect,
 }: {
   cells: HexCell[];
   /** The colour of each cell, in the order of `cells`. */
   colours: Rgba[];
+  /** The index of the cell the user has clicked, outlined on the map. */
+  selected: number | null;
+  onHover: (hover: Hover | null) => void;
+  /** Called with the cell that was clicked, or null for a click on no cell. */
+  onSelect: (index: number | null) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const overlay = useRef<MapboxOverlay | null>(null);
@@ -61,10 +76,25 @@ export function HexMap({
           filled: true,
           stroked: false,
           opacity: CELL_OPACITY,
+          pickable: true,
+          autoHighlight: true,
+          highlightColor: [255, 255, 255, 110],
+          onHover: ({ index, x, y }) =>
+            onHover(index >= 0 ? { index, x, y } : null),
+          onClick: ({ index }) => onSelect(index >= 0 ? index : null),
+        }),
+        new PolygonLayer<HexCell>({
+          id: "selected-cell",
+          data: selected === null ? [] : [cells[selected]],
+          getPolygon: (cell) => cell.polygon,
+          filled: false,
+          stroked: true,
+          getLineColor: [20, 20, 20, 255],
+          lineWidthMinPixels: 3,
         }),
       ],
     });
-  }, [cells, colours]);
+  }, [cells, colours, selected, onHover, onSelect]);
 
   return (
     <div

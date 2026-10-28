@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { type Bundle, loadBundle } from "./data/bundle";
 import { FactorTree } from "./features/factors/FactorTree";
-import { HexMap } from "./features/map/HexMap";
+import { QuickLook } from "./features/factors/QuickLook";
+import { WhyPanel } from "./features/factors/WhyPanel";
+import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
+import { explainCell, rankOf, sortedScores } from "./scoring/explain";
 import { allLeafScores, type Profile, scoreRegion } from "./scoring/region";
 
 const BUNDLES_URL = import.meta.env.VITE_BUNDLES_URL ?? "/bundles";
@@ -20,6 +23,8 @@ const DEFAULT_PROFILE: Profile = { weights: {} };
 export function App() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
+  const [hover, setHover] = useState<Hover | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
 
   useEffect(() => {
     loadBundle(BUNDLES_URL, REGION).then(
@@ -40,11 +45,29 @@ export function App() {
     () => (bundle ? allLeafScores(bundle, flipped) : null),
     [bundle, flipped],
   );
-  const colours = useMemo(
-    () =>
-      bundle && leaves ? cellColours(scoreRegion(bundle, profile, leaves)) : [],
+  const scores = useMemo(
+    () => (bundle && leaves ? scoreRegion(bundle, profile, leaves) : null),
     [bundle, leaves, profile],
   );
+  const colours = useMemo(() => (scores ? cellColours(scores) : []), [scores]);
+  const ranked = useMemo(
+    () => (scores ? sortedScores(scores) : null),
+    [scores],
+  );
+
+  /** What one cell scores and why, for the quick look and the panel of reasons. */
+  const explained = (index: number | null) => {
+    if (index === null || !bundle || !scores || !ranked) return null;
+    const score = scores[index];
+    return {
+      explanation: explainCell(bundle, profile, index),
+      rank: Number.isNaN(score) ? null : rankOf(ranked, score),
+      total: ranked.length,
+    };
+  };
+  const hovered =
+    hover && hover.index !== selected ? explained(hover.index) : null;
+  const chosen = explained(selected);
 
   return (
     <div className="flex h-screen flex-col">
@@ -57,7 +80,13 @@ export function App() {
         )}
       </header>
       <main className="relative min-h-0 flex-1">
-        <HexMap cells={cells} colours={colours} />
+        <HexMap
+          cells={cells}
+          colours={colours}
+          selected={selected}
+          onHover={setHover}
+          onSelect={setSelected}
+        />
         {state.status === "loading" && (
           <p
             role="status"
@@ -78,6 +107,25 @@ export function App() {
             />
           </aside>
         )}
+        {hover && hovered && (
+          <div
+            data-testid="quick-look"
+            className="pointer-events-none absolute z-10 w-52 rounded bg-white/95 p-3 shadow"
+            style={{
+              left:
+                hover.x > window.innerWidth - 280
+                  ? hover.x - 220
+                  : hover.x + 14,
+              top:
+                hover.y > window.innerHeight - 260
+                  ? hover.y - 150
+                  : hover.y + 14,
+            }}
+          >
+            <QuickLook {...hovered} />
+          </div>
+        )}
+        {chosen && <WhyPanel {...chosen} onClose={() => setSelected(null)} />}
         {state.status === "ready" && (
           <Legend title="Livability score" low="Worse" high="Better" />
         )}
