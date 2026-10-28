@@ -743,7 +743,7 @@ factors:
             description: Nitrogen dioxide in the air, as a yearly average.
             default_weight: 3
             scales: [within-city]
-            status: researched
+            status: built
             unit: µg/m³
             preference_type: fixed
             curve: {shape: ramp, t0: 40, t1: 10}
@@ -756,12 +756,15 @@ factors:
             evidence_type: estimate
             comparable_across_regions: true
             method: >-
-              The area-weighted mean, over the hex cell, of the modelled annual
-              mean concentration. Spike S5 found for noise that the mean at a
+              The mean, over the hex cell, of the modelled annual mean
+              concentration in 2022 from the LAEI, read at 49 points spread
+              evenly over the cell, each taking the value of the nearest point
+              of the 20 m grid. Spike S5 found for noise that the mean at a
               cell's addresses beats the mean over its area, but could not test
-              it on air quality, whose LAEI licence is unconfirmed, so the
-              area-weighted mean stays until it can. Both datasets are modelled from emissions and
-              monitoring, so the evidence type is estimate. The LAEI's 20 m
+              it on air quality, so the area mean stays until it can. The data
+              are modelled from emissions and monitoring, so the evidence type
+              is estimate. The LAEI has no stated licence, so public builds
+              leave this out. The LAEI's 20 m
               grid resolves the higher concentrations beside roads. Defra's
               background maps leave out local sources such as roads, so they
               stand in only where no city dataset exists.
@@ -771,7 +774,7 @@ factors:
             description: Fine particles in the air, 2.5 micrometres across or smaller, as a yearly average.
             default_weight: 3
             scales: [within-city]
-            status: researched
+            status: built
             unit: µg/m³
             preference_type: fixed
             curve: {shape: ramp, t0: 25, t1: 5}
@@ -786,12 +789,15 @@ factors:
             evidence_type: estimate
             comparable_across_regions: true
             method: >-
-              The area-weighted mean, over the hex cell, of the modelled annual
-              mean concentration. Spike S5 found for noise that the mean at a
+              The mean, over the hex cell, of the modelled annual mean
+              concentration in 2022 from the LAEI, read at 49 points spread
+              evenly over the cell, each taking the value of the nearest point
+              of the 20 m grid. Spike S5 found for noise that the mean at a
               cell's addresses beats the mean over its area, but could not test
-              it on air quality, whose LAEI licence is unconfirmed, so the
-              area-weighted mean stays until it can. Both datasets are modelled from emissions and
-              monitoring, so the evidence type is estimate.
+              it on air quality, so the area mean stays until it can. The data
+              are modelled from emissions and monitoring, so the evidence type
+              is estimate. The LAEI has no stated licence, so public builds
+              leave this out.
             datasets: [laei, defra-background-maps]
       - id: noise
         name: Noise
@@ -1607,13 +1613,16 @@ datasets:
     resolution: 20 m grid
     date: 2022
     licence: unknown
-    licence_checked: 2026-10-24
+    licence_checked: 2026-10-28
     public_build: false
     licence_note: >-
       The London Datastore gives the licence as "Not Specified", for the 2022
-      and 2019 editions alike. Its terms let anyone use its data for any
-      purpose, but name no licence. Ask the GLA Air Quality Team, the
-      dataset's contact, to confirm an open licence before a public build.
+      and 2019 editions alike, and its air quality page states none for any
+      dataset. Its terms let anyone use its data for any lawful purpose, but
+      name no licence and do not mention redistribution or commercial use. The
+      files can be downloaded and used in a local build. Ask the GLA Air
+      Quality Team, the dataset's contact, to confirm an open licence before a
+      public build.
     attribution: >-
       London Atmospheric Emissions Inventory 2022, Greater London Authority and
       Transport for London. The Greater London Authority cannot warrant the

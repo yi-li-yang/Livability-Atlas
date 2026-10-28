@@ -119,3 +119,12 @@ def test_parks_are_near_in_the_middle_of_hyde_park_and_far_in_the_city(bundle):
     assert minutes[cell_at(51.5073, -0.1657)] < 7  # Hyde Park
     assert minutes[BANK] > 10  # the City has only small gardens
     assert 4 < minutes.median() < 15
+
+
+def test_the_air_is_dirtier_in_the_west_end_than_in_richmond_park(bundle):
+    no2, pm25 = bundle["no2"], bundle["pm25"]
+    assert no2.notna().all() and pm25.notna().all()
+    richmond_park = cell_at(51.4440, -0.2740)
+    assert no2[SOHO] > no2[richmond_park] + 5
+    assert pm25[SOHO] > pm25[richmond_park]
+    assert 10 < no2.median() < 35 and 5 < pm25.median() < 15  # µg/m³, as in 2022

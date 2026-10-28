@@ -1,8 +1,8 @@
 """Builds a region's data bundle from raw downloads.
 
 London so far has the service level (PTAL), the crime rates of Safety, the flood shares of
-Natural hazards and the walks to a station, a school, a GP practice and a park. Each indicator that
-arrives later adds its columns here, through the factor recipe.
+Natural hazards, the walks to a station, a school, a GP practice and a park, and the air quality.
+Each indicator that arrives later adds its columns here, through the factor recipe.
 """
 
 from collections.abc import Sequence
@@ -11,8 +11,8 @@ from typing import Any
 
 import pandas as pd
 
-from atlas.catalogue.load import load_catalogue
-from atlas.datasets.cities.london import ptal
+from atlas.catalogue.load import Catalogue, load_catalogue
+from atlas.datasets.cities.london import laei, ptal
 from atlas.datasets.countries.gb import (
     census_residents,
     code_point,
@@ -26,20 +26,35 @@ from atlas.datasets.countries.gb import (
     police_uk,
 )
 from atlas.datasets.world import openstreetmap
-from atlas.indicators import crime, education, environment, flood, health, transport
+from atlas.indicators import air_quality, crime, education, environment, flood, health, transport
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
 from atlas.publish.bundle import write_bundle
 from atlas.spatial import walking
 from atlas.spatial.grid import boundary_from_geojson, bounds_bng, region_cells
 
+# The measured indicators that are built from a dataset whose licence may not allow a public
+# build (D07), with that dataset. A public build leaves out those whose dataset is not cleared.
+BUILT_FROM = {"no2": "laei", "pm25": "laei"}
+
+
+def local_only(catalogue: Catalogue, indicators: Sequence[str]) -> list[str]:
+    """The indicators among `indicators` that are built from a dataset kept out of public builds."""
+    public = {d.id for d in catalogue.datasets.datasets if d.public_build}
+    return [i for i in indicators if i in BUILT_FROM and BUILT_FROM[i] not in public]
+
 
 def build_region(
-    region_id: str, *, catalogue_dir: Path = CATALOGUE_DIR, data_dir: Path | None = None
+    region_id: str,
+    *,
+    catalogue_dir: Path = CATALOGUE_DIR,
+    data_dir: Path | None = None,
+    public: bool = False,
 ) -> Path:
     """Fetches what the region needs (each download is cached), and builds its bundle.
 
-    `data_dir` defaults to `ATLAS_DATA_DIR`, or `data/` in the repository.
+    `data_dir` defaults to `ATLAS_DATA_DIR`, or `data/` in the repository. A `public` build leaves
+    out the indicators from datasets that D07 keeps out of public builds.
     """
     data_dir = data_dir or default_data_dir()
     catalogue = load_catalogue(catalogue_dir)
@@ -61,6 +76,10 @@ def build_region(
     columns.update(_crime_columns(cells, region.grid.resolution, data_dir))
     columns.update(_flood_columns(cells, region.grid.resolution, data_dir))
     columns.update(_walking_columns(region_id, cells, data_dir))
+    columns.update(_air_columns(cells, region.grid.resolution, data_dir))
+    if public:
+        for indicator in local_only(catalogue, list(columns)):
+            del columns[indicator]
 
     return write_bundle(
         catalogue,
@@ -104,6 +123,18 @@ def _flood_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[st
         mosaic = ea_flood_risk.fetch(data_dir, service, bounds)
         share = flood.share_at_risk(mosaic, cells, resolution)
         columns[indicator] = [None if pd.isna(v) else float(v) for v in share]
+    return columns
+
+
+def _air_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[str, Sequence[Any]]:
+    """The mean modelled concentration over each cell of NO₂ and PM2.5, in 2022."""
+    path = laei.fetch(data_dir)
+    columns: dict[str, Sequence[Any]] = {}
+    for indicator, pollutant in (("no2", "NO2"), ("pm25", "PM25")):
+        mean = air_quality.mean_concentration(
+            laei.read_concentrations(path, pollutant), cells, resolution
+        )
+        columns[indicator] = [None if pd.isna(v) else float(v) for v in mean]
     return columns
 
 

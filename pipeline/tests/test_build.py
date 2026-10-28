@@ -209,6 +209,24 @@ def synthetic_greenspace(tmp_path: Path) -> Path:
     return package
 
 
+def synthetic_air(tmp_path: Path) -> Path:
+    """The LAEI's concentrations over AREA and around it: NO2 rises eastwards, PM2.5 is flat."""
+    x0, y0 = TO_BNG.transform(-0.160, 51.500)
+    x1, y1 = TO_BNG.transform(-0.115, 51.525)
+    path = tmp_path / "LAEI2022-Concentrations-Data-CSV.zip"
+    points = [
+        (x, y)
+        for x in range(round(x0 / 20) * 20, round(x1 / 20) * 20 + 1, 20)
+        for y in range(round(y0 / 20) * 20, round(y1 / 20) * 20 + 1, 20)
+    ]
+    with zipfile.ZipFile(path, "w") as archive:
+        no2 = ["x,y,conc"] + [f"{x},{y},{20 + (x - x0) / 100}" for x, y in points]
+        pm25 = ["x,y,conc"] + [f"{x},{y},9.5" for x, y in points]
+        archive.writestr("CSV/LAEI2022_V1_NO2.csv", "\n".join(no2) + "\n")
+        archive.writestr("CSV/LAEI2022_V1_PM25.csv", "\n".join(pm25) + "\n")
+    return path
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -223,6 +241,8 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.naptan, "fetch", lambda data_dir: stations)
     schools = synthetic_schools(tmp_path)
     monkeypatch.setattr(build_module.gias, "fetch", lambda data_dir: schools)
+    air = synthetic_air(tmp_path)
+    monkeypatch.setattr(build_module.laei, "fetch", lambda data_dir: air)
     park = synthetic_greenspace(tmp_path)
     monkeypatch.setattr(build_module.os_open_greenspace, "fetch", lambda data_dir: park)
     gp_files, postcodes = synthetic_gp_practices(tmp_path), synthetic_postcodes(tmp_path)
@@ -401,3 +421,36 @@ def test_the_bundle_holds_the_walk_to_the_nearest_green_space(monkeypatch, tmp_p
     assert walks[lng < -0.145].median() < walks[lng > -0.130].median()
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert "walk-to-green-space" in {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_mean_nitrogen_dioxide_and_fine_particles_of_each_cell(
+    monkeypatch, tmp_path
+):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    assert table["no2"].notna().all() and table["pm25"].notna().all()
+    assert table[lng > -0.130]["no2"].median() > table[lng < -0.145]["no2"].median()
+    assert table["pm25"].round(6).eq(9.5).all()
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert {"no2", "pm25"} <= {i["id"] for i in manifest["indicators"]}
+
+
+def test_a_public_build_leaves_out_the_indicators_whose_dataset_is_not_cleared(
+    monkeypatch, tmp_path
+):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data", public=True)
+    table = pq.read_table(bundle / "cells.parquet")
+    assert "no2" not in table.column_names and "pm25" not in table.column_names
+    assert "gp_walk" in table.column_names  # the cleared ones stay
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "laei" not in {d["id"] for d in manifest["datasets"]}
+
+
+def test_the_command_has_a_public_option(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    args = ["build", "london", "--public", "--data-dir", str(tmp_path / "data")]
+    result = CliRunner().invoke(app, args)
+    assert result.exit_code == 0, result.output
