@@ -41,7 +41,7 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 | ID | Question |
 | --- | --- |
 | S1 | Can the PTAL grid be mapped to hex cells, and is there a PTAL release newer than the Elizabeth line (2022)? Done: [S1](spikes/S1-ptal.md) |
-| S2 | What crime rates per hex cell do 12 months of Police.uk data give, with smoothing? |
+| S2 | What crime rates per hex cell do 12 months of Police.uk data give, with smoothing? Done: [S2](spikes/S2-crime.md) |
 | S3 | How many hex cells have enough sales for a price per m² (Land Registry with EPC floor areas)? What is the finest open rent data for London, and is a model of rent from sale prices credible? |
 | S4 | Can r5py with GTFS timetables, or the TfL API, build the station matrix? How large is the error of the in-browser estimate against TfL Journey Planner? What do TfL's terms and limits allow? The answers decide D10 |
 | S5 | How should raster data (air quality, noise) be aggregated to hex cells? |
