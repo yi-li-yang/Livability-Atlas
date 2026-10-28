@@ -8,7 +8,7 @@ of problems, each naming the factor or dataset it concerns.
 
 from collections.abc import Sequence
 
-from atlas.catalogue.models import SCALES, DatasetsFile, Factor, FactorsFile
+from atlas.catalogue.models import SCALES, DatasetsFile, Factor, FactorsFile, Region
 
 # 3 is the engineering default. A top-level factor always gives its reason (D14),
 # and any other default weight must give its reason too.
@@ -23,6 +23,13 @@ def check_datasets(datasets: DatasetsFile) -> list[str]:
             problems.append(f"dataset {dataset.id}: this id is used more than once.")
         seen.add(dataset.id)
     return problems
+
+
+def check_region(region: Region, datasets: DatasetsFile) -> list[str]:
+    known = {dataset.id for dataset in datasets.datasets}
+    if region.boundary.dataset not in known:
+        return [f"{region.id}: datasets.yaml has no dataset {region.boundary.dataset}."]
+    return []
 
 
 def check_factors(factors: FactorsFile, datasets: DatasetsFile) -> list[str]:

@@ -8,7 +8,11 @@ from atlas.cli import app
 
 def test_it_writes_one_schema_per_file(tmp_path):
     written = write_schemas(tmp_path)
-    assert sorted(path.name for path in written) == ["datasets.schema.json", "factors.schema.json"]
+    assert sorted(path.name for path in written) == [
+        "datasets.schema.json",
+        "factors.schema.json",
+        "region.schema.json",
+    ]
 
 
 def test_a_schema_describes_the_file_and_says_it_is_generated(tmp_path):

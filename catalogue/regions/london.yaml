@@ -1,0 +1,13 @@
+# A region the app can show. Its fields are defined by the Region model in
+# pipeline/src/atlas/catalogue/models.py, and checked by `atlas validate`.
+id: london
+name: London
+country: GB
+# Greater London is the ONS's London region. The boundary is fetched, not kept here.
+boundary: {dataset: ons-region-boundaries, name: London}
+# About 17,000 hex cells of about 0.1 km2 (D04).
+grid: {system: h3, resolution: 9}
+# Measured indicators are computed 2 km beyond the boundary, so that the edge counts what lies just outside.
+buffer_m: 2000
+# The default places for travel times (D09) arrive with the travel milestone.
+default_places: []
