@@ -4,7 +4,7 @@ import { Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { useEffect, useRef } from "react";
-import { CELL_OPACITY } from "./colour";
+import { CELL_OPACITY, type Rgba } from "./colour";
 import type { HexCell } from "./hexcells";
 import { LONDON_BOUNDS, LONDON_CENTRE } from "./london";
 
@@ -16,7 +16,14 @@ setWorkerUrl(workerUrl);
 const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 
 /** A basemap of London with the hex cells drawn over it, coloured by their score. */
-export function HexMap({ cells }: { cells: HexCell[] }) {
+export function HexMap({
+  cells,
+  colours,
+}: {
+  cells: HexCell[];
+  /** The colour of each cell, in the order of `cells`. */
+  colours: Rgba[];
+}) {
   const container = useRef<HTMLDivElement>(null);
   const overlay = useRef<MapboxOverlay | null>(null);
 
@@ -48,14 +55,16 @@ export function HexMap({ cells }: { cells: HexCell[] }) {
           id: "hex-cells",
           data: cells,
           getPolygon: (cell) => cell.polygon,
-          getFillColor: (cell) => cell.colour,
+          // Read by index, so that a new score only re-evaluates the colours, not the shapes.
+          getFillColor: (_cell, { index }) => colours[index],
+          updateTriggers: { getFillColor: colours },
           filled: true,
           stroked: false,
           opacity: CELL_OPACITY,
         }),
       ],
     });
-  }, [cells]);
+  }, [cells, colours]);
 
   return (
     <div

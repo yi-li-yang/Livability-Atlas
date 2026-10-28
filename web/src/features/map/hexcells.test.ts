@@ -2,8 +2,9 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadBundle } from "../../data/bundle";
+import { allLeafScores, scoreRegion } from "../../scoring/region";
 import { scoreToColour, UNSCORED } from "./colour";
-import { toHexCells } from "./hexcells";
+import { cellColours, toHexCells } from "./hexcells";
 
 const FIXTURES = fileURLToPath(
   new URL("../../../e2e/fixtures/bundles/", import.meta.url),
@@ -37,9 +38,9 @@ describe("scoreToColour", () => {
 });
 
 describe("toHexCells", () => {
-  it("draws each cell as a hexagon coloured by the score of its value", async () => {
+  it("draws each cell as a hexagon", async () => {
     const bundle = await loadBundle("/bundles", "london", fixtureFetch);
-    const cells = toHexCells(bundle, "service-level");
+    const cells = toHexCells(bundle);
     expect(cells).toHaveLength(bundle.cells.length);
     for (const cell of cells) {
       expect(cell.polygon.length).toBeGreaterThanOrEqual(6);
@@ -50,21 +51,27 @@ describe("toHexCells", () => {
       expect(lat).toBeLessThan(51.55);
     }
   });
+});
 
-  it("scores the best PTAL band 1 and the lowest 0", async () => {
-    const bundle = await loadBundle("/bundles", "london", fixtureFetch);
-    const cells = toHexCells(bundle, "service-level");
-    const best = cells.find((cell) => cell.value === "6b");
-    expect(best?.score).toBe(1);
-    const scores = cells
-      .map((cell) => cell.score)
-      .filter((s): s is number => s !== null);
-    expect(Math.max(...scores)).toBeLessThanOrEqual(1);
-    expect(Math.min(...scores)).toBeGreaterThanOrEqual(0);
+describe("cellColours", () => {
+  it("colours a score of 0 to 100 along the palette, and no score as unscored", () => {
+    const colours = cellColours(Float64Array.of(0, 100, Number.NaN));
+    expect(colours).toEqual([
+      scoreToColour(0),
+      scoreToColour(1),
+      scoreToColour(null),
+    ]);
   });
 
-  it("refuses an indicator that the bundle does not hold", async () => {
+  it("colours the best service level the palette's last colour and the worst its first", async () => {
     const bundle = await loadBundle("/bundles", "london", fixtureFetch);
-    expect(() => toHexCells(bundle, "nope")).toThrow(/nope/);
+    const profile = { weights: {} };
+    const scores = scoreRegion(bundle, profile, allLeafScores(bundle));
+    const bands = bundle.columns.service_level;
+    const best = scores[bands.indexOf("6b")];
+    expect(best).toBe(100);
+    const scored = Array.from(scores).filter((s) => !Number.isNaN(s));
+    expect(Math.max(...scored)).toBeLessThanOrEqual(100);
+    expect(Math.min(...scored)).toBeGreaterThanOrEqual(0);
   });
 });

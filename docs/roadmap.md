@@ -73,7 +73,8 @@ Each milestone ends when its checks pass. The order follows what depends on what
 - [ ] **Scoring and the visual factor tree.** The scoring engine, the chosen treemap or sunburst with sliders and drill-down for 3 factors, and default weights.
   - [x] The TypeScript engine reproduces all 15 golden cases of `shared/fixtures/scoring/`, and CI runs it and the Python reference scorer against them (`just check` runs both test suites).
   - [ ] The factor tree (D17: both layouts, with a switch) with sliders and drill-down, and the default weights from the catalogue. The profile lives in the browser's storage and the URL, never on a server (D08).
-  - Check: the map recolours within about 100 ms of a weight change over about 17,000 cells, measured in a test.
+  - [x] The whole region is scored from the factor tree in the manifest (`web/src/scoring/region.ts`), equal to the one-cell engine in a test, and the map is coloured by the livability score. Rescoring 17,000 cells over 10 factors and 40 measured indicators takes about 3 ms.
+  - Check: the map recolours within about 100 ms of a weight change over about 17,000 cells, measured in a test. The scoring half is measured in a test (under 100 ms); the weight sliders that trigger it are not built yet.
 - [ ] **MVP factors.** The remaining factors, each added through the factor recipe.
   - [ ] In the [build order](specs/2026-10-28-mvp-scope.md#build-order): Safety, Environment, Education, Housing and cost, Health care, Transport, Daily amenities, Community and people, Natural hazards, Digital connectivity.
   - [ ] The 32 measured indicators that ship at launch first. Then the 5 that need a curve, whose curves come from the built data. Then the 4 that are blocked, as the owner's checks lift the blocks.
