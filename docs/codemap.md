@@ -11,9 +11,23 @@ Livability-Atlas/
 ├── LICENSE                # AGPL-3.0
 ├── .gitignore             # keeps data/, .env files and build output out of git
 ├── .gitattributes         # line-ending normalisation
+├── justfile               # every command: setup, check, test, validate, generate, docs
+├── .pre-commit-config.yaml  # checks before each commit: ruff, large files, gitleaks
+├── .github/workflows/ci.yml  # CI: runs `just check` and the generated-file check
 ├── .claude/
+│   ├── settings.json      # shared permissions for the coding agents
 │   └── commands/
 │       └── research-factor.md  # the recipe for researching one factor, as a Claude Code command
+├── pipeline/              # the data pipeline: Python package `atlas`, a uv project
+│   ├── CLAUDE.md          # its rules for agents (AGENTS.md beside it includes this)
+│   ├── pyproject.toml     # dependencies, ruff, pyright and pytest settings
+│   ├── src/atlas/
+│   │   ├── cli.py         # the `atlas` command: validate, schemas
+│   │   ├── paths.py       # the repository's folders
+│   │   └── catalogue/     # models.py (the one definition of the catalogue files), checks.py, load.py, schema.py
+│   └── tests/
+├── shared/
+│   └── schemas/           # JSON Schema exported from the Pydantic models (generated)
 ├── catalogue/             # the factor catalogue
 │   ├── README.md          # the field reference, and how it is checked
 │   ├── factors.yaml       # the factor tree, down to measured indicators
@@ -47,7 +61,8 @@ Livability-Atlas/
     ├── plans/             # implementation plans, one per work item
     │   ├── 2026-10-24-catalogue-format.md
     │   ├── 2026-10-24-factor-explorer.md
-    │   └── 2026-10-24-transport-research.md
+    │   ├── 2026-10-24-transport-research.md
+    │   └── 2026-10-28-scaffold.md
     └── specs/             # design specs, one per work item
         ├── 2026-10-24-catalogue-format.md
         ├── 2026-10-24-factor-explorer.md

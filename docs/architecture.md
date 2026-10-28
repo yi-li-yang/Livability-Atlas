@@ -1,6 +1,6 @@
 # Architecture
 
-Status: planned (D02, accepted). Nothing below is built yet. Step 0.3 of Phase 0 creates the scaffold.
+Status: planned (D02, accepted). `catalogue/`, `pipeline/` (its command line, catalogue models and checks) and `shared/schemas/` exist. The rest is built from step 0.3's second part onwards.
 
 ## Overview
 

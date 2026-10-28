@@ -19,12 +19,13 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [x] Draft `docs/methodology/hard-to-measure.md`.
   - [x] Set default weights from evidence, with reasons, and compute the build order (D14).
   - [ ] Propose the MVP set: about 10 top-level factors.
-- [ ] **Before 0.3: install the tools.** Install uv and just with winget. Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`. Java 21 waits for spike S4.
+- [x] **Before 0.3: install the tools.** Install uv and just with winget. Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`. Java 21 waits for spike S4.
 - [ ] **0.3 Scaffold and CI.** Starts with `superpowers:writing-plans`.
-  - [ ] `pipeline/`: a uv project with ruff, pyright and pytest. `atlas --help` runs, and `atlas validate` checks `catalogue/`.
+  - [x] `pipeline/`: a uv project with ruff, pyright and pytest. `atlas --help` runs, and `atlas validate` checks `catalogue/`.
   - [ ] `web/`: a Vite + React + TypeScript app showing a MapLibre basemap of London, with Biome, Vitest and one Playwright smoke test.
-  - [ ] `shared/schemas/`, TypeScript type generation, and a CI check that the generated files are current.
-  - [ ] `justfile`, pre-commit, GitHub Actions running `just check`, `.claude/settings.json`, and the nested `CLAUDE.md` files, each with an `AGENTS.md` beside it (D20).
+  - [ ] `shared/schemas/`, TypeScript type generation, and a CI check that the generated files are current. The schemas are exported by `atlas schemas`, and CI checks them. The type generation arrives with `web/`.
+  - [x] `justfile`, pre-commit, GitHub Actions running `just check`, and `.claude/settings.json`.
+  - [ ] The nested `CLAUDE.md` files, each with an `AGENTS.md` beside it (D20). `pipeline/` has its pair, and `web/` gets one with the app.
 - [ ] **0.4 Spikes S1–S8** (listed below).
 - [ ] **0.5 Method and freeze.**
   - [ ] Finalise `methodology/scoring.md`.

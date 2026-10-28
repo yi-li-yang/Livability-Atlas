@@ -97,7 +97,7 @@ A dataset marked `public_build: true` also needs its `licence_checked` date and 
 
 ## Checks
 
-Until step 0.3, the [factor explorer](../docs/factors/README.md) checks both files whenever it loads, and lists any problem instead of drawing. The checks also reject unknown fields, so a misspelt field name does not pass unseen. From step 0.3, `atlas validate` checks the whole catalogue in CI.
+`atlas validate` checks both files, and `just validate` and CI run it. Its rules are the Pydantic models in `pipeline/src/atlas/catalogue/models.py`, and the checks across records in `checks.py`. The checks reject unknown fields, so a misspelt field name does not pass unseen. The [factor explorer](../docs/factors/README.md) keeps its own copy of the checks until it moves into the web app, and lists any problem whenever it loads, instead of drawing.
 
 YAML reads an unquoted `2022` as a number and an unquoted `2026-10-24` as a date. The checks accept both, so neither needs quotes. Two more points about YAML:
 
@@ -107,6 +107,6 @@ YAML reads an unquoted `2022` as a number and an unquoted `2026-10-24` as a date
 After editing either file, refresh the explorer's copy and run its tests:
 
 ```sh
-node docs/factors/embed-catalogue.mjs
-node --test "docs/factors/*.test.mjs"
+just docs
+just check
 ```

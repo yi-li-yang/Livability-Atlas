@@ -22,10 +22,13 @@ The project is in **Phase 0**: decisions, factor catalogue, spikes and scaffold.
 
 ## Commands
 
-Step 0.3 adds a `justfile`, and every command (setup, check, test, validate, build, dev, docs) will then run through `just`. Until then:
+Every command runs through `just` from the repo root. `just` lists them.
 
-- `node --test "docs/factors/*.test.mjs"` runs the factor explorer's tests.
-- `node docs/factors/embed-catalogue.mjs` refreshes the explorer after an edit to `catalogue/factors.yaml` or `catalogue/datasets.yaml`.
+- `just setup` installs the dependencies and the git hooks.
+- `just check` runs what CI runs: lint, types, tests, the catalogue's checks and the factor explorer's tests.
+- `just validate` checks the factor catalogue alone (`atlas validate`).
+- `just generate` rewrites the generated files, such as `shared/schemas/`. Never edit those by hand.
+- `just docs` refreshes the factor explorer's copy of the catalogue after an edit to `catalogue/factors.yaml` or `catalogue/datasets.yaml`.
 - `/research-factor <id>` researches one factor of the catalogue, through to an open pull request ([.claude/commands/research-factor.md](.claude/commands/research-factor.md)).
 
 ## Living documents: what to update when

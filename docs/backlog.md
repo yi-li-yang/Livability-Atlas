@@ -55,6 +55,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Item | Status | When |
 | --- | --- | --- |
 | CLA text and the CLA Assistant check | planned | Before the first outside contribution is merged |
+| Markdown link check and markdownlint in CI, as scripts in the repo (earlier pull requests ran them from a session's scratchpad) | idea | After the scaffold |
 
 ## Not now
 

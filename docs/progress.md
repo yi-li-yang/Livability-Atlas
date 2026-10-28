@@ -8,19 +8,18 @@
 - All nine MVP candidates are researched: 40 of the catalogue's 85 within-city measured indicators, from 26 datasets.
 - Step 0.2: [default weights and the build order](specs/2026-10-28-default-weights.md) (D14) are done.
 - `AGENTS.md` now bridges Google Antigravity to `CLAUDE.md` (D20). The owner has run Antigravity on it, and it saw the whole of `CLAUDE.md`. Merged as pull request #16.
+- Step 0.3, part 1 is built on the branch `feat/pipeline-scaffold` ([plan](plans/2026-10-28-scaffold.md)): uv and just are installed, `pipeline/` holds the `atlas` command with `validate` and `schemas`, the catalogue's Pydantic models are exported to `shared/schemas/`, and `just check` runs in CI. `atlas validate` passes on the real catalogue.
 
 ## Next
 
-1. Propose the MVP set of about 10 top-level factors, the last item of step 0.2. A natural point to stop for the owner's review.
-2. Four checks the owner can make at any time:
+1. The owner's review of the step 0.3 pull request (part 1), and the owner's decision on D21 in pull request #18: keep the MVP at nine top-level factors, or add Health care as a tenth and research it first.
+2. Step 0.3, part 2: `web/`, the type generation and the web job in CI ([plan](plans/2026-10-28-scaffold.md), Tasks 13 to 20). It branches from `main` once part 1 is merged.
+3. Four checks the owner can make at any time:
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
    - Ask TfL's WebCAT team for its latest PTAL data, since the open release is from 2015, before the Elizabeth line (spike S1).
    - Ask Royal Mail whether matching Price Paid Data to energy certificates by address, to publish prices per m² by area, is allowed. Until then, buying cost stays out of public builds (spike S3).
-3. Before step 0.3:
-   - Install uv and just with winget.
-   - Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`.
-   - Optionally, upgrade Git for Windows from 2.41 and set `core.longpaths true`.
+4. Optionally, upgrade Git for Windows from 2.41 and set `core.longpaths true`.
 
 ## Blocked
 
@@ -30,6 +29,7 @@
 
 ### 2026-10-28
 
+- **Scaffold and CI, part 1 (step 0.3).** Wrote the [plan](plans/2026-10-28-scaffold.md) for the whole step, in two parts, and built the first. uv and just are installed with winget. The catalogue's rules, which the factor explorer checked in JavaScript, are now Pydantic models plus checks across records, and `atlas validate` passes on the real catalogue. `atlas schemas` exports the models to `shared/schemas/` for the web app's types. The `justfile`, pre-commit (ruff, large files, gitleaks), the `.claude/settings.json` permissions and CI are in. Pyright found two typing mistakes in the first draft, which the plan now shows corrected. Choices the roadmap left open, all reversible: the geospatial libraries and shadcn/ui wait until something imports them, Playwright runs as `just e2e` and not inside `just check`, and a Markdown link check in CI is in the backlog.
 - **Default weights and the build order set from evidence (D14),** with the [spec](specs/2026-10-28-default-weights.md) recording the method. Each of the 18 top-level factors' weight counts how many of five sources weigh it: the OECD, EIU, Mercer and AARP livability frameworks, and the English Housing Survey's reasons for moving. Housing and cost, Environment, Safety, Health care and Education come out highest, at 4; Climate, Natural hazards, Animal friendliness, Digital connectivity and Urban form and change come out lowest, at the floor of 1. The factor explorer now requires every top-level factor to give its reason, not only those away from the engineering default of 3. The build order ranks the nine researched MVP candidates by weight, then by how many of their measured indicators are already clear for public builds: Safety first, Digital connectivity last.
 - Fixed a stale count in this file's "Now": published rankings had added two more researched measured indicators since the "38" figure was written.
 

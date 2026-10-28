@@ -1,6 +1,6 @@
 # Tech stack
 
-Status: planned. Nothing is installed yet: the factor explorer (step 0.2) loads its two libraries from cdnjs and runs its tests with Node's built-in test runner. Step 0.3 of Phase 0 creates the scaffold and pins exact versions in the lockfiles (`uv.lock`, `package-lock.json`). Update this file whenever a tool is added, swapped or upgraded, and record large changes in [decisions.md](decisions.md#d03-tech-stack).
+Status: the pipeline's tools (uv, Pydantic, Typer, ruff, pyright, pytest, Hypothesis, pre-commit) and the tooling (just, GitHub Actions) are in place, with exact versions pinned in `pipeline/uv.lock`. The web app's tools arrive in the second part of step 0.3 and will be pinned in `package-lock.json`. The factor explorer (step 0.2) still loads its two libraries from cdnjs and runs its tests with Node's built-in test runner. The geospatial libraries wait for the first spike that imports them, so that their Windows wheels are tested then. Update this file whenever a tool is added, swapped or upgraded, and record large changes in [decisions.md](decisions.md#d03-tech-stack).
 
 The "From" column gives the step or phase in which a tool arrives.
 
@@ -9,10 +9,10 @@ The "From" column gives the step or phase in which a tool arrives.
 | Tool | Role here | Why | Alternatives considered | From |
 | --- | --- | --- | --- | --- |
 | [Python 3.13](https://docs.python.org/3.13/) with [uv](https://docs.astral.sh/uv/) | Language and environment manager. The project lives in `pipeline/.venv`, separate from conda | Geospatial ecosystem; uv is fast and locks dependencies | conda (heavier, mixes with the base install), Poetry | 0.3 |
-| [GeoPandas](https://geopandas.org/), [Shapely 2](https://shapely.readthedocs.io/), [pyogrio](https://pyogrio.readthedocs.io/) | Vector data | Standard, with Windows wheels | — | 0.3 |
+| [GeoPandas](https://geopandas.org/), [Shapely 2](https://shapely.readthedocs.io/), [pyogrio](https://pyogrio.readthedocs.io/) | Vector data | Standard, with Windows wheels | — | 0.4 (the first spike that imports them) |
 | [rasterio](https://rasterio.readthedocs.io/), [exactextract](https://isciences.github.io/exactextract/) | Raster data; area-weighted means from raster to hex cell | Accurate weights for partly covered cells | rioxarray with manual weighting | 0.4 |
-| [h3](https://uber.github.io/h3-py/) (v4) | The hex grid (D04) | Hierarchical, global, equal-sized cells | S2 cells, square grids | 0.3 |
-| [DuckDB](https://duckdb.org/docs/) with its spatial extension, [pyarrow](https://arrow.apache.org/docs/python/) | Fast SQL over Parquet; Parquet reading and writing | Handles large tables on one machine | PostGIS, which needs a server | 0.3 |
+| [h3](https://uber.github.io/h3-py/) (v4) | The hex grid (D04) | Hierarchical, global, equal-sized cells | S2 cells, square grids | 0.4 (the first spike that imports them) |
+| [DuckDB](https://duckdb.org/docs/) with its spatial extension, [pyarrow](https://arrow.apache.org/docs/python/) | Fast SQL over Parquet; Parquet reading and writing | Handles large tables on one machine | PostGIS, which needs a server | 0.4 (the first spike that imports them) |
 | [QuackOSM](https://github.com/kraina-ai/quackosm) | Reading OpenStreetMap extracts from Geofabrik | Bulk and offline, with no API rate limits | Overpass API (rate-limited), pyrosm | 0.4 |
 | [Overture Maps](https://docs.overturemaps.org/) Places, Foursquare Open Source Places | Points of interest, with brand tags | Permissive licences; read through DuckDB | Google Places, whose terms forbid storing | 0.4 |
 | [r5py](https://r5py.readthedocs.io/) with GTFS timetables, or the [TfL Unified API](https://api.tfl.gov.uk/) | Station travel-time matrix; travel times to default places | Spike S4 decides (D10). r5py needs Java 21 | OpenTripPlanner, commercial routing APIs | 0.4 |
@@ -35,7 +35,7 @@ The "From" column gives the step or phase in which a tool arrives.
 | [D3](https://d3js.org/) 7.9: d3-hierarchy, d3-shape and d3-transition | Treemap and sunburst layouts and drawing for the visual factor tree | Full control over sizing, drill-down and animation | ECharts (less control) | 0.2 (factor explorer, from cdnjs) |
 | Categorical palette of the [Salt design system](https://www.saltdesignsystem.com/salt/foundations/color/categorical-colors) (J.P. Morgan, Apache-2.0) | One colour per factor in the visual factor tree, with tints for sub-factors | 20 colours of equal lightness, each carrying white text at 4.5:1 or more, with a full tint scale for both themes | Tableau 20 (busier mix of dark colours and pastels), IBM Carbon (14 colours, too few), Adobe Spectrum (designed for 6) | 0.2 (factor explorer) |
 | [js-yaml](https://github.com/nodeca/js-yaml) 4.1 | Reads the embedded `catalogue/factors.yaml` and `catalogue/datasets.yaml` inside the factor explorer | The page keeps the catalogue as YAML, with no build step | Converting to JSON first, which needs a build step before step 0.3 | 0.2 (factor explorer, from cdnjs) |
-| [Tailwind CSS](https://tailwindcss.com/docs), [shadcn/ui](https://ui.shadcn.com/) | Styling; accessible dropdowns, popovers, sheets and tabs | Accessible building blocks for progressive disclosure | MUI, Chakra UI | 0.3 |
+| [Tailwind CSS](https://tailwindcss.com/docs), [shadcn/ui](https://ui.shadcn.com/) | Styling; accessible dropdowns, popovers, sheets and tabs | Accessible building blocks for progressive disclosure | MUI, Chakra UI | 0.3 (Tailwind), Phase 1 (shadcn/ui) |
 | [Zustand](https://zustand.docs.pmnd.rs/) | State: the preference profile, kept in browser storage and the URL | Small and simple | Redux Toolkit | Phase 1 |
 | [hyparquet](https://github.com/hyparam/hyparquet) | Reading Parquet data bundles in the browser | Pure JavaScript, and small | parquet-wasm, Arrow IPC, JSON | Phase 1 |
 | [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) | Generating TypeScript types from the shared schemas | Keeps the pipeline and the web app in step | Hand-written types | 0.3 |
