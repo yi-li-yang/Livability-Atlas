@@ -69,7 +69,7 @@ export function App() {
         {state.status === "ready" && (
           <aside
             aria-label="Your preferences"
-            className="absolute left-4 top-4 max-h-[calc(100%-9rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
+            className="absolute left-4 top-4 z-10 max-h-[calc(100%-9rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
           >
             <FactorTree
               factors={state.bundle.manifest.factors}

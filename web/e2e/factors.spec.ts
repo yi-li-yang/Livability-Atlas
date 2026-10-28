@@ -109,3 +109,29 @@ test("changing a weight recolours the map", async ({ page }) => {
     })
     .toBeGreaterThan(2000);
 });
+
+test("the panel and the legend are stacked above the hex cells, so none are drawn over them", async ({
+  page,
+}) => {
+  await openApp(page);
+  // deck.gl's canvas has no z-index of its own: it takes the first one among its ancestors.
+  const stacking = await page.evaluate(() => {
+    const zOf = (element: Element | null): number => {
+      for (let e = element; e; e = e.parentElement) {
+        const z = Number.parseInt(getComputedStyle(e).zIndex, 10);
+        if (!Number.isNaN(z)) return z;
+      }
+      return 0;
+    };
+    const cells = document.querySelector(
+      '[data-testid="map"] canvas:not(.maplibregl-canvas)',
+    );
+    return {
+      cells: zOf(cells),
+      panel: zOf(document.querySelector("aside")),
+      legend: zOf(document.querySelector('section[aria-label="Legend"]')),
+    };
+  });
+  expect(stacking.panel).toBeGreaterThan(stacking.cells);
+  expect(stacking.legend).toBeGreaterThan(stacking.cells);
+});

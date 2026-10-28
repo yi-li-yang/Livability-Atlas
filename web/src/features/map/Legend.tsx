@@ -19,7 +19,7 @@ export function Legend({
   return (
     <section
       aria-label="Legend"
-      className="absolute bottom-6 left-4 w-56 rounded bg-white/90 p-3 text-sm shadow"
+      className="absolute bottom-6 left-4 z-10 w-56 rounded bg-white/90 p-3 text-sm shadow"
     >
       <h2 className="mb-1 font-medium">{title}</h2>
       <div
