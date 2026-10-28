@@ -6,6 +6,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 
 | Item | Status |
 | --- | --- |
+| Place and street names drawn above the hex cells. deck.gl's interleaved mode does it but fails against MapLibre 6 (deck.gl 9.4); retry when deck.gl supports MapLibre 6, or draw a labels-only copy of the basemap above the cells | idea |
 | More factors, in catalogue priority order | planned |
 | Crime rates per resident and worker, so that centres with few residents and many workers, like the City of London, stop topping every crime ([spike S2](spikes/S2-crime.md)). Needs a workplace population table whose licence and geography are checked | idea |
 | Presets, e.g. a renter commuting to the centre, a family with children, a retiree | idea |
