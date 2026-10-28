@@ -1,0 +1,80 @@
+{
+  "format_version": 1,
+  "version": "32e39d870444",
+  "region": {
+    "id": "london",
+    "name": "London"
+  },
+  "grid": {
+    "system": "h3",
+    "resolution": 9
+  },
+  "cell_count": 209,
+  "factors": [
+    {
+      "id": "transport",
+      "name": "Transport",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "getting-around",
+          "name": "Getting around in general",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "service-level",
+              "name": "Service level",
+              "default_weight": 3,
+              "indicator": "service-level"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "indicators": [
+    {
+      "id": "service-level",
+      "name": "Service level",
+      "column": "service_level",
+      "unit": "PTAL band",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "lookup",
+        "scores": {
+          "0": 0.0,
+          "1a": 0.125,
+          "1b": 0.25,
+          "2": 0.375,
+          "3": 0.5,
+          "4": 0.625,
+          "5": 0.75,
+          "6a": 0.875,
+          "6b": 1.0
+        }
+      },
+      "datasets": ["tfl-ptal"]
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ons-region-boundaries",
+      "name": "Regions (December 2025) Boundaries EN BGC",
+      "publisher": "Office for National Statistics (ONS)",
+      "url": "https://geoportal.statistics.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. Contains OS data © Crown copyright and database right 2026.",
+      "date": "December 2025"
+    },
+    {
+      "id": "tfl-ptal",
+      "name": "Public Transport Accessibility Levels (PTAL)",
+      "publisher": "Transport for London, on the London Datastore",
+      "url": "https://data.london.gov.uk/dataset/public-transport-accessibility-levels",
+      "licence": "OGL-UK-2.0",
+      "attribution": "Public Transport Accessibility Levels, Transport for London. Contains public sector information licensed under the Open Government Licence v2.0. The Greater London Authority cannot warrant the quality or accuracy of the data.",
+      "date": "2015"
+    }
+  ]
+}
