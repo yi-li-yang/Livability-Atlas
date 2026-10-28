@@ -162,9 +162,14 @@
         problems.push(`${label}: name is missing.`);
       }
       const weight = node.default_weight;
+      const hasWeightReason = typeof node.weight_reason === "string" && node.weight_reason.trim();
       if (!Number.isInteger(weight) || weight < 0 || weight > 5) {
         problems.push(`${label}: default_weight must be a whole number from 0 to 5.`);
-      } else if (weight !== PLACEHOLDER_WEIGHT && !(typeof node.weight_reason === "string" && node.weight_reason.trim())) {
+      } else if (parentScales === null && !hasWeightReason) {
+        // A top-level factor's weight comes from evidence (D14), so it always
+        // gives its reason, even where that reason lands it on 3.
+        problems.push(`${label}: a top-level factor needs a weight_reason (D14).`);
+      } else if (weight !== PLACEHOLDER_WEIGHT && !hasWeightReason) {
         problems.push(`${label}: a default_weight other than ${PLACEHOLDER_WEIGHT} needs a weight_reason.`);
       }
       if (node.status !== undefined && !STATUSES.includes(node.status)) {
