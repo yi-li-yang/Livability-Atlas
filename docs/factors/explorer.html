@@ -893,7 +893,7 @@ factors:
             description: Walking minutes to the nearest public park or other green space of at least 2 hectares.
             default_weight: 3
             scales: [within-city]
-            status: researched
+            status: built
             unit: minutes on foot
             preference_type: fixed
             curve: {shape: ramp, t0: 15, t1: 4}
@@ -908,9 +908,12 @@ factors:
             comparable_across_regions: true
             method: >-
               The walking time along streets and paths from the hex cell's
-              centre to the nearest access point of a public green space of at
-              least 2 ha, natural or not, at 4.8 km/h. Spike S6 measures how far
-              walking routes differ from straight lines.
+              centre to the nearest way in on foot to a public park or playing
+              field of at least 2 ha, natural or not, at 4.8 km/h, from OS Open
+              Greenspace. Play spaces, sports facilities, allotments and
+              cemeteries are left out, as are the few sites with no way in on
+              record. Spike S6 measures how far walking routes differ from
+              straight lines.
             datasets: [os-open-greenspace, openstreetmap]
           - {id: tree-canopy, name: "Tree canopy cover", default_weight: 3, scales: [within-city]}
       - {id: water-nearby, name: "Water nearby", default_weight: 3, scales: [within-city], description: "A river, canal or lake."}
