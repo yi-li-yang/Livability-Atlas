@@ -53,3 +53,15 @@ def cell_centres_bng(cells: list[str]) -> np.ndarray:
     to_bng = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
     x, y = to_bng.transform([p[1] for p in points], [p[0] for p in points])
     return np.column_stack([x, y])
+
+
+def lonlat_box(cells: list[str], margin: float = 0.0) -> tuple[float, float, float, float]:
+    """The box around the centres of `cells` (west, south, east, north, in degrees), widened by
+    `margin` degrees on every side."""
+    centres = np.array([h3.cell_to_latlng(c) for c in cells])
+    return (
+        float(centres[:, 1].min()) - margin,
+        float(centres[:, 0].min()) - margin,
+        float(centres[:, 1].max()) + margin,
+        float(centres[:, 0].max()) + margin,
+    )

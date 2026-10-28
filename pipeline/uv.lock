@@ -100,6 +100,7 @@ name = "atlas"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [
+    { name = "duckdb" },
     { name = "geopandas" },
     { name = "h3" },
     { name = "openpyxl" },
@@ -142,6 +143,7 @@ spikes = [
 
 [package.metadata]
 requires-dist = [
+    { name = "duckdb", specifier = "<2" },
     { name = "geopandas", specifier = ">=1.2.0" },
     { name = "h3", specifier = ">=4.5.0" },
     { name = "openpyxl", specifier = ">=3.1.5" },

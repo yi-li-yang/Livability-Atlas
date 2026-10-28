@@ -1,8 +1,9 @@
 """Builds a region's data bundle from raw downloads.
 
 London so far has the service level (PTAL), the crime rates of Safety, the flood shares of
-Natural hazards, the walks to a station, a school, a GP practice and a park, the air quality and
-the noise. Each indicator that arrives later adds its columns here, through the factor recipe.
+Natural hazards, the walks to a station, a school, a GP practice and a park, the air quality, the
+noise and the walks to a grocery, a pharmacy, a gym and a library. Each indicator that arrives
+later adds its columns here, through the factor recipe.
 """
 
 from collections.abc import Sequence
@@ -26,9 +27,10 @@ from atlas.datasets.countries.gb import (
     output_areas,
     police_uk,
 )
-from atlas.datasets.world import openstreetmap
+from atlas.datasets.world import openstreetmap, overture
 from atlas.indicators import (
     air_quality,
+    amenities,
     crime,
     education,
     environment,
@@ -37,11 +39,12 @@ from atlas.indicators import (
     noise,
     transport,
 )
+from atlas.indicators import places as place_pool
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
 from atlas.publish.bundle import write_bundle
 from atlas.spatial import walking
-from atlas.spatial.grid import boundary_from_geojson, bounds_bng, region_cells
+from atlas.spatial.grid import boundary_from_geojson, bounds_bng, lonlat_box, region_cells
 
 # The measured indicators that are built from a dataset without a licence for commercial use (D07),
 # with that dataset. The build is non-commercial and uses them; a commercial build leaves them out.
@@ -88,7 +91,9 @@ def build_region(
     columns.update(_crime_columns(cells, region.grid.resolution, data_dir))
     columns.update(_flood_columns(cells, region.grid.resolution, data_dir))
     postcodes = code_point.read_postcodes(code_point.fetch(data_dir))
-    columns.update(_walking_columns(region_id, cells, data_dir, postcodes))
+    network = walking.Network.from_ways(walking.read_ways(openstreetmap.fetch(data_dir, region_id)))
+    columns.update(_walking_columns(network, cells, data_dir, postcodes))
+    columns.update(_amenity_columns(region_id, network, cells, data_dir))
     columns.update(_noise_columns(cells, region.grid.resolution, data_dir, postcodes))
     columns.update(_air_columns(cells, region.grid.resolution, data_dir))
     if commercial:
@@ -172,13 +177,27 @@ def _noise_columns(
     return columns
 
 
+def _amenity_columns(
+    region_id: str, network: walking.Network, cells: list[str], data_dir: Path
+) -> dict[str, Sequence[Any]]:
+    """Daily amenities: the minutes on foot to the nearest grocery, pharmacy, gym and library,
+    from Overture's places and OpenStreetMap's, pooled (spike S6)."""
+    found = place_pool.pool(
+        overture.read_places(overture.fetch(data_dir, region_id, lonlat_box(cells, margin=0.05))),
+        openstreetmap.places(data_dir, region_id),
+    )
+    minutes = amenities.nearest_minutes(network, found, cells)
+    return {
+        indicator: [None if pd.isna(m) else float(m) for m in walk]
+        for indicator, walk in minutes.items()
+    }
+
+
 def _walking_columns(
-    region_id: str, cells: list[str], data_dir: Path, postcodes: pd.DataFrame
+    network: walking.Network, cells: list[str], data_dir: Path, postcodes: pd.DataFrame
 ) -> dict[str, Sequence[Any]]:
     """The indicators that are walks along streets (spike S6): minutes to the nearest station,
     school, GP practice and way into a park."""
-    ways = walking.read_ways(openstreetmap.fetch(data_dir, region_id))
-    network = walking.Network.from_ways(ways)
     stations = naptan.read_stations(naptan.fetch(data_dir))
     minutes = transport.station_minutes(network, stations, cells)
     columns: dict[str, Sequence[Any]] = {

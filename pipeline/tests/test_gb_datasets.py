@@ -6,7 +6,7 @@ import h3
 import pytest
 
 from atlas.datasets.countries.gb import census_residents, output_areas, police_uk
-from atlas.spatial.grid import bounds_bng
+from atlas.spatial.grid import bounds_bng, lonlat_box
 
 
 class TestPoliceUk:
@@ -111,3 +111,14 @@ def test_bounds_bng_box_the_cells_and_widen_by_the_margin():
     # Soho is near easting 529,500 and northing 181,000 in British National Grid.
     assert 528_000 < x0 < x1 < 531_500
     assert 179_500 < y0 < y1 < 182_500
+
+
+def test_lonlat_box_boxes_the_centres_of_the_cells_and_widens_by_the_margin():
+    soho = h3.latlng_to_cell(51.5136, -0.1337, 9)
+    cells = sorted(h3.grid_disk(soho, 3))
+    west, south, east, north = lonlat_box(cells)
+    assert -0.15 < west < -0.1337 < east < -0.11
+    assert 51.50 < south < 51.5136 < north < 51.53
+    assert lonlat_box(cells, margin=0.1) == pytest.approx(
+        (west - 0.1, south - 0.1, east + 0.1, north + 0.1)
+    )

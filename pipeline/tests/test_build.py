@@ -257,6 +257,36 @@ def synthetic_noise_tile(tmp_path: Path, kind: str, east_level: float) -> Path:
     return path
 
 
+def synthetic_places(tmp_path: Path) -> tuple[Path, pd.DataFrame]:
+    """Overture's places: a grocery in the west and a pharmacy in the east of AREA. OpenStreetMap's:
+    a gym in the west and a library in the east."""
+    west, east = (-0.1495, 51.5120), (-0.1255, 51.5120)
+    overture_places = pd.DataFrame(
+        {
+            "id": ["g", "p"],
+            "lng": [west[0], east[0]],
+            "lat": [west[1], east[1]],
+            "name": ["West Grocer", "East Pharmacy"],
+            "category": ["grocery_store", "pharmacy"],
+        }
+    )
+    path = tmp_path / "overture-places.parquet"
+    overture_places.to_parquet(path)
+    osm_places = pd.DataFrame(
+        {
+            "lng": [west[0], east[0]],
+            "lat": [west[1], east[1]],
+            "name": ["West Gym", "East Library"],
+            "brand": [None, None],
+            "cuisine": [None, None],
+            "amenity": [None, "library"],
+            "shop": [None, None],
+            "leisure": ["fitness_centre", None],
+        }
+    )
+    return path, osm_places
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -276,6 +306,9 @@ def use_synthetic_data(monkeypatch, tmp_path):
         for kind, level in (("road", 65.0), ("rail", 50.0), ("aircraft", 60.0))
     }
     monkeypatch.setattr(build_module.defra_noise, "fetch", lambda data_dir, kind, b: tiles[kind])
+    overture_path, osm_places = synthetic_places(tmp_path)
+    monkeypatch.setattr(build_module.overture, "fetch", lambda data_dir, region, box: overture_path)
+    monkeypatch.setattr(build_module.openstreetmap, "places", lambda data_dir, region: osm_places)
     air = synthetic_air(tmp_path)
     monkeypatch.setattr(build_module.laei, "fetch", lambda data_dir: air)
     park = synthetic_greenspace(tmp_path)
@@ -504,3 +537,27 @@ def test_the_bundle_holds_the_noise_of_roads_railways_and_aircraft(monkeypatch, 
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     ids = {i["id"] for i in manifest["indicators"]}
     assert {"road-noise", "rail-noise", "aircraft-noise"} <= ids
+
+
+def test_the_bundle_holds_the_walks_to_a_grocery_a_pharmacy_a_gym_and_a_library(
+    monkeypatch, tmp_path
+):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    west, east = lng < -0.145, lng > -0.130
+    for column, nearer_in_the_west in (
+        ("groceries", True),
+        ("gyms", True),
+        ("pharmacies", False),
+        ("libraries", False),
+    ):
+        walks = table[column]
+        assert walks.notna().all()
+        near, far = (west, east) if nearer_in_the_west else (east, west)
+        assert walks[near].median() < walks[far].median()
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert {"groceries", "pharmacies", "gyms", "libraries"} <= {
+        i["id"] for i in manifest["indicators"]
+    }
