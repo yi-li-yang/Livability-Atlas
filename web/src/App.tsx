@@ -1,7 +1,7 @@
 export function App() {
   return (
     <main>
-      <h1>Livability Atlas</h1>
+      <h1 className="text-2xl font-semibold">Livability Atlas</h1>
     </main>
   );
 }
