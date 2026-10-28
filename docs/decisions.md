@@ -22,7 +22,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D07](#d07-dataset-licences) | Dataset licences | Public builds: open licences that allow commercial use | proposed |
 | [D08](#d08-sensitive-data-and-privacy) | Sensitive data and privacy | Composition as presence and diversity; personal data stays in the browser | proposed |
 | [D09](#d09-default-places) | Default places | London's main job centres | proposed |
-| [D10](#d10-travel-times) | Travel times | Station matrix + in-browser estimate; engine chosen by spike S4 | proposed |
+| [D10](#d10-travel-times) | Travel times | Station matrix + in-browser estimate; r5py, with the TfL API as fallback | accepted |
 | [D11](#d11-documentation) | Documentation | Living documents | accepted |
 | [D12](#d12-licences) | Licences | Code AGPL-3.0 + CLA; docs CC BY 4.0; data per dataset | accepted |
 | [D13](#d13-development-environment) | Development environment | Windows; `E:` on NTFS | accepted |
@@ -167,16 +167,17 @@ The living list of project decisions. Each entry holds the current choice and wh
 
 ## D10 Travel times
 
-- **Status:** proposed; the engine stays open until spike S4
+- **Status:** accepted
 - **Choice:**
   - Default places get exact travel times, computed in the data pipeline.
   - A user's own places (up to 3) get an estimate computed in the browser: the walk to a nearby station, then a precomputed station-to-station travel-time matrix, then the walk to the place. Places never leave the device.
-  - The engine is r5py with GTFS timetables, or the TfL Journey Planner API if the timetable conversion fails.
+  - The engine is r5py with GTFS timetables, which computes the whole matrix at several departure times in minutes. It waits for the owner's registrations for the timetable sources, and a JDK 21. The TfL Journey Planner API is the fallback: it builds the matrix in about 21 hours for one departure time, at TfL's limit of 500 calls a minute.
 - **Why:** In a static-first app, the data pipeline cannot precompute every user's places.
-- **Known limits:** Buses are not in the matrix, so bus-only trips come out too long. Estimates carry the evidence type "estimate".
-- **Revisit when:** Spike S4 reports the estimate's error and picks the engine. Exact routing arrives with a routing service (Phase 4).
+- **Known limits:** Buses are not in the matrix, so bus-only trips come out too long: spike S4 found the estimate more than 20% too long in 19% of journeys, and within 20% in 81%, with a median error of 12% (27 journeys, one morning). Estimates carry the evidence type "estimate".
+- **Revisit when:** The real matrix exists, to check the error on a larger sample and several departure times; or buses join the matrix. Exact routing arrives with a routing service (Phase 4).
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.
+  - 2026-10-28: accepted after [spike S4](spikes/S4-routing.md). The design stands, r5py is the engine, and the API is the fallback. r5py was not run, because its timetable sources need accounts that only the owner can create.
 
 ## D11 Documentation
 
