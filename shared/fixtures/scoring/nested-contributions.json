@@ -1,0 +1,113 @@
+{
+  "id": "nested-contributions",
+  "description": "Three levels: contributions add up at every level, to the livability score at the top.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "a",
+        "weight": 3,
+        "children": [
+          {
+            "id": "a1",
+            "weight": 2,
+            "children": [
+              {
+                "id": "a1a",
+                "weight": 1,
+                "curve": {
+                  "shape": "ramp",
+                  "t0": 0,
+                  "t1": 1
+                },
+                "value": 0.6
+              },
+              {
+                "id": "a1b",
+                "weight": 3,
+                "curve": {
+                  "shape": "ramp",
+                  "t0": 0,
+                  "t1": 1
+                },
+                "value": 1.0
+              }
+            ]
+          },
+          {
+            "id": "a2",
+            "weight": 1,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": 0.3
+          }
+        ]
+      },
+      {
+        "id": "b",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.8
+      }
+    ]
+  },
+  "expected": {
+    "score": 72.5,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.725,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 72.5
+      },
+      "a": {
+        "score": 0.7,
+        "share": 0.75,
+        "effective_share": 0.75,
+        "contribution": 52.5
+      },
+      "b": {
+        "score": 0.8,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 20
+      },
+      "a1": {
+        "score": 0.9,
+        "share": 0.5,
+        "effective_share": 0.5,
+        "contribution": 45
+      },
+      "a2": {
+        "score": 0.3,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 7.5
+      },
+      "a1a": {
+        "score": 0.6,
+        "share": 0.125,
+        "effective_share": 0.125,
+        "contribution": 7.5
+      },
+      "a1b": {
+        "score": 1,
+        "share": 0.375,
+        "effective_share": 0.375,
+        "contribution": 37.5
+      }
+    }
+  }
+}

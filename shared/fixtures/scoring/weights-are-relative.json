@@ -1,0 +1,113 @@
+{
+  "id": "weights-are-relative",
+  "description": "Weights count only against siblings: children weighted 2 and 2 split a parent like 5 and 5.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "x",
+        "weight": 1,
+        "children": [
+          {
+            "id": "a",
+            "weight": 2,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": 0.2
+          },
+          {
+            "id": "b",
+            "weight": 2,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": 0.6
+          }
+        ]
+      },
+      {
+        "id": "y",
+        "weight": 1,
+        "children": [
+          {
+            "id": "c",
+            "weight": 5,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": 0.2
+          },
+          {
+            "id": "d",
+            "weight": 5,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": 0.6
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "score": 40,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.4,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 40
+      },
+      "x": {
+        "score": 0.4,
+        "share": 0.5,
+        "effective_share": 0.5,
+        "contribution": 20
+      },
+      "y": {
+        "score": 0.4,
+        "share": 0.5,
+        "effective_share": 0.5,
+        "contribution": 20
+      },
+      "a": {
+        "score": 0.2,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 5
+      },
+      "b": {
+        "score": 0.6,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 15
+      },
+      "c": {
+        "score": 0.2,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 5
+      },
+      "d": {
+        "score": 0.6,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 15
+      }
+    }
+  }
+}

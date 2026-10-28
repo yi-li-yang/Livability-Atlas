@@ -29,8 +29,8 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [x] The nested `CLAUDE.md` files, each with an `AGENTS.md` beside it (D20), for `pipeline/` and `web/`.
 - [x] **0.4 Spikes S1–S8** (listed below). S1, S2 and S8 are done. S3 to S7 are partly done, each waiting on something the write-up names.
 - [ ] **0.5 Method and freeze.**
-  - [ ] Finalise `methodology/scoring.md`.
-  - [ ] Commit golden test cases to `shared/fixtures/scoring/`, covering nested trees, missing data, flipped directions and ideal ranges.
+  - [x] Finalise `methodology/scoring.md`.
+  - [x] Commit golden test cases to `shared/fixtures/scoring/`, covering nested trees, missing data, flipped directions and ideal ranges. 15 cases, and a Python reference scorer that reproduces them.
   - [ ] Freeze the MVP factor list in the decision register.
   - [ ] Detail the Phase 1 milestones here.
 

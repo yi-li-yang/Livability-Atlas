@@ -1,0 +1,100 @@
+{
+  "id": "hard-limit-pass",
+  "description": "Limits that all pass keep the hex cell.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "rent",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 2500,
+          "t1": 500
+        },
+        "value": 1400
+      },
+      {
+        "id": "flood-band",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "very low": 1,
+            "low": 0.75,
+            "medium": 0.4,
+            "high": 0
+          }
+        },
+        "value": "low"
+      },
+      {
+        "id": "road-noise",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 70,
+          "t1": 50
+        },
+        "value": 52
+      }
+    ]
+  },
+  "hard_limits": [
+    {
+      "id": "rent-cap",
+      "indicator": "rent",
+      "max": 1500
+    },
+    {
+      "id": "flood",
+      "indicator": "flood-band",
+      "not_in": [
+        "high"
+      ]
+    },
+    {
+      "id": "noise-cap",
+      "indicator": "road-noise",
+      "max": 60
+    }
+  ],
+  "expected": {
+    "score": 73.33333333333334,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {
+      "rent-cap": "pass",
+      "flood": "pass",
+      "noise-cap": "pass"
+    },
+    "nodes": {
+      "root": {
+        "score": 0.7333333333333334,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 73.33333333333334
+      },
+      "rent": {
+        "score": 0.55,
+        "share": 0.3333333333333333,
+        "effective_share": 0.3333333333333333,
+        "contribution": 18.333333333333336
+      },
+      "flood-band": {
+        "score": 0.75,
+        "share": 0.3333333333333333,
+        "effective_share": 0.3333333333333333,
+        "contribution": 25
+      },
+      "road-noise": {
+        "score": 0.9,
+        "share": 0.3333333333333333,
+        "effective_share": 0.3333333333333333,
+        "contribution": 30
+      }
+    }
+  }
+}

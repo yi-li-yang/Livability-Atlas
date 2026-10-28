@@ -1,0 +1,98 @@
+{
+  "id": "flipped-direction",
+  "description": "A flipped user direction turns every score s into 1 - s, for any curve shape.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "keep",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 100
+        },
+        "value": 80
+      },
+      {
+        "id": "flip",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 100
+        },
+        "value": 80,
+        "flipped": true
+      },
+      {
+        "id": "flip-ideal",
+        "weight": 1,
+        "curve": {
+          "shape": "ideal-range",
+          "l0": 14,
+          "l1": 20,
+          "u1": 26,
+          "u0": 32
+        },
+        "value": 23,
+        "flipped": true
+      },
+      {
+        "id": "flip-lookup",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "very low": 1,
+            "low": 0.75,
+            "medium": 0.4,
+            "high": 0
+          }
+        },
+        "value": "low",
+        "flipped": true
+      }
+    ]
+  },
+  "expected": {
+    "score": 31.25,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.3125,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 31.25
+      },
+      "keep": {
+        "score": 0.8,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 20
+      },
+      "flip": {
+        "score": 0.2,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 5
+      },
+      "flip-ideal": {
+        "score": 0,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 0
+      },
+      "flip-lookup": {
+        "score": 0.25,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": 6.25
+      }
+    }
+  }
+}

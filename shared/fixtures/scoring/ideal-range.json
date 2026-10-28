@@ -1,0 +1,115 @@
+{
+  "id": "ideal-range",
+  "description": "An ideal range: inside the band, on each slope, and at its edges.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "t-23",
+        "weight": 1,
+        "curve": {
+          "shape": "ideal-range",
+          "l0": 14,
+          "l1": 20,
+          "u1": 26,
+          "u0": 32
+        },
+        "value": 23
+      },
+      {
+        "id": "t-29",
+        "weight": 1,
+        "curve": {
+          "shape": "ideal-range",
+          "l0": 14,
+          "l1": 20,
+          "u1": 26,
+          "u0": 32
+        },
+        "value": 29
+      },
+      {
+        "id": "t-17",
+        "weight": 1,
+        "curve": {
+          "shape": "ideal-range",
+          "l0": 14,
+          "l1": 20,
+          "u1": 26,
+          "u0": 32
+        },
+        "value": 17
+      },
+      {
+        "id": "t-14",
+        "weight": 1,
+        "curve": {
+          "shape": "ideal-range",
+          "l0": 14,
+          "l1": 20,
+          "u1": 26,
+          "u0": 32
+        },
+        "value": 14
+      },
+      {
+        "id": "t-26",
+        "weight": 1,
+        "curve": {
+          "shape": "ideal-range",
+          "l0": 14,
+          "l1": 20,
+          "u1": 26,
+          "u0": 32
+        },
+        "value": 26
+      }
+    ]
+  },
+  "expected": {
+    "score": 60,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.6,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 60
+      },
+      "t-23": {
+        "score": 1,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 20
+      },
+      "t-29": {
+        "score": 0.5,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 10
+      },
+      "t-17": {
+        "score": 0.5,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 10
+      },
+      "t-14": {
+        "score": 0,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 0
+      },
+      "t-26": {
+        "score": 1,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 20
+      }
+    }
+  }
+}

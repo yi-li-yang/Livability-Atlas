@@ -1,0 +1,100 @@
+{
+  "id": "hard-limit-fail",
+  "description": "A failed hard limit excludes the hex cell; a limit without data could not be checked.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "rent",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 2500,
+          "t1": 500
+        },
+        "value": 1400
+      },
+      {
+        "id": "flood-band",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "very low": 1,
+            "low": 0.75,
+            "medium": 0.4,
+            "high": 0
+          }
+        },
+        "value": "high"
+      },
+      {
+        "id": "road-noise",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 70,
+          "t1": 50
+        },
+        "value": null
+      }
+    ]
+  },
+  "hard_limits": [
+    {
+      "id": "rent-cap",
+      "indicator": "rent",
+      "max": 1500
+    },
+    {
+      "id": "flood",
+      "indicator": "flood-band",
+      "not_in": [
+        "high"
+      ]
+    },
+    {
+      "id": "noise-cap",
+      "indicator": "road-noise",
+      "max": 60
+    }
+  ],
+  "expected": {
+    "score": 27.5,
+    "coverage": 0.6666666666666666,
+    "low_coverage": true,
+    "excluded": true,
+    "limits": {
+      "rent-cap": "pass",
+      "flood": "fail",
+      "noise-cap": "could_not_check"
+    },
+    "nodes": {
+      "root": {
+        "score": 0.275,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 27.5
+      },
+      "rent": {
+        "score": 0.55,
+        "share": 0.3333333333333333,
+        "effective_share": 0.5,
+        "contribution": 27.5
+      },
+      "flood-band": {
+        "score": 0,
+        "share": 0.3333333333333333,
+        "effective_share": 0.5,
+        "contribution": 0
+      },
+      "road-noise": {
+        "score": null,
+        "share": 0.3333333333333333,
+        "effective_share": null,
+        "contribution": null
+      }
+    }
+  }
+}

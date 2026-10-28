@@ -34,7 +34,7 @@ Specs and plans are named `YYYY-MM-DD-topic.md`.
 | [interface.md](interface.md) | Progressive disclosure and the visual factor tree |
 | [factors/README.md](factors/README.md) | The factor explorer, and research notes for building the factor catalogue |
 | [tech-stack.md](tech-stack.md) | Every technology: its role, why it was chosen, the alternatives |
-| [methodology/scoring.md](methodology/scoring.md) | Spatial framework and scoring method v0 |
+| [methodology/scoring.md](methodology/scoring.md) | Spatial framework and scoring method, with its golden test cases |
 | [methodology/hard-to-measure.md](methodology/hard-to-measure.md) | How factors without a direct measure are measured: the evidence ladder and its rules |
 | [methodology/validation.md](methodology/validation.md) | How the data and the method are checked |
 | [codemap.md](codemap.md) | Map of the repository as it is now |
