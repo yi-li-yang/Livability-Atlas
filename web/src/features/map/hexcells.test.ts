@@ -65,7 +65,14 @@ describe("cellColours", () => {
 
   it("colours the best service level the palette's last colour and the worst its first", async () => {
     const bundle = await loadBundle("/bundles", "london", fixtureFetch);
-    const profile = { weights: {} };
+    // Only the service level is real data in the fixture: leave the others out of the score.
+    const profile = {
+      weights: {
+        "station-proximity": 0,
+        "walk-to-green-space": 0,
+        "gp-walk": 0,
+      },
+    };
     const scores = scoreRegion(bundle, profile, allLeafScores(bundle));
     const bands = bundle.columns.service_level;
     const best = scores[bands.indexOf("6b")];

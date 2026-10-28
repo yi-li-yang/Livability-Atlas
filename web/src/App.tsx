@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { type Bundle, loadBundle } from "./data/bundle";
+import { FactorTree } from "./features/factors/FactorTree";
 import { HexMap } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
@@ -18,7 +19,7 @@ const DEFAULT_PROFILE: Profile = { weights: {} };
 
 export function App() {
   const [state, setState] = useState<State>({ status: "loading" });
-  const [profile] = useState<Profile>(DEFAULT_PROFILE);
+  const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
 
   useEffect(() => {
     loadBundle(BUNDLES_URL, REGION).then(
@@ -64,6 +65,18 @@ export function App() {
           >
             Loading the map data…
           </p>
+        )}
+        {state.status === "ready" && (
+          <aside
+            aria-label="Your preferences"
+            className="absolute left-4 top-4 max-h-[calc(100%-9rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
+          >
+            <FactorTree
+              factors={state.bundle.manifest.factors}
+              profile={profile}
+              onChange={setProfile}
+            />
+          </aside>
         )}
         {state.status === "ready" && (
           <Legend title="Livability score" low="Worse" high="Better" />
