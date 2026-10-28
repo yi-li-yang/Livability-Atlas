@@ -24,6 +24,7 @@ Livability-Atlas/
 │   ├── src/atlas/
 │   │   ├── cli.py         # the `atlas` command: validate, schemas
 │   │   ├── paths.py       # the repository's folders
+│   │   ├── scoring/       # engine.py: the reference scorer, which reproduces the golden test cases
 │   │   └── catalogue/     # models.py (the one definition of the catalogue files), checks.py, load.py, schema.py
 │   ├── tests/
 │   └── notebooks/         # spike scripts: throwaway, never imported by the package
@@ -34,7 +35,8 @@ Livability-Atlas/
 │   │   └── generated/     # TypeScript types from shared/schemas (generated)
 │   └── e2e/               # the Playwright smoke tests
 ├── shared/
-│   └── schemas/           # JSON Schema exported from the Pydantic models (generated)
+│   ├── schemas/           # JSON Schema exported from the Pydantic models (generated)
+│   └── fixtures/scoring/  # the golden test cases, written by hand: 15 JSON files and a README
 ├── catalogue/             # the factor catalogue
 │   ├── README.md          # the field reference, and how it is checked
 │   ├── factors.yaml       # the factor tree, down to measured indicators

@@ -1,0 +1,57 @@
+{
+  "id": "no-score",
+  "description": "With no active factor the root has no score, so the hex cell has no livability score.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "a",
+        "weight": 2,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": null
+      },
+      {
+        "id": "b",
+        "weight": 0,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.5
+      }
+    ]
+  },
+  "expected": {
+    "score": null,
+    "coverage": 0,
+    "low_coverage": true,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": null,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": null
+      },
+      "a": {
+        "score": null,
+        "share": 1,
+        "effective_share": null,
+        "contribution": null
+      },
+      "b": {
+        "score": 0.5,
+        "share": 0,
+        "effective_share": null,
+        "contribution": null
+      }
+    }
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "id": "zero-is-data",
+  "description": "A value of zero, or the lowest band, is data and is scored; only an absent value is missing.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "ptal-6b",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "0": 0,
+            "1a": 0.125,
+            "1b": 0.25,
+            "2": 0.375,
+            "3": 0.5,
+            "4": 0.625,
+            "5": 0.75,
+            "6a": 0.875,
+            "6b": 1
+          }
+        },
+        "value": "6b"
+      },
+      {
+        "id": "ptal-0",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "0": 0,
+            "1a": 0.125,
+            "1b": 0.25,
+            "2": 0.375,
+            "3": 0.5,
+            "4": 0.625,
+            "5": 0.75,
+            "6a": 0.875,
+            "6b": 1
+          }
+        },
+        "value": "0"
+      },
+      {
+        "id": "ptal-outside",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "0": 0,
+            "1a": 0.125,
+            "1b": 0.25,
+            "2": 0.375,
+            "3": 0.5,
+            "4": 0.625,
+            "5": 0.75,
+            "6a": 0.875,
+            "6b": 1
+          }
+        },
+        "value": null
+      },
+      {
+        "id": "burglary-0",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 20,
+          "t1": 2
+        },
+        "value": 0
+      }
+    ]
+  },
+  "expected": {
+    "score": 66.66666666666667,
+    "coverage": 0.75,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.6666666666666666,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 66.66666666666667
+      },
+      "ptal-6b": {
+        "score": 1,
+        "share": 0.25,
+        "effective_share": 0.3333333333333333,
+        "contribution": 33.333333333333336
+      },
+      "ptal-0": {
+        "score": 0,
+        "share": 0.25,
+        "effective_share": 0.3333333333333333,
+        "contribution": 0
+      },
+      "ptal-outside": {
+        "score": null,
+        "share": 0.25,
+        "effective_share": null,
+        "contribution": null
+      },
+      "burglary-0": {
+        "score": 1,
+        "share": 0.25,
+        "effective_share": 0.3333333333333333,
+        "contribution": 33.333333333333336
+      }
+    }
+  }
+}

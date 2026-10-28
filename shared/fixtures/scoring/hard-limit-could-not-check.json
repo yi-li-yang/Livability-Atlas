@@ -1,0 +1,72 @@
+{
+  "id": "hard-limit-could-not-check",
+  "description": "A limit met exactly passes, and one without data is flagged but does not exclude the hex cell.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "rent",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 2500,
+          "t1": 500
+        },
+        "value": 1400
+      },
+      {
+        "id": "road-noise",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 70,
+          "t1": 50
+        },
+        "value": null
+      }
+    ]
+  },
+  "hard_limits": [
+    {
+      "id": "rent-cap",
+      "indicator": "rent",
+      "max": 1400
+    },
+    {
+      "id": "noise-cap",
+      "indicator": "road-noise",
+      "max": 60
+    }
+  ],
+  "expected": {
+    "score": 55,
+    "coverage": 0.5,
+    "low_coverage": true,
+    "excluded": false,
+    "limits": {
+      "rent-cap": "pass",
+      "noise-cap": "could_not_check"
+    },
+    "nodes": {
+      "root": {
+        "score": 0.55,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 55
+      },
+      "rent": {
+        "score": 0.55,
+        "share": 0.5,
+        "effective_share": 1,
+        "contribution": 55
+      },
+      "road-noise": {
+        "score": null,
+        "share": 0.5,
+        "effective_share": null,
+        "contribution": null
+      }
+    }
+  }
+}

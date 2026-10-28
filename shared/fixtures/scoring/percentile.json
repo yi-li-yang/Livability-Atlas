@@ -1,0 +1,129 @@
+{
+  "id": "percentile",
+  "description": "Percentile curves: ties share half, the best cell scores 1, and a region of one cell scores 0.5.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "tie-10",
+        "weight": 1,
+        "curve": {
+          "shape": "percentile",
+          "better": "lower"
+        },
+        "value": 10,
+        "region_values": [
+          10,
+          10,
+          20,
+          30
+        ]
+      },
+      {
+        "id": "mid-20",
+        "weight": 1,
+        "curve": {
+          "shape": "percentile",
+          "better": "lower"
+        },
+        "value": 20,
+        "region_values": [
+          10,
+          10,
+          20,
+          30
+        ]
+      },
+      {
+        "id": "best-5",
+        "weight": 1,
+        "curve": {
+          "shape": "percentile",
+          "better": "higher"
+        },
+        "value": 5,
+        "region_values": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "id": "worst-1",
+        "weight": 1,
+        "curve": {
+          "shape": "percentile",
+          "better": "higher"
+        },
+        "value": 1,
+        "region_values": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "id": "alone-7",
+        "weight": 1,
+        "curve": {
+          "shape": "percentile",
+          "better": "higher"
+        },
+        "value": 7,
+        "region_values": [
+          7
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "score": 53.333333333333336,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.5333333333333333,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 53.333333333333336
+      },
+      "tie-10": {
+        "score": 0.8333333333333334,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 16.666666666666668
+      },
+      "mid-20": {
+        "score": 0.3333333333333333,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 6.666666666666667
+      },
+      "best-5": {
+        "score": 1,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 20
+      },
+      "worst-1": {
+        "score": 0,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 0
+      },
+      "alone-7": {
+        "score": 0.5,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 10
+      }
+    }
+  }
+}

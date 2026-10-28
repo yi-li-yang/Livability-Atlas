@@ -1,0 +1,105 @@
+{
+  "id": "ramp",
+  "description": "Falling and rising ramps, flat beyond both thresholds, and a value at a threshold.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "pm25-9",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 25,
+          "t1": 5
+        },
+        "value": 9
+      },
+      {
+        "id": "pm25-30",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 25,
+          "t1": 5
+        },
+        "value": 30
+      },
+      {
+        "id": "pm25-3",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 25,
+          "t1": 5
+        },
+        "value": 3
+      },
+      {
+        "id": "rising-25",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 100
+        },
+        "value": 25
+      },
+      {
+        "id": "pm25-25",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 25,
+          "t1": 5
+        },
+        "value": 25
+      }
+    ]
+  },
+  "expected": {
+    "score": 41,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.41,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 41
+      },
+      "pm25-9": {
+        "score": 0.8,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 16
+      },
+      "pm25-30": {
+        "score": 0,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 0
+      },
+      "pm25-3": {
+        "score": 1,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 20
+      },
+      "rising-25": {
+        "score": 0.25,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 5
+      },
+      "pm25-25": {
+        "score": 0,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 0
+      }
+    }
+  }
+}

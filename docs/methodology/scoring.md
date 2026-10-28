@@ -1,6 +1,6 @@
-# Scoring method v0
+# Scoring method
 
-Status: draft (D06, proposed). Step 0.5 of Phase 0 finalises this method and adds golden test cases in `shared/fixtures/scoring/`. Terms are defined in the [glossary](../glossary.md), and the symbols in the formulas under [Notation](#notation).
+Status: version 1, accepted (D06). Finalised in step 0.5 of Phase 0 with the [golden test cases](#13-golden-test-cases) in `shared/fixtures/scoring/`, and with what the spikes found. Terms are defined in the [glossary](../glossary.md), and the symbols in the formulas under [Notation](#notation).
 
 ## Notation
 
@@ -38,9 +38,11 @@ Data reaches hex cells according to its type:
 
 | Data type | Becomes | Example |
 | --- | --- | --- |
-| Points | A count within a walking distance, or the distance to the nearest | Shops, stations, crimes |
+| Points | A count within a walking distance, or the distance to the nearest, measured along streets: a walk is a median 1.33 times its straight line, and over 1.5 times for 23% of routes ([S6](../spikes/S6-places.md)) | Shops, stations, GP practices |
+| Points, as rates per resident | The residents of each census area shared between the hex cells it overlaps by area, then each cell's crimes and residents pooled with its neighbours within two steps (about an 8-minute walk), with a floor of 3,000 residents added at the region's overall rate ([S2](../spikes/S2-crime.md)) | Crimes per 1,000 residents |
+| Points, as prices | Sales pooled over a cell and its neighbours within two steps, over 24 months ([S3](../spikes/S3-sales-and-rents.md)) | Prices per m² |
 | Polygons | An area-weighted share | Parks, flood zones |
-| Rasters | An area-weighted mean, computed with exactextract | Air quality, noise |
+| Rasters | An area-weighted mean, computed with exactextract. For noise, the mean of the levels at the cell's addresses, which matches the average of the addresses' own scores far better ([S5](../spikes/S5-noise-aggregation.md)) | Air quality, noise |
 | Values for administrative areas | Joined to hex cells by containment | Council tax by borough |
 
 ## 2. The factor tree
@@ -72,7 +74,7 @@ Each measured indicator $i$ has a scoring curve $f_i$ that turns its raw value $
 | Ramp (rising or falling) | 0 at threshold $t_0$ and 1 at threshold $t_1$, linear in between and flat beyond | PM2.5: $t_0 = 25$ µg/m³, $t_1 = 5$ µg/m³ (the WHO 2021 guideline) |
 | Ideal range | 0 up to $l_0$, rising to 1 at $l_1$, 1 up to $u_1$, then falling to 0 at $u_0$ | Summer temperature, with a band the user can move |
 | Lookup | A score for each category | Flood risk band, with illustrative values: very low 1, low 0.75, medium 0.4, high 0 |
-| Percentile (fallback) | The share of the region's hex cells with a worse raw value | Only where no meaningful threshold exists |
+| Percentile (fallback) | The cell's rank among the region's hex cells, defined below | Only where no meaningful threshold exists |
 
 A ramp is
 
@@ -93,6 +95,16 @@ score
            l0 l1         u1 u0   raw value
 ```
 
+**Lookup.** A category that the curve does not list counts as missing data.
+
+**Percentile.** Among the $N$ hex cells of the region that have a value, a cell scores
+
+```math
+f(x) = \frac{W + \tfrac{1}{2}\,(T - 1)}{N - 1}
+```
+
+where $W$ counts the cells with a worse value, and $T$ the cells with the same value, itself included. The best cell scores 1, the worst 0, tied cells share the middle, and a region of one cell scores 0.5. The region is the displayed region, without the buffer zone. A lower raw value is worse for a "higher is better" measured indicator, and the reverse for "lower is better".
+
 **Why thresholds before percentiles.** With percentiles, every region's best hex cell scores 1, so a score means "good for this region", not "good". Thresholds keep scores comparable across regions, as long as the measured indicator itself is comparable (section 9).
 
 ## 4. Preference types
@@ -106,11 +118,11 @@ For some measured indicators everyone agrees on the direction. For others, peopl
 | User range | People have an ideal band | Temperature, humidity, daylight hours, building age | A comfort band from the research literature; the user drags it |
 | User choice | People pick what to look for | Industry, cuisines, community group, faith | Weight 0 until the user picks |
 
-Flipping a user direction swaps $t_0$ and $t_1$, so every score $s$ becomes $1 - s$. A user who cannot stand rain can also set a hard limit, e.g. fewer than 100 rainy days a year.
+Flipping a user direction swaps $t_0$ and $t_1$ on a ramp, so every score $s$ becomes $1 - s$. The same holds for every curve shape: a flipped ideal range or lookup scores $1 - s$ too. A user who cannot stand rain can also set a hard limit, e.g. fewer than 100 rainy days a year.
 
 ## 5. Weights and aggregation up the tree
 
-Weights run from 0 (ignore) to 5 (crucial). A node's weight counts only against its siblings: children weighted 2 and 2 split their parent the same way as children weighted 5 and 5. A composite factor whose children all have weight 0 counts as weight 0.
+Weights are whole numbers from 0 (ignore) to 5 (crucial). A node's weight counts only against its siblings: children weighted 2 and 2 split their parent the same way as children weighted 5 and 5. A composite factor whose children all have weight 0 counts as weight 0.
 
 **Share of total weight.** The root's share is 1. Each node splits its share among its children in proportion to their weights:
 
@@ -138,13 +150,13 @@ L &= 100 \, s_r
 
 ## 6. Hard limits
 
-- A hard limit is a must-have rule on a raw value or a category, e.g. rent no higher than the user's cap, or flood risk not "high".
-- Hard limits apply before scoring. Hex cells that fail one are shown grey and are not ranked.
-- A hex cell that lacks the data a hard limit needs is kept, and flagged "could not check" for that limit.
+- A hard limit is a must-have rule on the raw value of a measured indicator, or on its category: at most a number (`max`), at least a number (`min`), in a list of categories (`in`), or not in one (`not_in`). Rent no higher than the user's cap is a `max`, and flood risk not "high" is a `not_in`. A value that meets a number exactly passes.
+- Hard limits apply before scoring. A hex cell that fails one is excluded: shown grey and not ranked. It still has a score, which its detail view can show.
+- A hex cell that lacks the data a hard limit needs is kept, and flagged "could not check" for that limit. Only a failed limit excludes a hex cell.
 
 ## 7. Missing data and data coverage
 
-Missing parts are skipped, and the remaining weights are renormalised (section 5). Data coverage tells the user how much of their weight a score rests on. It adds up the shares of total weight of the measured indicators that have data:
+A value of 0 is data. A value is missing only where the dataset has none for the hex cell, such as PTAL outside Greater London, which is not band 0. A measured indicator for which the catalogue has no curve yet is not scored. Missing parts are skipped, and the remaining weights are renormalised (section 5). Data coverage tells the user how much of their weight a score rests on. It adds up the shares of total weight of the measured indicators that have data:
 
 ```math
 D = \sum_{i \text{ with data}} P_i
@@ -226,13 +238,39 @@ These features are in the [backlog](../backlog.md):
 - a sensitivity view showing how stable the top 10 stays when weights shift by ±20%
 - scoring curves that users can edit
 
-## 13. Golden test cases (step 0.5)
+## 13. Golden test cases
 
-These are fixed inputs with expected scores, which both the TypeScript engine and its Python copy must reproduce. The worked example in section 8 becomes the first. They will cover:
+Status: done in step 0.5. `shared/fixtures/scoring/` holds one JSON file for each of 15 cases. The TypeScript engine of the web app and the Python reference scorer (`pipeline/src/atlas/scoring/engine.py`) must both reproduce every one, within 1e-9. The expected numbers were worked out by hand, in comments beside each case's definition, before the scorer was written, and the tests also check that the hand-written numbers add up by themselves (contributions sum to the node above, shares sum to one).
 
-- nested factor trees
-- missing data and coverage
-- hard limits
-- flipped directions and ideal ranges
-- lookup curves
-- contributions that add up
+**Format.** A case holds a `tree` of nodes, optional `hard_limits`, and the `expected` result.
+
+| Field | Meaning |
+| --- | --- |
+| `tree` | A node has an `id` and a `weight`, and either `children`, or the fields of a measured indicator: a `curve` (as in the catalogue), a raw `value` (`null` when missing), `region_values` (percentile curves only: every region cell's value) and `flipped` |
+| `hard_limits` | Each has an `id`, an `indicator` (a measured indicator's `id`), and one of `max`, `min`, `in` or `not_in` |
+| `expected.score` | The livability score, 0 to 100 and unrounded, or `null` when no factor is active |
+| `expected.coverage`, `low_coverage` | Data coverage $D$ (section 7), and whether it is under 0.7 |
+| `expected.excluded`, `limits` | Whether a failed hard limit excludes the hex cell, and each limit as `pass`, `fail` or `could_not_check` |
+| `expected.nodes` | For every node: `score`, `share` ($P$), `effective_share` ($E$) and `contribution` ($C$), each `null` where the node has none |
+
+The interface rounds the livability score to a whole number for display, and ranks on the unrounded score.
+
+**The cases.**
+
+| Case | What it pins down |
+| --- | --- |
+| `worked-example` | Section 8's example: a nested factor, a factor with no data and a factor with no weight |
+| `ramp` | Falling and rising ramps, flat beyond both thresholds, and a value at a threshold |
+| `ideal-range` | Inside the band, on each slope, and at its edges |
+| `lookup` | A lookup, and a category it does not list, which counts as missing |
+| `percentile` | Ties share the middle, the best cell scores 1, and a region of one cell scores 0.5 |
+| `flipped-direction` | $1 - s$ for a ramp, an ideal range and a lookup |
+| `missing-and-low-coverage` | A factor without data is skipped, weights renormalised, coverage under 70% flagged |
+| `zero-weight-composite` | A composite whose children all weigh 0 counts as weight 0 |
+| `no-score` | With no active factor the hex cell has no livability score |
+| `weights-are-relative` | Children weighted 2 and 2 split a parent like 5 and 5 |
+| `nested-contributions` | Three levels, with contributions that add up at each |
+| `hard-limit-fail`, `hard-limit-pass`, `hard-limit-could-not-check` | Failed, passed, exactly met and unchecked limits |
+| `zero-is-data` | A zero or the lowest band is scored, and an absent value is missing |
+
+A change to the method changes the fixtures in the same pull request, and both engines are run against them in CI.

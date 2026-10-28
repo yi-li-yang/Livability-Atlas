@@ -1,0 +1,85 @@
+{
+  "id": "missing-and-low-coverage",
+  "description": "A factor without data is skipped, the other weights are renormalised, and coverage under 70% is flagged.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "a",
+        "weight": 3,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.9
+      },
+      {
+        "id": "b",
+        "weight": 4,
+        "children": [
+          {
+            "id": "b1",
+            "weight": 1,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": null
+          }
+        ]
+      },
+      {
+        "id": "c",
+        "weight": 3,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.5
+      }
+    ]
+  },
+  "expected": {
+    "score": 70,
+    "coverage": 0.6,
+    "low_coverage": true,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.7,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 70
+      },
+      "a": {
+        "score": 0.9,
+        "share": 0.3,
+        "effective_share": 0.5,
+        "contribution": 45
+      },
+      "b": {
+        "score": null,
+        "share": 0.4,
+        "effective_share": null,
+        "contribution": null
+      },
+      "b1": {
+        "score": null,
+        "share": 0.4,
+        "effective_share": null,
+        "contribution": null
+      },
+      "c": {
+        "score": 0.5,
+        "share": 0.3,
+        "effective_share": 0.5,
+        "contribution": 25
+      }
+    }
+  }
+}

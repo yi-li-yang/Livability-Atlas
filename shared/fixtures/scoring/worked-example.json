@@ -1,0 +1,169 @@
+{
+  "id": "worked-example",
+  "description": "The worked example of the scoring method, section 8: a nested factor, a factor with no data and a factor with no weight.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "housing-and-cost",
+        "weight": 4,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.4
+      },
+      {
+        "id": "transport",
+        "weight": 4,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.8
+      },
+      {
+        "id": "environment",
+        "weight": 2,
+        "children": [
+          {
+            "id": "air-quality",
+            "weight": 3,
+            "children": [
+              {
+                "id": "no2",
+                "weight": 2,
+                "curve": {
+                  "shape": "ramp",
+                  "t0": 40,
+                  "t1": 10
+                },
+                "value": 31
+              },
+              {
+                "id": "pm25",
+                "weight": 2,
+                "curve": {
+                  "shape": "ramp",
+                  "t0": 25,
+                  "t1": 5
+                },
+                "value": 9
+              }
+            ]
+          },
+          {
+            "id": "noise",
+            "weight": 3,
+            "children": [
+              {
+                "id": "road-noise",
+                "weight": 1,
+                "curve": {
+                  "shape": "ramp",
+                  "t0": 70,
+                  "t1": 50
+                },
+                "value": null
+              }
+            ]
+          },
+          {
+            "id": "green-space",
+            "weight": 0,
+            "children": [
+              {
+                "id": "park-area",
+                "weight": 3,
+                "curve": {
+                  "shape": "ramp",
+                  "t0": 0,
+                  "t1": 1
+                },
+                "value": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "score": 59,
+    "coverage": 0.9,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.59,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 59
+      },
+      "housing-and-cost": {
+        "score": 0.4,
+        "share": 0.4,
+        "effective_share": 0.4,
+        "contribution": 16
+      },
+      "transport": {
+        "score": 0.8,
+        "share": 0.4,
+        "effective_share": 0.4,
+        "contribution": 32
+      },
+      "environment": {
+        "score": 0.55,
+        "share": 0.2,
+        "effective_share": 0.2,
+        "contribution": 11
+      },
+      "air-quality": {
+        "score": 0.55,
+        "share": 0.1,
+        "effective_share": 0.2,
+        "contribution": 11
+      },
+      "no2": {
+        "score": 0.3,
+        "share": 0.05,
+        "effective_share": 0.1,
+        "contribution": 3
+      },
+      "pm25": {
+        "score": 0.8,
+        "share": 0.05,
+        "effective_share": 0.1,
+        "contribution": 8
+      },
+      "noise": {
+        "score": null,
+        "share": 0.1,
+        "effective_share": null,
+        "contribution": null
+      },
+      "road-noise": {
+        "score": null,
+        "share": 0.1,
+        "effective_share": null,
+        "contribution": null
+      },
+      "green-space": {
+        "score": null,
+        "share": 0,
+        "effective_share": null,
+        "contribution": null
+      },
+      "park-area": {
+        "score": null,
+        "share": 0,
+        "effective_share": null,
+        "contribution": null
+      }
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "id": "lookup",
+  "description": "A lookup curve, and a category it does not list, which counts as missing data.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "flood-low",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "very low": 1,
+            "low": 0.75,
+            "medium": 0.4,
+            "high": 0
+          }
+        },
+        "value": "low"
+      },
+      {
+        "id": "flood-high",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "very low": 1,
+            "low": 0.75,
+            "medium": 0.4,
+            "high": 0
+          }
+        },
+        "value": "high"
+      },
+      {
+        "id": "flood-very-low",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "very low": 1,
+            "low": 0.75,
+            "medium": 0.4,
+            "high": 0
+          }
+        },
+        "value": "very low"
+      },
+      {
+        "id": "flood-medium",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "very low": 1,
+            "low": 0.75,
+            "medium": 0.4,
+            "high": 0
+          }
+        },
+        "value": "medium"
+      },
+      {
+        "id": "flood-unlisted",
+        "weight": 1,
+        "curve": {
+          "shape": "lookup",
+          "scores": {
+            "very low": 1,
+            "low": 0.75,
+            "medium": 0.4,
+            "high": 0
+          }
+        },
+        "value": "extreme"
+      }
+    ]
+  },
+  "expected": {
+    "score": 53.75,
+    "coverage": 0.8,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.5375,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 53.75
+      },
+      "flood-low": {
+        "score": 0.75,
+        "share": 0.2,
+        "effective_share": 0.25,
+        "contribution": 18.75
+      },
+      "flood-high": {
+        "score": 0,
+        "share": 0.2,
+        "effective_share": 0.25,
+        "contribution": 0
+      },
+      "flood-very-low": {
+        "score": 1,
+        "share": 0.2,
+        "effective_share": 0.25,
+        "contribution": 25
+      },
+      "flood-medium": {
+        "score": 0.4,
+        "share": 0.2,
+        "effective_share": 0.25,
+        "contribution": 10
+      },
+      "flood-unlisted": {
+        "score": null,
+        "share": 0.2,
+        "effective_share": null,
+        "contribution": null
+      }
+    }
+  }
+}

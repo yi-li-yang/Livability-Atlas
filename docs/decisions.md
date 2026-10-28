@@ -104,23 +104,25 @@ The living list of project decisions. Each entry holds the current choice and wh
 
 ## D06 Scoring method
 
-- **Status:** proposed
-- **Choice:** Scoring method v0 in [methodology/scoring.md](methodology/scoring.md):
+- **Status:** accepted
+- **Choice:** Scoring method (version 1) in [methodology/scoring.md](methodology/scoring.md):
   - scoring curves with stated thresholds
   - weighted means up the factor tree
   - hard limits applied first
   - missing data renormalised and flagged through data coverage
   - score contributions that add up to the livability score
+  - 15 golden test cases in `shared/fixtures/scoring/`, which every engine must reproduce
 - **Why:** Every step is transparent and testable. Scores stay comparable across regions wherever the measured indicators are.
 - **Alternatives considered:**
   - Percentile ranks everywhere: scores become relative to each region.
   - A weighted geometric mean: kept as a later "no weak spots" mode.
   - An ML model of livability: there is no ground truth to train on.
-- **Revisit when:** Step 0.5 finalises the method with golden test cases.
+- **Revisit when:** The web app's engine meets the golden test cases, or a real factor needs a rule that they do not cover.
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.
   - 2026-10-23: notation rewritten after review, with a symbols table, rendered formulas and a worked example. One rule added: a composite factor whose children all have weight 0 counts as weight 0, so it does not lower data coverage.
   - 2026-10-24: the rising or falling curve is named a ramp, the name the factor catalogue uses for it.
+  - 2026-10-28: accepted as version 1, in step 0.5. The percentile curve, lookups with an unlisted category, hard limits and the meaning of missing data are defined exactly, and 15 golden test cases are committed with a Python reference scorer that reproduces them. The spikes' findings joined the spatial framework: walks along streets, residents shared by area, rates pooled with a floor, and noise averaged at addresses.
 
 ## D07 Dataset licences
 

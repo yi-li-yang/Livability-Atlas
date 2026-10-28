@@ -1,0 +1,85 @@
+{
+  "id": "zero-weight-composite",
+  "description": "A composite factor whose children all have weight 0 counts as weight 0, and does not lower coverage.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "a",
+        "weight": 3,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.5
+      },
+      {
+        "id": "b",
+        "weight": 5,
+        "children": [
+          {
+            "id": "b1",
+            "weight": 0,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": 0.9
+          },
+          {
+            "id": "b2",
+            "weight": 0,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": 0.1
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "score": 50,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.5,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 50
+      },
+      "a": {
+        "score": 0.5,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": 50
+      },
+      "b": {
+        "score": null,
+        "share": 0,
+        "effective_share": null,
+        "contribution": null
+      },
+      "b1": {
+        "score": 0.9,
+        "share": 0,
+        "effective_share": null,
+        "contribution": null
+      },
+      "b2": {
+        "score": 0.1,
+        "share": 0,
+        "effective_share": null,
+        "contribution": null
+      }
+    }
+  }
+}
