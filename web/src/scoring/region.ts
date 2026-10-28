@@ -17,14 +17,17 @@ export interface Profile {
 /** The id of the tree's root, which holds the top-level factors. */
 export const ROOT_ID = "livability";
 
-const weightIn = (profile: Profile, factor: ManifestFactor): number =>
+export const weightIn = (profile: Profile, factor: ManifestFactor): number =>
   profile.weights[factor.id] ?? factor.default_weight;
 
 const kidsOf = (factor: ManifestFactor): ManifestFactor[] =>
   factor.children ?? [];
 
 /** A composite factor whose children all weigh 0 counts as weight 0 (scoring.md). */
-function effectiveWeight(factor: ManifestFactor, profile: Profile): number {
+export function effectiveWeight(
+  factor: ManifestFactor,
+  profile: Profile,
+): number {
   const kids = kidsOf(factor);
   if (kids.length > 0 && kids.every((k) => effectiveWeight(k, profile) === 0))
     return 0;

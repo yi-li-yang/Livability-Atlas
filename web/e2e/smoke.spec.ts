@@ -1,6 +1,10 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { PNG } from "pngjs";
-import { CELL_OPACITY, PALETTE } from "../src/features/map/colour";
+import { CELL_OPACITY, scoreToColour } from "../src/features/map/colour";
+import { clearOfPanel } from "./clip";
+
+// Every colour the map can give a cell: the palette, blended between its stops.
+const COLOURS = Array.from({ length: 101 }, (_, i) => scoreToColour(i / 100));
 
 test("the page shows a map of London under its heading", async ({ page }) => {
   await page.goto("/");
@@ -48,12 +52,11 @@ test("the app says so when the data cannot be loaded", async ({ page }) => {
 const HEX_LAYER = '[data-testid="map"] canvas:not(.maplibregl-canvas)';
 
 /**
- * Whether `after` is a palette colour drawn over `before` at some opacity: it fits the palette
- * colour's blend with `before` at the best opacity, which must be a plausible one. The opacity is
+ * Whether `after` is a colour of the palette drawn over `before` at some opacity: it fits the colour's blend with `before` at the best opacity, which must be a plausible one. The opacity is
  * fitted, since what deck.gl composites is not exactly the opacity that the layer is given.
  */
 function fitsPalette(after: number[], before: number[]): boolean {
-  return PALETTE.some((colour) => {
+  return COLOURS.some((colour) => {
     let along = 0;
     let norm = 0;
     for (let k = 0; k < 3; k++) {
@@ -88,10 +91,11 @@ async function hexLayerPixels(
       },
       [HEX_LAYER, visible ? "visible" : "hidden"],
     );
+  const clip = await clearOfPanel(page, map);
   await show(true);
-  const withCells = PNG.sync.read(await map.screenshot());
+  const withCells = PNG.sync.read(await page.screenshot({ clip }));
   await show(false);
-  const without = PNG.sync.read(await map.screenshot());
+  const without = PNG.sync.read(await page.screenshot({ clip }));
   await show(true);
 
   let changed = 0;

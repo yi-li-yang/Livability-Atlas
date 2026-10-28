@@ -1,6 +1,8 @@
 """Writes the small data bundle that the web app's tests load: the cells within 8 steps of Soho.
 
-It takes values from a real London bundle, so run `just data london` first. From the repo root:
+The service level comes from a real London bundle, so run `just data london` first. The other
+three indicators are FABRICATED, only so that the tests have several factors to weigh: see
+README.md beside this file. From the repo root:
 
     uv run --project pipeline python web/e2e/fixtures/make_fixture.py
 """
@@ -26,12 +28,19 @@ def main() -> None:
     table = pq.read_table(published / version / "cells.parquet").to_pydict()
     values = dict(zip(table["cell"], table["service_level"], strict=True))
     cells = sorted(set(h3.grid_disk(SOHO, 8)) & set(values))
+    steps = [h3.grid_distance(SOHO, c) for c in cells]
+    fabricated = {
+        # Walks that get longer away from Soho, and a pattern that varies from cell to cell.
+        "station-proximity": [6 + 2 * n for n in steps],
+        "walk-to-green-space": [4 + (i * 7) % 12 for i in range(len(cells))],
+        "gp-walk": [5 + (i * 5) % 9 for i in range(len(cells))],
+    }
     shutil.rmtree(OUT, ignore_errors=True)
     bundle = write_bundle(
         load_catalogue(),
         region_id="london",
         cells=cells,
-        columns={"service-level": [values[c] for c in cells]},
+        columns={"service-level": [values[c] for c in cells], **fabricated},
         out_dir=OUT,
     )
     print(f"{len(cells)} cells in {bundle}")

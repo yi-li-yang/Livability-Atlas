@@ -1,0 +1,222 @@
+{
+  "format_version": 1,
+  "version": "309dafb0a6fb",
+  "region": {
+    "id": "london",
+    "name": "London"
+  },
+  "grid": {
+    "system": "h3",
+    "resolution": 9
+  },
+  "cell_count": 209,
+  "factors": [
+    {
+      "id": "transport",
+      "name": "Transport",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "getting-around",
+          "name": "Getting around in general",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "station-proximity",
+              "name": "Walk to the nearest station",
+              "default_weight": 3,
+              "indicator": "station-proximity"
+            },
+            {
+              "id": "service-level",
+              "name": "Service level",
+              "default_weight": 3,
+              "indicator": "service-level"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "environment",
+      "name": "Environment",
+      "default_weight": 4,
+      "children": [
+        {
+          "id": "green-space",
+          "name": "Green space",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "walk-to-green-space",
+              "name": "Walk to a green space",
+              "default_weight": 3,
+              "indicator": "walk-to-green-space"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "health-care",
+      "name": "Health care",
+      "default_weight": 4,
+      "children": [
+        {
+          "id": "gp-access",
+          "name": "GP access",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "gp-walk",
+              "name": "Walk to a GP practice",
+              "default_weight": 3,
+              "indicator": "gp-walk"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "indicators": [
+    {
+      "id": "service-level",
+      "name": "Service level",
+      "column": "service_level",
+      "unit": "PTAL band",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "lookup",
+        "scores": {
+          "0": 0.0,
+          "1a": 0.125,
+          "1b": 0.25,
+          "2": 0.375,
+          "3": 0.5,
+          "4": 0.625,
+          "5": 0.75,
+          "6a": 0.875,
+          "6b": 1.0
+        }
+      },
+      "datasets": ["tfl-ptal"]
+    },
+    {
+      "id": "station-proximity",
+      "name": "Walk to the nearest station",
+      "column": "station_proximity",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 25.0,
+        "t1": 6.0
+      },
+      "datasets": ["tfl-unified-api", "naptan", "openstreetmap"]
+    },
+    {
+      "id": "walk-to-green-space",
+      "name": "Walk to a green space",
+      "column": "walk_to_green_space",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 4.0
+      },
+      "datasets": ["os-open-greenspace", "openstreetmap"]
+    },
+    {
+      "id": "gp-walk",
+      "name": "Walk to a GP practice",
+      "column": "gp_walk",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 5.0
+      },
+      "datasets": ["nhs-ods", "ons-postcode-directory", "openstreetmap"]
+    }
+  ],
+  "datasets": [
+    {
+      "id": "naptan",
+      "name": "National Public Transport Access Nodes (NaPTAN)",
+      "publisher": "Department for Transport",
+      "url": "https://beta-naptan.dft.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "updated daily"
+    },
+    {
+      "id": "nhs-ods",
+      "name": "NHS England Organisation Data Service (ODS)",
+      "publisher": "NHS England",
+      "url": "https://digital.nhs.uk/services/organisation-data-service",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains information from NHS England, licenced under the current version of the Open Government Licence.",
+      "date": "updated nightly"
+    },
+    {
+      "id": "ons-postcode-directory",
+      "name": "ONS Postcode Directory",
+      "publisher": "Office for National Statistics",
+      "url": "https://geoportal.statistics.gov.uk/",
+      "licence": "unknown",
+      "attribution": "",
+      "date": "quarterly"
+    },
+    {
+      "id": "ons-region-boundaries",
+      "name": "Regions (December 2025) Boundaries EN BGC",
+      "publisher": "Office for National Statistics (ONS)",
+      "url": "https://geoportal.statistics.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. Contains OS data © Crown copyright and database right 2026.",
+      "date": "December 2025"
+    },
+    {
+      "id": "openstreetmap",
+      "name": "OpenStreetMap",
+      "publisher": "OpenStreetMap contributors",
+      "url": "https://www.openstreetmap.org/",
+      "licence": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors, available under the Open Database License.",
+      "date": "updated continually"
+    },
+    {
+      "id": "os-open-greenspace",
+      "name": "OS Open Greenspace",
+      "publisher": "Ordnance Survey",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-greenspace",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains OS data © Crown copyright and database right 2026.",
+      "date": "updated every six months"
+    },
+    {
+      "id": "tfl-ptal",
+      "name": "Public Transport Accessibility Levels (PTAL)",
+      "publisher": "Transport for London, on the London Datastore",
+      "url": "https://data.london.gov.uk/dataset/public-transport-accessibility-levels",
+      "licence": "OGL-UK-2.0",
+      "attribution": "Public Transport Accessibility Levels, Transport for London. Contains public sector information licensed under the Open Government Licence v2.0. The Greater London Authority cannot warrant the quality or accuracy of the data.",
+      "date": "2015"
+    },
+    {
+      "id": "tfl-unified-api",
+      "name": "TfL Unified API",
+      "publisher": "Transport for London",
+      "url": "https://api-portal.tfl.gov.uk/",
+      "licence": "LicenseRef-TfL-Open-Data",
+      "attribution": "Powered by TfL Open Data. Contains OS data © Crown copyright and database rights 2016 and Geomni UK Map data © and database rights [2019].",
+      "date": "live, updated continually"
+    }
+  ]
+}

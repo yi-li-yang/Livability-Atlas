@@ -1,0 +1,111 @@
+import { expect, type Page, test } from "@playwright/test";
+import { PNG } from "pngjs";
+import { clearOfPanel } from "./clip";
+
+async function openApp(page: Page) {
+  await page.goto("/");
+  await expect(page.getByTestId("map")).toHaveAttribute(
+    "data-cells",
+    /^[1-9]\d*$/,
+  );
+  await expect(page.getByTestId("factor-tree")).toBeVisible();
+  await page.waitForLoadState("networkidle");
+}
+
+const tile = (page: Page, id: string) =>
+  page.locator(`[data-testid="factor-tile"][data-factor="${id}"]`);
+
+const share = async (page: Page, id: string) =>
+  Number(await tile(page, id).getAttribute("data-share"));
+
+/** How many pixels of the map differ between two screenshots. */
+function differing(before: Buffer, after: Buffer): number {
+  const a = PNG.sync.read(before);
+  const b = PNG.sync.read(after);
+  let count = 0;
+  for (let i = 0; i < a.data.length; i += 4) {
+    const gap =
+      Math.abs(a.data[i] - b.data[i]) +
+      Math.abs(a.data[i + 1] - b.data[i + 1]) +
+      Math.abs(a.data[i + 2] - b.data[i + 2]);
+    if (gap > 24) count++;
+  }
+  return count;
+}
+
+test("the factor tree shows each factor with its share of the weight and a slider", async ({
+  page,
+}) => {
+  await openApp(page);
+  // Default weights: Transport 3, Environment 4, Health care 4.
+  for (const [id, want] of [
+    ["transport", 3 / 11],
+    ["environment", 4 / 11],
+    ["health-care", 4 / 11],
+  ] as const) {
+    expect(await share(page, id)).toBeCloseTo(want, 3);
+  }
+  await expect(
+    page.getByRole("slider", { name: "Weight of Transport" }),
+  ).toHaveValue("3");
+  await expect(
+    page.getByRole("slider", { name: "Weight of Environment" }),
+  ).toHaveValue("4");
+});
+
+test("moving a slider resizes the factor at once, and the others shrink or grow to match", async ({
+  page,
+}) => {
+  await openApp(page);
+  const before = await share(page, "transport");
+  await page.getByRole("slider", { name: "Weight of Transport" }).fill("5");
+  await expect.poll(() => share(page, "transport")).toBeGreaterThan(before);
+  expect(await share(page, "transport")).toBeCloseTo(5 / 13, 3);
+  expect(await share(page, "environment")).toBeCloseTo(4 / 13, 3);
+});
+
+test("a factor at weight 0 leaves the drawing for the not counted list, and can come back", async ({
+  page,
+}) => {
+  await openApp(page);
+  await page.getByRole("slider", { name: "Weight of Transport" }).fill("0");
+  await expect(tile(page, "transport")).toHaveCount(0);
+  const notCounted = page.getByRole("heading", { name: "Not counted" });
+  await expect(notCounted).toBeVisible();
+  expect(await share(page, "environment")).toBeCloseTo(0.5, 3);
+
+  await page.getByRole("button", { name: "Count Transport again" }).click();
+  await expect(tile(page, "transport")).toHaveCount(1);
+  await expect(notCounted).toHaveCount(0);
+  expect(await share(page, "transport")).toBeCloseTo(3 / 11, 3);
+});
+
+test("opening a factor shows its sub-factors, and the trail leads back", async ({
+  page,
+}) => {
+  await openApp(page);
+  await page.getByRole("button", { name: "Open Transport" }).click();
+  await expect(tile(page, "transport")).toHaveCount(0);
+  await expect(tile(page, "getting-around")).toHaveCount(1);
+  expect(await share(page, "getting-around")).toBeCloseTo(1, 3);
+  await expect(
+    page.getByRole("navigation", { name: "Where you are in the factors" }),
+  ).toContainText("Transport");
+
+  await page.getByRole("button", { name: "All factors" }).click();
+  await expect(tile(page, "transport")).toHaveCount(1);
+});
+
+test("changing a weight recolours the map", async ({ page }) => {
+  await openApp(page);
+  const map = page.getByTestId("map");
+  const clip = await clearOfPanel(page, map);
+  const before = await page.screenshot({ clip });
+  await page.getByRole("slider", { name: "Weight of Transport" }).fill("0");
+  await page.getByRole("slider", { name: "Weight of Environment" }).fill("0");
+  await expect
+    .poll(async () => differing(before, await page.screenshot({ clip })), {
+      timeout: 10_000,
+    })
+    .toBeGreaterThan(2000);
+});
