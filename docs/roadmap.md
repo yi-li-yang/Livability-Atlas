@@ -66,10 +66,10 @@ Goal: a public London map. Exit criteria: the MVP success criteria in [vision.md
 Each milestone ends when its checks pass. The order follows what depends on what, and each is a set of pull requests that keep `just check` green. The decisions behind them are in the spike write-ups ([S1 to S8](spikes/S1-ptal.md)), the [MVP scope](specs/2026-10-28-mvp-scope.md) and the [scoring method](methodology/scoring.md).
 
 - [ ] **Walking skeleton.** One factor end to end: PTAL → hex cells → data bundle → coloured map.
-  - [ ] `atlas build london` for one factor writes a data bundle: `manifest.json` and `cells.parquet` for the 16,883 hex cells of Greater London, and the manifest's schema is exported to `shared/schemas/` and typed in the web app (the contract of [architecture.md](architecture.md#contracts)).
-  - [ ] PTAL becomes a band for each cell by the band that covers most of it, ties to the lower band, and no value outside Greater London (S1). A test asserts it.
+  - [ ] `atlas build london` for one factor writes a data bundle: `manifest.json` and `cells.parquet` for the 16,668 hex cells of Greater London (the ONS region's boundary, by cell centres), and the manifest's schema is exported to `shared/schemas/` and typed in the web app (the contract of [architecture.md](architecture.md#contracts)). Built, with the schema exported and its types generated; the web app does not read it yet.
+  - [x] PTAL becomes a band for each cell by the band that covers most of it, ties to the lower band, and no value outside Greater London (S1). Tests assert it.
   - [ ] The web app loads the bundle and colours every cell with deck.gl, and a Playwright test sees the coloured map.
-  - Check: the same command run twice gives byte-identical bundles.
+  - Check: the same command run twice gives byte-identical bundles. Tested on synthetic data, and run twice on the real London data, which gave the same version.
 - [ ] **Scoring and the visual factor tree.** The scoring engine, the chosen treemap or sunburst with sliders and drill-down for 3 factors, and default weights.
   - [ ] The TypeScript engine reproduces all 15 golden cases of `shared/fixtures/scoring/`, and CI runs it and the Python reference scorer against them.
   - [ ] The factor tree (D17: both layouts, with a switch) with sliders and drill-down, and the default weights from the catalogue. The profile lives in the browser's storage and the URL, never on a server (D08).

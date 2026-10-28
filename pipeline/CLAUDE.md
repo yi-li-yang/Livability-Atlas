@@ -7,4 +7,6 @@ Rules for the data pipeline, beyond the root [CLAUDE.md](../CLAUDE.md). The Pyth
 - A rule about one factor or one dataset goes in `models.py`. A rule across records goes in `checks.py`.
 - Open text files with `encoding="utf-8"`, and write generated files with `newline="\n"`.
 - Write the test first, and see it fail. A data check needs a case that passes and a case that fails.
-- One module per dataset and one per indicator family.
+- One module per dataset and one per indicator family. A dataset's module goes in `datasets/<tier>/`, and fetches through `atlas.fetch.download`, which caches the file with its checksum.
+- A bundle is named by a hash of its content, so it holds no date and building twice gives the same bytes. Keep it so: nothing in it may depend on the time or the machine.
+- `publish/manifest.py` is the contract with the web app. Change it, run `just generate`, and commit the regenerated schema and types.

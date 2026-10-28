@@ -6,11 +6,14 @@ of its grid points, a tie goes to the lower band, and a cell with no grid point 
 is not band 0.
 """
 
+import zipfile
 from pathlib import Path
 
 import h3
 import pandas as pd
 from pyproj import Transformer
+
+from atlas.fetch import download
 
 # The URL of the release's grid values, on the London Datastore (Open Government Licence v2).
 URL = (
@@ -53,3 +56,13 @@ def bands_by_cell(grid: pd.DataFrame, resolution: int) -> pd.Series:
         ["cell", "n", "order"], ascending=[True, False, True]
     ).drop_duplicates("cell")
     return pd.Series(best["band"].to_numpy(), index=pd.Index(best["cell"]), name="service_level")
+
+
+def fetch(data_dir: Path) -> Path:
+    """Downloads the release to `data/raw/ptal/` once, unzips it, and returns the spreadsheet."""
+    folder = data_dir / "raw" / "ptal"
+    archive = folder / "ptal-2015.zip"
+    download(URL, archive)
+    with zipfile.ZipFile(archive) as zipped:
+        zipped.extractall(folder)
+    return next(folder.glob("*Grid Values*.xlsx"))

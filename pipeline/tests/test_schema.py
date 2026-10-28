@@ -11,6 +11,7 @@ def test_it_writes_one_schema_per_file(tmp_path):
     assert sorted(path.name for path in written) == [
         "datasets.schema.json",
         "factors.schema.json",
+        "manifest.schema.json",
         "region.schema.json",
     ]
 

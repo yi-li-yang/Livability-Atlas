@@ -43,6 +43,10 @@ generate:
     cd pipeline; uv run atlas schemas
     cd web; npm run generate
 
+# Build a region's data bundle from raw downloads, fetching what is missing: `just data london`
+data region:
+    cd pipeline; uv run atlas build {{region}}
+
 # Build the web app
 build:
     cd web; npm run build

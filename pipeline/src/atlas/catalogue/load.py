@@ -4,6 +4,7 @@
 content: it returns the problems, so that one run lists them all.
 """
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -79,3 +80,32 @@ def validate_catalogue(directory: Path = CATALOGUE_DIR) -> list[str]:
         if datasets is not None:
             problems.extend(check_region(region, datasets))
     return problems
+
+
+@dataclass(frozen=True)
+class Catalogue:
+    """A catalogue that has passed `validate_catalogue`."""
+
+    factors: FactorsFile
+    datasets: DatasetsFile
+    regions: dict[str, Region]
+
+
+def load_catalogue(directory: Path = CATALOGUE_DIR) -> Catalogue:
+    """Reads the catalogue, and raises `ValueError` listing every problem if it does not pass."""
+    problems = validate_catalogue(directory)
+    if problems:
+        raise ValueError("the catalogue does not pass:\n" + "\n".join(problems))
+
+    def read[T: BaseModel](model: type[T], path: Path) -> T:
+        return model.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+
+    regions = {}
+    for path in sorted((directory / "regions").glob("*.yaml")):
+        region = read(Region, path)
+        regions[region.id] = region
+    return Catalogue(
+        factors=read(FactorsFile, directory / "factors.yaml"),
+        datasets=read(DatasetsFile, directory / "datasets.yaml"),
+        regions=regions,
+    )
