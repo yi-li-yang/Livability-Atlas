@@ -6,18 +6,26 @@ of two resolutions finer (about 15 m apart), each taking the value of the neares
 model's 20 m grid. A cell with no point on the grid has no value.
 """
 
+from typing import Protocol
+
 import h3
 import numpy as np
 import pandas as pd
 from pyproj import Transformer
 
-from atlas.datasets.cities.london.laei import Grid
-
 FINER = 2  # resolutions finer than the hex cells: 49 points a cell
 _TO_BNG = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
 
 
-def mean_concentration(grid: Grid, cells: list[str], resolution: int) -> pd.Series:
+class Surface(Protocol):
+    """Values over the ground, read at places in metres of British National Grid."""
+
+    def at(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """The value at each place, or `nan` where there is none."""
+        ...
+
+
+def mean_concentration(grid: Surface, cells: list[str], resolution: int) -> pd.Series:
     """The mean concentration (µg/m³) over each cell, from the points of `grid` inside it."""
     points: list[tuple[float, float]] = []
     owner: list[int] = []

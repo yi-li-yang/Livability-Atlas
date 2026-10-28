@@ -128,3 +128,13 @@ def test_the_air_is_dirtier_in_the_west_end_than_in_richmond_park(bundle):
     assert no2[SOHO] > no2[richmond_park] + 5
     assert pm25[SOHO] > pm25[richmond_park]
     assert 10 < no2.median() < 35 and 5 < pm25.median() < 15  # µg/m³, as in 2022
+
+
+def test_noise_is_loud_beside_main_roads_railways_and_under_the_flight_path(bundle):
+    road, rail, aircraft = bundle["road_noise"], bundle["rail_noise"], bundle["aircraft_noise"]
+    assert road.notna().all() and rail.notna().all() and aircraft.notna().all()
+    assert road[cell_at(51.5232, -0.1560)] > 62  # Marylebone Road
+    assert road[cell_at(51.4440, -0.2740)] < 45  # Richmond Park
+    assert rail[cell_at(51.5033, -0.1145)] > 58  # Waterloo
+    assert aircraft[cell_at(51.4850, -0.4150)] > 50  # under Heathrow's approach
+    assert aircraft.median() == 40  # most of London is beyond the airports' maps
