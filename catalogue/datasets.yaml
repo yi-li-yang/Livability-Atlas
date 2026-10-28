@@ -315,6 +315,26 @@ datasets:
     tells:
       - Average monthly private rents by local authority, with breakdowns by number of bedrooms and property type
 
+  - id: ons-london-rents-by-district
+    name: "Private rental market in London: monthly rents by postcode district"
+    publisher: Office for National Statistics (ONS), from the Valuation Office Agency's rent data
+    url: https://www.ons.gov.uk/economy/inflationandpriceindices/adhocs/3389privaterentalmarketinlondonapril2025tomarch2026
+    tier: city
+    area: Greater London
+    resolution: postcode districts, by number of bedrooms
+    date: April 2025 to March 2026, as rolling 12-month releases
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-28
+    public_build: true
+    licence_note: >-
+      The release page states that all content is available under the Open
+      Government Licence v3.0. The ONS warns that the sample is purposive,
+      leaves out Housing Benefit claimants, and should not be compared across
+      areas or periods.
+    attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
+    tells:
+      - The count, mean, quartiles and median of private rents in about 250 London postcode districts, for rooms, studios and one to four bedrooms
+      - Counts are rounded to 10, and small cells are suppressed
   - id: mhclg-council-tax
     name: Council Tax levels set by local authorities in England
     publisher: Ministry of Housing, Communities and Local Government (MHCLG)

@@ -72,7 +72,8 @@ Livability-Atlas/
     │   └── 2026-10-28-scaffold.md
     ├── spikes/            # one page per feasibility experiment (step 0.4)
     │   ├── S1-ptal.md
-    │   └── S2-crime.md
+    │   ├── S2-crime.md
+    │   └── S3-sales-and-rents.md
     └── specs/             # design specs, one per work item
         ├── 2026-10-24-catalogue-format.md
         ├── 2026-10-24-factor-explorer.md

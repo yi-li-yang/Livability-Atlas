@@ -53,8 +53,13 @@ factors:
           The median price per square metre of the homes sold in and around the
           hex cell in recent years: each sale's price from HM Land Registry,
           divided by the home's floor area from its energy certificate. Spike S3
-          decides how many years and how wide an area to pool, and how to match
-          sales to certificates within the licences' terms.
+          found that pooling the sales of a cell and its neighbours within two
+          steps over 24 months gives 20 or more sales in 99% of London's
+          homes cells and 40 or more in 95%, against the 37 that a median
+          within 15% needs. A cell alone has 5 or more sales a year in only
+          37%. How to match sales to certificates within the licences' terms is
+          still open: the certificates need a GOV.UK One Login to download in bulk, and
+          the match waits for Royal Mail.
         datasets: [hm-land-registry-price-paid, epc-domestic]
       - id: renting-cost
         name: Renting cost
@@ -70,11 +75,15 @@ factors:
         comparable_across_regions: false
         method: >-
           The ONS's average monthly private rent for the local authority, for all
-          homes, so every hex cell in a borough shares one value: no finer open
-          rent data covers London. The ONS also breaks rents down by number of
-          bedrooms, which can follow the user's home size later. Spike S3 asks
-          whether a model of rent from sale prices is credible at hex level.
-        datasets: [ons-private-rents]
+          homes, so every hex cell in a borough shares one value. The ONS also
+          breaks rents down by number of bedrooms, which can follow the user's
+          home size later. It publishes London rents by postcode district too,
+          but warns that its sample is purposive and should not be compared
+          between areas, so they stay out of the score. Spike S3 found that a
+          model of rent from sale prices predicts a district's rent to within
+          7% of the ONS's figure, against 8% for its borough's average, so
+          it adds too little to be worth a per-cell value.
+        datasets: [ons-private-rents, ons-london-rents-by-district]
       - id: council-tax
         name: Council tax
         description: The Band D council tax of the borough.
