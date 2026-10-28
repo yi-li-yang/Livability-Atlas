@@ -65,7 +65,7 @@ Nothing personal reaches the data pipeline or any server. A user's weights, hard
 
 ## Travel times
 
-Default places get exact travel times from the data pipeline. A user's own places get an estimate in the browser: the walk to a nearby station, the ride from the station-to-station matrix, then the walk to the place. Spike S4 chooses the engine that builds the matrix: r5py with GTFS timetables, or the TfL Journey Planner API (D10).
+Default places get exact travel times from the data pipeline. A user's own places get an estimate in the browser: the walk to a nearby station, the ride from the station-to-station matrix, then the walk to the place. The engine that builds the matrix is r5py with GTFS timetables, with the TfL Journey Planner API as the fallback (D10, after spike S4).
 
 ## Scaling
 

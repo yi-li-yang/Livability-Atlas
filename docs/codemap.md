@@ -74,6 +74,7 @@ Livability-Atlas/
     │   ├── S1-ptal.md
     │   ├── S2-crime.md
     │   ├── S3-sales-and-rents.md
+    │   ├── S4-routing.md
     │   └── S5-noise-aggregation.md
     └── specs/             # design specs, one per work item
         ├── 2026-10-24-catalogue-format.md
