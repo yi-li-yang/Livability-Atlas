@@ -662,30 +662,37 @@ factors:
             description: The number of different cuisines served by restaurants within a 10-minute walk.
             default_weight: 3
             scales: [within-city]
-            status: researched
+            status: spiked
             unit: cuisines
             preference_type: fixed
+            curve: {shape: percentile, better: higher}
             curve_reason: >-
-              The curve waits for spike S8, which checks how complete the
-              cuisine tags are. No standard says how many cuisines are enough,
-              so the thresholds should separate the hex cells.
+              No standard says how many cuisines are enough, so a hex cell
+              scores by its rank within the region: the share of hex cells with
+              fewer. Spike S8 counted them within 800 m of London's homes: from
+              Overture's categories the median is 12, and the 5th to 95th
+              percentile runs from 2 to 41.
             evidence_type: indirect
             comparable_across_regions: true
             method: >-
               The number of distinct cuisines among the restaurants within a
               10-minute walk along streets and paths (800 m at 4.8 km/h), from
-              OpenStreetMap's cuisine tags and Overture's categories. Variety
-              is a sign of a lively food scene rather than a measure of it, so
-              the evidence type is indirect. Spike S8 checks how complete the
-              cuisine tags are.
-            datasets: [openstreetmap, overture-places]
+              Overture's categories, with OpenStreetMap's cuisine tags to fill
+              gaps. Variety is a sign of a lively food scene rather than a
+              measure of it, so the evidence type is indirect. Spike S8 found
+              that 77% of Overture's restaurants carry a specific cuisine
+              category (148 kinds) and 73% of OpenStreetMap's a cuisine tag (264
+              values, which need tidying), so Overture leads. No cuisine is
+              found near 1% of homes by Overture's categories, and near 18% by
+              OpenStreetMap's tags.
+            datasets: [overture-places, openstreetmap]
           - {id: your-cuisines, name: "Your cuisines", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks cuisines (D18)."}
           - id: food-hygiene
             name: Food hygiene
             description: The share of the food businesses within a 10-minute walk rated good or very good for hygiene.
             default_weight: 3
             scales: [within-city]
-            status: researched
+            status: spiked
             unit: "% of food businesses"
             preference_type: fixed
             curve: {shape: ramp, t0: 0, t1: 100}
@@ -698,8 +705,12 @@ factors:
             method: >-
               The share of the food businesses with a rating within a 10-minute
               walk along streets and paths (800 m at 4.8 km/h) that are rated 4
-              or 5. Scotland rates food hygiene under a different scheme, so the
-              share does not compare across regions.
+              or 5. Businesses awaiting inspection are left out. Scotland rates
+              food hygiene under a different scheme, so the share does not
+              compare across regions. Spike S8 found that 98% of London's homes
+              cells have 10 or more rated businesses within 800 m, and that the
+              share spreads from 69% to 97% across the 5th to 95th percentile
+              (median 87%), against 85% good or very good overall.
             datasets: [fsa-food-hygiene-ratings]
           - {id: guide-recognition, name: "Guide recognition", default_weight: 3, description: "Michelin and other guides, through Wikidata."}
           - {id: independents, name: "Independent restaurants", default_weight: 3, scales: [within-city], description: "The share of restaurants that are not chains."}

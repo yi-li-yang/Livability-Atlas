@@ -51,7 +51,7 @@ No open dataset rates restaurants, so food quality combines open signals (D19):
 | Independents | The share of restaurants that are not chains | OpenStreetMap and Overture brand tags | indirect |
 | Ratings and reviews | Average rating and review count | Google, Yelp, Tripadvisor, OpenRice (Hong Kong), Tabelog (Japan), Dianping (China). Their terms forbid storing the data or require a partnership | perception |
 
-Choice, variety and hygiene are researched in the catalogue ([Daily amenities](../specs/2026-10-25-daily-amenities-research.md)). The open rows come first. Each country's ratings platform is a country-tier dataset that needs a licence, and until it has one, ratings stay out of public builds (D07, D19). Spike S8 tests the open signals.
+Choice, variety and hygiene are researched in the catalogue ([Daily amenities](../specs/2026-10-25-daily-amenities-research.md)). The open rows come first. Each country's ratings platform is a country-tier dataset that needs a licence, and until it has one, ratings stay out of public builds (D07, D19). [Spike S8](../spikes/S8-food-signals.md) tested the open signals for London: hygiene and cuisine variety work (cuisine from Overture's categories first), independents are a noisy indirect signal, and Michelin in Wikidata is too incomplete to count from.
 
 ## Brand presence
 
@@ -63,7 +63,7 @@ Where chain brands choose to open shows how large companies rate an area.
 | Brand variety | Distinct national and international chains within a 15-minute walk | |
 | Brand groups | Brands grouped by what their choice of sites signals: premium, high footfall, large catchment, value | Premium: Gail's, Waitrose. High footfall: Pret, Starbucks. Large catchment: Costco, IKEA. Value: Aldi, Lidl |
 
-Brand groups are listed per country. Each brand's group is checked against data before use, for example whether its presence tracks house prices, and brands that show no pattern are dropped. Brand presence partly mirrors house prices, so it starts at a low default weight. Spike S8 checks how complete brand tags are for London.
+Brand groups are listed per country. Each brand's group is checked against data before use, for example whether its presence tracks house prices, and brands that show no pattern are dropped. Brand presence partly mirrors house prices, so it starts at a low default weight. Spike S8 found brand tags on 13% of London's eating places, so brand signals rest on thin tags, and that premium brands (Waitrose, Gail's) track the median sale price nearby (rank correlation 0.44), Lidl runs against it (−0.22), and Aldi, Costco and IKEA show no pattern and are dropped.
 
 ## Community life
 
