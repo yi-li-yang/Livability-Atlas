@@ -21,6 +21,14 @@ dev = [
     "ruff>=0.6",
     "types-PyYAML>=6.0",
 ]
+spikes = [
+    "geopandas>=1.2.0",
+    "h3>=4.5.0",
+    "openpyxl>=3.1.5",
+    "pyarrow>=26.0.0",
+    "pyogrio>=0.13.0",
+    "shapely>=2.2.0",
+]
 
 [build-system]
 requires = ["hatchling"]

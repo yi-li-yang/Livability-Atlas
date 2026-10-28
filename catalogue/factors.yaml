@@ -181,7 +181,7 @@ factors:
             name: Service level
             description: TfL's PTAL index, which combines walking time and service frequency.
             default_weight: 3
-            status: researched
+            status: spiked
             unit: PTAL band
             preference_type: fixed
             curve: {shape: lookup, scores: {0: 0, 1a: 0.125, 1b: 0.25, 2: 0.375, 3: 0.5, 4: 0.625, 5: 0.75, 6a: 0.875, 6b: 1}}
@@ -193,9 +193,13 @@ factors:
             comparable_across_regions: false
             method: >-
               The PTAL band that covers most of the hex cell, from TfL's 100 m
-              grid. Spike S1 checks this mapping. The London Datastore's
-              release is from 2015, before the Elizabeth line opened, and
-              TfL's WebCAT team supplies its latest data on request.
+              grid, with a tie going to the lower band. Spike S1 found that it
+              matches the band at the cell's centre in 82% of cells, against
+              69% for the band of the cell's mean index. The grid stops at
+              Greater London's boundary, so cells beyond it have no value. The
+              London Datastore's release is from 2015, before the Elizabeth
+              line opened, and TfL's WebCAT team supplies its latest data on
+              request.
             datasets: [tfl-ptal]
           - id: travel-cost
             name: Travel cost

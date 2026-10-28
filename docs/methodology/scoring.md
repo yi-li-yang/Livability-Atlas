@@ -29,7 +29,7 @@ Section 8 ends with a [worked example](#worked-example).
 
 ## 1. Spatial framework
 
-- **Hex cells.** The within-city scale scores H3 resolution 9 hex cells. They average 0.105 km², with edges of about 200 m, so each is about 350 m across. About 15,000 cover Greater London.
+- **Hex cells.** The within-city scale scores H3 resolution 9 hex cells. They average 0.105 km², with edges of about 200 m, so each is about 350 m across. About 17,000 cover Greater London.
 - **Buffer zone.** Measured indicators are computed over the region plus a 2 km ring around it, so a hex cell at the boundary still counts the parks and shops just outside. Only the region is displayed.
 - **Neighbourhoods.** In the UK, neighbourhoods are MSOAs: census areas of about 8,000 residents, about 1,000 of them in London. The House of Commons Library's readable names label them on the map and in the ranked list.
 - **Across-cities scale (Phase 3).** The unit becomes a city outline from the GHS Urban Centre Database. The rest of this method is unchanged.
