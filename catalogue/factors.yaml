@@ -6,9 +6,14 @@
 # curve, evidence type and datasets. The field reference, and the rules the
 # checks enforce, are in catalogue/README.md.
 #
-# Rules until default weights are set from evidence (D14):
-# - default_weight is a placeholder: 3 for every factor, 1 for the two
-#   supporting factors, and 0 for choice factors and community composition.
+# Weight rules:
+# - A top-level factor's default_weight comes from evidence of what people
+#   value (D14): how many of five sources weigh it. See
+#   docs/specs/2026-10-28-default-weights.md for the five sources, the
+#   mapping and the judgement calls it took.
+# - A sub-factor keeps the engineering default of 3 until its own evidence
+#   separates it, 1 for the two supporting factors, and 0 for choice
+#   factors and community composition.
 #   A default_weight other than 3 needs a weight_reason.
 # - A sub-factor inherits its parent's scales, or lists a subset of them.
 # - A measured indicator's status is idea unless stated, and its status
@@ -23,7 +28,10 @@ factors:
   - id: housing-and-cost
     name: Housing and cost
     description: What it costs to buy or rent a home, and to live in the area.
-    default_weight: 3
+    default_weight: 4
+    weight_reason: >-
+      Four of D14's five sources weigh it: the OECD, Mercer and AARP
+      frameworks, and the English Housing Survey's reasons for moving.
     scales: [within-city, across-cities]
     children:
       - id: buying-cost
@@ -94,6 +102,7 @@ factors:
     name: Transport
     description: How easily you get around, and how long it takes to reach the places you go.
     default_weight: 3
+    weight_reason: "Three of D14's five sources weigh it: the EIU, Mercer and AARP frameworks."
     scales: [within-city, across-cities]
     children:
       - id: getting-around
@@ -244,7 +253,8 @@ factors:
   - id: daily-amenities
     name: Daily amenities
     description: Shops, food and services within an easy walk.
-    default_weight: 3
+    default_weight: 2
+    weight_reason: "Two of D14's five sources weigh it: the Mercer and AARP frameworks."
     scales: [within-city, across-cities]
     children:
       - id: everyday-amenities
@@ -409,7 +419,8 @@ factors:
   - id: environment
     name: Environment
     description: Air, noise, green space, water and heat where you live.
-    default_weight: 3
+    default_weight: 4
+    weight_reason: "Four of D14's five sources weigh it: the OECD, EIU, Mercer and AARP frameworks."
     scales: [within-city, across-cities]
     children:
       - id: air-quality
@@ -581,7 +592,8 @@ factors:
   - id: climate
     name: Climate
     description: Weather and climate. They differ between cities, but barely within one.
-    default_weight: 3
+    default_weight: 1
+    weight_reason: "None of D14's five sources gives climate its own category, so it takes the floor of 1."
     scales: [across-cities]
     children:
       - {id: temperature, name: "Temperature", default_weight: 3}
@@ -597,7 +609,8 @@ factors:
   - id: natural-hazards
     name: Natural hazards
     description: Risks from floods, ground movement and other natural events.
-    default_weight: 3
+    default_weight: 1
+    weight_reason: "Only the AARP framework names it, under disaster risk, so it takes the floor of 1."
     scales: [within-city, across-cities]
     children:
       - id: flood-risk
@@ -655,7 +668,8 @@ factors:
   - id: safety
     name: Safety
     description: Crime and road danger.
-    default_weight: 3
+    default_weight: 4
+    weight_reason: "Four of D14's five sources weigh it: the OECD, EIU, Mercer and AARP frameworks."
     scales: [within-city, across-cities]
     children:
       - id: crime
@@ -751,7 +765,8 @@ factors:
   - id: health-care
     name: Health care
     description: Access to GPs, hospitals and dentists.
-    default_weight: 3
+    default_weight: 4
+    weight_reason: "Four of D14's five sources weigh it: the OECD, EIU, Mercer and AARP frameworks."
     scales: [within-city, across-cities]
     children:
       # GP access sits here, not under Daily amenities. Life expectancy sits under Resident wellbeing.
@@ -763,7 +778,8 @@ factors:
   - id: education
     name: Education
     description: Schools, nurseries and universities.
-    default_weight: 3
+    default_weight: 4
+    weight_reason: "Four of D14's five sources weigh it: the OECD, EIU, Mercer and AARP frameworks."
     scales: [within-city, across-cities]
     children:
       - id: schools
@@ -841,7 +857,10 @@ factors:
   - id: community-and-people
     name: Community and people
     description: Who lives nearby, and the community life they share.
-    default_weight: 3
+    default_weight: 2
+    weight_reason: >-
+      Two of D14's five sources weigh it: the OECD's community topic (ties to
+      friends and family) and the AARP framework's civic life.
     scales: [within-city, across-cities]
     children:
       - id: community-composition
@@ -934,7 +953,8 @@ factors:
   - id: culture-and-leisure
     name: Culture and leisure
     description: Culture, nightlife and things to do.
-    default_weight: 3
+    default_weight: 2
+    weight_reason: "Two of D14's five sources weigh it: the EIU and Mercer frameworks."
     scales: [within-city, across-cities]
     children:
       - id: culture
@@ -951,7 +971,8 @@ factors:
   - id: animal-friendliness
     name: Animal friendliness
     description: How well the area suits pets and wildlife.
-    default_weight: 3
+    default_weight: 1
+    weight_reason: "None of D14's five sources mentions pets or wildlife, so it takes the floor of 1."
     scales: [within-city, across-cities]
     children:
       - id: pets
@@ -976,6 +997,7 @@ factors:
     name: Work and economy
     description: Jobs, pay and the local economy.
     default_weight: 3
+    weight_reason: "Three of D14's five sources weigh it: the OECD, Mercer and AARP frameworks."
     scales: [within-city, across-cities]
     children:
       # Jobs within reach sits here, not under Transport.
@@ -990,7 +1012,8 @@ factors:
   - id: digital-connectivity
     name: Digital connectivity
     description: Broadband and mobile coverage.
-    default_weight: 3
+    default_weight: 1
+    weight_reason: "Only the AARP framework names it, under internet access, so it takes the floor of 1."
     scales: [within-city, across-cities]
     children:
       - id: gigabit-broadband
@@ -1045,7 +1068,10 @@ factors:
   - id: urban-form-and-change
     name: Urban form and change
     description: Density, building age, and how the area is changing.
-    default_weight: 3
+    default_weight: 1
+    weight_reason: >-
+      None of D14's five sources mentions density, building age or
+      regeneration, so it takes the floor of 1.
     scales: [within-city, across-cities]
     children:
       - {id: density, name: "Density", default_weight: 3, scales: [within-city], description: "Some users want a busy area and others a quiet one, so the user sets the direction."}
@@ -1056,7 +1082,10 @@ factors:
   - id: governance-and-rights
     name: Governance and rights
     description: How a country is governed, and the rights people have there.
-    default_weight: 3
+    default_weight: 2
+    weight_reason: >-
+      Two of D14's five sources weigh it: the OECD's civic engagement topic
+      and Mercer's political and social environment.
     scales: [across-cities]
     children:
       - {id: rule-of-law, name: "Rule of law", default_weight: 3}

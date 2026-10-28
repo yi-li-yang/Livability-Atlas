@@ -5,13 +5,12 @@
 - Step 0.1 is merged into `main` (#1).
 - Step 0.2: the factor explorer (#2), the [catalogue format](specs/2026-10-24-catalogue-format.md) (#3), the [Transport research](specs/2026-10-24-transport-research.md) (#4) and the `/research-factor` command (#5) are merged.
 - Step 0.2: the research of [Environment](specs/2026-10-25-environment-research.md) (#6), [Safety](specs/2026-10-25-safety-research.md) (#7), [Housing and cost](specs/2026-10-25-housing-research.md) (#8), [Natural hazards](specs/2026-10-25-natural-hazards-research.md) (#9), [Daily amenities](specs/2026-10-25-daily-amenities-research.md) (#10), [Digital connectivity](specs/2026-10-25-digital-connectivity-research.md) (#11) and [Education](specs/2026-10-25-education-research.md) (#12) is merged, and the [Community and people research](specs/2026-10-25-community-research.md) is done.
-- All nine MVP candidates are researched: 38 of the catalogue's 85 within-city measured indicators, from 26 datasets.
+- All nine MVP candidates are researched: 40 of the catalogue's 85 within-city measured indicators, from 26 datasets.
+- Step 0.2: [default weights and the build order](specs/2026-10-28-default-weights.md) (D14) are done.
 
 ## Next
 
-1. The rest of step 0.2, in the roadmap's order:
-   - Set default weights from evidence, with reasons, and compute the build order (D14).
-   - Propose the MVP set of about 10 top-level factors.
+1. Propose the MVP set of about 10 top-level factors, the last item of step 0.2. A natural point to stop for the owner's review.
 2. Four checks the owner can make at any time:
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
@@ -27,6 +26,11 @@
 - Nothing.
 
 ## Log
+
+### 2026-10-28
+
+- **Default weights and the build order set from evidence (D14),** with the [spec](specs/2026-10-28-default-weights.md) recording the method. Each of the 18 top-level factors' weight counts how many of five sources weigh it: the OECD, EIU, Mercer and AARP livability frameworks, and the English Housing Survey's reasons for moving. Housing and cost, Environment, Safety, Health care and Education come out highest, at 4; Climate, Natural hazards, Animal friendliness, Digital connectivity and Urban form and change come out lowest, at the floor of 1. The factor explorer now requires every top-level factor to give its reason, not only those away from the engineering default of 3. The build order ranks the nine researched MVP candidates by weight, then by how many of their measured indicators are already clear for public builds: Safety first, Digital connectivity last.
+- Fixed a stale count in this file's "Now": published rankings had added two more researched measured indicators since the "38" figure was written.
 
 ### 2026-10-25
 

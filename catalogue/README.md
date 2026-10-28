@@ -18,7 +18,7 @@ Every factor has these fields:
 | `id` | yes | A unique kebab-case name, such as `air-quality` |
 | `name` | yes | The plain name the app shows |
 | `default_weight` | yes | A whole number from 0 to 5 |
-| `weight_reason` | when the weight is not the placeholder 3 | Why the default weight is what it is |
+| `weight_reason` | on every top-level factor, and elsewhere when the weight is not 3 | Why the default weight is what it is. A top-level factor's reason names how many of D14's five sources weigh it ([spec](../docs/specs/2026-10-28-default-weights.md)) |
 | `description` | no | One sentence |
 | `scales` | on top-level factors | `within-city`, `across-cities`, or both. A sub-factor inherits its parent's scales, or lists a subset of them |
 | `children` | no | The sub-factors |
