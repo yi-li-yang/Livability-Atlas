@@ -39,7 +39,7 @@ test("clicking a hex cell says why it scores what it does, and the parts add up"
   }).toPass({ timeout: 10_000 });
 
   // The factors that count, each with what it adds.
-  for (const name of ["Transport", "Environment", "Health care"]) {
+  for (const name of ["Transport", "Environment", "Safety", "Health care"]) {
     await expect(
       panel.locator("summary", { hasText: name }).first(),
     ).toBeVisible();
@@ -54,7 +54,7 @@ test("clicking a hex cell says why it scores what it does, and the parts add up"
       .locator(":scope > ul > li > details > summary")
       .allTextContents()
   ).map((text) => Number(text.match(/(\d+) of \d+ points/)?.[1]));
-  expect(contributions).toHaveLength(3);
+  expect(contributions).toHaveLength(4);
   const total = contributions.reduce((a, b) => a + b, 0);
   // Each is rounded to a whole number, so they add up to the score within the rounding.
   expect(Math.abs(total - score)).toBeLessThanOrEqual(2);

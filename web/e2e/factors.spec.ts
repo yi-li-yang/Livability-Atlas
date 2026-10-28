@@ -37,11 +37,12 @@ test("the factor tree shows each factor with its share of the weight and a slide
   page,
 }) => {
   await openApp(page);
-  // Default weights: Transport 3, Environment 4, Health care 4.
+  // Default weights: Transport 3, Environment 4, Safety 4, Health care 4.
   for (const [id, want] of [
-    ["transport", 3 / 11],
-    ["environment", 4 / 11],
-    ["health-care", 4 / 11],
+    ["transport", 3 / 15],
+    ["environment", 4 / 15],
+    ["safety", 4 / 15],
+    ["health-care", 4 / 15],
   ] as const) {
     expect(await share(page, id)).toBeCloseTo(want, 3);
   }
@@ -60,8 +61,8 @@ test("moving a slider resizes the factor at once, and the others shrink or grow 
   const before = await share(page, "transport");
   await page.getByRole("slider", { name: "Weight of Transport" }).fill("5");
   await expect.poll(() => share(page, "transport")).toBeGreaterThan(before);
-  expect(await share(page, "transport")).toBeCloseTo(5 / 13, 3);
-  expect(await share(page, "environment")).toBeCloseTo(4 / 13, 3);
+  expect(await share(page, "transport")).toBeCloseTo(5 / 17, 3);
+  expect(await share(page, "environment")).toBeCloseTo(4 / 17, 3);
 });
 
 test("a factor at weight 0 leaves the drawing for the not counted list, and can come back", async ({
@@ -72,12 +73,12 @@ test("a factor at weight 0 leaves the drawing for the not counted list, and can 
   await expect(tile(page, "transport")).toHaveCount(0);
   const notCounted = page.getByRole("heading", { name: "Not counted" });
   await expect(notCounted).toBeVisible();
-  expect(await share(page, "environment")).toBeCloseTo(0.5, 3);
+  expect(await share(page, "environment")).toBeCloseTo(4 / 12, 3);
 
   await page.getByRole("button", { name: "Count Transport again" }).click();
   await expect(tile(page, "transport")).toHaveCount(1);
   await expect(notCounted).toHaveCount(0);
-  expect(await share(page, "transport")).toBeCloseTo(3 / 11, 3);
+  expect(await share(page, "transport")).toBeCloseTo(3 / 15, 3);
 });
 
 test("opening a factor shows its sub-factors, and the trail leads back", async ({

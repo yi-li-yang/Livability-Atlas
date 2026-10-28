@@ -28,7 +28,8 @@ Livability-Atlas/
 │   │   ├── build.py       # builds a region's data bundle from raw downloads
 │   │   ├── fetch.py       # downloads with a cache and a checksum
 │   │   ├── spatial/       # grid.py: a region's hex cells
-│   │   ├── datasets/      # one module per dataset, by tier: cities/london/ptal.py, countries/gb/ons_regions.py
+│   │   ├── indicators/    # one module per indicator family: crime.py (rates per 1,000 residents, pooled over two steps with a floor)
+│   │   ├── datasets/      # one module per dataset, by tier: cities/london/ptal.py, countries/gb/{ons_regions,census_residents,output_areas,police_uk}.py
 │   │   ├── publish/       # manifest.py (the contract with the web app) and bundle.py (writes the bundle)
 │   │   └── catalogue/     # models.py (the one definition of the catalogue files), checks.py, load.py, schema.py
 │   ├── tests/

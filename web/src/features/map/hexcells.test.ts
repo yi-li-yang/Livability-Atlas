@@ -71,6 +71,7 @@ describe("cellColours", () => {
         "station-proximity": 0,
         "walk-to-green-space": 0,
         "gp-walk": 0,
+        safety: 0,
       },
     };
     const scores = scoreRegion(bundle, profile, allLeafScores(bundle));

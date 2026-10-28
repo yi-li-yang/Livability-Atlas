@@ -457,7 +457,7 @@ factors:
             name: Service level
             description: TfL's PTAL index, which combines walking time and service frequency.
             default_weight: 3
-            status: spiked
+            status: built
             unit: PTAL band
             preference_type: fixed
             curve: {shape: lookup, scores: {0: 0, 1a: 0.125, 1b: 0.25, 2: 0.375, 3: 0.5, 4: 0.625, 5: 0.75, 6a: 0.875, 6b: 1}}
@@ -1009,7 +1009,7 @@ factors:
             name: Burglary
             description: Recorded burglaries, as a rate per resident.
             default_weight: 3
-            status: spiked
+            status: built
             unit: crimes a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}
@@ -1039,7 +1039,7 @@ factors:
             name: Violence and sexual offences
             description: Recorded violent and sexual crimes, as a rate per resident.
             default_weight: 3
-            status: spiked
+            status: built
             unit: crimes a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}
@@ -1052,7 +1052,7 @@ factors:
             name: Robbery and theft from the person
             description: Robbery, and theft such as pickpocketing and bag snatching, as a rate per resident.
             default_weight: 3
-            status: spiked
+            status: built
             unit: crimes a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}
@@ -1065,7 +1065,7 @@ factors:
             name: Vehicle crime
             description: Theft of and from vehicles, as a rate per resident.
             default_weight: 3
-            status: spiked
+            status: built
             unit: crimes a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}
@@ -1078,7 +1078,7 @@ factors:
             name: Anti-social behaviour
             description: Incidents of anti-social behaviour reported to the police, as a rate per resident.
             default_weight: 3
-            status: spiked
+            status: built
             unit: incidents a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}

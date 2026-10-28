@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import h3
+from pyproj import Transformer
 from shapely.geometry import MultiPolygon, Polygon, shape
 from shapely.geometry.base import BaseGeometry
 
@@ -34,3 +35,12 @@ def boundary_from_geojson(path: Path, name_field: str, name: str) -> BaseGeometr
         if feature["properties"].get(name_field) == name:
             return shape(feature["geometry"])
     raise KeyError(f"{path.name} has no feature with {name_field} = {name!r}")
+
+
+def bounds_bng(cells: list[str], margin: float = 0.0) -> tuple[float, float, float, float]:
+    """The box around `cells`, widened by `margin` metres, in British National Grid:
+    x min, y min, x max, y max. For asking a service for what lies within a region."""
+    points = [h3.cell_to_latlng(c) for c in cells]
+    to_bng = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+    xs, ys = to_bng.transform([p[1] for p in points], [p[0] for p in points])
+    return (min(xs) - margin, min(ys) - margin, max(xs) + margin, max(ys) + margin)
