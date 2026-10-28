@@ -1,21 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { type Bundle, loadBundle } from "./data/bundle";
 import { HexMap } from "./features/map/HexMap";
-import { toHexCells } from "./features/map/hexcells";
+import { cellColours, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
+import { allLeafScores, type Profile, scoreRegion } from "./scoring/region";
 
 const BUNDLES_URL = import.meta.env.VITE_BUNDLES_URL ?? "/bundles";
 const REGION = "london";
-// The walking skeleton draws one measured indicator: the service level (PTAL).
-const INDICATOR = "service-level";
 
 type State =
   | { status: "loading" }
   | { status: "ready"; bundle: Bundle }
   | { status: "failed" };
 
+// The weights the user has set. None yet: every factor starts at its default weight.
+const DEFAULT_PROFILE: Profile = { weights: {} };
+
 export function App() {
   const [state, setState] = useState<State>({ status: "loading" });
+  const [profile] = useState<Profile>(DEFAULT_PROFILE);
 
   useEffect(() => {
     loadBundle(BUNDLES_URL, REGION).then(
@@ -27,9 +30,19 @@ export function App() {
     );
   }, []);
 
-  const cells = useMemo(
-    () => (state.status === "ready" ? toHexCells(state.bundle, INDICATOR) : []),
-    [state],
+  const flipped = profile.flipped;
+  const bundle = state.status === "ready" ? state.bundle : null;
+  const cells = useMemo(() => (bundle ? toHexCells(bundle) : []), [bundle]);
+  // What a cell scores on each indicator depends on the data and the user's directions, not on
+  // the weights, so a change of weights only repeats the cheaper weighted sum below.
+  const leaves = useMemo(
+    () => (bundle ? allLeafScores(bundle, flipped) : null),
+    [bundle, flipped],
+  );
+  const colours = useMemo(
+    () =>
+      bundle && leaves ? cellColours(scoreRegion(bundle, profile, leaves)) : [],
+    [bundle, leaves, profile],
   );
 
   return (
@@ -43,7 +56,7 @@ export function App() {
         )}
       </header>
       <main className="relative min-h-0 flex-1">
-        <HexMap cells={cells} />
+        <HexMap cells={cells} colours={colours} />
         {state.status === "loading" && (
           <p
             role="status"
@@ -53,11 +66,7 @@ export function App() {
           </p>
         )}
         {state.status === "ready" && (
-          <Legend
-            title="Public transport service level"
-            low="Worse"
-            high="Better"
-          />
+          <Legend title="Livability score" low="Worse" high="Better" />
         )}
       </main>
       {state.status === "ready" && (

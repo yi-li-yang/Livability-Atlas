@@ -1,6 +1,5 @@
 import { cellToBoundary } from "h3-js";
-import type { Bundle, Value } from "../../data/bundle";
-import { curveScore } from "../../scoring/curves";
+import type { Bundle } from "../../data/bundle";
 import { type Rgba, scoreToColour } from "./colour";
 
 /** A hex cell as the map draws it. */
@@ -8,32 +7,19 @@ export interface HexCell {
   cell: string;
   /** The hexagon's corners as [longitude, latitude]. */
   polygon: [number, number][];
-  value: Value;
-  /** From 0 (worst) to 1 (best), or null where the cell has no value or the curve cannot score it. */
-  score: number | null;
-  colour: Rgba;
 }
 
-/** The cells of a bundle, coloured by the score that one indicator's curve gives each raw value. */
-export function toHexCells(bundle: Bundle, indicatorId: string): HexCell[] {
-  const indicator = bundle.manifest.indicators.find(
-    (i) => i.id === indicatorId,
+/** The bundle's cells as hexagons. Their shapes never change, so work them out once per bundle. */
+export function toHexCells(bundle: Bundle): HexCell[] {
+  return bundle.cells.map((cell) => ({
+    cell,
+    polygon: cellToBoundary(cell, true) as [number, number][],
+  }));
+}
+
+/** The colour of each cell, in the order of the cells, from livability scores of 0 to 100 (NaN: no score). */
+export function cellColours(scores: Float64Array): Rgba[] {
+  return Array.from(scores, (score) =>
+    scoreToColour(Number.isNaN(score) ? null : score / 100),
   );
-  if (!indicator)
-    throw new Error(`The bundle holds no indicator ${indicatorId}`);
-  const values = bundle.columns[indicator.column];
-  return bundle.cells.map((cell, i) => {
-    const value = values[i];
-    const score =
-      value === null || !indicator.curve
-        ? null
-        : curveScore(indicator.curve, value);
-    return {
-      cell,
-      polygon: cellToBoundary(cell, true) as [number, number][],
-      value,
-      score,
-      colour: scoreToColour(score),
-    };
-  });
 }
