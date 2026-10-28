@@ -10,6 +10,7 @@ import h3
 import pandas as pd
 import pytest
 
+from atlas.indicators.crime import CATEGORIES
 from atlas.paths import data_dir
 
 LONDON = data_dir() / "published" / "london"
@@ -47,9 +48,9 @@ def test_soho_has_more_crime_per_resident_than_wimbledon_village(bundle, column)
 
 
 def test_every_cell_has_a_rate_for_each_crime_indicator(bundle):
-    crime = [c for c in bundle.columns if c != "service_level"]
-    assert len(crime) == 5
-    assert bundle[crime].notna().all().all()
+    columns = [name.replace("-", "_") for name in CATEGORIES]
+    assert len(columns) == 5
+    assert bundle[columns].notna().all().all()
 
 
 def test_rates_are_per_1000_residents_so_they_are_of_a_plausible_size(bundle):
@@ -61,3 +62,19 @@ def test_rates_are_per_1000_residents_so_they_are_of_a_plausible_size(bundle):
 def test_the_city_of_london_tops_the_rates_because_of_its_workers_not_residents(bundle):
     """Spike S2's known limit: workers and visitors are in the counts, but not in the residents."""
     assert bundle.loc[BANK, "burglary"] > bundle["burglary"].quantile(0.99)
+
+
+HACKNEY_MARSHES = cell_at(51.5530, -0.0290)  # the Lea valley floodplain
+CRYSTAL_PALACE_HILL = cell_at(51.4190, -0.0750)
+
+
+def test_flood_shares_are_percentages_of_the_area_and_mostly_zero(bundle):
+    for column in ("river_and_sea_flooding", "surface_water_flooding"):
+        assert bundle[column].notna().all()
+        assert bundle[column].between(0, 100).all()
+        assert bundle[column].median() == 0  # most of London is not at risk of 1 in 100
+
+
+def test_the_lea_valley_floodplain_is_more_at_risk_from_rivers_than_a_hilltop(bundle):
+    assert bundle.loc[HACKNEY_MARSHES, "river_and_sea_flooding"] > 20
+    assert bundle.loc[CRYSTAL_PALACE_HILL, "river_and_sea_flooding"] == 0
