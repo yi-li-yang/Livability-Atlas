@@ -850,7 +850,7 @@ factors:
             name: Walk to a GP practice
             description: Walking minutes to the nearest GP practice.
             default_weight: 3
-            status: researched
+            status: built
             unit: minutes on foot
             preference_type: fixed
             curve: {shape: ramp, t0: 15, t1: 5}
@@ -860,13 +860,14 @@ factors:
             method: >-
               The walking time along streets and paths from the hex cell's
               centre to the nearest GP practice or branch surgery, at 4.8 km/h.
-              NHS England's register gives each practice's postcode, and the
-              ONS postcode directory turns it into a place. Public builds use
-              OpenStreetMap's mapped doctors' surgeries instead, until the
-              directory's licence is confirmed. The register covers England
-              only, which is why this measured indicator does not compare
-              across regions. Spike S6 compares how complete the sources are.
-            datasets: [nhs-ods, ons-postcode-directory, openstreetmap]
+              NHS England's registers give the postcode of each active GP
+              practice and each open branch surgery of one, and Ordnance
+              Survey's Code-Point Open turns the postcode into a place.
+              Vaccination sites listed as branches are left out. The registers
+              cover England only, which is why this measured indicator does not
+              compare across regions. A postcode places a practice at the
+              middle of its postcode, a few tens of metres at most.
+            datasets: [nhs-ods, os-code-point-open, openstreetmap]
           - id: gp-list-size
             name: Patients per GP
             description: How many registered patients each full-time GP nearby serves.
@@ -896,7 +897,7 @@ factors:
               cell with no practice in reach has no value here, because the
               walk to a GP practice already scores it. The register covers
               England only.
-            datasets: [nhs-gp-registered-patients, nhs-gp-workforce, nhs-ods, ons-postcode-directory]
+            datasets: [nhs-gp-registered-patients, nhs-gp-workforce, nhs-ods, os-code-point-open]
       - id: ae-distance
         name: Distance to A&E
         description: How far the nearest hospital with a 24-hour emergency department is.

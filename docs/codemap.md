@@ -28,8 +28,8 @@ Livability-Atlas/
 │   │   ├── build.py       # builds a region's data bundle from raw downloads
 │   │   ├── fetch.py       # downloads with a cache and a checksum
 │   │   ├── spatial/       # grid.py: a region's hex cells
-│   │   ├── indicators/    # one module per indicator family: crime.py (rates per 1,000 residents, pooled over two steps with a floor), flood.py (the share of a cell at risk of flooding), transport.py (minutes on foot to a station), education.py (to a school)
-│   │   ├── datasets/      # one module per dataset, by tier: cities/london/ptal.py, countries/gb/{ons_regions,census_residents,output_areas,police_uk,ea_flood_risk,naptan,gias}.py, world/openstreetmap.py
+│   │   ├── indicators/    # one module per indicator family: crime.py (rates per 1,000 residents, pooled over two steps with a floor), flood.py (the share of a cell at risk of flooding), transport.py (minutes on foot to a station), education.py (to a school), health.py (to a GP practice)
+│   │   ├── datasets/      # one module per dataset, by tier: cities/london/ptal.py, countries/gb/{ons_regions,census_residents,output_areas,police_uk,ea_flood_risk,naptan,gias,nhs_ods,code_point}.py, world/openstreetmap.py
 │   │   ├── publish/       # manifest.py (the contract with the web app) and bundle.py (writes the bundle)
 │   │   └── catalogue/     # models.py (the one definition of the catalogue files), checks.py, load.py, schema.py
 │   ├── tests/
