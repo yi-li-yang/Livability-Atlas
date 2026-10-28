@@ -18,7 +18,8 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [x] Assess published rankings against the credibility rubric (`docs/factors/rankings.md`).
   - [x] Draft `docs/methodology/hard-to-measure.md`.
   - [x] Set default weights from evidence, with reasons, and compute the build order (D14).
-  - [ ] Propose the MVP set: about 10 top-level factors.
+  - [x] Propose the MVP set: about 10 top-level factors (D21: the nine researched, and Health care).
+  - [ ] Research Health care, the tenth MVP factor, with `/research-factor health-care`.
 - [x] **Before 0.3: install the tools.** Install uv and just with winget. Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`. Java 21 waits for spike S4.
 - [x] **0.3 Scaffold and CI.** Starts with `superpowers:writing-plans`.
   - [x] `pipeline/`: a uv project with ruff, pyright and pytest. `atlas --help` runs, and `atlas validate` checks `catalogue/`.
@@ -50,7 +51,7 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 
 ### Exit criteria
 
-- [ ] Decisions D01–D19 are accepted, or marked "revisit" with a reason.
+- [ ] Decisions D01–D21 are accepted, or marked "revisit" with a reason.
 - [ ] `just validate` passes. Default weights carry reasons. The MVP factor list is frozen, with each dataset's licence checked.
 - [ ] The factor explorer shows the full catalogue, and the D17 layout is chosen.
 - [ ] Spikes S1–S8 are written up with their decisions.
