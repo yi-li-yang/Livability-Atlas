@@ -13,8 +13,9 @@
 
 ## Next
 
-1. Step 0.5, the rest ([roadmap](roadmap.md)): freeze the MVP factor list in the decision register, and detail the Phase 1 milestones. Step 0.4 is complete; the partly done spikes each wait on something named in their write-up.
-2. Eight checks the owner can make at any time:
+1. Phase 1, the walking skeleton ([roadmap](roadmap.md#phase-1-london-mvp)): one factor, PTAL, from the data pipeline to a coloured map. Every other Phase 1 milestone is detailed there, with the check that closes it.
+2. Close Phase 0: its one open exit criterion is that a fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and this file alone. Only a fresh session can show that, so it waits for the next one to try.
+3. Eight checks the owner can make at any time:
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
    - Register for the three timetable sources that r5py needs (the Bus Open Data Service, National Rail Open Data and TfL's open data portal), keep the credentials in `.env`, and then install JDK 21. Until then the station matrix can only be built from the TfL Journey Planner API ([S4](spikes/S4-routing.md)).
@@ -23,7 +24,7 @@
    - Read the licence on the ONS Postcode Directory's own page on the Open Geography Portal. Until it states one, GP practices cannot be placed from their postcodes in public builds, and patients per GP stays out of them.
    - Ask TfL's WebCAT team for its latest PTAL data, since the open release is from 2015, before the Elizabeth line (spike S1).
    - Ask Royal Mail whether matching Price Paid Data to energy certificates by address, to publish prices per m² by area, is allowed. Until then, buying cost stays out of public builds (spike S3).
-3. Optionally, upgrade Git for Windows from 2.41 and set `core.longpaths true`.
+4. Optionally, upgrade Git for Windows from 2.41 and set `core.longpaths true`.
 
 ## Blocked
 
@@ -33,6 +34,7 @@
 
 ### 2026-10-28
 
+- **MVP list frozen, Phase 1 detailed, decisions settled (step 0.5 complete).** The [MVP scope](specs/2026-10-28-mvp-scope.md) freezes the ten factors, their weights and all 41 researched measured indicators, generated from the catalogue: 32 ship at launch, 5 need a curve from built data, and 4 are blocked (buying cost, NO₂, PM2.5 and patients per GP), each with what lifts the block. Phase 1's six milestones in the roadmap now each carry their checks, and the build order puts Health care fifth. D04, D05, D07, D08, D18 and D19 are accepted on the evidence of the work, and D09, D15 and D16 stay proposed with the phase in which they come up again. Phase 0's exit criteria are met except the fresh-session one.
 - **Scoring method finalised, with golden test cases (step 0.5).** [scoring.md](methodology/scoring.md) is version 1 and D06 is accepted. The percentile curve is defined exactly (best cell 1, ties share the middle, a region of one cell 0.5), as are lookups with an unlisted category, hard limits (`max`, `min`, `in`, `not_in`; met exactly passes; only a failure excludes), and missing data (a zero is data, an absent value is missing). The spikes' findings joined the spatial framework. Fifteen golden test cases in `shared/fixtures/scoring/` were worked out by hand, and a Python reference scorer (`pipeline/src/atlas/scoring/`) reproduces them. The tests also check that the hand-written numbers add up by themselves, and Hypothesis checks that contributions add up to the score on random trees. Breaking the scorer in three ways made the tests fail each time. The web app's TypeScript engine must reproduce the same cases.
 - **Spike S8 done: the open food signals and brand groups** ([write-up](spikes/S8-food-signals.md)). Hygiene works (98% of homes cells have 10 or more rated businesses within 800 m, and the share runs from 69% to 97%), and cuisine variety works from Overture's categories (77% of restaurants carry one; OpenStreetMap's tags cover 73%), so both move to `spiked`, the second with a percentile curve. Michelin in Wikidata is too incomplete (it misses The Clove Club), and independents are a noisy indirect signal (rank correlation 0.71 with the chain share from the FSA's names), so both stay ideas. Premium brands track the median sale price nearby (+0.44), Lidl runs against it (−0.22), and Aldi, Costco and IKEA show no pattern, so they are dropped. **Step 0.4 is complete.**
 - **Spike S7 partly done: the culture evidence ladder** ([write-up](spikes/S7-culture-ladder.md)). On six cultural centres and six suburbs, the direct (venues), variety, character (listed buildings and conservation areas) and article-count rungs pass all eight known-fact assertions and agree with each other. Wikipedia page views do not: Greenwich tops them with 18 venues, so they follow fame, and are dropped. The test is coarse (any count separates Soho from Edgware), and the access, perception, ranking and user's-own rungs are untested. The GLA's Cultural Infrastructure Map joins the catalogue as a dataset, with its 2018 and 2019 dates.

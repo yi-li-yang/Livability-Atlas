@@ -28,11 +28,11 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [x] `justfile`, pre-commit, GitHub Actions running `just check`, and `.claude/settings.json`.
   - [x] The nested `CLAUDE.md` files, each with an `AGENTS.md` beside it (D20), for `pipeline/` and `web/`.
 - [x] **0.4 Spikes S1–S8** (listed below). S1, S2 and S8 are done. S3 to S7 are partly done, each waiting on something the write-up names.
-- [ ] **0.5 Method and freeze.**
+- [x] **0.5 Method and freeze.**
   - [x] Finalise `methodology/scoring.md`.
   - [x] Commit golden test cases to `shared/fixtures/scoring/`, covering nested trees, missing data, flipped directions and ideal ranges. 15 cases, and a Python reference scorer that reproduces them.
-  - [ ] Freeze the MVP factor list in the decision register.
-  - [ ] Detail the Phase 1 milestones here.
+  - [x] Freeze the MVP factor list in the decision register. D21 and the [MVP scope](specs/2026-10-28-mvp-scope.md): ten factors, 41 measured indicators.
+  - [x] Detail the Phase 1 milestones here. See Phase 1 below.
 
 ### Spikes
 
@@ -51,11 +51,11 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 
 ### Exit criteria
 
-- [ ] Decisions D01–D21 are accepted, or marked "revisit" with a reason.
-- [ ] `just validate` passes. Default weights carry reasons. The MVP factor list is frozen, with each dataset's licence checked.
-- [ ] The factor explorer shows the full catalogue, and the D17 layout is chosen.
+- [x] Decisions D01–D21 are accepted, or marked "revisit" with a reason.
+- [x] `just validate` passes. Default weights carry reasons. The MVP factor list is frozen, with each dataset's licence checked.
+- [x] The factor explorer shows the full catalogue, and the D17 layout is chosen.
 - [x] Spikes S1–S8 are written up with their decisions.
-- [ ] The scoring specification v0 and the golden test cases are committed.
+- [x] The scoring specification and the golden test cases are committed.
 - [x] `just check` passes locally and in GitHub Actions.
 - [ ] A fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and `docs/progress.md` alone.
 
@@ -63,16 +63,36 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 
 Goal: a public London map. Exit criteria: the MVP success criteria in [vision.md](vision.md#mvp-success-criteria-end-of-phase-1).
 
+Each milestone ends when its checks pass. The order follows what depends on what, and each is a set of pull requests that keep `just check` green. The decisions behind them are in the spike write-ups ([S1 to S8](spikes/S1-ptal.md)), the [MVP scope](specs/2026-10-28-mvp-scope.md) and the [scoring method](methodology/scoring.md).
+
 - [ ] **Walking skeleton.** One factor end to end: PTAL → hex cells → data bundle → coloured map.
+  - [ ] `atlas build london` for one factor writes a data bundle: `manifest.json` and `cells.parquet` for the 16,883 hex cells of Greater London, and the manifest's schema is exported to `shared/schemas/` and typed in the web app (the contract of [architecture.md](architecture.md#contracts)).
+  - [ ] PTAL becomes a band for each cell by the band that covers most of it, ties to the lower band, and no value outside Greater London (S1). A test asserts it.
+  - [ ] The web app loads the bundle and colours every cell with deck.gl, and a Playwright test sees the coloured map.
+  - Check: the same command run twice gives byte-identical bundles.
 - [ ] **Scoring and the visual factor tree.** The scoring engine, the chosen treemap or sunburst with sliders and drill-down for 3 factors, and default weights.
+  - [ ] The TypeScript engine reproduces all 15 golden cases of `shared/fixtures/scoring/`, and CI runs it and the Python reference scorer against them.
+  - [ ] The factor tree (D17: both layouts, with a switch) with sliders and drill-down, and the default weights from the catalogue. The profile lives in the browser's storage and the URL, never on a server (D08).
+  - Check: the map recolours within about 100 ms of a weight change over about 17,000 cells, measured in a test.
 - [ ] **MVP factors.** The remaining factors, each added through the factor recipe.
+  - [ ] In the [build order](specs/2026-10-28-mvp-scope.md#build-order): Safety, Environment, Education, Housing and cost, Health care, Transport, Daily amenities, Community and people, Natural hazards, Digital connectivity.
+  - [ ] The 32 measured indicators that ship at launch first. Then the 5 that need a curve, whose curves come from the built data. Then the 4 that are blocked, as the owner's checks lift the blocks.
+  - Check for each: its dataset checks, a known-fact assertion, and coverage in the QA report pass, and `atlas validate` passes. The methods in the catalogue carry the spikes' choices: street walks, residents shared by area, rates pooled with a floor, noise averaged at addresses, and the two sources of places pooled.
 - [ ] **Travel and hard limits.**
-  - [ ] the station matrix
+  - [ ] the station matrix: r5py with timetables once the owner has registered for the three sources and installed a JDK, and the Journey Planner API otherwise (D10, [S4](spikes/S4-routing.md))
   - [ ] travel times to the default places
-  - [ ] the in-browser estimate for a user's places
-  - [ ] hard limits
+  - [ ] the in-browser estimate for a user's places, with its error checked on a larger sample and several departure times
+  - [ ] hard limits, reproducing the `hard-limit-*` golden cases
 - [ ] **Layers of detail.** Quick look, why this score, inside a factor and the evidence layer; the ranked neighbourhoods; a single-factor view (e.g. crime only).
+  - [ ] The evidence layer shows each measured indicator's raw value, scoring curve, dataset, date, licence and evidence type.
+  - [ ] Neighbourhood names come from the House of Commons Library's MSOA names.
+  - Check: contributions shown in the app add up to the livability score, on the same cases as the golden ones.
 - [ ] **Validation and release.** The QA report runs all its checks. The site is then released as a public static site, with the owner's go-ahead.
+  - [ ] The QA report runs dataset checks, cross-checks and known-fact assertions ([validation.md](methodology/validation.md)), and each factor's data coverage.
+  - [ ] `just build london` rebuilds the bundle from raw downloads, and gives the same result every time.
+  - [ ] A new factor is added by the recipe with no change to the UI's code.
+  - [ ] Every dataset in the bundle is licensed for public builds, with its attribution shown.
+  - The release itself is the owner's decision: publishing is outward-facing.
 
 ## Phase 2: depth and trust
 

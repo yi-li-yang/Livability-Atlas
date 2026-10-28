@@ -16,11 +16,11 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D01](#d01-first-slice) | First slice | London, within-city scale | accepted |
 | [D02](#d02-architecture) | Architecture | Static-first | accepted |
 | [D03](#d03-tech-stack) | Tech stack | Kept in tech-stack.md | accepted |
-| [D04](#d04-map-grid) | Map grid | H3 resolution 9, 2 km buffer zone, MSOA neighbourhoods | proposed |
-| [D05](#d05-factor-structure) | Factor structure | Factor tree with dropdowns | proposed |
-| [D06](#d06-scoring-method) | Scoring method | v0 in methodology/scoring.md | proposed |
-| [D07](#d07-dataset-licences) | Dataset licences | Public builds: open licences that allow commercial use | proposed |
-| [D08](#d08-sensitive-data-and-privacy) | Sensitive data and privacy | Composition as presence and diversity; personal data stays in the browser | proposed |
+| [D04](#d04-map-grid) | Map grid | H3 resolution 9, 2 km buffer zone, MSOA neighbourhoods | accepted |
+| [D05](#d05-factor-structure) | Factor structure | Factor tree with dropdowns | accepted |
+| [D06](#d06-scoring-method) | Scoring method | v0 in methodology/scoring.md | accepted |
+| [D07](#d07-dataset-licences) | Dataset licences | Public builds: open licences that allow commercial use | accepted |
+| [D08](#d08-sensitive-data-and-privacy) | Sensitive data and privacy | Composition as presence and diversity; personal data stays in the browser | accepted |
 | [D09](#d09-default-places) | Default places | London's main job centres | proposed |
 | [D10](#d10-travel-times) | Travel times | Station matrix + in-browser estimate; r5py, with the TfL API as fallback | accepted |
 | [D11](#d11-documentation) | Documentation | Living documents | accepted |
@@ -30,8 +30,8 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D15](#d15-llm-use) | LLM use | Free options first | proposed |
 | [D16](#d16-scaling) | Scaling | Dataset tiers + region recipe | proposed |
 | [D17](#d17-interface) | Interface | Progressive disclosure; visual factor tree as a treemap or a sunburst, one colour per factor | accepted |
-| [D18](#d18-preference-types) | Preference types | Fixed, user direction, user range, user choice | proposed |
-| [D19](#d19-food-quality) | Food quality | Open signals first | proposed |
+| [D18](#d18-preference-types) | Preference types | Fixed, user direction, user range, user choice | accepted |
+| [D19](#d19-food-quality) | Food quality | Open signals first | accepted |
 | [D20](#d20-agent-rules) | Agent rules | One rule file, `CLAUDE.md`, bridged to other agents by `AGENTS.md` | accepted |
 | [D21](#d21-mvp-factor-set) | MVP factor set | The nine top-level factors already researched, and Health care as a tenth | accepted |
 
@@ -73,7 +73,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 
 ## D04 Map grid
 
-- **Status:** proposed
+- **Status:** accepted
 - **Choice:**
   - Score H3 resolution 9 hex cells: about 0.1 km² and 350 m across each, and about 17,000 for Greater London.
   - Compute measured indicators over the region plus a 2 km buffer zone.
@@ -91,16 +91,18 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.
   - 2026-10-28: spike S1 counted 16,883 resolution 9 cells under the PTAL contours, which cover Greater London, so "about 15,000" became "about 17,000", and the resolution 10 figure became about 120,000. Neither changes the choice.
+  - 2026-10-28: accepted after spikes S1 and S5. TfL's PTAL grid maps to resolution 9 cells, with 16,883 under Greater London and no gap, and averaging at addresses showed no misrepresentation by the grid. Whether the browser keeps up with about 17,000 cells is measured in Phase 1.
 
 ## D05 Factor structure
 
-- **Status:** proposed
+- **Status:** accepted
 - **Choice:** Factors form a tree. Top-level factors split into sub-factors, down to measured indicators. Every composite factor has its own weight, and its sub-factors open in a dropdown.
 - **Why:** Most factors decompose: travel time, for instance, is the walk, the wait, the ride and the changes. A tree lets users fine-tune only where they care.
 - **Alternatives considered:** A flat list of factors, which would be either too coarse or overwhelming.
 - **Revisit when:** The factor explorer (step 0.2) shows that the tree is hard to use.
 - **History:**
   - 2026-10-23: proposed after review asked for decomposition beyond travel time.
+  - 2026-10-28: accepted. The factor explorer (step 0.2) draws the tree, the owner reviewed it and kept both layouts (D17), and ten top-level factors are researched to measured indicators with it.
 
 ## D06 Scoring method
 
@@ -126,7 +128,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 
 ## D07 Dataset licences
 
-- **Status:** proposed
+- **Status:** accepted
 - **Choice:** Public builds use only datasets whose licences allow redistribution and commercial use, with attribution. The allowed list, by SPDX licence id:
   - the Open Government Licence: `OGL-UK-1.0`, `OGL-UK-2.0`, `OGL-UK-3.0`
   - Creative Commons: `CC-BY-3.0`, `CC-BY-4.0`, `CC-BY-SA-3.0`, `CC-BY-SA-4.0`, `CC0-1.0`
@@ -140,10 +142,11 @@ The living list of project decisions. Each entry holds the current choice and wh
   - 2026-10-23: proposed in the Phase 0 planning session.
   - 2026-10-24: the examples became an allowed list of SPDX ids, enforced by the factor catalogue's checks. A dataset whose licence is not yet confirmed stays out of public builds, as the London Atmospheric Emissions Inventory does until the GLA confirms its licence.
   - 2026-10-24: TfL's open data licence joined the allowed list. It allows commercial use and redistribution with attribution. Its amendments add registration for live feeds and a rate limit, and TfL may revise it without notice, so it is checked again before each public build.
+  - 2026-10-28: accepted. The catalogue checks enforce it by SPDX licence id in CI, and every dataset researched since carries its licence check. Four licences are still open (the LAEI, Defra's background maps, the ONS Postcode Directory and OS Code-Point Open), and stay out of public builds until read.
 
 ## D08 Sensitive data and privacy
 
-- **Status:** proposed
+- **Status:** accepted
 - **Choice:**
   - Community composition from Census 2021 (ethnicity, religion, country of birth, main language, life stage) is included, with a default weight of 0. It is framed as presence of a group the user chooses, and as diversity, never as "fewer of group X".
   - Crime is shown as rates, with notes on reporting.
@@ -155,10 +158,11 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** Before any wider launch, review how sensitive data is shown. Before accounts exist, write a privacy policy.
 - **History:**
   - 2026-10-23: first proposed with demographic composition excluded. In review it was included, framed as presence and diversity.
+  - 2026-10-28: accepted. The Community and people research follows its framing rules (presence of a group the user chooses, and diversity), and the scoring method keeps a user's profile in the browser. The privacy policy waits for accounts, as it says.
 
 ## D09 Default places
 
-- **Status:** proposed
+- **Status:** proposed; revisit in Phase 1
 - **Choice:** Until a user adds their own places, travel time uses the average door-to-door time to London's main job centres: the City (Bank), the West End (Oxford Circus), Canary Wharf and King's Cross. Each region defines its default places in `catalogue/regions/<region>.yaml`.
 - **Why:**
   - Every user gets a meaningful travel factor, and these centres reflect typical commutes.
@@ -166,6 +170,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** Employment data suggests a different set of centres.
 - **History:**
   - 2026-10-23: proposed after review asked for a default when no places are set.
+  - 2026-10-28: left proposed at the close of Phase 0. Phase 1's travel milestone builds the default places' times, and employment data may suggest a different set of centres.
 
 ## D10 Travel times
 
@@ -231,7 +236,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 
 ## D15 LLM use
 
-- **Status:** proposed
+- **Status:** proposed; revisit in Phase 4
 - **Choice:**
   - Pipeline jobs run on a local open-weight model under Apache-2.0, pinned so that results reproduce.
   - Plain-language input in the app uses an in-browser model plus bring-your-own-key. The output is constrained to the preference-profile JSON Schema.
@@ -241,10 +246,11 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** Phase 4, since free tiers change often.
 - **History:**
   - 2026-10-23: proposed after review asked for free options.
+  - 2026-10-28: left proposed at the close of Phase 0. LLM jobs start in Phase 3 and plain-language input in Phase 4, and free tiers change often.
 
 ## D16 Scaling
 
-- **Status:** proposed
+- **Status:** proposed; revisit in Phase 3
 - **Choice:**
   - Each sub-factor lists dataset options by tier: city, then country, then global. A new region uses the best tier available, so every city gets a baseline from global datasets.
   - Each measured indicator is marked comparable across regions or not.
@@ -254,6 +260,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** The second city is built (Phase 3).
 - **History:**
   - 2026-10-23: proposed after review asked how to scale to more cities and countries.
+  - 2026-10-28: left proposed at the close of Phase 0. The second city is built in Phase 3, which tests the tier and region design.
 
 ## D17 Interface
 
@@ -271,7 +278,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 
 ## D18 Preference types
 
-- **Status:** proposed
+- **Status:** accepted
 - **Choice:** Each measured indicator has one of four preference types:
   - fixed: everyone agrees, e.g. PM2.5
   - user direction: a "more ↔ less" switch, e.g. rain or nightlife
@@ -282,18 +289,20 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Why:** Some factors have no universal "better": some people like rain, and others want none.
 - **History:**
   - 2026-10-23: proposed after review raised rainfall as an example.
+  - 2026-10-28: accepted. The catalogue's checks require each measured indicator's preference type and an ideal-range curve for a user-range one, and the golden test cases pin flipped directions for every curve shape.
 
 ## D19 Food quality
 
-- **Status:** proposed
+- **Status:** accepted
 - **Choice:**
   - Taste enters as a user choice of cuisines.
   - Quality comes from open signals: choice of restaurants, cuisine variety, food hygiene ratings (UK Food Standards Agency), Michelin recognition recorded in Wikidata, and the share of independents.
   - Ratings platforms (Google, Yelp, Tripadvisor, OpenRice, Tabelog, Dianping) are used only under a licence.
 - **Why:** No open dataset rates restaurants, and the platforms' terms forbid storing their data.
-- **Revisit when:** Spike S8 has tested the open signals, or a ratings platform offers an affordable licence.
+- **Revisit when:** A ratings platform offers an affordable licence, or Wikidata's Michelin records become complete.
 - **History:**
   - 2026-10-23: proposed after review asked how to measure restaurant quality and taste.
+  - 2026-10-28: accepted after spike S8. Hygiene and cuisine variety work for London, independents are a noisy indirect signal, and Michelin recognition in Wikidata is too incomplete to count from (it misses known starred restaurants), so it stays an idea.
 
 ## D20 Agent rules
 
@@ -337,3 +346,4 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **History:**
   - 2026-10-28: proposed, the last item of step 0.2.
   - 2026-10-28: accepted with Health care as a tenth. The owner delegated the decision, so it can be reversed in review.
+  - 2026-10-28: frozen in step 0.5, with the [MVP scope](specs/2026-10-28-mvp-scope.md): the ten factors, their weights and all 41 researched measured indicators (32 ship at launch, 5 need a curve, 4 are blocked by a licence or an owner action). From now on, adding or removing a top-level factor from the MVP, or dropping a measured indicator from its scope, needs a record here.
