@@ -7,6 +7,7 @@
 - Step 0.2: the research of [Environment](specs/2026-10-25-environment-research.md) (#6), [Safety](specs/2026-10-25-safety-research.md) (#7), [Housing and cost](specs/2026-10-25-housing-research.md) (#8), [Natural hazards](specs/2026-10-25-natural-hazards-research.md) (#9), [Daily amenities](specs/2026-10-25-daily-amenities-research.md) (#10), [Digital connectivity](specs/2026-10-25-digital-connectivity-research.md) (#11) and [Education](specs/2026-10-25-education-research.md) (#12) is merged, and the [Community and people research](specs/2026-10-25-community-research.md) is done.
 - All nine MVP candidates are researched: 40 of the catalogue's 85 within-city measured indicators, from 26 datasets.
 - Step 0.2: [default weights and the build order](specs/2026-10-28-default-weights.md) (D14) are done.
+- `AGENTS.md` now bridges Google Antigravity to `CLAUDE.md` (D20). The owner has run Antigravity on it, and it saw the whole of `CLAUDE.md`. Merged as pull request #16.
 
 ## Next
 
@@ -31,6 +32,10 @@
 
 - **Default weights and the build order set from evidence (D14),** with the [spec](specs/2026-10-28-default-weights.md) recording the method. Each of the 18 top-level factors' weight counts how many of five sources weigh it: the OECD, EIU, Mercer and AARP livability frameworks, and the English Housing Survey's reasons for moving. Housing and cost, Environment, Safety, Health care and Education come out highest, at 4; Climate, Natural hazards, Animal friendliness, Digital connectivity and Urban form and change come out lowest, at the floor of 1. The factor explorer now requires every top-level factor to give its reason, not only those away from the engineering default of 3. The build order ranks the nine researched MVP candidates by weight, then by how many of their measured indicators are already clear for public builds: Safety first, Digital connectivity last.
 - Fixed a stale count in this file's "Now": published rankings had added two more researched measured indicators since the "38" figure was written.
+
+### 2026-10-26
+
+- **Agent rules bridged** for Google Antigravity (D20). Antigravity always loads a root `AGENTS.md` and its documentation does not mention `CLAUDE.md`, so the new [AGENTS.md](../AGENTS.md) includes `CLAUDE.md`, which stays the one source of rules. It also translates the Claude Code tools that `CLAUDE.md` names (the superpowers skills, `/research-factor`, `/code-review`) and sets rules for two agents sharing a clone: one agent per branch, a worktree each when they work at once, and a commit as the hand-over. Step 0.3's nested `CLAUDE.md` files will each need an `AGENTS.md` beside them. Built from Antigravity's documentation. The owner then opened the repo in Antigravity, and it saw the whole of `CLAUDE.md`, so D20 is accepted. Antigravity runs only when the owner starts it.
 
 ### 2026-10-25
 
