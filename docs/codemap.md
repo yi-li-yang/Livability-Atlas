@@ -37,8 +37,8 @@ Livability-Atlas/
 │   ├── CLAUDE.md          # its rules for agents (AGENTS.md beside it includes this)
 │   ├── src/
 │   │   ├── data/          # bundle.ts: reads a data bundle (manifest and Parquet cells)
-│   │   ├── scoring/       # curves.ts: scoring curves; engine.ts: the scorer for one hex cell; region.ts: the fast scorer for the whole region. All reproduce the golden test cases, as the Python reference scorer does
-│   │   ├── features/factors/  # FactorTree (the treemap with sliders), treemap (the layout), level (what each level shows), colours
+│   │   ├── scoring/       # curves.ts: scoring curves; engine.ts: the scorer for one hex cell; region.ts: the fast scorer for the whole region; explain.ts: one cell's score, factor by factor, with its rank. All reproduce the golden test cases, as the Python reference scorer does
+│   │   ├── features/factors/  # FactorTree (the treemap with sliders), treemap (the layout), level (what each level shows), colours, QuickLook (the hover card), WhyPanel (the reasons for a hex cell's score)
 │   │   ├── features/map/  # HexMap (the basemap with the hex cells over it), hexcells (shapes and colours), colour, Legend
 │   │   └── generated/     # TypeScript types from shared/schemas (generated)
 │   ├── serve-bundles.ts   # serves data/published/ at /bundles/ in dev and preview

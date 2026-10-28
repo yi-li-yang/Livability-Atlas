@@ -73,6 +73,7 @@ Each milestone ends when its checks pass. The order follows what depends on what
 - [ ] **Scoring and the visual factor tree.** The scoring engine, the chosen treemap or sunburst with sliders and drill-down for 3 factors, and default weights.
   - [x] The TypeScript engine reproduces all 15 golden cases of `shared/fixtures/scoring/`, and CI runs it and the Python reference scorer against them (`just check` runs both test suites).
   - [x] The factor tree as a treemap with a slider for each factor, drill-down, a "Not counted" list and the Salt colours, from the manifest's default weights. Playwright tests resize, drill, count again and recolour the map.
+  - [x] Interface layers 2 to 4: a quick look on hover (score, rank, strengths, weakness) and a panel of reasons on click, with each factor opening into its parts.
   - [ ] The profile lives in the browser's storage and the URL, never on a server (D08), and the sunburst layout comes with a switch between the two (D17).
   - [x] The whole region is scored from the factor tree in the manifest (`web/src/scoring/region.ts`), equal to the one-cell engine in a test, and the map is coloured by the livability score. Rescoring 17,000 cells over 10 factors and 40 measured indicators takes about 3 ms.
   - Check: the map recolours within about 100 ms of a weight change over about 17,000 cells, measured in a test. The scoring half is measured in a test (under 100 ms); the weight sliders that trigger it are not built yet.
