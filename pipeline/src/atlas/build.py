@@ -1,7 +1,7 @@
 """Builds a region's data bundle from raw downloads.
 
 London so far has the service level (PTAL), the crime rates of Safety, the flood shares of
-Natural hazards and the walks to a station, a school and a GP practice. Each indicator that
+Natural hazards and the walks to a station, a school, a GP practice and a park. Each indicator that
 arrives later adds its columns here, through the factor recipe.
 """
 
@@ -21,11 +21,12 @@ from atlas.datasets.countries.gb import (
     naptan,
     nhs_ods,
     ons_regions,
+    os_open_greenspace,
     output_areas,
     police_uk,
 )
 from atlas.datasets.world import openstreetmap
-from atlas.indicators import crime, education, flood, health, transport
+from atlas.indicators import crime, education, environment, flood, health, transport
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
 from atlas.publish.bundle import write_bundle
@@ -108,7 +109,7 @@ def _flood_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[st
 
 def _walking_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[str, Sequence[Any]]:
     """The indicators that are walks along streets (spike S6): minutes to the nearest station,
-    school and GP practice."""
+    school, GP practice and way into a park."""
     ways = walking.read_ways(openstreetmap.fetch(data_dir, region_id))
     network = walking.Network.from_ways(ways)
     stations = naptan.read_stations(naptan.fetch(data_dir))
@@ -123,5 +124,12 @@ def _walking_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[s
     places = health.gp_places(sites, code_point.read_postcodes(code_point.fetch(data_dir)))
     columns["gp-walk"] = [
         None if pd.isna(m) else float(m) for m in health.gp_minutes(network, places, cells)
+    ]
+    gates = os_open_greenspace.read_access_points(
+        os_open_greenspace.fetch(data_dir), bounds_bng(cells, margin=3000)
+    )
+    columns["walk-to-green-space"] = [
+        None if pd.isna(m) else float(m)
+        for m in environment.green_space_minutes(network, gates, cells)
     ]
     return columns

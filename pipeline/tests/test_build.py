@@ -2,13 +2,14 @@ import json
 import zipfile
 from pathlib import Path
 
+import geopandas as gpd
 import h3
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 from openpyxl import Workbook
 from pyproj import Transformer
-from shapely.geometry import box
+from shapely.geometry import Point, box
 from typer.testing import CliRunner
 
 from atlas import build as build_module
@@ -191,6 +192,23 @@ def synthetic_postcodes(tmp_path: Path) -> Path:
     return path
 
 
+def synthetic_greenspace(tmp_path: Path) -> Path:
+    """A park of 3 ha with one way in on foot, at the west end of AREA."""
+    west = TO_BNG.transform(-0.1500, 51.5120)
+    package = tmp_path / "opgrsp_gb.gpkg"
+    x, y = west
+    park = box(x - 150, y - 100, x - 150 + 300, y - 100 + 100)  # 3 ha
+    gpd.GeoDataFrame(
+        {"id": ["park"], "function": ["Public Park Or Garden"]}, geometry=[park], crs="EPSG:27700"
+    ).to_file(package, layer="greenspace_site", driver="GPKG")
+    gpd.GeoDataFrame(
+        {"id": ["gate"], "access_type": ["Pedestrian"], "ref_to_greenspace_site": ["park"]},
+        geometry=[Point(x, y)],
+        crs="EPSG:27700",
+    ).to_file(package, layer="access_point", driver="GPKG", mode="a")
+    return package
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -205,6 +223,8 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.naptan, "fetch", lambda data_dir: stations)
     schools = synthetic_schools(tmp_path)
     monkeypatch.setattr(build_module.gias, "fetch", lambda data_dir: schools)
+    park = synthetic_greenspace(tmp_path)
+    monkeypatch.setattr(build_module.os_open_greenspace, "fetch", lambda data_dir: park)
     gp_files, postcodes = synthetic_gp_practices(tmp_path), synthetic_postcodes(tmp_path)
     monkeypatch.setattr(build_module.nhs_ods, "fetch", lambda data_dir: gp_files)
     monkeypatch.setattr(build_module.code_point, "fetch", lambda data_dir: postcodes)
@@ -368,3 +388,16 @@ def test_the_bundle_holds_the_walk_to_the_nearest_gp_practice(monkeypatch, tmp_p
     assert table[lng > -0.130]["gp_walk"].median() < table[lng < -0.145]["gp_walk"].median()
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert "gp-walk" in {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_walk_to_the_nearest_green_space(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    # The only way into a park is at the west end, so the walk gets longer eastwards.
+    assert table["walk_to_green_space"].notna().all()
+    walks = table["walk_to_green_space"]
+    assert walks[lng < -0.145].median() < walks[lng > -0.130].median()
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "walk-to-green-space" in {i["id"] for i in manifest["indicators"]}

@@ -111,3 +111,11 @@ def test_every_cell_has_a_walk_to_a_gp_practice_and_most_are_within_15_minutes(b
     assert 5 < minutes.median() < 20
     assert (minutes <= 15).mean() > 0.5
     assert minutes[SOHO] < 5
+
+
+def test_parks_are_near_in_the_middle_of_hyde_park_and_far_in_the_city(bundle):
+    minutes = bundle["walk_to_green_space"]
+    assert minutes.notna().all()
+    assert minutes[cell_at(51.5073, -0.1657)] < 7  # Hyde Park
+    assert minutes[BANK] > 10  # the City has only small gardens
+    assert 4 < minutes.median() < 15
