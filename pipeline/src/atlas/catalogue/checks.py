@@ -6,6 +6,8 @@ and the dataset ids that measured indicators name. Each check returns a list
 of problems, each naming the factor or dataset it concerns.
 """
 
+from collections.abc import Sequence
+
 from atlas.catalogue.models import SCALES, DatasetsFile, Factor, FactorsFile
 
 # 3 is the engineering default. A top-level factor always gives its reason (D14),
@@ -28,7 +30,7 @@ def check_factors(factors: FactorsFile, datasets: DatasetsFile) -> list[str]:
     problems: list[str] = []
     seen: set[str] = set()
 
-    def walk(node: Factor, parent_scales: list[str] | None) -> None:
+    def walk(node: Factor, parent_scales: Sequence[str] | None) -> None:
         top_level = parent_scales is None
         if node.id in seen:
             problems.append(f"{node.id}: this id is used more than once.")
@@ -41,14 +43,14 @@ def check_factors(factors: FactorsFile, datasets: DatasetsFile) -> list[str]:
                 f"{node.id}: a default_weight other than {DEFAULT_WEIGHT} needs a weight_reason."
             )
 
-        scales = parent_scales or list(SCALES)
+        scales: Sequence[str] = parent_scales or SCALES
         if node.scales is None:
             if top_level:
                 problems.append(f"{node.id}: a top-level factor must list its scales.")
         elif parent_scales is not None and not set(node.scales) <= set(parent_scales):
             problems.append(f"{node.id}: it lists a scale that its parent does not have.")
         else:
-            scales = list(node.scales)
+            scales = node.scales
 
         if node.children is not None:
             for child in node.children:

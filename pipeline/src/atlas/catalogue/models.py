@@ -7,8 +7,8 @@ reference is in catalogue/README.md. Rules that span several records, such as
 unique ids, live in checks.py.
 """
 
+import datetime
 import re
-from datetime import date
 from typing import Annotated, Literal, Self
 
 from pydantic import (
@@ -205,7 +205,7 @@ class Dataset(_Strict):
     resolution: Text
     date: Text | StrictInt
     licence: Text
-    licence_checked: date | None = None
+    licence_checked: datetime.date | None = None
     public_build: StrictBool
     licence_note: Text | None = None
     attribution: Text | None = None
