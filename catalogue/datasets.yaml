@@ -4,7 +4,7 @@
 # Terms are defined in docs/glossary.md.
 #
 # Each licence is an SPDX id (https://spdx.org/licenses/), or unknown until it
-# is confirmed at the source. A dataset goes into public builds only under a
+# is confirmed at the source. A dataset goes into commercial builds only under a
 # licence from D07's list, with the date it was checked (D07).
 #
 # After editing, refresh the factor explorer and run its tests:
@@ -22,7 +22,7 @@ datasets:
     date: 2022
     licence: unknown
     licence_checked: 2026-10-28
-    public_build: false
+    commercial_use: false
     licence_note: >-
       The London Datastore gives the licence as "Not Specified", for the 2022
       and 2019 editions alike, and its air quality page states none for any
@@ -30,7 +30,7 @@ datasets:
       name no licence and do not mention redistribution or commercial use. The
       files can be downloaded and used in a local build. Ask the GLA Air
       Quality Team, the dataset's contact, to confirm an open licence before a
-      public build.
+      commercial build.
     attribution: >-
       London Atmospheric Emissions Inventory 2022, Greater London Authority and
       Transport for London. The Greater London Authority cannot warrant the
@@ -48,7 +48,7 @@ datasets:
     resolution: 1 km grid
     date: 2021 reference year, projected to 2040
     licence: unknown
-    public_build: false
+    commercial_use: false
     licence_note: >-
       Not yet checked at the source: UK-AIR, which hosts the files, was offline
       for security updates on 2026-10-24. Defra's user guide for the maps
@@ -56,7 +56,7 @@ datasets:
       v3.0. Nottingham City Council's copy of the maps credits them as Crown
       copyright under the Open Government Licence, but also calls them
       "specifically for LAQM purposes only". Check UK-AIR's terms before a
-      public build.
+      commercial build.
     attribution: © Crown copyright, Defra, via uk-air.defra.gov.uk.
     tells:
       - Modelled annual mean background concentrations of NOx, NO₂, PM10 and PM2.5, for each year from 2021 to 2040
@@ -72,13 +72,13 @@ datasets:
     date: live, updated continually
     licence: LicenseRef-TfL-Open-Data
     licence_checked: 2026-10-24
-    public_build: true
+    commercial_use: true
     licence_note: >-
       TfL's licence is version 2.0 of the Open Government Licence with TfL's
       amendments. It allows commercial use and redistribution with attribution,
       but needs registration for the live feeds and limits requests to 500 a
       minute per feed, and TfL may revise it without notice. Check it again
-      before each public build.
+      before each commercial build.
     attribution: >-
       Powered by TfL Open Data. Contains OS data © Crown copyright and database
       rights 2016 and Geomni UK Map data © and database rights [2019].
@@ -97,7 +97,7 @@ datasets:
     date: 2015
     licence: OGL-UK-2.0
     licence_checked: 2026-10-24
-    public_build: true
+    commercial_use: true
     attribution: >-
       Public Transport Accessibility Levels, Transport for London. Contains
       public sector information licensed under the Open Government Licence
@@ -117,7 +117,7 @@ datasets:
     date: updated daily
     licence: OGL-UK-3.0
     licence_checked: 2026-10-24
-    public_build: true
+    commercial_use: true
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - The location and type of every public transport stop and station, for bus, coach, rail, metro, Underground, tram, ferry and air
@@ -132,7 +132,7 @@ datasets:
     date: updated continually
     licence: ODbL-1.0
     licence_checked: 2026-10-24
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The ODbL is share-alike: a database built from OpenStreetMap must be
       published under the ODbL too, as D12 expects for data bundles.
@@ -151,7 +151,7 @@ datasets:
     date: 2022
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The record names the Open Government Licence without a version, and sets
       no access constraints. The version in force is 3.0.
@@ -171,7 +171,7 @@ datasets:
     date: 2022
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The record names the Open Government Licence without a version, and sets
       no access constraints. The version in force is 3.0.
@@ -191,7 +191,7 @@ datasets:
     date: 2022
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The record names the Open Government Licence without a version, and sets
       no access constraints. The version in force is 3.0.
@@ -211,7 +211,7 @@ datasets:
     date: updated every six months
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       Ordnance Survey gives its OS OpenData products the Open Government
       Licence. The licence file in each download names the version, which is
@@ -230,7 +230,7 @@ datasets:
     date: quarterly
     licence: OGL-UK-3.0
     licence_checked: 2026-10-28
-    public_build: true
+    commercial_use: true
     licence_note: >-
       Ordnance Survey's OS OpenData licence page redirects to the Open
       Government Licence v3.0. The ONS's page on licences says its postcode
@@ -254,7 +254,7 @@ datasets:
     date: monthly, for the latest three years
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     attribution: >-
       Contains public sector information licensed under the Open Government
       Licence v3.0. Source: data.police.uk.
@@ -272,7 +272,7 @@ datasets:
     date: 2021
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       Nomis publishes census data under the Open Government Licence without
       naming a version. The version in force is 3.0.
@@ -290,7 +290,7 @@ datasets:
     date: monthly, with sales since 1995
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: false
+    commercial_use: false
     licence_note: >-
       The Open Government Licence covers the prices. The addresses, postcodes
       included, were processed against Ordnance Survey's AddressBase Premium,
@@ -298,7 +298,7 @@ datasets:
       their use only for personal or non-commercial use, or to display
       residential property price information. Matching sales to energy
       certificates by address may need Royal Mail's permission. Ask before a
-      public build, or test Land Registry's UPRN look-up table, which has its
+      commercial build, or test Land Registry's UPRN look-up table, which has its
       own licence (spike S3).
     attribution: >-
       Contains HM Land Registry data © Crown copyright and database right 2021.
@@ -316,7 +316,7 @@ datasets:
     date: certificates lodged since 2008
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The Open Government Licence v3.0 covers every field except the address
       and postcode, UPRNs included. The address fields may be used only for
@@ -337,7 +337,7 @@ datasets:
     date: monthly
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
     tells:
       - Average monthly private rents by local authority, with breakdowns by number of bedrooms and property type
@@ -352,7 +352,7 @@ datasets:
     date: April 2025 to March 2026, as rolling 12-month releases
     licence: OGL-UK-3.0
     licence_checked: 2026-10-28
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The release page states that all content is available under the Open
       Government Licence v3.0. The ONS warns that the sample is purposive,
@@ -372,7 +372,7 @@ datasets:
     date: 2018 and 2019, with some layers revised in 2023
     licence: OGL-UK-3.0
     licence_checked: 2026-10-28
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The dataset page states the Open Government Licence v3. Its venues date
       from 2018 and 2019, and the page lists a newer 2023 web service marked as
@@ -392,7 +392,7 @@ datasets:
     date: December 2025
     licence: OGL-UK-3.0
     licence_checked: 2026-10-28
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The ONS's page on licences says its digital boundary products are
       supplied under the Open Government Licence, may be re-used commercially,
@@ -413,7 +413,7 @@ datasets:
     date: 2026-27, published each March
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - The average Band D council tax of each billing authority, including precepts
@@ -428,7 +428,7 @@ datasets:
     date: National Flood Risk Assessment (NaFRA2), last updated in July 2026
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The product description says the products are available under the Open
       Government Licence, and the record sets no access constraints. The
@@ -450,7 +450,7 @@ datasets:
     date: National Flood Risk Assessment (NaFRA2), last updated in July 2026
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The product description says the products are available under the Open
       Government Licence, and the record sets no access constraints. The
@@ -472,7 +472,7 @@ datasets:
     date: monthly releases
     licence: CDLA-Permissive-2.0 AND Apache-2.0 AND CC0-1.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       Overture licenses Places by source: most sources under CDLA-Permissive-2.0,
       Foursquare's records under Apache-2.0 with its notice, and AllThePlaces
@@ -493,7 +493,7 @@ datasets:
     date: updated daily
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The FSA's terms ask users to show current ratings, or the date they were
       updated, and not to suggest that the FSA endorses a business. The
@@ -514,7 +514,7 @@ datasets:
     date: 2021
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The data.gov.uk record leaves its licence unset, but the ONS supplies its
       digital boundary products under the Open Government Licence v3.0, with
@@ -535,7 +535,7 @@ datasets:
     date: July 2025
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       Ofcom provides the data on an open basis under the Open Government
       Licence, without naming a version. The version in force is 3.0. For
@@ -558,7 +558,7 @@ datasets:
     date: July 2025
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       Ofcom provides the data on an open basis under the Open Government
       Licence, without naming a version. The version in force is 3.0.
@@ -578,7 +578,7 @@ datasets:
     date: updated daily
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - Every school and other educational establishment in England, with its phase, type, status and location
@@ -593,7 +593,7 @@ datasets:
     date: monthly
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       Published on GOV.UK, whose content is available under the Open
       Government Licence v3.0 unless it says otherwise.
@@ -611,7 +611,7 @@ datasets:
     date: 2021
     licence: OGL-UK-3.0
     licence_checked: 2026-10-25
-    public_build: true
+    commercial_use: true
     licence_note: >-
       Nomis publishes census data under the Open Government Licence without
       naming a version. The version in force is 3.0.
@@ -628,7 +628,7 @@ datasets:
     resolution: named towns, cities and neighbourhoods
     date: annual; the 2026 edition names 72 places
     licence: LicenseRef-All-Rights-Reserved
-    public_build: false
+    commercial_use: false
     licence_note: >-
       Proprietary. Store only which places each edition names, with a
       citation, for local builds (D07).
@@ -650,7 +650,7 @@ datasets:
     resolution: named neighbourhoods
     date: annual; the 2025 edition names 39 places
     licence: LicenseRef-All-Rights-Reserved
-    public_build: false
+    commercial_use: false
     licence_note: >-
       Proprietary. Store only which neighbourhoods each edition names, with a
       citation, for local builds (D07).
@@ -672,7 +672,7 @@ datasets:
     resolution: cities
     date: annual; the 2026 edition was released in July 2026
     licence: LicenseRef-All-Rights-Reserved
-    public_build: false
+    commercial_use: false
     licence_note: >-
       Proprietary: the full index is sold, with a free summary. Store only
       ranks, with a citation, for local builds (D07).
@@ -693,7 +693,7 @@ datasets:
     resolution: cities
     date: 2024
     licence: LicenseRef-All-Rights-Reserved
-    public_build: false
+    commercial_use: false
     licence_note: >-
       Proprietary: Mercer sells its city reports. Store only ranks, with a
       citation, for local builds (D07).
@@ -714,7 +714,7 @@ datasets:
     resolution: cities
     date: annual; the 2026 edition names 20 cities
     licence: LicenseRef-All-Rights-Reserved
-    public_build: false
+    commercial_use: false
     licence_note: >-
       Proprietary. Store only ranks, with a citation, for local builds (D07).
     tells:
@@ -734,12 +734,12 @@ datasets:
     resolution: countries and large regions
     date: editions since 2011
     licence: unknown
-    public_build: false
+    commercial_use: false
     licence_note: >-
       Not confirmed. The OECD's open-by-default policy puts content published
       since 1 July 2024 under CC BY 4.0, but the terms for this data could not
       be checked: the OECD's site refused automated access on 2026-10-25.
-      Check its terms before a public build.
+      Check its terms before a commercial build.
     tells:
       - Countries' results on 11 topics of well-being, such as housing, income, jobs, health, safety and life satisfaction, with no overall ranking imposed
     credibility: high
@@ -759,7 +759,7 @@ datasets:
     date: updated nightly
     licence: OGL-UK-3.0
     licence_checked: 2026-10-28
-    public_build: true
+    commercial_use: true
     licence_note: >-
       NHS England's terms and conditions release its content under the Open
       Government Licence, except third-party information marked as such. The
@@ -781,7 +781,7 @@ datasets:
     date: monthly
     licence: OGL-UK-3.0
     licence_checked: 2026-10-28
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The publication page states no licence. NHS England's terms and
       conditions release its content under the Open Government Licence.
@@ -799,7 +799,7 @@ datasets:
     date: monthly
     licence: OGL-UK-3.0
     licence_checked: 2026-10-28
-    public_build: true
+    commercial_use: true
     licence_note: >-
       The publication page states no licence. NHS England's terms and
       conditions release its content under the Open Government Licence.
@@ -815,15 +815,15 @@ datasets:
     resolution: postcodes, as points
     date: quarterly
     licence: unknown
-    public_build: false
+    commercial_use: false
     licence_note: >-
       The ONS's page on licences says its postcode products are under the Open
       Government Licence and may be re-used commercially, with attribution
       lines for the Ordnance Survey and for Royal Mail. It does not name the
-      directory, and it does not give Royal Mail's own terms. Public builds
+      directory, and it does not give Royal Mail's own terms. Commercial builds
       wait until the directory's own page on the Open Geography Portal states
       its licence. OS Code-Point Open, which the directory derives from, is
-      under the same licence with its terms stated, and public builds use it
+      under the same licence with its terms stated, and commercial builds use it
       instead. Northern Ireland postcodes are under separate terms, and a
       London build does not need them.
     tells:

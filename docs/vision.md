@@ -40,7 +40,7 @@ The project's first user is its developer. Every feature is built for any user.
 - **Personal.** Users set the weights. Where tastes differ, they also set the direction, the ideal range or the choice. Hard limits remove areas that fail a must-have.
 - **Private.** A user's preferences and places stay in their browser.
 - **Clear.** The answer comes first, and details open on demand.
-- **Open.** The code is AGPL-3.0, and public builds use only openly licensed datasets.
+- **Open.** The code is AGPL-3.0, and the project is non-commercial for now, and datasets are marked for the commercial use a paid edition would need (D07).
 
 ## Not now
 

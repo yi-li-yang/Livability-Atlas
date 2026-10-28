@@ -214,7 +214,7 @@ function datasetsDoc(fields = {}) {
       resolution: "20 m grid",
       date: "2022",
       licence: "unknown",
-      public_build: false,
+      commercial_use: false,
       licence_note: "The publisher names no licence.",
       tells: ["Modelled annual mean concentrations of NO₂ and PM2.5"],
       ...fields,
@@ -327,12 +327,12 @@ test("a measured indicator of evidence type ranking needs datasets with a credib
 
 // Datasets: datasets.yaml, and decision D07 on licences.
 
-// A dataset that public builds may use.
+// A dataset that commercial builds may use.
 function openDataset(fields = {}) {
   const dataset = datasetsDoc({
     licence: "OGL-UK-3.0",
     licence_checked: "2026-10-24",
-    public_build: true,
+    commercial_use: true,
     attribution: "Contains public sector information licensed under the Open Government Licence v3.0.",
     ...fields,
   }).datasets[0];
@@ -351,7 +351,7 @@ test("datasets.yaml needs a list under datasets", () => {
 });
 
 test("a dataset needs each of its required fields", () => {
-  const fields = ["name", "publisher", "url", "tier", "area", "resolution", "date", "licence", "public_build", "tells"];
+  const fields = ["name", "publisher", "url", "tier", "area", "resolution", "date", "licence", "commercial_use", "tells"];
   for (const field of fields) {
     const doc = datasetsDoc();
     delete doc.datasets[0][field];
@@ -369,7 +369,7 @@ test("each dataset check names its problem and the dataset it concerns", () => {
     [{ url: "data.london.gov.uk" }, /^dataset laei: url must start with http/],
     [{ licence_check: "2026-10-24" }, /^dataset laei: unknown field licence_check/],
     [{ tells: [] }, /^dataset laei: tells must be a non-empty list of text/],
-    [{ public_build: "no" }, /^dataset laei: public_build must be true or false/],
+    [{ commercial_use: "no" }, /^dataset laei: commercial_use must be true or false/],
     [{ licence_checked: "24/10/2026" }, /^dataset laei: licence_checked must be a date, such as 2026-10-24/],
     [{ credibility: "very high", credibility_reason: "Example." }, /^dataset laei: credibility must be one of high, medium, low/],
     [{ credibility: "high" }, /^dataset laei: credibility needs a credibility_reason/],
@@ -381,25 +381,25 @@ test("a year that YAML reads as a number is a valid date", () => {
   assert.deepEqual(core.validateDatasets(datasetsDoc({ date: 2022 })), []);
 });
 
-test("a dataset for public builds needs an open licence, the date it was checked and an attribution (D07)", () => {
+test("a dataset for commercial builds needs an open licence, the date it was checked and an attribution (D07)", () => {
   assert.deepEqual(core.validateDatasets(openDataset()), []);
   assert.deepEqual(core.validateDatasets(openDataset({ licence_checked: new Date(Date.UTC(2026, 9, 24)) })), []);
-  const notOpen = /^dataset laei: public_build is true, but .* is not on D07's list of open licences/;
+  const notOpen = /^dataset laei: commercial_use is true, but .* is not on D07's list of open licences/;
   expectProblem(core.validateDatasets(openDataset({ licence: "unknown" })), notOpen);
   expectProblem(core.validateDatasets(openDataset({ licence: "CC-BY-NC-4.0" })), notOpen);
   const unchecked = openDataset();
   delete unchecked.datasets[0].licence_checked;
-  expectProblem(core.validateDatasets(unchecked), /^dataset laei: public_build is true, so it needs licence_checked/);
+  expectProblem(core.validateDatasets(unchecked), /^dataset laei: commercial_use is true, so it needs licence_checked/);
   const uncredited = openDataset();
   delete uncredited.datasets[0].attribution;
-  expectProblem(core.validateDatasets(uncredited), /^dataset laei: public_build is true, so it needs an attribution/);
+  expectProblem(core.validateDatasets(uncredited), /^dataset laei: commercial_use is true, so it needs an attribution/);
 });
 
 test("a dataset under several licences at once joins them with AND, and each must be open", () => {
   assert.deepEqual(core.validateDatasets(openDataset({ licence: "CDLA-Permissive-2.0 AND Apache-2.0 AND CC0-1.0" })), []);
   expectProblem(
     core.validateDatasets(openDataset({ licence: "CDLA-Permissive-2.0 AND CC-BY-NC-4.0" })),
-    /^dataset laei: public_build is true, but CC-BY-NC-4.0 is not on D07's list of open licences/,
+    /^dataset laei: commercial_use is true, but CC-BY-NC-4.0 is not on D07's list of open licences/,
   );
 });
 
@@ -407,10 +407,10 @@ test("TfL's open data licence is on D07's list, by its LicenseRef id", () => {
   assert.deepEqual(core.validateDatasets(openDataset({ licence: "LicenseRef-TfL-Open-Data" })), []);
 });
 
-test("a dataset kept out of public builds says why", () => {
+test("a dataset kept out of commercial builds says why", () => {
   const doc = datasetsDoc();
   delete doc.datasets[0].licence_note;
-  expectProblem(core.validateDatasets(doc), /^dataset laei: public_build is false, so it needs a licence_note/);
+  expectProblem(core.validateDatasets(doc), /^dataset laei: commercial_use is false, so it needs a licence_note/);
 });
 
 // Showing the research in the factor explorer.
@@ -477,7 +477,7 @@ test("normaliseDatasets returns each dataset by id, with its dates as text", () 
   assert.equal(laei.licence, "OGL-UK-3.0");
   assert.equal(laei.licenceChecked, "2026-10-24");
   assert.equal(laei.date, "2022");
-  assert.equal(laei.publicBuild, true);
+  assert.equal(laei.commercialUse, true);
   assert.equal(laei.licenceNote, "");
   assert.deepEqual(laei.tells, ["Modelled annual mean concentrations of NO₂ and PM2.5"]);
   assert.equal(core.normaliseDatasets(openDataset()).get("laei").licenceChecked, "2026-10-24");

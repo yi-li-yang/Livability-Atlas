@@ -95,7 +95,7 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [ ] The QA report runs dataset checks, cross-checks and known-fact assertions ([validation.md](methodology/validation.md)), and each factor's data coverage.
   - [ ] `just build london` rebuilds the bundle from raw downloads, and gives the same result every time.
   - [ ] A new factor is added by the recipe with no change to the UI's code.
-  - [ ] Every dataset in the bundle is licensed for public builds, with its attribution shown.
+  - [ ] Every dataset in the bundle has a licence entry, with its attribution shown, and is marked for commercial use or not.
   - The release itself is the owner's decision: publishing is outward-facing.
 
 ## Phase 2: depth and trust

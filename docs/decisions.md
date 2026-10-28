@@ -129,15 +129,15 @@ The living list of project decisions. Each entry holds the current choice and wh
 ## D07 Dataset licences
 
 - **Status:** accepted
-- **Choice:** Public builds use only datasets whose licences allow redistribution and commercial use, with attribution. The allowed list, by SPDX licence id:
+- **Choice:** The project is non-commercial for now, so the build uses every dataset it can, with its attribution; any dataset still needs a licence entry. Each dataset is marked `commercial_use`, true only where its licence allows redistribution and commercial use, with attribution, so that a future commercial edition knows what it may keep and what it must pay for or drop. The commercial list, by SPDX licence id:
   - the Open Government Licence: `OGL-UK-1.0`, `OGL-UK-2.0`, `OGL-UK-3.0`
   - Creative Commons: `CC-BY-3.0`, `CC-BY-4.0`, `CC-BY-SA-3.0`, `CC-BY-SA-4.0`, `CC0-1.0`
   - `ODbL-1.0`, `CDLA-Permissive-1.0`, `CDLA-Permissive-2.0` and `Apache-2.0`
   - TfL's open data licence, `LicenseRef-TfL-Open-Data`: version 2.0 of the Open Government Licence with TfL's amendments, which SPDX does not list
 
-  Datasets under non-commercial licences (e.g. Ookla's speed tests), restrictive terms (e.g. ratings platforms) or a licence not yet confirmed may appear only in local builds, flagged in the factor catalogue. The catalogue's checks enforce this: a dataset marked for public builds needs a licence from the list, the date it was checked at the source, and its attribution ([catalogue/README.md](../catalogue/README.md#datasetsyaml)).
-- **Why:** A public site redistributes the data it shows, and a paid edition must stay possible.
-- **Revisit when:** A restricted dataset is worth licensing. It then moves to the allowed list under its new licence.
+  Datasets under non-commercial licences (e.g. Ookla's speed tests), restrictive terms or a licence not yet confirmed are marked `commercial_use: false` with a note, and are used in the build. `atlas build --commercial` leaves out the indicators built from them. Proprietary data that forbids redistribution, such as the published rankings, is still not copied into bundles: only ranks, with a citation. The catalogue's checks enforce the marking: a dataset with `commercial_use: true` needs a licence from the list, the date it was checked at the source, and its attribution ([catalogue/README.md](../catalogue/README.md#datasetsyaml)).
+- **Why:** The owner decided on 2026-10-28 to build everything that is possible now and to pay for licences later, if there is ever a commercial edition, turning what they unlock into paid features. Marking each dataset keeps that edition possible.
+- **Revisit when:** A commercial edition is planned, or a restricted dataset is worth licensing. It then moves to the commercial list under its new licence.
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.
   - 2026-10-24: the examples became an allowed list of SPDX ids, enforced by the factor catalogue's checks. A dataset whose licence is not yet confirmed stays out of public builds, as the London Atmospheric Emissions Inventory does until the GLA confirms its licence.
@@ -145,6 +145,7 @@ The living list of project decisions. Each entry holds the current choice and wh
   - 2026-10-28: accepted. The catalogue checks enforce it by SPDX licence id in CI, and every dataset researched since carries its licence check. Four licences are still open (the LAEI, Defra's background maps, the ONS Postcode Directory and OS Code-Point Open), and stay out of public builds until read.
   - 2026-10-28: OS Code-Point Open is confirmed as the Open Government Licence: the OS OpenData licence page redirects to it, and the ONS's page on licences says its postcode products, derived from Code-Point Open, are under it, with three credits (the Ordnance Survey, Royal Mail and the ONS). Public builds use it. Three licences stay open.
   - 2026-10-28: the owner pointed at the London Datastore's air quality page and downloads were allowed. The LAEI 2022 files can be downloaded and are used in local builds, but neither the page nor the dataset page nor the Datastore's terms name a licence ("Not Specified"; the terms let anyone use the data for any lawful purpose and say nothing of redistribution or commercial use). So the LAEI stays out of public builds: `atlas build --public` leaves out the indicators from datasets that are not cleared, which today are NO₂ and PM2.5.
+  - 2026-10-28: the owner decided that the project is non-commercial for now. The rule that a public build used only commercially licensed datasets became the marking `commercial_use` (renamed from `public_build`), and the build uses every dataset. Specs and logs written before this date say "public builds" for what is now "commercial builds".
 
 ## D08 Sensitive data and privacy
 
