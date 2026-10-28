@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import h3
+import numpy as np
 from pyproj import Transformer
 from shapely.geometry import MultiPolygon, Polygon, shape
 from shapely.geometry.base import BaseGeometry
@@ -44,3 +45,11 @@ def bounds_bng(cells: list[str], margin: float = 0.0) -> tuple[float, float, flo
     to_bng = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
     xs, ys = to_bng.transform([p[1] for p in points], [p[0] for p in points])
     return (min(xs) - margin, min(ys) - margin, max(xs) + margin, max(ys) + margin)
+
+
+def cell_centres_bng(cells: list[str]) -> np.ndarray:
+    """The centre of each cell: rows of easting and northing, in metres of British National Grid."""
+    points = [h3.cell_to_latlng(c) for c in cells]
+    to_bng = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+    x, y = to_bng.transform([p[1] for p in points], [p[0] for p in points])
+    return np.column_stack([x, y])
