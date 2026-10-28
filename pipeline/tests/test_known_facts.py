@@ -78,3 +78,20 @@ def test_flood_shares_are_percentages_of_the_area_and_mostly_zero(bundle):
 def test_the_lea_valley_floodplain_is_more_at_risk_from_rivers_than_a_hilltop(bundle):
     assert bundle.loc[HACKNEY_MARSHES, "river_and_sea_flooding"] > 20
     assert bundle.loc[CRYSTAL_PALACE_HILL, "river_and_sea_flooding"] == 0
+
+
+CHINGFORD = cell_at(51.6330, -0.0100)
+
+
+def test_every_cell_has_a_walk_to_a_station_and_the_centre_is_better_served(bundle):
+    minutes = bundle["station_proximity"]
+    assert minutes.notna().all()
+    assert minutes.min() >= 0
+    assert minutes.loc[BANK] < 6 < minutes.loc[CHINGFORD]
+    assert minutes.loc[SOHO] < 8
+
+
+def test_most_of_london_is_within_a_30_minute_walk_of_a_station(bundle):
+    minutes = bundle["station_proximity"]
+    assert 8 < minutes.median() < 25
+    assert (minutes <= 30).mean() > 0.75

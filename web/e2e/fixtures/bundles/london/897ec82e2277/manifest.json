@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": "c2cc0e8c379e",
+  "version": "897ec82e2277",
   "region": {
     "id": "london",
     "name": "London"
@@ -147,6 +147,20 @@
       "datasets": ["tfl-ptal"]
     },
     {
+      "id": "station-proximity",
+      "name": "Walk to the nearest station",
+      "column": "station_proximity",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 25.0,
+        "t1": 6.0
+      },
+      "datasets": ["tfl-unified-api", "naptan", "openstreetmap"]
+    },
+    {
       "id": "burglary",
       "name": "Burglary",
       "column": "burglary",
@@ -230,20 +244,6 @@
         "ons-census-2021-residents",
         "ons-output-area-boundaries"
       ]
-    },
-    {
-      "id": "station-proximity",
-      "name": "Walk to the nearest station",
-      "column": "station_proximity",
-      "unit": "minutes on foot",
-      "evidence_type": "direct",
-      "preference_type": "fixed",
-      "curve": {
-        "shape": "ramp",
-        "t0": 25.0,
-        "t1": 6.0
-      },
-      "datasets": ["tfl-unified-api", "naptan", "openstreetmap"]
     },
     {
       "id": "walk-to-green-space",

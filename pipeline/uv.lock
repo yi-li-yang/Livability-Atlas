@@ -103,6 +103,7 @@ dependencies = [
     { name = "geopandas" },
     { name = "h3" },
     { name = "openpyxl" },
+    { name = "osmium" },
     { name = "pandas" },
     { name = "pillow" },
     { name = "pyarrow" },
@@ -110,6 +111,7 @@ dependencies = [
     { name = "pyproj" },
     { name = "pyyaml" },
     { name = "requests" },
+    { name = "scipy" },
     { name = "shapely" },
     { name = "typer" },
 ]
@@ -142,6 +144,7 @@ requires-dist = [
     { name = "geopandas", specifier = ">=1.2.0" },
     { name = "h3", specifier = ">=4.5.0" },
     { name = "openpyxl", specifier = ">=3.1.5" },
+    { name = "osmium", specifier = ">=4.0" },
     { name = "pandas", specifier = ">=3.1.0" },
     { name = "pillow", specifier = ">=11.0" },
     { name = "pyarrow", specifier = ">=26.0.0" },
@@ -149,6 +152,7 @@ requires-dist = [
     { name = "pyproj", specifier = ">=3.8.0" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "requests", specifier = ">=2.34.2" },
+    { name = "scipy", specifier = ">=1.18.1" },
     { name = "shapely", specifier = ">=2.2.0" },
     { name = "typer", specifier = ">=0.12" },
 ]
@@ -578,6 +582,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d5/74/4fd6d4df12bd96179d42df340926b95747be1847d5c614b1b51d68eaba23/osmfinder-1.2.1.tar.gz", hash = "sha256:58a7a1d9912c4b833e0798f4fa7d7901fb29e72e7064be8bfe740833d72815e1", size = 47241, upload-time = "2026-10-15T07:58:30.81Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d1/bc/ebf75d70f9bdcd1ece861c46ac7035f67c4727948b4bd08126871c90b1bc/osmfinder-1.2.1-py3-none-any.whl", hash = "sha256:0b2d9e95f6fad42bb43c42be314aace364a4ce2821eda596c730d8371f8e2bab", size = 58270, upload-time = "2026-10-15T07:58:29.849Z" },
+]
+
+[[package]]
+name = "osmium"
+version = "4.3.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a6/33/c7cb6aa530b887370c6b8d91660d327758562f5dc8dd19d744aea0c74d45/osmium-4.3.2.tar.gz", hash = "sha256:bea7aa809d41659ad29c7b4627ce7e1af4d420d03db45b3a4211cb6192b6926f", size = 540558, upload-time = "2026-10-18T19:24:35.996Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/89/da/2d7b1daca2d74dea11696dcfd4778353bdd941695169f68745913cc4decb/osmium-4.3.2-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:8eb8fbd9393846ca69597aafb48004e026b067bf948db0eaf2030df79cf2ae09", size = 1314073, upload-time = "2026-10-18T19:22:43.194Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/cf/cdba2760e2f7d9cc1fc82fd4fa9e871e992e313018044434df081ce6ae89/osmium-4.3.2-cp313-cp313-macosx_11_0_x86_64.whl", hash = "sha256:13d9617b65101ba4722eeb3aabd50472e4d630e8d4bd41797bb94b551b3bb084", size = 1477095, upload-time = "2026-10-18T19:22:45.875Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/34/1c7e25d29329cf7c092e5360744a8fdae4d855a2b4880b5e54e7141eb7eb/osmium-4.3.2-cp313-cp313-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:456234255186a6f9aae83e70cce3e878f51673c37595f116d54f2cd861151b61", size = 1729855, upload-time = "2026-10-18T19:22:48.735Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/c4/6d90bc6527628684a2805fe715920b322098a993f9a57f2589813bbf9233/osmium-4.3.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:bb60311add237264e104ea7766a93fecbfb2062038b39297fcbe97a67e531053", size = 1876757, upload-time = "2026-10-18T19:22:51.784Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/f7/eccdb7be503d146b21d4b76deebd02f761fa5dca555efa231c9208865e5a/osmium-4.3.2-cp313-cp313-win_amd64.whl", hash = "sha256:30bbdbc60770ed01373be8af031175eb350f4e839a64098bb902cb3a8b0954b9", size = 1918548, upload-time = "2026-10-18T19:22:54.766Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/30/6c1212ab665fddd212647d5d2903f796ac74db02f2bf8be92690efd8524e/osmium-4.3.2-cp313-cp313-win_arm64.whl", hash = "sha256:daa9487bed838144615eee97f89b84596078737970531b4daa7e788d4b3838ec", size = 2049332, upload-time = "2026-10-18T19:22:57.915Z" },
 ]
 
 [[package]]

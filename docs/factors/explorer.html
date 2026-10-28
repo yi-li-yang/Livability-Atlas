@@ -391,7 +391,7 @@ factors:
             name: Walk to the nearest station
             description: Walking minutes to the nearest Tube, rail, DLR, Overground, Elizabeth line or tram station.
             default_weight: 3
-            status: researched
+            status: built
             unit: minutes on foot
             preference_type: fixed
             curve: {shape: ramp, t0: 25, t1: 6}
@@ -407,6 +407,7 @@ factors:
               The walking time along streets and paths from the hex cell's
               centre to the nearest station entrance, at 4.8 km/h. Spike S6
               measures how far walking routes differ from straight lines.
+              The build reads OpenStreetMap's streets and paths that people may walk, joins them into a network, and measures from each cell's centre to the nearest active rail or metro entrance in NaPTAN. A point first walks in a straight line to the nearest street of the main network, which leaves out cut-off fragments such as private estates. On London the walks run a median 1.36 times their straight line, against 1.33 in spike S6, and none is shorter. Cells near the edge of Greater London may overstate the walk, because the streets beyond it are not in the network.
             datasets: [tfl-unified-api, naptan, openstreetmap]
           - id: line-choice
             name: Line choice
