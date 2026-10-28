@@ -37,6 +37,7 @@ validate:
 # Regenerate every generated file from its source (never edit those by hand)
 generate:
     cd pipeline; uv run atlas schemas
+    cd web; npm run generate
 
 # Run the factor explorer's tests
 explorer:
