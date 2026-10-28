@@ -45,7 +45,7 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 | S3 | How many hex cells have enough sales for a price per m² (Land Registry with EPC floor areas)? What is the finest open rent data for London, and is a model of rent from sale prices credible? Partly done: [S3](spikes/S3-sales-and-rents.md); the price per m² waits for the EPC download and Royal Mail |
 | S4 | Can r5py with GTFS timetables, or the TfL API, build the station matrix? How large is the error of the in-browser estimate against TfL Journey Planner? What do TfL's terms and limits allow? The answers decide D10. Partly done: [S4](spikes/S4-routing.md); r5py waits for the owner's timetable registrations |
 | S5 | How should raster data (air quality, noise) be aggregated to hex cells? Partly done: [S5](spikes/S5-noise-aggregation.md); noise is settled, air quality and flooding are not |
-| S6 | How complete are Overture, Foursquare Open Source Places and OpenStreetMap, brand tags included? How much do straight-line and network walking distances differ? |
+| S6 | How complete are Overture, Foursquare Open Source Places and OpenStreetMap, brand tags included? How much do straight-line and network walking distances differ? Partly done: [S6](spikes/S6-places.md); food, supermarkets and shops are tested, other kinds are not |
 | S7 | Does the culture evidence ladder work on a sample of neighbourhoods, with a known-fact assertion for each kind of evidence? |
 | S8 | Do the food signals (hygiene ratings, Michelin in Wikidata, cuisine variety, the independents' share) work for London? Do the brand groups track house prices? |
 
