@@ -103,3 +103,11 @@ def test_primary_schools_are_nearer_than_secondary_schools_and_every_cell_has_bo
     assert primary.median() < secondary.median()  # there are far more primary schools
     assert 4 < primary.median() < 20
     assert 8 < secondary.median() < 30
+
+
+def test_every_cell_has_a_walk_to_a_gp_practice_and_most_are_within_15_minutes(bundle):
+    minutes = bundle["gp_walk"]
+    assert minutes.notna().all()
+    assert 5 < minutes.median() < 20
+    assert (minutes <= 15).mean() > 0.5
+    assert minutes[SOHO] < 5

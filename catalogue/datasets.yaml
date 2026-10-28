@@ -217,6 +217,30 @@ datasets:
     tells:
       - Green spaces likely to be open to the public, such as parks, playing fields and sports facilities, with the points where people can get in
 
+  - id: os-code-point-open
+    name: OS Code-Point Open
+    publisher: Ordnance Survey
+    url: https://www.ordnancesurvey.co.uk/products/code-point-open
+    tier: country
+    area: Great Britain
+    resolution: postcodes, as points
+    date: quarterly
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-28
+    public_build: true
+    licence_note: >-
+      Ordnance Survey's OS OpenData licence page redirects to the Open
+      Government Licence v3.0. The ONS's page on licences says its postcode
+      products, derived from Code-Point Open, are under that licence. The
+      download carries three credits: the Ordnance Survey, Royal Mail and the
+      ONS. Northern Ireland's postcodes are not in it.
+    attribution: >-
+      Contains OS data © Crown copyright and database right 2026. Contains Royal
+      Mail data © Royal Mail copyright and database right 2026. Contains
+      National Statistics data © Crown copyright and database right 2026.
+    tells:
+      - The coordinates of every postcode in Great Britain, which turn the postcodes in NHS England's registers into places
+
   - id: police-uk
     name: Police recorded crime and anti-social behaviour (data.police.uk)
     publisher: The police forces of England, Wales and Northern Ireland, through data.police.uk
@@ -795,7 +819,9 @@ datasets:
       lines for the Ordnance Survey and for Royal Mail. It does not name the
       directory, and it does not give Royal Mail's own terms. Public builds
       wait until the directory's own page on the Open Geography Portal states
-      its licence. Northern Ireland postcodes are under separate terms, and a
+      its licence. OS Code-Point Open, which the directory derives from, is
+      under the same licence with its terms stated, and public builds use it
+      instead. Northern Ireland postcodes are under separate terms, and a
       London build does not need them.
     tells:
       - The coordinates of every postcode, which turn the postcodes in NHS England's registers into places

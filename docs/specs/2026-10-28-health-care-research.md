@@ -49,7 +49,7 @@ Status: built. The tenth MVP factor researched in Phase 0, step 0.2 ([roadmap](.
 2. **The pharmacies curve for the GP walk**, from CIHT, since no NHS standard exists.
 3. **Patients per GP and Distance to A&E wait for their curves.** Each has one source and no threshold, and the spread of London's data is the honest basis for a percentile or a ramp.
 4. **Distance to A&E in straight-line kilometres**, renamed from a travel time, because that is what the evidence measures.
-5. **The ONS Postcode Directory stays out of public builds** until its own page states a licence. Confirming it unlocks patients per GP for public builds.
+5. **The ONS Postcode Directory stays out of public builds** until its own page states a licence. Update, 2026-10-28: OS Code-Point Open, which the directory derives from, is confirmed under the Open Government Licence, and places the practices instead; patients per GP now waits only for its curve.
 6. **Dentists stay an idea.** The ODS lists dental practices and where they are, but no open source says which take new NHS patients, and the NHS Business Services Authority says it does not record it. A map of practices alone would score places on dentists that people cannot register with.
 
 ## Findings for the spikes

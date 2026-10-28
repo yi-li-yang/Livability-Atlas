@@ -143,6 +143,7 @@ The living list of project decisions. Each entry holds the current choice and wh
   - 2026-10-24: the examples became an allowed list of SPDX ids, enforced by the factor catalogue's checks. A dataset whose licence is not yet confirmed stays out of public builds, as the London Atmospheric Emissions Inventory does until the GLA confirms its licence.
   - 2026-10-24: TfL's open data licence joined the allowed list. It allows commercial use and redistribution with attribution. Its amendments add registration for live feeds and a rate limit, and TfL may revise it without notice, so it is checked again before each public build.
   - 2026-10-28: accepted. The catalogue checks enforce it by SPDX licence id in CI, and every dataset researched since carries its licence check. Four licences are still open (the LAEI, Defra's background maps, the ONS Postcode Directory and OS Code-Point Open), and stay out of public builds until read.
+  - 2026-10-28: OS Code-Point Open is confirmed as the Open Government Licence: the OS OpenData licence page redirects to it, and the ONS's page on licences says its postcode products, derived from Code-Point Open, are under it, with three credits (the Ordnance Survey, Royal Mail and the ONS). Public builds use it. Three licences stay open.
 
 ## D08 Sensitive data and privacy
 

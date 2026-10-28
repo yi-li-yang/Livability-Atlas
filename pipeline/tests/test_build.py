@@ -170,6 +170,27 @@ def synthetic_schools(tmp_path: Path) -> Path:
     return path
 
 
+def synthetic_gp_practices(tmp_path: Path) -> tuple[Path, Path]:
+    """One GP practice in the east of AREA, in the layout of NHS England's two files."""
+    row = [""] * 27
+    row[0], row[1], row[9], row[12], row[25] = "A1", "EAST PRACTICE", "W1 1AA", "ACTIVE", "RO76"
+    practices, branches = tmp_path / "epraccur.csv", tmp_path / "ebranchs.csv"
+    practices.write_text(",".join(f'"{v}"' for v in row) + "\n", encoding="utf-8")
+    other = [""] * 27
+    other[0], other[1], other[9], other[14] = "Z9", "ELSEWHERE", "N1 1AA", "NONE"
+    branches.write_text(",".join(f'"{v}"' for v in other) + "\n", encoding="utf-8")
+    return practices, branches
+
+
+def synthetic_postcodes(tmp_path: Path) -> Path:
+    """The place of that practice's postcode, in the east of AREA."""
+    east = TO_BNG.transform(-0.1285, 51.5120)
+    path = tmp_path / "codepo_gb.zip"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("Data/CSV/w.csv", f'"W1 1AA",10,{east[0]:.0f},{east[1]:.0f},"E92000001"\n')
+    return path
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -184,6 +205,9 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.naptan, "fetch", lambda data_dir: stations)
     schools = synthetic_schools(tmp_path)
     monkeypatch.setattr(build_module.gias, "fetch", lambda data_dir: schools)
+    gp_files, postcodes = synthetic_gp_practices(tmp_path), synthetic_postcodes(tmp_path)
+    monkeypatch.setattr(build_module.nhs_ods, "fetch", lambda data_dir: gp_files)
+    monkeypatch.setattr(build_module.code_point, "fetch", lambda data_dir: postcodes)
     monkeypatch.setattr(
         build_module.ea_flood_risk,
         "fetch",
@@ -332,3 +356,15 @@ def test_the_bundle_holds_the_walk_to_the_nearest_primary_and_secondary_school(
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     ids = {i["id"] for i in manifest["indicators"]}
     assert {"primary-schools", "secondary-schools"} <= ids
+
+
+def test_the_bundle_holds_the_walk_to_the_nearest_gp_practice(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    # The only practice is in the east, so the walk gets longer westwards.
+    assert table["gp_walk"].notna().all()
+    assert table[lng > -0.130]["gp_walk"].median() < table[lng < -0.145]["gp_walk"].median()
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "gp-walk" in {i["id"] for i in manifest["indicators"]}
