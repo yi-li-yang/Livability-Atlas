@@ -660,3 +660,81 @@ datasets:
       interests. It covers countries and large regions, such as Greater London,
       not cities or neighbourhoods, and it leaves the weighting of its 11
       topics to the user.
+
+  - id: nhs-ods
+    name: NHS England Organisation Data Service (ODS)
+    publisher: NHS England
+    url: https://digital.nhs.uk/services/organisation-data-service
+    tier: country
+    area: England
+    resolution: points, by postcode
+    date: updated nightly
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-28
+    public_build: true
+    licence_note: >-
+      NHS England's terms and conditions release its content under the Open
+      Government Licence, except third-party information marked as such. The
+      ODS pages state no licence of their own and mark nothing as third-party.
+      Postcodes come without coordinates, which a separate postcode dataset
+      supplies.
+    attribution: Contains information from NHS England, licenced under the current version of the Open Government Licence.
+    tells:
+      - Every GP practice and branch surgery, with its postcode and whether it is active
+      - NHS trusts and their sites, which cross-check where hospitals are
+      - Dental practices, with their postcodes
+  - id: nhs-gp-registered-patients
+    name: Patients Registered at a GP Practice
+    publisher: NHS England
+    url: https://digital.nhs.uk/data-and-information/publications/statistical/patients-registered-at-a-gp-practice
+    tier: country
+    area: England
+    resolution: GP practices, and LSOAs quarterly
+    date: monthly
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-28
+    public_build: true
+    licence_note: >-
+      The publication page states no licence. NHS England's terms and
+      conditions release its content under the Open Government Licence.
+    attribution: Contains information from NHS England, licenced under the current version of the Open Government Licence.
+    tells:
+      - How many patients are registered at each GP practice, by age and sex
+      - Since April 2024 the count comes from the Personal Demographics Service
+  - id: nhs-gp-workforce
+    name: General Practice Workforce
+    publisher: NHS England
+    url: https://digital.nhs.uk/data-and-information/publications/statistical/general-and-personal-medical-services
+    tier: country
+    area: England
+    resolution: GP practices
+    date: monthly
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-28
+    public_build: true
+    licence_note: >-
+      The publication page states no licence. NHS England's terms and
+      conditions release its content under the Open Government Licence.
+    attribution: Contains information from NHS England, licenced under the current version of the Open Government Licence.
+    tells:
+      - The full-time equivalent GPs at each practice, with fully qualified GPs counted apart from GPs in training
+  - id: ons-postcode-directory
+    name: ONS Postcode Directory
+    publisher: Office for National Statistics
+    url: https://geoportal.statistics.gov.uk/
+    tier: country
+    area: United Kingdom
+    resolution: postcodes, as points
+    date: quarterly
+    licence: unknown
+    public_build: false
+    licence_note: >-
+      The ONS's page on licences says its postcode products are under the Open
+      Government Licence and may be re-used commercially, with attribution
+      lines for the Ordnance Survey and for Royal Mail. It does not name the
+      directory, and it does not give Royal Mail's own terms. Public builds
+      wait until the directory's own page on the Open Geography Portal states
+      its licence. Northern Ireland postcodes are under separate terms, and a
+      London build does not need them.
+    tells:
+      - The coordinates of every postcode, which turn the postcodes in NHS England's registers into places

@@ -19,7 +19,7 @@ Goal: turn the concept into decisions, a researched factor catalogue, a scoring 
   - [x] Draft `docs/methodology/hard-to-measure.md`.
   - [x] Set default weights from evidence, with reasons, and compute the build order (D14).
   - [x] Propose the MVP set: about 10 top-level factors (D21: the nine researched, and Health care).
-  - [ ] Research Health care, the tenth MVP factor, with `/research-factor health-care`.
+  - [x] Research Health care, the tenth MVP factor, with `/research-factor health-care`.
 - [x] **Before 0.3: install the tools.** Install uv and just with winget. Set `PYTHONUTF8=1`, and point `UV_CACHE_DIR` at a folder on `E:`. Java 21 waits for spike S4.
 - [x] **0.3 Scaffold and CI.** Starts with `superpowers:writing-plans`.
   - [x] `pipeline/`: a uv project with ruff, pyright and pytest. `atlas --help` runs, and `atlas validate` checks `catalogue/`.

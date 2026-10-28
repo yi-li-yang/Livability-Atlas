@@ -29,6 +29,8 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Gigabit broadband | Broadband that can reach a gigabit, 1,000 megabits, per second, over full fibre or cable | 90% of homes can get gigabit broadband |
 | Ofsted | The body that inspects schools in England and publishes each inspection's results | A school's latest Ofsted inspection |
 | Diversity index | The chance that two residents picked at random belong to different ethnic groups, from 0 (everyone in one group) towards 1 | 0.8: most pairs of residents differ |
+| GP practice | A family doctor's surgery that people register with, and the first place the NHS sends them for care | The nearest GP practice is a 7-minute walk away |
+| A&E | The hospital department for emergencies, short for accident and emergency. The app counts only the departments open 24 hours with a consultant in charge, which NHS England calls type 1 | The nearest A&E is 4 km away |
 
 ### Factors and scores
 

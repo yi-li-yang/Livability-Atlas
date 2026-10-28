@@ -93,6 +93,17 @@ The MVP rows moved into the catalogue with the [Transport research](../specs/202
 
 Outside London, the Bus Open Data Service (BODS) publishes bus timetables for England. It becomes the country-tier dataset for bus routes when a second English city is added.
 
+## Health care: the sub-factors still to research
+
+The [Health care research](../specs/2026-10-28-health-care-research.md) researched GP access and the distance to A&E, and left two sub-factors as ideas. The leads, with their licences still to check:
+
+| Sub-factor | Leads |
+| --- | --- |
+| Dentists | NHS England's list of dental practices (in the ODS, already in the catalogue) gives where practices are. Whether they take new NHS patients is not published as open data: the NHS Business Services Authority says it does not record it, and its open data holds no file for it. The NHS's Find a Dentist service shows it practice by practice. A map of practices alone would mislead |
+| Health-care quality and cost | For the across-cities scale: the OECD and EIU health indicators, and the other published rankings, which wait for Phase 3 |
+
+Other leads outside the MVP: hospital waiting times by trust, and the NHS's own GP Patient Survey, which would add how patients rate their access to a practice (a perception measure, labelled as such).
+
 ## Catalogue fields still to come
 
 The [catalogue format](../specs/2026-10-24-catalogue-format.md) added the fields that the Phase 0 plan listed, except three for each dataset: its update cadence, its access method and its cost. They arrive when the data pipeline starts fetching datasets.
