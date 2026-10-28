@@ -81,5 +81,6 @@ Livability-Atlas/
         ├── 2026-10-25-housing-research.md
         ├── 2026-10-25-natural-hazards-research.md
         ├── 2026-10-25-safety-research.md
-        └── 2026-10-28-default-weights.md
+        ├── 2026-10-28-default-weights.md
+        └── 2026-10-28-health-care-research.md
 ```

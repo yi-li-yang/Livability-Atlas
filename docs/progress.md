@@ -5,22 +5,22 @@
 - Step 0.1 is merged into `main` (#1).
 - Step 0.2: the factor explorer (#2), the [catalogue format](specs/2026-10-24-catalogue-format.md) (#3), the [Transport research](specs/2026-10-24-transport-research.md) (#4) and the `/research-factor` command (#5) are merged.
 - Step 0.2: the research of [Environment](specs/2026-10-25-environment-research.md) (#6), [Safety](specs/2026-10-25-safety-research.md) (#7), [Housing and cost](specs/2026-10-25-housing-research.md) (#8), [Natural hazards](specs/2026-10-25-natural-hazards-research.md) (#9), [Daily amenities](specs/2026-10-25-daily-amenities-research.md) (#10), [Digital connectivity](specs/2026-10-25-digital-connectivity-research.md) (#11) and [Education](specs/2026-10-25-education-research.md) (#12) is merged, and the [Community and people research](specs/2026-10-25-community-research.md) is done.
-- All nine MVP candidates are researched: 40 of the catalogue's 85 within-city measured indicators, from 26 datasets.
+- All ten MVP factors are researched: 43 of the catalogue's 86 within-city measured indicators, from 32 datasets.
 - Step 0.2: [default weights and the build order](specs/2026-10-28-default-weights.md) (D14) are done.
 - `AGENTS.md` now bridges Google Antigravity to `CLAUDE.md` (D20). The owner has run Antigravity on it, and it saw the whole of `CLAUDE.md`. Merged as pull request #16.
 - Step 0.3 is built, in two pull requests ([plan](plans/2026-10-28-scaffold.md)). Part 1 is merged as #19 and part 2 as #20, both with CI green. Part 1: uv and just are installed, `pipeline/` holds the `atlas` command with `validate` and `schemas`, the catalogue's Pydantic models are exported to `shared/schemas/`, and `just check` runs in CI. `atlas validate` passes on the real catalogue. Part 2: `web/` shows a MapLibre basemap of London, with TypeScript types generated from the schemas, and CI runs its checks and a Playwright smoke test.
-- The MVP factor set ([D21](decisions.md#d21-mvp-factor-set)), the last item of step 0.2, is decided: the nine researched top-level factors and Health care as a tenth, which is researched next. The owner delegated the call, and it can be reversed.
+- The MVP factor set ([D21](decisions.md#d21-mvp-factor-set)), the last item of step 0.2, is decided: the nine researched top-level factors and Health care as a tenth. The owner delegated the call, and it can be reversed. The [Health care research](specs/2026-10-28-health-care-research.md) is done.
 
 ## Next
 
-1. Research Health care with `/research-factor health-care`, so that the MVP's ten factors are all researched (D21).
-2. Step 0.4, the spikes S1 to S8 ([roadmap](roadmap.md#spikes)). S1 (the PTAL grid to hex cells) comes first, and the first spike that imports GeoPandas or h3 adds them and tests their Windows wheels.
-3. Four checks the owner can make at any time:
+1. Step 0.4, the spikes S1 to S8 ([roadmap](roadmap.md#spikes)). S1 (the PTAL grid to hex cells) comes first, and the first spike that imports GeoPandas or h3 adds them and tests their Windows wheels.
+2. Five checks the owner can make at any time:
    - Ask the GLA Air Quality Team, the contact on the London Datastore, to confirm an open licence for the London Atmospheric Emissions Inventory. Until then, or until the next check succeeds, air quality stays out of public builds.
    - Check the licence of Defra's background maps on UK-AIR, once the site is back online.
+   - Read the licence on the ONS Postcode Directory's own page on the Open Geography Portal. Until it states one, GP practices cannot be placed from their postcodes in public builds, and patients per GP stays out of them.
    - Ask TfL's WebCAT team for its latest PTAL data, since the open release is from 2015, before the Elizabeth line (spike S1).
    - Ask Royal Mail whether matching Price Paid Data to energy certificates by address, to publish prices per m² by area, is allowed. Until then, buying cost stays out of public builds (spike S3).
-4. Optionally, upgrade Git for Windows from 2.41 and set `core.longpaths true`.
+3. Optionally, upgrade Git for Windows from 2.41 and set `core.longpaths true`.
 
 ## Blocked
 
@@ -29,6 +29,9 @@
 ## Log
 
 ### 2026-10-28
+
+- **Health care researched, the tenth MVP factor,** with the [spec](specs/2026-10-28-health-care-research.md). GP access becomes two measured indicators, the walk to a GP practice (the pharmacies curve, from CIHT) and patients per GP (1,800 per GP is the planning benchmark of the Healthy Urban Development Unit; the zero end waits for London's data). A&E travel time becomes distance to A&E in straight-line kilometres, which is how the one published study measures it. NHS England's registers, patient counts and workforce data are under the Open Government Licence. The ONS Postcode Directory, which turns practices' postcodes into places, stays out of public builds until its own page states a licence, so public builds place GP surgeries from OpenStreetMap for now. Dentists stay an idea: no open source says which practices take new NHS patients.
+- **Line endings fixed** (#22). Windows checkouts got CRLF and Biome failed on them, so `.gitattributes` now sets LF everywhere.
 
 - **MVP factor set decided (D21),** the last item of step 0.2. The nine researched top-level factors stay, and Health care joins them as a tenth. Health care ties D14's highest weight (4, with Housing and cost, Environment and Safety), is weighed by four of the five sources, and the vision asks for about 10. Researching it is one more run of `/research-factor`, so the cost is small and the choice is easy to reverse. The owner delegated the call, so this can be reversed in review.
 - **Scaffold and CI, part 2 (step 0.3).** `web/` is a Vite, React and TypeScript app with a MapLibre basemap of London (OpenFreeMap), Tailwind, Biome, Vitest and a Playwright smoke test. `just generate` writes TypeScript types from `shared/schemas/`, and CI fails if a generated file is stale. Looking at the built app showed a blank map: MapLibre 6 could not find its worker script, and the build and the first smoke test had both passed. The worker is now imported with `?url`, and a second smoke test fails if it is not served as JavaScript. CI on GitHub's runner passes `just check`, the build and the Playwright smoke test, which meets the step's exit criterion.
