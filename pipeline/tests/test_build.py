@@ -4,6 +4,7 @@ from pathlib import Path
 
 import h3
 import numpy as np
+import pandas as pd
 import pyarrow.parquet as pq
 from openpyxl import Workbook
 from pyproj import Transformer
@@ -125,6 +126,34 @@ def synthetic_flood_risk(which: str, bounds) -> Mosaic:
     return Mosaic(classes=classes, x=x0, y=y1, resolution=10)
 
 
+def synthetic_streets(tmp_path: Path) -> Path:
+    """A grid of streets over AREA, about 170 m apart, as an OpenStreetMap file."""
+    lats = [51.504 + 0.0015 * i for i in range(12)]
+    lngs = [-0.151 + 0.0025 * j for j in range(12)]
+    parts = []
+    for i, lat in enumerate(lats):
+        for j, lng in enumerate(lngs):
+            parts.append(f'<node id="{i * 100 + j + 1}" lat="{lat:.6f}" lon="{lng:.6f}"/>')
+    for i in range(len(lats)):
+        refs = "".join(f'<nd ref="{i * 100 + j + 1}"/>' for j in range(len(lngs)))
+        parts.append(f'<way id="{1000 + i}">{refs}<tag k="highway" v="residential"/></way>')
+    for j in range(len(lngs)):
+        refs = "".join(f'<nd ref="{i * 100 + j + 1}"/>' for i in range(len(lats)))
+        parts.append(f'<way id="{2000 + j}">{refs}<tag k="highway" v="footway"/></way>')
+    path = tmp_path / "streets.osm"
+    head = "<?xml version='1.0' encoding='UTF-8'?><osm version=\"0.6\">"
+    path.write_text(head + "".join(parts) + "</osm>", encoding="utf-8")
+    return path
+
+
+def synthetic_stations(tmp_path: Path) -> Path:
+    """One station entrance, at the west end of AREA."""
+    path = tmp_path / "naptan.csv"
+    rows = ["StopType,Status,Longitude,Latitude", "RLY,active,-0.1510,51.5120"]
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    return path
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -134,6 +163,9 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.output_areas, "fetch", lambda data_dir, bounds: areas)
     monkeypatch.setattr(build_module.census_residents, "fetch", lambda data_dir: people)
     monkeypatch.setattr(build_module.police_uk, "fetch", lambda data_dir: crimes)
+    streets, stations = synthetic_streets(tmp_path), synthetic_stations(tmp_path)
+    monkeypatch.setattr(build_module.openstreetmap, "fetch", lambda data_dir, region: streets)
+    monkeypatch.setattr(build_module.naptan, "fetch", lambda data_dir: stations)
     monkeypatch.setattr(
         build_module.ea_flood_risk,
         "fetch",
@@ -251,3 +283,17 @@ def test_the_bundle_holds_the_share_of_each_cell_at_risk_of_flooding(monkeypatch
     assert {"ea-flood-risk-rivers-sea", "ea-flood-risk-surface-water"} <= {
         d["id"] for d in manifest["datasets"]
     }
+
+
+def test_the_bundle_holds_the_walk_to_the_nearest_station(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    minutes = table["station_proximity"]
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    assert minutes.notna().all()
+    # The station is at the west end: the walk gets longer eastwards, up to about 20 minutes.
+    assert minutes[lng < -0.145].median() < minutes[lng > -0.130].median()
+    assert 10 < minutes.max() < 40
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "station-proximity" in {i["id"] for i in manifest["indicators"]}
