@@ -21,13 +21,16 @@ datasets:
     resolution: 20 m grid
     date: 2022
     licence: unknown
-    licence_checked: 2026-10-24
+    licence_checked: 2026-10-28
     public_build: false
     licence_note: >-
       The London Datastore gives the licence as "Not Specified", for the 2022
-      and 2019 editions alike. Its terms let anyone use its data for any
-      purpose, but name no licence. Ask the GLA Air Quality Team, the
-      dataset's contact, to confirm an open licence before a public build.
+      and 2019 editions alike, and its air quality page states none for any
+      dataset. Its terms let anyone use its data for any lawful purpose, but
+      name no licence and do not mention redistribution or commercial use. The
+      files can be downloaded and used in a local build. Ask the GLA Air
+      Quality Team, the dataset's contact, to confirm an open licence before a
+      public build.
     attribution: >-
       London Atmospheric Emissions Inventory 2022, Greater London Authority and
       Transport for London. The Greater London Authority cannot warrant the

@@ -57,10 +57,16 @@ def build(
             "--data-dir", help="Where raw and published data live (default: ATLAS_DATA_DIR)."
         ),
     ] = None,
+    public: Annotated[
+        bool,
+        typer.Option(
+            "--public", help="Leave out indicators from datasets that are not cleared (D07)."
+        ),
+    ] = False,
 ) -> None:
     """Build a region's data bundle from raw downloads, fetching what is missing."""
     try:
-        bundle = build_region(region, data_dir=data_dir_option)
+        bundle = build_region(region, data_dir=data_dir_option, public=public)
     except (KeyError, ValueError) as error:
         typer.echo(f"Cannot build {region}: {error}", err=True)
         raise typer.Exit(code=1) from error
