@@ -953,7 +953,7 @@ factors:
             name: Burglary
             description: Recorded burglaries, as a rate per resident.
             default_weight: 3
-            status: researched
+            status: spiked
             unit: crimes a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}
@@ -965,18 +965,25 @@ factors:
             comparable_across_regions: false
             method: &crime-method >-
               Police.uk's recorded crimes of this kind over the last 12 months,
-              counted at their anonymised map points, per 1,000 residents from
-              Census 2021, smoothed over neighbouring hex cells. Spike S2 sets
-              the smoothing, and compares rates per resident with rates per
-              area: rates per resident overstate crime where few people live
-              but many visit. Not every crime is reported, and recording varies
-              between police forces.
+              counted at their anonymised map points, per 1,000 residents.
+              Residents come from Census 2021's output areas, shared between
+              the hex cells each one overlaps in proportion to the overlap:
+              placing an output area's residents at its centroid left 38% of
+              London's cells empty. A cell's rate pools the crimes and the
+              residents of the cell and its neighbours within two steps (about
+              an 8-minute walk), and adds 3,000 residents at the London-wide
+              rate, so that a cell with few residents around it does not top
+              the ranking on a handful of crimes. Spike S2 chose these by how
+              well two halves of the year agree. The rate per resident
+              overstates crime where few people live and many work or visit,
+              as in the City of London, and spike S2 left that open. Not every
+              crime is reported, and recording varies between police forces.
             datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries]
           - id: violence-and-sexual-offences
             name: Violence and sexual offences
             description: Recorded violent and sexual crimes, as a rate per resident.
             default_weight: 3
-            status: researched
+            status: spiked
             unit: crimes a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}
@@ -989,7 +996,7 @@ factors:
             name: Robbery and theft from the person
             description: Robbery, and theft such as pickpocketing and bag snatching, as a rate per resident.
             default_weight: 3
-            status: researched
+            status: spiked
             unit: crimes a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}
@@ -1002,7 +1009,7 @@ factors:
             name: Vehicle crime
             description: Theft of and from vehicles, as a rate per resident.
             default_weight: 3
-            status: researched
+            status: spiked
             unit: crimes a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}
@@ -1015,7 +1022,7 @@ factors:
             name: Anti-social behaviour
             description: Incidents of anti-social behaviour reported to the police, as a rate per resident.
             default_weight: 3
-            status: researched
+            status: spiked
             unit: incidents a year per 1,000 residents
             preference_type: fixed
             curve: {shape: percentile, better: lower}

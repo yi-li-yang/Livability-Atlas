@@ -7,6 +7,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Item | Status |
 | --- | --- |
 | More factors, in catalogue priority order | planned |
+| Crime rates per resident and worker, so that centres with few residents and many workers, like the City of London, stop topping every crime ([spike S2](spikes/S2-crime.md)). Needs a workplace population table whose licence and geography are checked | idea |
 | Presets, e.g. a renter commuting to the centre, a family with children, a retiree | idea |
 | Preference profiles as shareable URLs, with places left out unless the user includes them | idea |
 | Side-by-side comparison of two hex cells or neighbourhoods | idea |
