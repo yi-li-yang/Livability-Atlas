@@ -4,20 +4,23 @@
 content: it returns the problems, so that one run lists them all.
 """
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import yaml
 from pydantic import BaseModel, ValidationError
 
-from atlas.catalogue.checks import check_datasets, check_factors
-from atlas.catalogue.models import DatasetsFile, FactorsFile
+from atlas.catalogue.checks import check_datasets, check_factors, check_region
+from atlas.catalogue.models import DatasetsFile, FactorsFile, Region
 from atlas.paths import CATALOGUE_DIR
 
 
 def describe(error: Any, raw: Any, file_name: str) -> str:
     """One Pydantic error as a sentence that names the factor or dataset it concerns."""
     label = file_name
+    if isinstance(raw, dict) and isinstance(raw.get("id"), str):
+        label = raw["id"]  # a file that describes one thing, such as a region, starts with its id
     node = raw
     for part in error["loc"]:
         try:
@@ -55,7 +58,10 @@ def _parse[T: BaseModel](model: type[T], path: Path, problems: list[str]) -> T |
 
 
 def validate_catalogue(directory: Path = CATALOGUE_DIR) -> list[str]:
-    """Checks `factors.yaml` and `datasets.yaml` in `directory`. An empty list means they pass."""
+    """Checks `factors.yaml`, `datasets.yaml` and `regions/*.yaml` in `directory`.
+
+    An empty list means they pass.
+    """
     problems: list[str] = []
     datasets = _parse(DatasetsFile, directory / "datasets.yaml", problems)
     factors = _parse(FactorsFile, directory / "factors.yaml", problems)
@@ -63,4 +69,43 @@ def validate_catalogue(directory: Path = CATALOGUE_DIR) -> list[str]:
         problems.extend(check_datasets(datasets))
     if factors is not None and datasets is not None:
         problems.extend(check_factors(factors, datasets))
+    for path in sorted((directory / "regions").glob("*.yaml")):
+        region = _parse(Region, path, problems)
+        if region is None:
+            continue
+        if region.id != path.stem:
+            problems.append(
+                f"{region.id}: the file is regions/{path.name}, so the id must be {path.stem}."
+            )
+        if datasets is not None:
+            problems.extend(check_region(region, datasets))
     return problems
+
+
+@dataclass(frozen=True)
+class Catalogue:
+    """A catalogue that has passed `validate_catalogue`."""
+
+    factors: FactorsFile
+    datasets: DatasetsFile
+    regions: dict[str, Region]
+
+
+def load_catalogue(directory: Path = CATALOGUE_DIR) -> Catalogue:
+    """Reads the catalogue, and raises `ValueError` listing every problem if it does not pass."""
+    problems = validate_catalogue(directory)
+    if problems:
+        raise ValueError("the catalogue does not pass:\n" + "\n".join(problems))
+
+    def read[T: BaseModel](model: type[T], path: Path) -> T:
+        return model.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+
+    regions = {}
+    for path in sorted((directory / "regions").glob("*.yaml")):
+        region = read(Region, path)
+        regions[region.id] = region
+    return Catalogue(
+        factors=read(FactorsFile, directory / "factors.yaml"),
+        datasets=read(DatasetsFile, directory / "datasets.yaml"),
+        regions=regions,
+    )

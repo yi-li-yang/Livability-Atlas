@@ -25,6 +25,11 @@ Livability-Atlas/
 │   │   ├── cli.py         # the `atlas` command: validate, schemas
 │   │   ├── paths.py       # the repository's folders
 │   │   ├── scoring/       # engine.py: the reference scorer, which reproduces the golden test cases
+│   │   ├── build.py       # builds a region's data bundle from raw downloads
+│   │   ├── fetch.py       # downloads with a cache and a checksum
+│   │   ├── spatial/       # grid.py: a region's hex cells
+│   │   ├── datasets/      # one module per dataset, by tier: cities/london/ptal.py, countries/gb/ons_regions.py
+│   │   ├── publish/       # manifest.py (the contract with the web app) and bundle.py (writes the bundle)
 │   │   └── catalogue/     # models.py (the one definition of the catalogue files), checks.py, load.py, schema.py
 │   ├── tests/
 │   └── notebooks/         # spike scripts: throwaway, never imported by the package

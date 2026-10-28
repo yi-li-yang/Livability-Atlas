@@ -243,3 +243,34 @@ class Dataset(_Strict):
 
 class DatasetsFile(_Strict):
     datasets: list[Dataset]
+
+
+# --- regions/<id>.yaml ---
+
+
+class Place(_Strict):
+    name: Text
+    lat: float = Field(ge=-90, le=90)
+    lng: float = Field(ge=-180, le=180)
+
+
+class Grid(_Strict):
+    system: Literal["h3"]
+    resolution: int = Field(ge=0, le=15)
+
+
+class RegionBoundary(_Strict):
+    dataset: Id
+    name: Text  # the area's name in that dataset
+
+
+class Region(_Strict):
+    """A region the app can show: where it is, how it is gridded, and its default places."""
+
+    id: Id
+    name: Text
+    country: Annotated[str, StringConstraints(pattern=r"^[A-Z]{2}$")]  # ISO 3166-1 alpha-2
+    boundary: RegionBoundary
+    grid: Grid
+    buffer_m: int = Field(ge=0)  # measured indicators are computed this far beyond the boundary
+    default_places: list[Place] = []

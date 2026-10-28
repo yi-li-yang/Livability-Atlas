@@ -100,8 +100,15 @@ name = "atlas"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [
+    { name = "h3" },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "pyarrow" },
     { name = "pydantic" },
+    { name = "pyproj" },
     { name = "pyyaml" },
+    { name = "requests" },
+    { name = "shapely" },
     { name = "typer" },
 ]
 
@@ -130,8 +137,15 @@ spikes = [
 
 [package.metadata]
 requires-dist = [
+    { name = "h3", specifier = ">=4.5.0" },
+    { name = "openpyxl", specifier = ">=3.1.5" },
+    { name = "pandas", specifier = ">=3.1.0" },
+    { name = "pyarrow", specifier = ">=26.0.0" },
     { name = "pydantic", specifier = ">=2.9" },
+    { name = "pyproj", specifier = ">=3.8.0" },
     { name = "pyyaml", specifier = ">=6.0" },
+    { name = "requests", specifier = ">=2.34.2" },
+    { name = "shapely", specifier = ">=2.2.0" },
     { name = "typer", specifier = ">=0.12" },
 ]
 

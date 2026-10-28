@@ -1,6 +1,6 @@
 # Architecture
 
-Status: planned (D02, accepted). `catalogue/`, `pipeline/` (its command line, catalogue models and checks), `shared/schemas/` and `web/` (a basemap of London, and types generated from the schemas) exist. The rest is built from Phase 1.
+Status: planned (D02, accepted). `catalogue/`, `pipeline/` (its command line, the catalogue and its checks, the hex grid, PTAL, the data bundle and the reference scorer), `shared/schemas/` and `shared/fixtures/`, and `web/` (a basemap of London, and types generated from the schemas) exist. The data bundle holds one measured indicator so far. The rest is built through Phase 1.
 
 ## Overview
 
