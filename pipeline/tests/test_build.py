@@ -14,6 +14,7 @@ from atlas.build import build_region
 from atlas.cli import app
 from atlas.datasets.cities.london import ptal
 from atlas.datasets.countries.gb import ons_regions
+from atlas.indicators import crime
 
 TO_BNG = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
 AREA = box(-0.150, 51.505, -0.125, 51.520)  # part of the West End
@@ -53,10 +54,69 @@ def synthetic_grid(tmp_path: Path) -> Path:
     return path
 
 
+MIDDLE = -0.1375  # the longitude that splits AREA into a west half and an east half
+
+
+def synthetic_output_areas(tmp_path: Path) -> Path:
+    """Two output areas that cover AREA, with a margin: the west one and the east one."""
+    x0, y0 = TO_BNG.transform(AREA.bounds[0] - 0.01, AREA.bounds[1] - 0.01)
+    x1, y1 = TO_BNG.transform(AREA.bounds[2] + 0.01, AREA.bounds[3] + 0.01)
+    xm, _ = TO_BNG.transform(MIDDLE, 51.51)
+
+    def feature(code: str, left: float, right: float) -> dict:
+        ring = [[left, y0], [right, y0], [right, y1], [left, y1], [left, y0]]
+        return {
+            "type": "Feature",
+            "properties": {"OA21CD": code},
+            "geometry": {"type": "Polygon", "coordinates": [ring]},
+        }
+
+    path = tmp_path / "output-areas.geojson"
+    path.write_text(
+        json.dumps(
+            {
+                "type": "FeatureCollection",
+                "features": [feature("W1", x0, xm), feature("E1", xm, x1)],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def synthetic_residents(tmp_path: Path) -> Path:
+    path = tmp_path / "ts001.csv"
+    lines = [
+        '"date","geography","geography code","Residence type: Total; measures: Value"',
+        '"2021","W1","W1",30000',
+        '"2021","E1","E1",30000',
+    ]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def synthetic_crimes(tmp_path: Path) -> tuple[Path, list[str]]:
+    """Burglaries: 600 in the west half and 20 in the east, with equal residents. Nothing else."""
+    rows = ["Crime ID,Month,Longitude,Latitude,Crime type"]
+    for i in range(600):
+        rows.append(f",2026-07,{-0.149 + 0.0000002 * i},{51.506 + 0.00002 * i},Burglary")
+    for i in range(20):
+        rows.append(f",2026-07,{-0.126 - 0.0000002 * i},{51.506 + 0.0007 * i},Burglary")
+    path = tmp_path / "2026-07.zip"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("2026-07/2026-07-metropolitan-street.csv", "\n".join(rows) + "\n")
+    return path, ["2026-07"]
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
+    areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
+    crimes = synthetic_crimes(tmp_path)
     monkeypatch.setattr(build_module.ons_regions, "fetch", lambda name, data_dir: boundary)
     monkeypatch.setattr(build_module.ptal, "fetch", lambda data_dir: grid)
+    monkeypatch.setattr(build_module.output_areas, "fetch", lambda data_dir, bounds: areas)
+    monkeypatch.setattr(build_module.census_residents, "fetch", lambda data_dir: people)
+    monkeypatch.setattr(build_module.police_uk, "fetch", lambda data_dir: crimes)
 
 
 def test_a_region_is_built_into_a_bundle(monkeypatch, tmp_path):
@@ -132,3 +192,22 @@ def test_the_ptal_release_is_unzipped_after_it_is_fetched(monkeypatch, tmp_path)
     monkeypatch.setattr(ptal, "download", fake_download)
     path = ptal.fetch(tmp_path)
     assert path.name == "2015  PTALs Grid Values 280515.xlsx" and path.read_bytes() == b"workbook"
+
+
+def test_the_bundle_holds_each_crime_rate_per_1000_residents(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    for indicator in crime.CATEGORIES:
+        assert table[indicator.replace("-", "_")].notna().all()
+    # Burglary was 20 times as common in the west, with the same residents: its rate is higher
+    # there, and a cell on the west edge of the area is above one on the east edge.
+    cells = table.assign(
+        lng=[h3.cell_to_latlng(c)[1] for c in table["cell"]],
+    )
+    west, east = cells[cells["lng"] < MIDDLE], cells[cells["lng"] >= MIDDLE]
+    assert west["burglary"].median() > 2 * east["burglary"].median()
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    ids = {i["id"] for i in manifest["indicators"]}
+    assert set(crime.CATEGORIES) <= ids and "service-level" in ids
+    assert any(d["id"] == "police-uk" for d in manifest["datasets"])

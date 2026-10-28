@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": "309dafb0a6fb",
+  "version": "c2cc0e8c379e",
   "region": {
     "id": "london",
     "name": "London"
@@ -58,6 +58,50 @@
       ]
     },
     {
+      "id": "safety",
+      "name": "Safety",
+      "default_weight": 4,
+      "children": [
+        {
+          "id": "crime",
+          "name": "Crime",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "burglary",
+              "name": "Burglary",
+              "default_weight": 3,
+              "indicator": "burglary"
+            },
+            {
+              "id": "violence-and-sexual-offences",
+              "name": "Violence and sexual offences",
+              "default_weight": 3,
+              "indicator": "violence-and-sexual-offences"
+            },
+            {
+              "id": "robbery-and-theft-from-the-person",
+              "name": "Robbery and theft from the person",
+              "default_weight": 3,
+              "indicator": "robbery-and-theft-from-the-person"
+            },
+            {
+              "id": "vehicle-crime",
+              "name": "Vehicle crime",
+              "default_weight": 3,
+              "indicator": "vehicle-crime"
+            },
+            {
+              "id": "anti-social-behaviour",
+              "name": "Anti-social behaviour",
+              "default_weight": 3,
+              "indicator": "anti-social-behaviour"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "health-care",
       "name": "Health care",
       "default_weight": 4,
@@ -101,6 +145,91 @@
         }
       },
       "datasets": ["tfl-ptal"]
+    },
+    {
+      "id": "burglary",
+      "name": "Burglary",
+      "column": "burglary",
+      "unit": "crimes a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "violence-and-sexual-offences",
+      "name": "Violence and sexual offences",
+      "column": "violence_and_sexual_offences",
+      "unit": "crimes a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "robbery-and-theft-from-the-person",
+      "name": "Robbery and theft from the person",
+      "column": "robbery_and_theft_from_the_person",
+      "unit": "crimes a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "vehicle-crime",
+      "name": "Vehicle crime",
+      "column": "vehicle_crime",
+      "unit": "crimes a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "anti-social-behaviour",
+      "name": "Anti-social behaviour",
+      "column": "anti_social_behaviour",
+      "unit": "incidents a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
     },
     {
       "id": "station-proximity",
@@ -165,6 +294,24 @@
       "date": "updated nightly"
     },
     {
+      "id": "ons-census-2021-residents",
+      "name": "Census 2021, usual residents by output area (table TS001)",
+      "publisher": "Office for National Statistics (ONS), through Nomis",
+      "url": "https://www.nomisweb.co.uk/sources/census_2021_bulk",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics, licensed under the Open Government Licence v3.0.",
+      "date": "2021"
+    },
+    {
+      "id": "ons-output-area-boundaries",
+      "name": "Output Areas (December 2021) Boundaries EW BGC",
+      "publisher": "Office for National Statistics (ONS)",
+      "url": "https://www.data.gov.uk/dataset/4d4e021d-fe98-4a0e-88e2-3ead84538537/output-areas-december-2021-boundaries-ew-bgc-v21",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. Contains OS data © Crown copyright and database right 2026.",
+      "date": "2021"
+    },
+    {
       "id": "ons-postcode-directory",
       "name": "ONS Postcode Directory",
       "publisher": "Office for National Statistics",
@@ -199,6 +346,15 @@
       "licence": "OGL-UK-3.0",
       "attribution": "Contains OS data © Crown copyright and database right 2026.",
       "date": "updated every six months"
+    },
+    {
+      "id": "police-uk",
+      "name": "Police recorded crime and anti-social behaviour (data.police.uk)",
+      "publisher": "The police forces of England, Wales and Northern Ireland, through data.police.uk",
+      "url": "https://data.police.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0. Source: data.police.uk.",
+      "date": "monthly, for the latest three years"
     },
     {
       "id": "tfl-ptal",

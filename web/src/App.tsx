@@ -198,9 +198,17 @@ export function App() {
           aria-label="Data sources"
           className="px-4 py-1 text-xs text-neutral-600"
         >
-          {state.bundle.manifest.datasets.map((dataset) => (
-            <p key={dataset.id}>{dataset.attribution}</p>
-          ))}
+          <details>
+            <summary className="cursor-pointer">About the data</summary>
+            {/* Datasets from one publisher often share a line of credit: show each line once. */}
+            {[
+              ...new Set(
+                state.bundle.manifest.datasets.map((d) => d.attribution),
+              ),
+            ].map((credit) => (
+              <p key={credit}>{credit}</p>
+            ))}
+          </details>
         </section>
       )}
     </div>

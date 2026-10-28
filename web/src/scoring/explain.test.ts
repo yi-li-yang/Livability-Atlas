@@ -40,6 +40,7 @@ describe("explainCell", () => {
     expect(explanation.factors.map((f) => f.id)).toEqual([
       "transport",
       "environment",
+      "safety",
       "health-care",
     ]);
     const transport = explanation.factors[0];
@@ -55,6 +56,7 @@ describe("explainCell", () => {
     const explanation = explainCell(bundle, { weights: { transport: 0 } }, 0);
     expect(explanation.factors.map((f) => f.id)).toEqual([
       "environment",
+      "safety",
       "health-care",
     ]);
   });

@@ -1,20 +1,23 @@
 """Builds a region's data bundle from raw downloads.
 
-Walking skeleton: one measured indicator, the service level (PTAL), for London. Each indicator
+London so far has the service level (PTAL) and the five crime rates of Safety. Each indicator
 that arrives later adds its columns here, through the factor recipe.
 """
 
+from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
 from atlas.catalogue.load import load_catalogue
 from atlas.datasets.cities.london import ptal
-from atlas.datasets.countries.gb import ons_regions
+from atlas.datasets.countries.gb import census_residents, ons_regions, output_areas, police_uk
+from atlas.indicators import crime
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
 from atlas.publish.bundle import write_bundle
-from atlas.spatial.grid import boundary_from_geojson, region_cells
+from atlas.spatial.grid import boundary_from_geojson, bounds_bng, region_cells
 
 
 def build_region(
@@ -40,10 +43,31 @@ def build_region(
     ).reindex(cells)
     service_level = [None if pd.isna(band) else str(band) for band in bands]
 
+    columns: dict[str, Sequence[Any]] = {"service-level": service_level}
+    columns.update(_crime_columns(cells, region.grid.resolution, data_dir))
+
     return write_bundle(
         catalogue,
         region_id=region_id,
         cells=cells,
-        columns={"service-level": service_level},
+        columns=columns,
         out_dir=data_dir / "published",
     )
+
+
+def _crime_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[str, list]:
+    """Crimes per 1,000 residents for each of Safety's five crime indicators (spike S2)."""
+    areas = output_areas.read_boundaries(
+        output_areas.fetch(data_dir, bounds_bng(cells, margin=2000))
+    )
+    residents = crime.residents_by_cell(
+        areas, census_residents.read_residents(census_residents.fetch(data_dir)), cells
+    )
+    archive, months = police_uk.fetch(data_dir)
+    counts = crime.counts_by_cell(police_uk.read_crimes(archive, months), cells, resolution)
+    return {
+        indicator: [
+            None if pd.isna(rate) else float(rate) for rate in crime.rates(n, residents, cells)
+        ]
+        for indicator, n in counts.items()
+    }

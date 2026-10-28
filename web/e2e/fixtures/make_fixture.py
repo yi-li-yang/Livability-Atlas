@@ -1,7 +1,7 @@
 """Writes the small data bundle that the web app's tests load: the cells within 8 steps of Soho.
 
-The service level comes from a real London bundle, so run `just data london` first. The other
-three indicators are FABRICATED, only so that the tests have several factors to weigh: see
+The service level and the five crime rates come from a real London bundle, so run
+`just data london` first. The other three indicators are FABRICATED, only so that the tests have several factors to weigh: see
 README.md beside this file. From the repo root:
 
     uv run --project pipeline python web/e2e/fixtures/make_fixture.py
@@ -15,11 +15,13 @@ import h3
 import pyarrow.parquet as pq
 
 from atlas.catalogue.load import load_catalogue
+from atlas.indicators import crime
 from atlas.paths import REPO_ROOT, data_dir
 from atlas.publish.bundle import write_bundle
 
 OUT = REPO_ROOT / "web" / "e2e" / "fixtures" / "bundles"
 SOHO = h3.latlng_to_cell(51.5136, -0.1337, 9)
+CRIME = list(crime.CATEGORIES)
 
 
 def main() -> None:
@@ -28,6 +30,14 @@ def main() -> None:
     table = pq.read_table(published / version / "cells.parquet").to_pydict()
     values = dict(zip(table["cell"], table["service_level"], strict=True))
     cells = sorted(set(h3.grid_disk(SOHO, 8)) & set(values))
+    row = {c: i for i, c in enumerate(table["cell"])}
+    real = {
+        "service-level": [values[c] for c in cells],
+        **{
+            indicator: [table[indicator.replace("-", "_")][row[c]] for c in cells]
+            for indicator in CRIME
+        },
+    }
     steps = [h3.grid_distance(SOHO, c) for c in cells]
     fabricated = {
         # Walks that get longer away from Soho, and a pattern that varies from cell to cell.
@@ -40,7 +50,7 @@ def main() -> None:
         load_catalogue(),
         region_id="london",
         cells=cells,
-        columns={"service-level": [values[c] for c in cells], **fabricated},
+        columns={**real, **fabricated},
         out_dir=OUT,
     )
     print(f"{len(cells)} cells in {bundle}")

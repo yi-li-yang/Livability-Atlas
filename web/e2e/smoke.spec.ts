@@ -35,11 +35,14 @@ test("the app loads the data bundle, and says what it is and where it comes from
   await expect(
     page.getByRole("region", { name: "Legend" }).getByText("Worse"),
   ).toBeVisible();
-  await expect(
-    page
-      .getByRole("region", { name: "Data sources" })
-      .getByText(/Transport for London/),
-  ).toBeVisible();
+  // The credits are behind "About the data", each line once.
+  const sources = page.getByRole("region", { name: "Data sources" });
+  await expect(sources.getByText(/Transport for London/)).toBeHidden();
+  await sources.getByText("About the data").click();
+  await expect(sources.getByText(/Transport for London/)).toBeVisible();
+  await expect(sources.getByText(/data\.police\.uk/)).toBeVisible();
+  const lines = await sources.locator("p").allTextContents();
+  expect(new Set(lines).size).toBe(lines.length);
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
