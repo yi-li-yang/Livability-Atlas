@@ -160,3 +160,53 @@ describe("choices", () => {
     expect(pruned.choices).toEqual({ faith: ["hindu"] });
   });
 });
+
+describe("limits", () => {
+  const profile = {
+    weights: {},
+    limits: [
+      { indicator: "renting-cost", max: 2000 },
+      { indicator: "gp-walk", min: 6.5 },
+      { indicator: "service-level", in: ["3", "6a", "6b"] },
+    ],
+  };
+
+  it("round-trip through the link and the storage", () => {
+    expect(decodeProfile(encodeProfile(profile))).toEqual(profile);
+    expect(decodeProfile(encodeStored(profile))).toEqual(profile);
+  });
+
+  it("are written as l=indicator:kind:value", () => {
+    expect(encodeProfile(profile)).toBe(
+      "l=renting-cost:max:2000,gp-walk:min:6.5,service-level:in:3.6a.6b",
+    );
+  });
+
+  it("travel in a link, which carries the preferences but not the choices", () => {
+    const loaded = loadProfile(`#${encodeProfile(profile)}`, memory());
+    expect(loaded.limits).toEqual(profile.limits);
+  });
+
+  it("are dropped when malformed, one by one", () => {
+    const decoded = decodeProfile(
+      "l=a:max:x,b:max:5,c:mid:5,d:in:,e:in:ok,f:min:-3,g:max:1:2,:max:1",
+    );
+    expect(decoded.limits).toEqual([
+      { indicator: "b", max: 5 },
+      { indicator: "e", in: ["ok"] },
+    ]);
+  });
+
+  it("are pruned to the indicators that the bundle has", () => {
+    const known = new Set(["renting-cost", "service-level"]);
+    expect(pruneProfile(profile, known).limits).toEqual([
+      { indicator: "renting-cost", max: 2000 },
+      { indicator: "service-level", in: ["3", "6a", "6b"] },
+    ]);
+  });
+
+  it("leave a profile without them as it was", () => {
+    expect(encodeProfile({ weights: { transport: 3 } })).toBe("w=transport:3");
+    expect(decodeProfile("w=transport:3").limits).toBeUndefined();
+  });
+});

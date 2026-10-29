@@ -3,6 +3,7 @@ import { type Bundle, loadBundle } from "./data/bundle";
 import { FactorTree } from "./features/factors/FactorTree";
 import { QuickLook } from "./features/factors/QuickLook";
 import { WhyPanel } from "./features/factors/WhyPanel";
+import { LimitsPanel } from "./features/limits/LimitsPanel";
 import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
@@ -14,8 +15,18 @@ import {
   pruneProfile,
   saveProfile,
 } from "./profile/storage";
-import { explainCell, rankOf, sortedScores } from "./scoring/explain";
-import { allLeafScores, type Profile, scoreRegion } from "./scoring/region";
+import {
+  explainCell,
+  rankableScores,
+  rankOf,
+  sortedScores,
+} from "./scoring/explain";
+import {
+  allLeafScores,
+  excludedCells,
+  type Profile,
+  scoreRegion,
+} from "./scoring/region";
 
 const BUNDLES_URL = import.meta.env.VITE_BUNDLES_URL ?? "/bundles";
 const REGION = "london";
@@ -112,10 +123,22 @@ export function App() {
     () => (bundle && leaves ? scoreRegion(bundle, profile, leaves) : null),
     [bundle, leaves, profile],
   );
-  const colours = useMemo(() => (scores ? cellColours(scores) : []), [scores]);
+  // The cells that a hard limit leaves out are greyed on the map and not ranked.
+  const limits = profile.limits;
+  const excluded = useMemo(
+    () => (bundle ? excludedCells(bundle, limits ?? []) : null),
+    [bundle, limits],
+  );
+  const colours = useMemo(
+    () => (scores ? cellColours(scores, excluded ?? undefined) : []),
+    [scores, excluded],
+  );
   const ranked = useMemo(
-    () => (scores ? sortedScores(scores) : null),
-    [scores],
+    () =>
+      scores && excluded
+        ? sortedScores(rankableScores(scores, excluded))
+        : null,
+    [scores, excluded],
   );
 
   /** What one cell scores and why, for the quick look and the panel of reasons. */
@@ -124,7 +147,8 @@ export function App() {
     const score = scores[index];
     return {
       explanation: explainCell(bundle, profile, index),
-      rank: Number.isNaN(score) ? null : rankOf(ranked, score),
+      rank:
+        Number.isNaN(score) || excluded?.[index] ? null : rankOf(ranked, score),
       total: ranked.length,
     };
   };
@@ -171,6 +195,13 @@ export function App() {
               onChange={setProfile}
               onReset={() => setProfile({ weights: {} })}
             />
+            <div className="mt-4 border-t border-neutral-300 pt-3">
+              <LimitsPanel
+                bundle={state.bundle}
+                profile={profile}
+                onChange={setProfile}
+              />
+            </div>
           </aside>
         )}
         {hover && hovered && (

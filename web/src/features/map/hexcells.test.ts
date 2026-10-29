@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadBundle } from "../../data/bundle";
 import { allLeafScores, scoreRegion } from "../../scoring/region";
-import { scoreToColour, UNSCORED } from "./colour";
+import { EXCLUDED, scoreToColour, UNSCORED } from "./colour";
 import { cellColours, toHexCells } from "./hexcells";
 
 const FIXTURES = fileURLToPath(
@@ -81,5 +81,22 @@ describe("cellColours", () => {
     const scored = Array.from(scores).filter((s) => !Number.isNaN(s));
     expect(Math.max(...scored)).toBeLessThanOrEqual(100);
     expect(Math.min(...scored)).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("cellColours with limits", () => {
+  it("greys out a cell that a limit leaves out, whatever its score, and ranks nothing", () => {
+    const scores = Float64Array.from([10, 90, Number.NaN]);
+    const excluded = Uint8Array.from([0, 1, 1]);
+    const colours = cellColours(scores, excluded);
+    expect(colours[0]).toEqual(scoreToColour(0.1));
+    expect(colours[1]).toEqual(EXCLUDED);
+    expect(colours[2]).toEqual(EXCLUDED);
+    expect(EXCLUDED).not.toEqual(UNSCORED); // a cell left out differs from one with no data
+  });
+
+  it("colours every cell by its score where no limit applies", () => {
+    const scores = Float64Array.from([10, 90]);
+    expect(cellColours(scores)).toEqual(cellColours(scores, new Uint8Array(2)));
   });
 });

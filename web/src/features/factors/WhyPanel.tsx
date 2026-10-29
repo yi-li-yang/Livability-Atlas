@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import type { Explanation, FactorLine } from "../../scoring/explain";
+import { describeLimit } from "../limits/limits";
 import { factorColour } from "./colours";
 import { EvidenceDetails } from "./EvidenceDetails";
 
@@ -150,6 +151,31 @@ export function WhyPanel({
             </span>
           )}
         </p>
+      )}
+      {explanation.excluded && (
+        <p role="note" className="mt-2 rounded bg-neutral-200 p-2 text-xs">
+          Left out of the ranking: this hex cell fails a hard limit. Its score
+          is shown for reference.
+        </p>
+      )}
+      {explanation.limits.length > 0 && (
+        <section aria-label="Your hard limits" className="mt-3">
+          <h3 className="font-medium">Your hard limits</h3>
+          <ul className="mt-1 space-y-1 text-xs">
+            {explanation.limits.map(({ limit, indicator, result }) => (
+              <li key={limit.indicator} className="flex justify-between gap-2">
+                <span>{describeLimit(limit, indicator)}</span>
+                <span className="shrink-0 font-medium">
+                  {result === "pass"
+                    ? "Met"
+                    : result === "fail"
+                      ? "Failed"
+                      : "No data to check"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
       {explanation.lowCoverage && explanation.score !== null && (
         <p role="note" className="mt-2 rounded bg-amber-100 p-2 text-xs">

@@ -159,7 +159,8 @@ export function FactorTree({
       </ul>
 
       {(Object.keys(profile.weights).length > 0 ||
-        (profile.flipped?.length ?? 0) > 0) && (
+        (profile.flipped?.length ?? 0) > 0 ||
+        (profile.limits?.length ?? 0) > 0) && (
         <button type="button" className="underline" onClick={onReset}>
           Reset to defaults
         </button>

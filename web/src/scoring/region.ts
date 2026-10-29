@@ -1,4 +1,4 @@
-import type { Bundle } from "../data/bundle";
+import type { Bundle, Value } from "../data/bundle";
 import type {
   ManifestFactor,
   ManifestIndicator,
@@ -18,7 +18,21 @@ export interface Profile {
    * browser and out of shared links (D08): they can say a faith or an ethnic group.
    */
   choices?: Readonly<Record<string, readonly string[]>>;
+  /** The must-have rules: a cell that fails one is greyed out and not ranked. */
+  limits?: readonly Limit[];
 }
+
+/**
+ * A must-have rule on the raw value of a measured indicator (docs/methodology/scoring.md, section
+ * 6): at most a number, at least a number, or one of a list of categories.
+ */
+export type Limit = { indicator: string } & (
+  | { max: number }
+  | { min: number }
+  | { in: readonly string[] }
+);
+
+export type LimitResult = "pass" | "fail" | "could_not_check";
 
 /** The id of the tree's root, which holds the top-level factors. */
 export const ROOT_ID = "livability";
@@ -295,3 +309,62 @@ export function scoreCaseFor(
     },
   };
 }
+
+/** Whether a raw value meets a limit: a value that meets a number exactly passes. */
+function checkValue(limit: Limit, value: Value | undefined): LimitResult {
+  if (value === undefined || value === null) return "could_not_check";
+  if ("max" in limit) return Number(value) <= limit.max ? "pass" : "fail";
+  if ("min" in limit) return Number(value) >= limit.min ? "pass" : "fail";
+  return limit.in.includes(String(value)) ? "pass" : "fail";
+}
+
+/** The result of each limit in one cell, in the order of the limits. A limit on an indicator that
+ * the bundle does not have could not be checked. */
+export function limitResultsFor(
+  bundle: Bundle,
+  limits: readonly Limit[],
+  cellIndex: number,
+): { limit: Limit; result: LimitResult }[] {
+  return limits.map((limit) => {
+    const indicator = indicatorOf(bundle, limit.indicator);
+    const value =
+      indicator && !indicator.options
+        ? bundle.columns[indicator.column][cellIndex]
+        : undefined;
+    return { limit, result: checkValue(limit, value) };
+  });
+}
+
+/**
+ * Which cells the limits leave out (1) and which they keep (0), over the whole region. A cell is
+ * left out if it fails any one limit. A cell that lacks the data a limit needs is kept: only a
+ * failed limit excludes. `unchecked` is 1 where a kept cell could not be checked against some limit.
+ */
+export function checkLimits(
+  bundle: Bundle,
+  limits: readonly Limit[],
+): { excluded: Uint8Array; unchecked: Uint8Array } {
+  const size = bundle.cells.length;
+  const excluded = new Uint8Array(size);
+  const unchecked = new Uint8Array(size);
+  for (const limit of limits) {
+    const indicator = indicatorOf(bundle, limit.indicator);
+    const values =
+      indicator && !indicator.options
+        ? bundle.columns[indicator.column]
+        : undefined;
+    for (let i = 0; i < size; i++) {
+      const result = checkValue(limit, values?.[i]);
+      if (result === "fail") excluded[i] = 1;
+      else if (result === "could_not_check") unchecked[i] = 1;
+    }
+  }
+  for (let i = 0; i < size; i++) if (excluded[i]) unchecked[i] = 0;
+  return { excluded, unchecked };
+}
+
+/** The cells that the limits leave out: 1 where excluded. */
+export const excludedCells = (
+  bundle: Bundle,
+  limits: readonly Limit[],
+): Uint8Array => checkLimits(bundle, limits).excluded;

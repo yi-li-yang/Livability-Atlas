@@ -25,6 +25,9 @@ export function QuickLook({
             </span>{" "}
             <span className="text-neutral-600">out of 100</span>
           </p>
+          {explanation.excluded && (
+            <p className="font-medium">Left out by your hard limits</p>
+          )}
           {rank !== null && (
             <p className="text-neutral-600">
               Rank {wholeNumber.format(rank)} of {wholeNumber.format(total)}
