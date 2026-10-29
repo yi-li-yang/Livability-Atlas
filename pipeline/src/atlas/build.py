@@ -15,7 +15,7 @@ from typing import Any
 import pandas as pd
 
 from atlas.catalogue.load import Catalogue, load_catalogue
-from atlas.datasets.cities.london import laei, ptal
+from atlas.datasets.cities.london import laei, ptal, tfl_lines
 from atlas.datasets.countries.gb import (
     census_ethnic_group,
     census_residents,
@@ -278,7 +278,8 @@ def _walking_columns(
     network: walking.Network, cells: list[str], data_dir: Path, postcodes: pd.DataFrame
 ) -> dict[str, Sequence[Any]]:
     """The indicators that are walks along streets (spike S6): minutes to the nearest station,
-    school, GP practice and way into a park, and the patients per GP within a walk."""
+    school, GP practice and way into a park; the patients per GP, the rail lines and the bus routes
+    within a walk."""
     stations = naptan.read_stations(naptan.fetch(data_dir))
     minutes = transport.station_minutes(network, stations, cells)
     columns: dict[str, Sequence[Any]] = {
@@ -301,6 +302,14 @@ def _walking_columns(
         cells,
     )
     columns["gp-list-size"] = [None if pd.isna(v) else float(v) for v in ratio]
+    stops = transport.place_stops(tfl_lines.read_stops(tfl_lines.fetch(data_dir)))
+    for indicator, kind, minutes in (
+        ("rail-lines-nearby", "rail", 12),
+        ("bus-routes-nearby", "bus", 8),
+    ):
+        of_kind = pd.DataFrame(stops[stops["kind"] == kind])
+        found = transport.lines_within_a_walk(network, of_kind, cells, minutes)
+        columns[indicator] = [int(n) for n in found]
     gates = os_open_greenspace.read_access_points(
         os_open_greenspace.fetch(data_dir), bounds_bng(cells, margin=3000)
     )

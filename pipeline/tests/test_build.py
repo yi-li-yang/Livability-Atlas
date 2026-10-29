@@ -196,6 +196,20 @@ def synthetic_gp_lists() -> pd.DataFrame:
     )
 
 
+def synthetic_line_stops() -> pd.DataFrame:
+    """Two rail lines and three bus routes that stop at one place in the east of AREA."""
+    rows = [("rail", line) for line in ("A", "B")] + [("bus", route) for route in ("1", "2", "3")]
+    return pd.DataFrame(
+        {
+            "kind": [r[0] for r in rows],
+            "line": [r[1] for r in rows],
+            "stop": ["S1"] * len(rows),
+            "Latitude": 51.5120,
+            "Longitude": -0.1285,
+        }
+    )
+
+
 def synthetic_postcodes(tmp_path: Path) -> Path:
     """The place of that practice's postcode, in the east of AREA."""
     east = TO_BNG.transform(-0.1285, 51.5120)
@@ -429,6 +443,8 @@ def use_synthetic_data(monkeypatch, tmp_path):
     gp_files, postcodes = synthetic_gp_practices(tmp_path), synthetic_postcodes(tmp_path)
     monkeypatch.setattr(build_module.nhs_ods, "fetch", lambda data_dir: gp_files)
     monkeypatch.setattr(build_module.code_point, "fetch", lambda data_dir: postcodes)
+    monkeypatch.setattr(build_module.tfl_lines, "fetch", lambda data_dir: tmp_path / "lines")
+    monkeypatch.setattr(build_module.tfl_lines, "read_stops", lambda path: synthetic_line_stops())
     monkeypatch.setattr(
         build_module.nhs_gp, "fetch", lambda data_dir: (tmp_path / "p", tmp_path / "w")
     )
@@ -748,3 +764,17 @@ def test_the_bundle_holds_the_patients_per_gp_of_the_practices_within_a_walk(mon
     assert table[lng > -0.130]["gp_list_size"].notna().all()  # next to the practice
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert "gp-list-size" in {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_rail_lines_and_bus_routes_within_a_walk(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    east = table[lng > -0.130]
+    assert east["rail_lines_nearby"].max() == 2 and east["bus_routes_nearby"].max() == 3
+    assert (east["rail_lines_nearby"] > 0).mean() > 0.5  # a 12-minute walk reaches the stop
+    assert (east["bus_routes_nearby"] > 0).any()  # and an 8-minute walk, from the nearer cells
+    assert table["rail_lines_nearby"].max() == 2 and table["bus_routes_nearby"].max() == 3
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert {"rail-lines-nearby", "bus-routes-nearby"} <= {i["id"] for i in manifest["indicators"]}

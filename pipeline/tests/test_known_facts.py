@@ -194,3 +194,13 @@ def test_a_gp_serves_a_few_thousand_patients_where_a_practice_is_within_a_walk(b
     assert 2000 < ratio.median() < 3000  # England's 5th to 95th percentile is 1,357 to 5,559
     assert ratio.quantile(0.05) > 1000 and ratio.quantile(0.95) < 6000
     assert ratio[SOHO] < 2500 < ratio[cell_at(51.5390, 0.0550)]  # East Ham is stretched
+
+
+def test_lines_and_routes_are_many_in_the_centre_and_none_in_the_park(bundle):
+    rail, bus = bundle["rail_lines_nearby"], bundle["bus_routes_nearby"]
+    assert rail.notna().all() and bus.notna().all()
+    assert rail[BANK] >= 10  # Tube, DLR, Elizabeth line and rail at Bank and Monument
+    assert bus[SOHO] > 30 and rail[SOHO] >= 4
+    richmond_park = cell_at(51.4440, -0.2750)
+    assert rail[richmond_park] == 0 and bus[richmond_park] == 0
+    assert rail.median() < 2 and 2 <= bus.median() <= 5
