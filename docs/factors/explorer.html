@@ -418,20 +418,24 @@ factors:
                 name: Rail and Tube lines nearby
                 description: Tube, rail, DLR, Overground, Elizabeth line and tram lines at stations within a 12-minute walk.
                 default_weight: 3
-                status: researched
+                status: built
                 unit: lines
                 preference_type: fixed
+                curve: {shape: percentile, better: higher}
                 curve_reason: >-
-                  The curve waits for spike S6, which counts the lines near each
-                  of London's hex cells. No standard says how many lines are
-                  enough, so the thresholds should separate the hex cells.
+                  No standard says how many lines are enough, so a hex cell scores
+                  by its rank within the region: the share of hex cells with fewer.
+                  The counts are too skewed for a ramp: in London's built data the
+                  median cell has no line within the walk, the 95th percentile has
+                  3 and Bank has 17.
                 evidence_type: direct
                 comparable_across_regions: false
                 method: >-
                   The number of distinct lines serving stations within a
                   12-minute walk (960 m at 4.8 km/h) along streets and paths,
                   the walk TfL's PTAL allows to a rail or Tube station. National
-                  Rail services count as TfL's data lists them. Cities divide
+                  Rail services count as TfL's data lists them: by operator, not
+                  by route, so a station served by one operator counts once. Cities divide
                   their networks into lines differently, so the count does not
                   compare across regions.
                 datasets: [tfl-unified-api, openstreetmap]
@@ -439,13 +443,15 @@ factors:
                 name: Bus routes nearby
                 description: Day bus routes at stops within an 8-minute walk.
                 default_weight: 3
-                status: researched
+                status: built
                 unit: routes
                 preference_type: fixed
+                curve: {shape: percentile, better: higher}
                 curve_reason: >-
-                  The curve waits for spike S6, which counts the routes near
-                  each of London's hex cells. No standard says how many routes
-                  are enough, so the thresholds should separate the hex cells.
+                  No standard says how many routes are enough, so a hex cell scores
+                  by its rank within the region: the share of hex cells with fewer.
+                  In London's built data the median cell has 3 routes within the
+                  walk, the 95th percentile 14 and Soho 47.
                 evidence_type: direct
                 comparable_across_regions: false
                 method: >-
