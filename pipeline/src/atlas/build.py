@@ -2,8 +2,9 @@
 
 London so far has the service level (PTAL), the crime rates of Safety, the flood shares of
 Natural hazards, the walks to a station, a school, a GP practice and a park, the air quality, the
-noise and the walks to a grocery, a pharmacy, a gym and a library. Each indicator that arrives
-later adds its columns here, through the factor recipe.
+noise and the amenities: the walks to a grocery, a pharmacy, a gym and a library, and the cafés,
+restaurants, cuisines and food hygiene near each cell. Each indicator that arrives later adds its
+columns here, through the factor recipe.
 """
 
 from collections.abc import Sequence
@@ -19,6 +20,7 @@ from atlas.datasets.countries.gb import (
     code_point,
     defra_noise,
     ea_flood_risk,
+    fsa,
     gias,
     naptan,
     nhs_ods,
@@ -180,17 +182,35 @@ def _noise_columns(
 def _amenity_columns(
     region_id: str, network: walking.Network, cells: list[str], data_dir: Path
 ) -> dict[str, Sequence[Any]]:
-    """Daily amenities: the minutes on foot to the nearest grocery, pharmacy, gym and library,
-    from Overture's places and OpenStreetMap's, pooled (spike S6)."""
+    """Daily amenities (spikes S6 and S8): the minutes on foot to the nearest grocery, pharmacy, gym
+    and library, the cafés and restaurants and cuisines within a 10-minute walk, from Overture's
+    places and OpenStreetMap's pooled, and the share of nearby food businesses rated good."""
     found = place_pool.pool(
         overture.read_places(overture.fetch(data_dir, region_id, lonlat_box(cells, margin=0.05))),
         openstreetmap.places(data_dir, region_id),
     )
-    minutes = amenities.nearest_minutes(network, found, cells)
-    return {
+    columns: dict[str, Sequence[Any]] = {
         indicator: [None if pd.isna(m) else float(m) for m in walk]
-        for indicator, walk in minutes.items()
+        for indicator, walk in amenities.nearest_minutes(network, found, cells).items()
     }
+    ratings = fsa.read_ratings(fsa.fetch(data_dir, region_id))
+    empty = pd.DataFrame(columns=["Easting", "Northing"])
+    reach = amenities.reach_of(
+        network,
+        {
+            "cafe": found.get("cafe", empty),
+            "restaurant": found.get("restaurant", empty),
+            "ratings": ratings,
+        },
+        cells,
+    )
+    for indicator, count in amenities.counts_within_a_walk(network, found, cells, reach).items():
+        columns[indicator] = [int(n) for n in count]
+    variety = amenities.cuisine_variety(network, found, cells, reach)
+    columns["cuisine-variety"] = [int(n) for n in variety]
+    share = amenities.good_hygiene_share(network, ratings, cells, reach)
+    columns["food-hygiene"] = [None if pd.isna(v) else float(v) for v in share]
+    return columns
 
 
 def _walking_columns(

@@ -261,13 +261,23 @@ def synthetic_places(tmp_path: Path) -> tuple[Path, pd.DataFrame]:
     """Overture's places: a grocery in the west and a pharmacy in the east of AREA. OpenStreetMap's:
     a gym in the west and a library in the east."""
     west, east = (-0.1495, 51.5120), (-0.1255, 51.5120)
+    rows = [
+        ("g", west, "West Grocer", "grocery_store"),
+        ("p", east, "East Pharmacy", "pharmacy"),
+        ("c1", east, "East Cafe", "cafe"),
+        ("c2", east, "East Coffee", "coffee_shop"),
+        ("c3", west, "West Tea", "tea_room"),
+        ("r1", east, "East Thai", "thai_restaurant"),
+        ("r2", east, "East Pizza", "pizza_restaurant"),
+        ("r3", west, "West Thai", "thai_restaurant"),
+    ]
     overture_places = pd.DataFrame(
         {
-            "id": ["g", "p"],
-            "lng": [west[0], east[0]],
-            "lat": [west[1], east[1]],
-            "name": ["West Grocer", "East Pharmacy"],
-            "category": ["grocery_store", "pharmacy"],
+            "id": [r[0] for r in rows],
+            "lng": [r[1][0] for r in rows],
+            "lat": [r[1][1] for r in rows],
+            "name": [r[2] for r in rows],
+            "category": [r[3] for r in rows],
         }
     )
     path = tmp_path / "overture-places.parquet"
@@ -285,6 +295,25 @@ def synthetic_places(tmp_path: Path) -> tuple[Path, pd.DataFrame]:
         }
     )
     return path, osm_places
+
+
+def synthetic_ratings(tmp_path: Path) -> Path:
+    """Ten rated food businesses in the west of AREA, all rated 2, and ten in the east, all 5."""
+    rows = [
+        {
+            "name": f"{side} {i}",
+            "type": "Cafe",
+            "lng": lng + 0.0002 * i,
+            "lat": 51.5120,
+            "authority": "Westminster",
+            "rating": rating,
+        }
+        for side, lng, rating in (("West", -0.1495, "2"), ("East", -0.1255, "5"))
+        for i in range(10)
+    ]
+    path = tmp_path / "fsa.parquet"
+    pd.DataFrame(rows).to_parquet(path)
+    return path
 
 
 def use_synthetic_data(monkeypatch, tmp_path):
@@ -309,6 +338,8 @@ def use_synthetic_data(monkeypatch, tmp_path):
     overture_path, osm_places = synthetic_places(tmp_path)
     monkeypatch.setattr(build_module.overture, "fetch", lambda data_dir, region, box: overture_path)
     monkeypatch.setattr(build_module.openstreetmap, "places", lambda data_dir, region: osm_places)
+    ratings = synthetic_ratings(tmp_path)
+    monkeypatch.setattr(build_module.fsa, "fetch", lambda data_dir, region: ratings)
     air = synthetic_air(tmp_path)
     monkeypatch.setattr(build_module.laei, "fetch", lambda data_dir: air)
     park = synthetic_greenspace(tmp_path)
@@ -561,3 +592,19 @@ def test_the_bundle_holds_the_walks_to_a_grocery_a_pharmacy_a_gym_and_a_library(
     assert {"groceries", "pharmacies", "gyms", "libraries"} <= {
         i["id"] for i in manifest["indicators"]
     }
+
+
+def test_the_bundle_holds_the_counts_cuisines_and_hygiene_near_each_cell(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    west, east = table[lng < -0.145], table[lng > -0.130]
+    # Two cafés and two restaurants of two cuisines in the east; one of each, of one cuisine, west.
+    assert east["cafes"].median() == 2 and west["cafes"].median() == 1
+    assert east["restaurant_choice"].median() == 2 and west["restaurant_choice"].median() == 1
+    assert east["cuisine_variety"].median() == 2 and west["cuisine_variety"].median() == 1
+    assert east["food_hygiene"].median() == 100 and west["food_hygiene"].median() == 0
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    ids = {i["id"] for i in manifest["indicators"]}
+    assert {"cafes", "restaurant-choice", "cuisine-variety", "food-hygiene"} <= ids

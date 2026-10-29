@@ -186,3 +186,44 @@ class Network:
         origin_gap, origin_node = self._nearest(origins)
         metres = distance[origin_node] + origin_gap
         return np.where(np.isfinite(metres), metres / SPEED, np.nan)
+
+    def places_within(
+        self, places: np.ndarray, origins: np.ndarray, minutes: float
+    ) -> list[np.ndarray]:
+        """For each of `origins`, the indexes of the `places` that can be walked to in `minutes` or
+        less, along streets (each point first walks in a straight line to the nearest node)."""
+        return self.groups_within([places], origins, minutes)[0]
+
+    def groups_within(
+        self, groups: Sequence[np.ndarray], origins: np.ndarray, minutes: float
+    ) -> list[list[np.ndarray]]:
+        """`places_within` for several sets of places at once, sharing the street searches:
+        `result[g][o]` holds the indexes of the places of group `g` within reach of origin `o`.
+
+        A search from an origin cannot go further than the walk, so it runs on the streets within
+        that straight-line distance only: the walk is never shorter than the straight line.
+        """
+        limit = minutes * SPEED + 1e-9
+        snapped = [self._nearest(places) for places in groups]
+        origin_gap, origin_node = self._nearest(origins)
+        count = len(self.refs)
+        graph = csr_matrix((self._length, (self._src, self._dst)), shape=(count, count))
+        local = np.full(count, -1, dtype=np.int64)
+        empty = np.empty(0, dtype=np.int64)
+        found: list[list[np.ndarray]] = [[empty] * len(origins) for _ in groups]
+        owners: dict[int, list[int]] = {}
+        for index, node in enumerate(origin_node):
+            owners.setdefault(int(node), []).append(index)
+        for node, indexes in owners.items():
+            around = np.sort(self._main[self._tree.query_ball_point(self.xy[node], limit)])
+            local[around] = np.arange(len(around))
+            walk = dijkstra(
+                graph[around][:, around], directed=True, indices=local[node], limit=limit
+            )
+            for group, (place_gap, place_node) in enumerate(snapped):
+                reachable = np.flatnonzero(local[place_node] >= 0)
+                along = walk[local[place_node[reachable]]] + place_gap[reachable]
+                for index in indexes:
+                    found[group][index] = reachable[along + origin_gap[index] <= limit]
+            local[around] = -1
+        return found
