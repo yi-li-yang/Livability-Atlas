@@ -24,4 +24,5 @@ def gigabit_share(areas: gpd.GeoDataFrame, homes: pd.DataFrame, cells: list[str]
     gigabit = residents_by_cell(areas, pd.Series(homes["gigabit_homes"]), cells).reindex(cells)
     homes_in = total.to_numpy(dtype=float)
     share = np.where(homes_in > 0, 100.0 * gigabit.to_numpy(dtype=float) / homes_in, np.nan)
+    share = np.clip(share, 0.0, 100.0)  # shares of the same area can round to a hair over 100
     return pd.Series(share, index=cells, dtype=float)

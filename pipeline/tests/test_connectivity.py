@@ -125,3 +125,16 @@ class TestGigabitShare:
         homes = pd.DataFrame({"homes": [100.0], "gigabit_homes": [90.0]}, index=["A"])
         share = connectivity.gigabit_share(areas, homes, [cell, far])
         assert share[cell] == pytest.approx(90.0) and np.isnan(share[far])
+
+
+def test_a_share_never_goes_above_100_through_rounding(monkeypatch):
+    cell = h3.latlng_to_cell(51.5136, -0.1337, 9)
+    shared = {"homes": 100.0, "gigabit_homes": 100.00000000000001}  # as overlay areas can give
+
+    def fake(areas, counts, cells):
+        return pd.Series(shared[str(counts.name)], index=cells)
+
+    monkeypatch.setattr(connectivity, "residents_by_cell", fake)
+    homes = pd.DataFrame({"homes": [1.0], "gigabit_homes": [1.0]}, index=["A"])
+    areas = gpd.GeoDataFrame({"OA21CD": ["A"]}, geometry=[square(0, 0)], crs="EPSG:27700")
+    assert connectivity.gigabit_share(areas, homes, [cell])[cell] == 100.0
