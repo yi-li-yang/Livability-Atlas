@@ -32,9 +32,14 @@ export type Shape2 = "lookup";
 export type Shape3 = "percentile";
 export type Better = "higher" | "lower";
 export type Datasets = string[];
-export type Indicators = ManifestIndicator[];
+export type Options = ManifestOption[] | null;
 export type Id3 = string;
 export type Name3 = string;
+export type Group = string | null;
+export type Column1 = string;
+export type Indicators = ManifestIndicator[];
+export type Id4 = string;
+export type Name4 = string;
 export type Publisher = string;
 export type Url = string;
 export type Licence = string;
@@ -79,6 +84,7 @@ export interface ManifestIndicator {
   preference_type: PreferenceType;
   curve?: Curve;
   datasets: Datasets;
+  options?: Options;
 }
 export interface Ramp {
   shape: Shape;
@@ -103,9 +109,18 @@ export interface Percentile {
   shape: Shape3;
   better: Better;
 }
-export interface ManifestDataset {
+/**
+ * One of the options a user can pick on a choice indicator, such as a faith.
+ */
+export interface ManifestOption {
   id: Id3;
   name: Name3;
+  group?: Group;
+  column: Column1;
+}
+export interface ManifestDataset {
+  id: Id4;
+  name: Name4;
   publisher: Publisher;
   url: Url;
   licence: Licence;

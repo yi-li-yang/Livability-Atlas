@@ -77,7 +77,10 @@ test("a factor at weight 0 leaves the drawing for the not counted list, and can 
 
   await page.getByRole("button", { name: "Count Transport again" }).click();
   await expect(tile(page, "transport")).toHaveCount(1);
-  await expect(notCounted).toHaveCount(0);
+  // Community and people starts out not counted, so the list stays, without Transport.
+  await expect(
+    page.getByRole("button", { name: "Count Transport again" }),
+  ).toHaveCount(0);
   expect(await share(page, "transport")).toBeCloseTo(3 / 15, 3);
 });
 

@@ -26,10 +26,19 @@ def fetch(data_dir: Path, region_id: str) -> Path:
 
 # The tags that mark the places we count, and the tag keys we keep for them.
 PLACE_KEYS = ("amenity", "shop", "leisure")
-KEPT_TAGS = ("name", "brand", "cuisine", *PLACE_KEYS)
+KEPT_TAGS = ("name", "brand", "cuisine", "religion", *PLACE_KEYS)
 # What the places of each key are, among the tags of OpenStreetMap.
 PLACE_VALUES = {
-    "amenity": {"restaurant", "cafe", "fast_food", "pub", "bar", "pharmacy", "library"},
+    "amenity": {
+        "restaurant",
+        "cafe",
+        "fast_food",
+        "pub",
+        "bar",
+        "pharmacy",
+        "library",
+        "place_of_worship",
+    },
     "shop": {"supermarket", "convenience", "greengrocer", "bakery", "butcher"},
     "leisure": {"fitness_centre"},
 }
@@ -64,8 +73,8 @@ class _Places(osmium.SimpleHandler):
 
 def read_places(path: Path) -> pd.DataFrame:
     """The places of the kinds we count in an OpenStreetMap file (`.osm.pbf` or `.osm`), as a
-    table with `lng`, `lat`, `name`, `brand`, `cuisine`, `amenity`, `shop` and `leisure`. A
-    building's place is the middle of its outline."""
+    table with `lng`, `lat`, `name`, `brand`, `cuisine`, `religion`, `amenity`, `shop` and
+    `leisure`. A building's place is the middle of its outline."""
     handler = _Places()
     handler.apply_file(str(path), locations=True)
     return pd.DataFrame(handler.rows, columns=["lng", "lat", *KEPT_TAGS])
@@ -77,7 +86,7 @@ def places(data_dir: Path, region_id: str) -> pd.DataFrame:
     extract has new places."""
     extract = fetch(data_dir, region_id)
     checksum = extract.with_name(extract.name + ".sha256").read_text(encoding="utf-8").strip()
-    kept = extract.with_name(f"places-{region_id}-{checksum[:12]}.parquet")
+    kept = extract.with_name(f"places-v2-{region_id}-{checksum[:12]}.parquet")
     if kept.exists():
         return pd.read_parquet(kept)
     table = read_places(extract)

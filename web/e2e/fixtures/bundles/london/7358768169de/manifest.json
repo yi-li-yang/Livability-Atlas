@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": "897ec82e2277",
+  "version": "7358768169de",
   "region": {
     "id": "london",
     "name": "London"
@@ -118,6 +118,32 @@
               "indicator": "gp-walk"
             }
           ]
+        }
+      ]
+    },
+    {
+      "id": "community-and-people",
+      "name": "Community and people",
+      "default_weight": 2,
+      "children": [
+        {
+          "id": "community-composition",
+          "name": "Community composition",
+          "default_weight": 0,
+          "children": [
+            {
+              "id": "your-community",
+              "name": "Your community",
+              "default_weight": 0,
+              "indicator": "your-community"
+            }
+          ]
+        },
+        {
+          "id": "faith",
+          "name": "Faith",
+          "default_weight": 0,
+          "indicator": "faith"
         }
       ]
     }
@@ -271,7 +297,65 @@
         "t0": 15.0,
         "t1": 5.0
       },
-      "datasets": ["nhs-ods", "ons-postcode-directory", "openstreetmap"]
+      "datasets": ["nhs-ods", "os-code-point-open", "openstreetmap"]
+    },
+    {
+      "id": "your-community",
+      "name": "Your community",
+      "column": "your_community",
+      "unit": "% of residents",
+      "evidence_type": "direct",
+      "preference_type": "user-choice",
+      "curve": {
+        "shape": "percentile",
+        "better": "higher"
+      },
+      "datasets": [
+        "ons-census-2021-topic-summaries",
+        "ons-output-area-boundaries"
+      ],
+      "options": [
+        {
+          "id": "ethnic-indian",
+          "name": "Indian",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_indian"
+        },
+        {
+          "id": "religion-hindu",
+          "name": "Hindu",
+          "group": "Religion",
+          "column": "your_community__religion_hindu"
+        }
+      ]
+    },
+    {
+      "id": "faith",
+      "name": "Faith",
+      "column": "faith",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "user-choice",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 5.0
+      },
+      "datasets": ["openstreetmap", "overture-places"],
+      "options": [
+        {
+          "id": "hindu",
+          "name": "Hindu",
+          "group": "Religion",
+          "column": "faith__hindu"
+        },
+        {
+          "id": "sikh",
+          "name": "Sikh",
+          "group": "Religion",
+          "column": "faith__sikh"
+        }
+      ]
     }
   ],
   "datasets": [
@@ -303,6 +387,15 @@
       "date": "2021"
     },
     {
+      "id": "ons-census-2021-topic-summaries",
+      "name": "Census 2021 topic summaries by output area (ONS)",
+      "publisher": "Office for National Statistics (ONS), through Nomis",
+      "url": "https://www.nomisweb.co.uk/sources/census_2021_bulk",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics, licensed under the Open Government Licence v3.0.",
+      "date": "2021"
+    },
+    {
       "id": "ons-output-area-boundaries",
       "name": "Output Areas (December 2021) Boundaries EW BGC",
       "publisher": "Office for National Statistics (ONS)",
@@ -310,15 +403,6 @@
       "licence": "OGL-UK-3.0",
       "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. Contains OS data © Crown copyright and database right 2026.",
       "date": "2021"
-    },
-    {
-      "id": "ons-postcode-directory",
-      "name": "ONS Postcode Directory",
-      "publisher": "Office for National Statistics",
-      "url": "https://geoportal.statistics.gov.uk/",
-      "licence": "unknown",
-      "attribution": "",
-      "date": "quarterly"
     },
     {
       "id": "ons-region-boundaries",
@@ -339,6 +423,15 @@
       "date": "updated continually"
     },
     {
+      "id": "os-code-point-open",
+      "name": "OS Code-Point Open",
+      "publisher": "Ordnance Survey",
+      "url": "https://www.ordnancesurvey.co.uk/products/code-point-open",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains OS data © Crown copyright and database right 2026. Contains Royal Mail data © Royal Mail copyright and database right 2026. Contains National Statistics data © Crown copyright and database right 2026.",
+      "date": "quarterly"
+    },
+    {
       "id": "os-open-greenspace",
       "name": "OS Open Greenspace",
       "publisher": "Ordnance Survey",
@@ -346,6 +439,15 @@
       "licence": "OGL-UK-3.0",
       "attribution": "Contains OS data © Crown copyright and database right 2026.",
       "date": "updated every six months"
+    },
+    {
+      "id": "overture-places",
+      "name": "Overture Maps Places",
+      "publisher": "Overture Maps Foundation",
+      "url": "https://docs.overturemaps.org/guides/places/",
+      "licence": "CDLA-Permissive-2.0 AND Apache-2.0 AND CC0-1.0",
+      "attribution": "Overture Maps Foundation, with places from Meta, Microsoft, Foursquare and others. Copyright 2024 Foursquare Labs, Inc. All rights reserved.",
+      "date": "monthly releases"
     },
     {
       "id": "police-uk",

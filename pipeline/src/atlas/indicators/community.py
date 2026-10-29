@@ -6,6 +6,8 @@ its output areas' counts shared by area (`crime.counts_shared_by_cell`), and the
 on those, not averaged from the areas' indexes.
 """
 
+import re
+
 import geopandas as gpd
 import numpy as np
 import pandas as pd
@@ -32,3 +34,50 @@ def diversity(areas: gpd.GeoDataFrame, groups: pd.DataFrame, cells: list[str]) -
     """
     shared = counts_shared_by_cell(areas, groups, cells).reindex(cells).fillna(0.0)
     return pd.Series(simpson(shared.to_numpy(dtype=float)), index=cells, dtype=float)
+
+
+def shares(areas: gpd.GeoDataFrame, groups: pd.DataFrame, cells: list[str]) -> pd.DataFrame:
+    """The percentage of each cell's residents in each group, with a column for each of `groups`.
+
+    `groups` is indexed by output area code and must list every group of its table, so that the
+    columns add up to the area's residents. A cell with no residents has no shares.
+    """
+    shared = counts_shared_by_cell(areas, groups, cells).reindex(cells).fillna(0.0)
+    counts = shared.to_numpy(dtype=float)
+    totals = counts.sum(axis=1)
+    percent = np.divide(
+        100.0 * counts,
+        totals[:, None],
+        out=np.full(counts.shape, np.nan),
+        where=totals[:, None] > 0,
+    )
+    return pd.DataFrame(percent, index=cells, columns=shared.columns)
+
+
+# The census's categories that are not a group of people to be near.
+NOT_OFFERED = {"Not answered", "Other religion"}
+
+
+def slug(text: str) -> str:
+    """The text as an id of lowercase words joined by hyphens."""
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
+
+def community_options(
+    ethnic: pd.DataFrame, religion: pd.DataFrame
+) -> list[tuple[str, str, str, pd.Series]]:
+    """The options of Your community, as (id, name, group, share of residents in each cell).
+
+    `ethnic` and `religion` are the cells' shares from `shares`, a column for each group of the
+    census's tables. An ethnic group is named by the part of its census name after the last colon.
+    """
+    options = []
+    for column in ethnic.columns:
+        name = str(column).rsplit(": ", 1)[-1]
+        options.append((f"ethnic-{slug(name)}", name, "Ethnic group", ethnic[column]))
+    for column in religion.columns:
+        if column not in NOT_OFFERED:
+            options.append(
+                (f"religion-{slug(str(column))}", str(column), "Religion", religion[column])
+            )
+    return options

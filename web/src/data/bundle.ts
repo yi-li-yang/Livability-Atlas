@@ -51,9 +51,11 @@ export async function loadBundle(
   const cells = rows.map((row) => row.cell as Cell);
   const columns: Record<string, Value[]> = {};
   for (const indicator of manifest.indicators) {
-    columns[indicator.column] = rows.map(
-      (row) => row[indicator.column] ?? null,
-    );
+    // A choice indicator has a column for each option, and none of its own.
+    const named = indicator.options?.map((o) => o.column) ?? [indicator.column];
+    for (const column of named) {
+      columns[column] = rows.map((row) => row[column] ?? null);
+    }
   }
   return { manifest, cells, columns };
 }

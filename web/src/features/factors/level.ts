@@ -25,7 +25,7 @@ export interface FactorView {
 
 export interface Level {
   /** The factors opened to reach this level, outermost first. Empty at the top. */
-  trail: { id: string; name: string }[];
+  trail: { id: string; name: string; factor: ManifestFactor }[];
   /** The factors that count in the score, in the catalogue's order. */
   counted: FactorView[];
   /** The factors at weight 0, which the drawing leaves out. */
@@ -52,7 +52,7 @@ export function levelAt(
     if (position < 0 || kidsOf(siblings[position]).length === 0) break;
     const factor = siblings[position];
     top ??= { factor, position };
-    trail.push({ id: factor.id, name: factor.name });
+    trail.push({ id: factor.id, name: factor.name, factor });
     siblings = kidsOf(factor);
   }
 
@@ -91,6 +91,41 @@ export function withWeight(
   weight: number,
 ): Profile {
   return { ...profile, weights: { ...profile.weights, [id]: weight } };
+}
+
+/** The weight a choice factor gets when the user picks its first option: the middle of the scale. */
+export const CHOSEN_WEIGHT = 3;
+
+/**
+ * The profile with one option of a choice indicator picked or cleared. A choice factor starts at
+ * weight 0 (D18), so the first pick gives it a weight, and clearing the last option takes it back.
+ * The factors opened to reach it (`ancestors`) that are at weight 0 get the same weight, or the
+ * pick would count for nothing.
+ */
+export function withChoice(
+  profile: Profile,
+  factor: ManifestFactor,
+  option: string,
+  picked: boolean,
+  ancestors: readonly ManifestFactor[] = [],
+): Profile {
+  const now = profile.choices?.[factor.id] ?? [];
+  const next = picked
+    ? [...new Set([...now, option])]
+    : now.filter((o) => o !== option);
+  const { [factor.id]: _, ...others } = profile.choices ?? {};
+  const choices = next.length > 0 ? { ...others, [factor.id]: next } : others;
+  const weights = { ...profile.weights };
+  if (next.length === 0) weights[factor.id] = 0;
+  else {
+    for (const f of [factor, ...ancestors]) {
+      if (weightIn(profile, f) === 0) weights[f.id] = CHOSEN_WEIGHT;
+    }
+  }
+  const { choices: __, ...rest } = profile;
+  return Object.keys(choices).length > 0
+    ? { ...rest, weights, choices }
+    : { ...rest, weights };
 }
 
 /**

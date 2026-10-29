@@ -293,6 +293,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **History:**
   - 2026-10-23: proposed after review raised rainfall as an example.
   - 2026-10-28: accepted. The catalogue's checks require each measured indicator's preference type and an ideal-range curve for a user-range one, and the golden test cases pin flipped directions for every curve shape.
+  - 2026-10-29: user choice built ([spec](specs/2026-10-29-user-choice.md)): one column per option, the best of the options picked, a fixed direction, a first pick sets the weight to 3, and choices stay out of shared links (D08).
 
 ## D19 Food quality
 

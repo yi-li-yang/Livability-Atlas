@@ -9,6 +9,7 @@ import hashlib
 import io
 import json
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -22,12 +23,28 @@ from atlas.publish.manifest import (
     ManifestDataset,
     ManifestFactor,
     ManifestIndicator,
+    ManifestOption,
     ManifestRegion,
 )
 
 
+@dataclass(frozen=True)
+class Choice:
+    """One option of a choice indicator and its raw value in each cell, such as the walking
+    minutes to the nearest place of worship of one faith."""
+
+    id: str
+    name: str
+    group: str | None
+    values: Sequence[Any]
+
+
 def _column(indicator_id: str) -> str:
     return indicator_id.replace("-", "_")
+
+
+def _option_column(indicator_id: str, option_id: str) -> str:
+    return f"{_column(indicator_id)}__{_column(option_id)}"
 
 
 def _find(nodes: Sequence[Factor], indicator_id: str) -> Factor | None:
@@ -57,7 +74,11 @@ def _prune(node: Factor, wanted: set[str]) -> ManifestFactor | None:
 
 
 def _manifest(
-    catalogue: Catalogue, region_id: str, cell_count: int, indicator_ids: list[str]
+    catalogue: Catalogue,
+    region_id: str,
+    cell_count: int,
+    indicator_ids: list[str],
+    choices: dict[str, list[Choice]],
 ) -> Manifest:
     region = catalogue.regions[region_id]
     leaves = {}
@@ -76,6 +97,12 @@ def _manifest(
             preference_type=leaf.preference_type,  # type: ignore[arg-type]
             curve=leaf.curve,
             datasets=list(leaf.datasets or []),
+            options=[
+                ManifestOption(id=o.id, name=o.name, group=o.group, column=_option_column(i, o.id))
+                for o in choices[i]
+            ]
+            if i in choices
+            else None,
         )
         for i, leaf in leaves.items()
     ]
@@ -121,20 +148,37 @@ def write_bundle(
     region_id: str,
     cells: Sequence[str],
     columns: dict[str, Sequence[Any]],
+    choices: dict[str, list[Choice]] | None = None,
     out_dir: Path,
 ) -> Path:
-    """Writes the bundle and returns its folder. `columns` maps indicator ids to raw values."""
+    """Writes the bundle and returns its folder. `columns` maps indicator ids to raw values, and
+    `choices` maps the ids of choice indicators to their options, each with raw values."""
+    choices = choices or {}
+    for indicator_id, options in choices.items():
+        if indicator_id in columns:
+            raise ValueError(f"{indicator_id} is a choice, so it cannot also have a plain column")
+        for option in options:
+            if len(option.values) != len(cells):
+                raise ValueError(
+                    f"{indicator_id} option {option.id} has {len(option.values)} values "
+                    f"for {len(cells)} cells"
+                )
     if list(cells) != sorted(set(cells)):
         raise ValueError("cells must be sorted and unique")
     for indicator_id, values in columns.items():
         if len(values) != len(cells):
             raise ValueError(f"{indicator_id} has {len(values)} values for {len(cells)} cells")
-    manifest = _manifest(catalogue, region_id, len(cells), list(columns))
+    manifest = _manifest(catalogue, region_id, len(cells), [*columns, *choices], choices)
 
     table = pa.table(
         {
             "cell": pa.array(list(cells), pa.string()),
             **{_column(i): pa.array(list(v)) for i, v in columns.items()},
+            **{
+                _option_column(i, o.id): pa.array(list(o.values), pa.float64())
+                for i, options in choices.items()
+                for o in options
+            },
         }
     )
     buffer = io.BytesIO()

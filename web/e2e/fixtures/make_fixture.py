@@ -1,6 +1,7 @@
 """Writes the small data bundle that the web app's tests load: the cells within 8 steps of Soho.
 
-The service level, the walk to the nearest station and the five crime rates come from a real
+The service level, the walk to the nearest station, the five crime rates and the options of the
+two choice indicators come from a real
 London bundle, so run `just data london` first. The other two indicators are FABRICATED, only so
 that the tests have several factors to weigh: see README.md beside this file. From the repo root:
 
@@ -17,11 +18,13 @@ import pyarrow.parquet as pq
 from atlas.catalogue.load import load_catalogue
 from atlas.indicators import crime
 from atlas.paths import REPO_ROOT, data_dir
-from atlas.publish.bundle import write_bundle
+from atlas.publish.bundle import Choice, write_bundle
 
 OUT = REPO_ROOT / "web" / "e2e" / "fixtures" / "bundles"
 SOHO = h3.latlng_to_cell(51.5136, -0.1337, 9)
 CRIME = list(crime.CATEGORIES)
+# The options of the two choice indicators that the fixture keeps, from the real bundle.
+OPTIONS = {"faith": ("hindu", "sikh"), "your-community": ("religion-hindu", "ethnic-indian")}
 
 
 def main() -> None:
@@ -39,6 +42,22 @@ def main() -> None:
             for indicator in CRIME
         },
     }
+    manifest = json.loads((published / version / "manifest.json").read_text(encoding="utf-8"))
+    choices = {}
+    for indicator in manifest["indicators"]:
+        wanted = OPTIONS.get(indicator["id"])
+        if wanted is None:
+            continue
+        choices[indicator["id"]] = [
+            Choice(
+                id=option["id"],
+                name=option["name"],
+                group=option["group"],
+                values=[table[option["column"]][row[c]] for c in cells],
+            )
+            for option in indicator["options"]
+            if option["id"] in wanted
+        ]
     fabricated = {
         # A pattern that varies from cell to cell.
         "walk-to-green-space": [4 + (i * 7) % 12 for i in range(len(cells))],
@@ -50,6 +69,7 @@ def main() -> None:
         region_id="london",
         cells=cells,
         columns={**real, **fabricated},
+        choices=choices,
         out_dir=OUT,
     )
     print(f"{len(cells)} cells in {bundle}")
