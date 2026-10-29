@@ -208,7 +208,7 @@ def _travel_columns(
 ) -> dict[str, Sequence[Any]]:
     """Travel time to places: the mean over the region's default places (D09) of the quickest
     door-to-door time by public transport on a weekday morning. The Journey Planner is asked for
-    the journey from each station, and a cell takes the walk to a station within 20 minutes and
+    the journey from each station, and a cell takes the walk to a station within 40 minutes and
     that station's journey (an estimate: see `transport.travel_minutes`)."""
     if not region.default_places:
         return {}

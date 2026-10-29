@@ -1007,7 +1007,7 @@ def test_the_bundle_holds_the_travel_time_to_the_default_places(monkeypatch, tmp
     lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
     found = table["travel_time_to_places"].dropna()
     assert len(found) > 0 and found.min() >= 20.0  # the walk to the station and its 20 minutes
-    assert found.max() <= 40.0  # a walk of at most 20 minutes
+    assert found.max() <= 60.0  # a walk of at most 40 minutes
     assert found.min() < 25.0  # the cells beside the station
     east = table[lng > -0.130]["travel_time_to_places"]
     assert east.notna().all() and east.median() < 35.0

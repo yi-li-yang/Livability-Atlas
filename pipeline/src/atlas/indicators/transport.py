@@ -77,7 +77,7 @@ def travel_minutes(
     stations: pd.DataFrame,
     times: pd.DataFrame,
     cells: list[str],
-    walk: float = 20.0,
+    walk: float = 40.0,
 ) -> pd.Series:
     """The mean over the default places of the quickest door-to-door time from each cell's centre,
     by foot to a station within `walk` minutes and then that station's journey.

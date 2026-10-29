@@ -267,7 +267,9 @@ factors:
           61 to 90 minutes, against those of 15 minutes or less. The GLA found
           the effect of commute length small in London (Commuting and individual
           well-being in London, 2015), so the ramp is wide and gentle. London's
-          cells spread across it (built data: see the method).
+          cells spread across it: the middle half run from 53 to 74 minutes,
+          the 5th to 95th percentile from 37 to 89, and the City and the West
+          End are 21 to 25.
         evidence_type: estimate
         comparable_across_regions: true
         method: >-
@@ -278,11 +280,15 @@ factors:
           own journey cannot be asked of TfL's Journey Planner for each of
           17,000 cells: the Journey Planner gives the quickest journey, by all
           modes with buses, from each of the region's stations to each place,
-          and a cell takes the walk along streets to a station within 20
+          and a cell takes the walk along streets to a station within 40
           minutes plus that station's journey, whichever station gives the
-          shortest total for the place. A cell with no station within 20
-          minutes' walk has no value. Spike S4 found such an estimate within 20%
-          of the Journey Planner's door-to-door time in 81% of journeys. A
+          shortest total for the place. A walk to a station that long is an
+          upper bound on what the journey takes, as a bus would be quicker, so
+          the time is too long for the cells far from a station. A cell with no
+          station within 40 minutes' walk (8% of London's: parks and the edge)
+          has no value. Spike S4 found such an estimate within 20% of the
+          Journey Planner's door-to-door time in 81% of journeys, and too long
+          in 19%, because buses are not in the station times. A
           user's own places get an estimate in the browser instead, from the
           same station times (D10). The weekday-morning timetable is
           one departure, not a range of them.

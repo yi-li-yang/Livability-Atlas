@@ -264,3 +264,13 @@ def test_the_fare_zone_follows_the_distance_from_the_centre(bundle):
     assert zone[WIMBLEDON_VILLAGE] == "3"  # Wimbledon station
     assert zone[cell_at(51.6330, -0.0100)] == "5"  # Chingford
     assert zone[cell_at(51.3762, -0.0982)] == "5"  # East Croydon
+
+
+def test_travel_time_is_short_in_the_centre_and_long_at_the_edge(bundle):
+    minutes = bundle["travel_time_to_places"]
+    assert 0.85 < minutes.notna().mean() < 0.97  # cells within a 40-minute walk of a station
+    assert 55 < minutes.median() < 72 and minutes.min() > 15
+    assert minutes[BANK] < 30 and minutes[SOHO] < 35  # the job centres themselves
+    assert minutes[cell_at(51.5054, -0.0235)] < 35  # Canary Wharf
+    assert minutes[cell_at(51.6330, -0.0100)] > 55  # Chingford
+    assert minutes[cell_at(51.5390, 0.0550)] < minutes[cell_at(51.6330, -0.0100)]  # East Ham
