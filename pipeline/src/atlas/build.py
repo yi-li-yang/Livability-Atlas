@@ -18,6 +18,8 @@ import pandas as pd
 from atlas.catalogue.load import Catalogue, load_catalogue
 from atlas.datasets.cities.london import laei, ptal, tfl_lines
 from atlas.datasets.countries.gb import (
+    census_age,
+    census_country_of_birth,
     census_ethnic_group,
     census_religion,
     census_residents,
@@ -257,7 +259,8 @@ def _choices(
     region_id: str, network: walking.Network, cells: list[str], data_dir: Path
 ) -> dict[str, list[Choice]]:
     """The user-choice indicators, with a column for each option (specs/2026-10-29-user-choice):
-    Your community, the share of residents in each ethnic group and religion (Census 2021), and
+    Your community, the share of residents in each ethnic group, religion, place of birth and age
+    group (Census 2021), and
     Faith, the minutes on foot to the nearest place of worship of each religion."""
     areas = output_areas.read_boundaries(
         output_areas.fetch(data_dir, bounds_bng(cells, margin=2000))
@@ -268,9 +271,14 @@ def _choices(
     religion = community.shares(
         areas, census_religion.read_groups(census_religion.fetch(data_dir)), cells
     )
+    birth = community.shares(
+        areas, census_country_of_birth.read_groups(census_country_of_birth.fetch(data_dir)), cells
+    )
+    stages = community.life_stages(census_age.read_groups(census_age.fetch(data_dir)))
+    age = community.shares(areas, stages, cells)
     your_community = [
         Choice(id=i, name=n, group=g, values=_floats(v))
-        for i, n, g, v in community.community_options(ethnic, religion)
+        for i, n, g, v in community.community_options(ethnic, religion, birth=birth, age=age)
     ]
     worship = faith.places_of_worship(openstreetmap.places(data_dir, region_id))
     minutes = faith.faith_minutes(network, worship, cells)

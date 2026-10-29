@@ -1064,7 +1064,7 @@ factors:
         children:
           - id: your-community
             name: Your community
-            description: The presence of a group the user picks, by ethnic group, religion, country of birth, main language or age.
+            description: The presence of a group the user picks, by ethnic group, religion, country of birth or age.
             default_weight: 0
             weight_reason: "Choice factor: weight 0 until the user picks a group (D18)."
             scales: [within-city]
@@ -1084,9 +1084,14 @@ factors:
               output area, combined over the output areas that overlap the hex
               cell, weighted by residents. The groups are the census's own
               categories, which differ between countries, so the share does not
-              compare across regions. The first build offers the census's detailed
-              ethnic groups and its religions; country of birth, main language and
-              age follow.
+              compare across regions. It offers the census's detailed ethnic groups
+              (19), its religions (6, and no religion), the 10 places of birth
+              that the census gives at the smallest areas and that are not too
+              few to rank (the United Kingdom, the European Union in groups,
+              other Europe and the continents) and six
+              life stages made from its five-year age bands. Main language is not
+              offered: the census gives the detailed languages only down to
+              boroughs.
             datasets: &census-composition-datasets [ons-census-2021-topic-summaries, ons-output-area-boundaries]
           - id: diversity
             name: Diversity
