@@ -109,6 +109,7 @@ export function WhyPanel({
   rank,
   total,
   onMap,
+  phone = false,
   onClose,
 }: {
   explanation: Explanation;
@@ -116,6 +117,8 @@ export function WhyPanel({
   total: number;
   /** What the map shows in place of the livability score, and the cell's score on it. */
   onMap?: { name: string; score: number | null } | null;
+  /** Whether to lay it out for a phone: a sheet from the bottom, across the width. */
+  phone?: boolean;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -133,7 +136,11 @@ export function WhyPanel({
   return (
     <aside
       aria-label="Why this score"
-      className="absolute right-4 top-4 z-10 max-h-[calc(100%-9rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 text-sm shadow"
+      className={
+        phone
+          ? "absolute inset-x-0 bottom-0 z-20 max-h-[70%] overflow-y-auto rounded-t-xl bg-white p-3 landscape:max-h-[55%] text-sm shadow-[0_-2px_10px_rgba(0,0,0,0.25)]"
+          : "absolute right-4 top-4 z-10 max-h-[calc(100%-9rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 text-sm shadow"
+      }
     >
       <div className="flex items-start justify-between gap-2">
         <div>
