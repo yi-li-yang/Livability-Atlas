@@ -1190,7 +1190,7 @@ factors:
         description: The share of homes that can get gigabit-capable broadband, over full fibre or cable.
         default_weight: 3
         scales: [within-city]
-        status: researched
+        status: built
         unit: "% of homes"
         preference_type: fixed
         curve: {shape: ramp, t0: 0, t1: 100}
@@ -1212,7 +1212,7 @@ factors:
         description: The share of premises in the borough with a good outdoor 5G signal from all four mobile networks.
         default_weight: 3
         scales: [within-city]
-        status: researched
+        status: built
         unit: "% of premises"
         preference_type: fixed
         curve: {shape: ramp, t0: 0, t1: 100}

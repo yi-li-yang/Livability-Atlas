@@ -342,6 +342,14 @@ def synthetic_boroughs(tmp_path: Path) -> Path:
     return path
 
 
+def synthetic_homes() -> pd.DataFrame:
+    """Homes by output area, for the two output areas of AREA (see `synthetic_output_areas`):
+    the west one with gigabit broadband for all, the east one for none."""
+    return pd.DataFrame(
+        {"homes": [100.0, 100.0], "gigabit_homes": [100.0, 0.0]}, index=["W1", "E1"]
+    )
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -381,6 +389,15 @@ def use_synthetic_data(monkeypatch, tmp_path):
         build_module.mhclg_council_tax,
         "read_band_d",
         lambda path: {"E09000007": 2207.55, "E09000033": 1056.0},
+    )
+    monkeypatch.setattr(
+        build_module.ofcom, "fetch", lambda data_dir: (tmp_path / "f", tmp_path / "m")
+    )
+    monkeypatch.setattr(build_module.ofcom, "read_fixed", lambda path: synthetic_homes())
+    monkeypatch.setattr(
+        build_module.ofcom,
+        "read_five_g",
+        lambda path: {"E09000007": 40.0, "E09000033": 90.0},
     )
     air = synthetic_air(tmp_path)
     monkeypatch.setattr(build_module.laei, "fetch", lambda data_dir: air)
@@ -664,3 +681,19 @@ def test_the_bundle_gives_each_cell_the_rent_and_council_tax_of_its_borough(monk
     assert set(table[lng > -0.135]["council_tax"]) == {1056.0}
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert {"renting-cost", "council-tax"} <= {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_gigabit_share_of_homes_and_the_5g_of_the_borough(
+    monkeypatch, tmp_path
+):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    west, east = table[lng < -0.145], table[lng > -0.130]
+    assert west["gigabit_broadband"].median() == pytest.approx(100.0)
+    assert east["gigabit_broadband"].median() == pytest.approx(0.0)
+    assert set(west["5g_coverage"]) == {40.0}  # Camden
+    assert set(east["5g_coverage"]) == {90.0}  # Westminster
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert {"gigabit-broadband", "5g-coverage"} <= {i["id"] for i in manifest["indicators"]}

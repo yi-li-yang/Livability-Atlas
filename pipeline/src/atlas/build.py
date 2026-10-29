@@ -2,9 +2,10 @@
 
 London so far has the service level (PTAL), the crime rates of Safety, the flood shares of
 Natural hazards, the walks to a station, a school, a GP practice and a park, the air quality, the
-noise, the rent and council tax of the borough, and the amenities: the walks to a grocery, a
-pharmacy, a gym and a library, and the cafés, restaurants, cuisines and food hygiene near each
-cell. Each indicator that arrives later adds its columns here, through the factor recipe.
+noise, the rent and council tax of the borough, the broadband and 5G, and the amenities: the walks
+to a grocery, a pharmacy, a gym and a library, and the cafés, restaurants, cuisines and food
+hygiene near each cell. Each indicator that arrives later adds its columns here, through the
+factor recipe.
 """
 
 from collections.abc import Sequence
@@ -25,6 +26,7 @@ from atlas.datasets.countries.gb import (
     mhclg_council_tax,
     naptan,
     nhs_ods,
+    ofcom,
     ons_local_authorities,
     ons_regions,
     ons_rents,
@@ -36,6 +38,7 @@ from atlas.datasets.world import openstreetmap, overture
 from atlas.indicators import (
     air_quality,
     amenities,
+    connectivity,
     crime,
     education,
     environment,
@@ -102,6 +105,7 @@ def build_region(
     columns.update(_amenity_columns(region_id, network, cells, data_dir))
     columns.update(_noise_columns(cells, region.grid.resolution, data_dir, postcodes))
     columns.update(_housing_columns(region_id, cells, data_dir))
+    columns.update(_connectivity_columns(region_id, cells, data_dir))
     columns.update(_air_columns(cells, region.grid.resolution, data_dir))
     if commercial:
         for indicator in needs_commercial_licence(catalogue, list(columns)):
@@ -165,6 +169,27 @@ def _housing_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[s
             None if pd.isna(v) else float(v) for v in housing.by_borough(values, owner, cells)
         ]
         for indicator, values in (("renting-cost", rents), ("council-tax", tax))
+    }
+
+
+def _connectivity_columns(
+    region_id: str, cells: list[str], data_dir: Path
+) -> dict[str, Sequence[Any]]:
+    """Digital connectivity: the share of each cell's homes that can get gigabit-capable
+    broadband (Ofcom, by census output area, shared by area), and the share of its borough's
+    premises with 5G outdoors from all four networks (Ofcom, by local authority)."""
+    fixed, mobile = ofcom.fetch(data_dir)
+    areas = output_areas.read_boundaries(
+        output_areas.fetch(data_dir, bounds_bng(cells, margin=2000))
+    )
+    gigabit = connectivity.gigabit_share(areas, ofcom.read_fixed(fixed), cells)
+    owner = ons_local_authorities.borough_of(
+        ons_local_authorities.fetch(data_dir, region_id), cells
+    )
+    five_g = housing.by_borough(ofcom.read_five_g(mobile), owner, cells)
+    return {
+        "gigabit-broadband": [None if pd.isna(v) else float(v) for v in gigabit],
+        "5g-coverage": [None if pd.isna(v) else float(v) for v in five_g],
     }
 
 
