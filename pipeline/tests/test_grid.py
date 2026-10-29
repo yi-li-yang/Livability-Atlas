@@ -77,3 +77,11 @@ def test_a_boundary_that_is_not_there_is_an_error(tmp_path):
     path.write_text(geojson(feature("Wales", SQUARE)), encoding="utf-8")
     with pytest.raises(KeyError):
         boundary_from_geojson(path, "RGN25NM", "London")
+
+
+def test_cells_at_british_national_grid_points_are_the_cells_that_hold_them():
+    from atlas.spatial.grid import cell_centres_bng, cells_at_bng
+
+    cells = ["891fa5a0003ffff", "891fa5a0007ffff"]
+    centres = cell_centres_bng(cells)
+    assert cells_at_bng(centres[:, 0], centres[:, 1], 9) == cells

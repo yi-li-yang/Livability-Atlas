@@ -219,3 +219,15 @@ def test_faith_and_community_options_follow_where_people_and_places_are(bundle):
     assert len(options) == 26 and "faith__multifaith" not in bundle.columns
     shares = bundle[[c for c in options if c.startswith("your_community__ethnic_")]].sum(axis=1)
     assert shares.between(99.9, 100.1).all()  # the 19 groups cover everyone
+
+
+def test_a_square_metre_costs_most_in_the_west_end_and_least_in_the_outer_east(bundle):
+    price = bundle["buying_cost"]
+    assert 0.75 < price.notna().mean() < 0.95  # cells with 20 or more sales around them
+    assert 5000 < price.median() < 8000  # pounds a square metre
+    assert price[SOHO] > 10000 and price[cell_at(51.5010, -0.1600)] > 15000  # Knightsbridge
+    assert price[cell_at(51.5397, 0.0810)] < 6000  # Barking
+    assert price[cell_at(51.3762, -0.0982)] < 6000  # Croydon
+    assert (
+        price[cell_at(51.4440, -0.2750)] != price[cell_at(51.4440, -0.2750)]
+    )  # no sales in the park

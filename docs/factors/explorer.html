@@ -306,7 +306,7 @@ factors:
         description: The price per square metre of the homes sold nearby.
         default_weight: 3
         scales: [within-city]
-        status: researched
+        status: built
         unit: £ per m²
         preference_type: fixed
         curve: {shape: percentile, better: lower}
@@ -318,16 +318,24 @@ factors:
         comparable_across_regions: false
         method: >-
           The median price per square metre of the homes sold in and around the
-          hex cell in recent years: each sale's price from HM Land Registry,
-          divided by the home's floor area from its energy certificate. Spike S3
+          hex cell over the last 24 months of HM Land Registry's Price Paid
+          Data (standard sales of houses and flats): each sale's price divided
+          by the floor area on the energy certificate of the same home. A sale
+          is matched to its certificate by its postcode and the words of its
+          address, whatever their order or abbreviation, using every
+          certificate since 2008 (a home with several has the median of their
+          areas). In London 84% of sales find a certificate (73% of detached
+          homes, 83% of flats, 85% of semi-detached and 90% of terraced). The
+          others, and floor areas under 10 or over 500 m², are left out. A sale
+          sits in the cell of its postcode's centre (Code-Point Open). Spike S3
           found that pooling the sales of a cell and its neighbours within two
-          steps over 24 months gives 20 or more sales in 99% of London's
-          homes cells and 40 or more in 95%, against the 37 that a median
-          within 15% needs. A cell alone has 5 or more sales a year in only
-          37%. How to match sales to certificates within the licences' terms is
-          still open: the certificates need a GOV.UK One Login to download in bulk, and
-          the match waits for Royal Mail.
-        datasets: [hm-land-registry-price-paid, epc-domestic]
+          steps gives 20 or more sales in 99% of London's homes cells, against
+          the 37 that a median within 15% needs for a price, and fewer for a
+          price per square metre, which separates flats from houses. A cell
+          with fewer than 20 sales around it has no value (16% of London's:
+          parks, and the edge). The addresses serve only for the match, and
+          the build keeps a hash of each, not the address.
+        datasets: [hm-land-registry-price-paid, epc-domestic, os-code-point-open]
       - id: renting-cost
         name: Renting cost
         description: The average monthly private rent in the borough.
@@ -1923,15 +1931,28 @@ datasets:
     resolution: individual buildings, identified by UPRN
     date: certificates lodged since 2008
     licence: OGL-UK-3.0
-    licence_checked: 2026-10-25
-    commercial_use: true
+    licence_checked: 2026-10-29
+    commercial_use: false
     licence_note: >-
       The Open Government Licence v3.0 covers every field except the address
-      and postcode, UPRNs included. The address fields may be used only for
-      purposes tied to the energy performance of buildings, so the pipeline
-      must locate certificates by UPRN, not by address. The service also sets
-      data protection requirements.
-    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+      and postcode (UPRNs are under it). Ordnance Survey and Royal Mail permit
+      the address and postcode solely for purposes tied to the energy
+      performance of buildings, and under the copyright exceptions, such as
+      non-commercial research. Matching a certificate to a sale by address, to
+      find a price per square metre, is not one of those purposes, so the
+      build relies on the non-commercial research exception, which D07 allows
+      while the project is non-commercial. It keeps no address: only a hash of
+      each, and the register stays in data/raw, which git ignores. A
+      commercial build must not use it. It needs a licence from Ordnance
+      Survey and Royal Mail, or a match by UPRN with a look-up that has its own
+      licence. The service also sets data protection requirements: the
+      register holds personal data, whoever processes it becomes a data
+      controller, and the service keeps the email address of whoever
+      downloads it. The full file is 8.3 GB.
+    attribution: >-
+      Contains public sector information licensed under the Open Government
+      Licence v3.0. Address data © Ordnance Survey and Royal Mail, used only to
+      match certificates to sales.
     tells:
       - The floor area, energy rating, property type, age and heating of each certificated home
 

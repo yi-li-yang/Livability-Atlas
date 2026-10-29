@@ -22,6 +22,7 @@ from atlas.datasets.cities.london import ptal
 from atlas.datasets.countries.gb import (
     ons_regions,
 )
+from atlas.datasets.countries.gb.addresses import address_key
 from atlas.datasets.countries.gb.ea_flood_risk import LOW, MEDIUM, VERY_LOW, Mosaic
 from atlas.indicators import crime
 
@@ -208,6 +209,29 @@ def synthetic_line_stops() -> pd.DataFrame:
             "Longitude": -0.1285,
         }
     )
+
+
+def synthetic_sales() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Thirty sales at 600,000 and the certificates of their homes, all of 60 m², at the postcode
+    of the practice in the east of AREA: 10,000 pounds a square metre."""
+    houses = [str(n) for n in range(1, 31)]
+    sales = pd.DataFrame(
+        {
+            "price": [600000] * 30,
+            "postcode": ["W1 1AA"] * 30,
+            "type": ["T"] * 30,
+            "paon": houses,
+            "saon": [""] * 30,
+            "street": ["EAST ROAD"] * 30,
+        }
+    )
+    certificates = pd.DataFrame(
+        {
+            "key": [address_key("W1 1AA", f"{n} East Road") for n in houses],
+            "floor_area": [60.0] * 30,
+        }
+    )
+    return sales, certificates
 
 
 def synthetic_postcodes(tmp_path: Path) -> Path:
@@ -472,6 +496,12 @@ def use_synthetic_data(monkeypatch, tmp_path):
     gp_files, postcodes = synthetic_gp_practices(tmp_path), synthetic_postcodes(tmp_path)
     monkeypatch.setattr(build_module.nhs_ods, "fetch", lambda data_dir: gp_files)
     monkeypatch.setattr(build_module.code_point, "fetch", lambda data_dir: postcodes)
+    sales, certificates = synthetic_sales()
+    monkeypatch.setattr(build_module.hm_land_registry, "fetch", lambda data_dir, years: [])
+    monkeypatch.setattr(build_module.hm_land_registry, "read_sales", lambda paths, months: sales)
+    monkeypatch.setattr(
+        build_module.epc, "certificates", lambda data_dir, region, codes: certificates
+    )
     monkeypatch.setattr(build_module.tfl_lines, "fetch", lambda data_dir: tmp_path / "lines")
     monkeypatch.setattr(build_module.tfl_lines, "read_stops", lambda path: synthetic_line_stops())
     monkeypatch.setattr(
@@ -676,9 +706,15 @@ def test_a_commercial_build_leaves_out_the_indicators_whose_dataset_has_no_comme
     bundle = build_region("london", data_dir=tmp_path / "data", commercial=True)
     table = pq.read_table(bundle / "cells.parquet")
     assert "no2" not in table.column_names and "pm25" not in table.column_names
+    assert (
+        "buying_cost" not in table.column_names
+    )  # the addresses' licence is not for commercial use
     assert "gp_walk" in table.column_names  # the cleared ones stay
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert "laei" not in {d["id"] for d in manifest["datasets"]}
+    assert not {"epc-domestic", "hm-land-registry-price-paid"} & {
+        d["id"] for d in manifest["datasets"]
+    }
 
 
 def test_the_command_has_a_commercial_option(monkeypatch, tmp_path):
@@ -825,3 +861,17 @@ def test_the_bundle_holds_a_column_for_each_option_of_the_choice_indicators(monk
     assert "religion-hindu" in ids and "religion-not-answered" not in ids
     faith = next(i for i in manifest["indicators"] if i["id"] == "faith")
     assert [o["id"] for o in faith["options"]] == ["hindu"]
+
+
+def test_the_bundle_holds_the_price_per_square_metre_of_the_homes_sold_nearby(
+    monkeypatch, tmp_path
+):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    assert set(table["buying_cost"].dropna()) == {10000.0}  # 600,000 over 60 m²
+    assert table[lng > -0.130]["buying_cost"].notna().any()  # near the sales
+    assert table[lng < -0.145]["buying_cost"].isna().all()  # beyond two steps of them
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "buying-cost" in {i["id"] for i in manifest["indicators"]}
