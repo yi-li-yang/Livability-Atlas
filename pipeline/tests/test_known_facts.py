@@ -159,3 +159,13 @@ def test_the_food_scene_is_dense_in_soho_and_thin_in_chingford(bundle):
     assert soho["restaurant_choice"] > 500
     assert 70 < bundle["food_hygiene"].median() < 95  # the share rated 4 or 5, S8 found 87
     assert bundle["food_hygiene"].notna().mean() > 0.6  # cells with 5 or more rated businesses
+
+
+def test_housing_costs_follow_the_borough(bundle):
+    rent, tax = bundle["renting_cost"], bundle["council_tax"]
+    assert tax.notna().all()
+    assert rent.notna().mean() > 0.99  # only the City of London has no ONS rent
+    wimbledon = cell_at(51.4214, -0.2056)
+    assert rent[SOHO] > rent[wimbledon] + 500  # Westminster rents are the dearest
+    assert tax[SOHO] < 1200 < tax[wimbledon]  # Westminster sets London's lowest Band D
+    assert bundle["renting_cost"].nunique() <= 33 and tax.nunique() <= 33  # one value a borough

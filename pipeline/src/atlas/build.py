@@ -2,9 +2,9 @@
 
 London so far has the service level (PTAL), the crime rates of Safety, the flood shares of
 Natural hazards, the walks to a station, a school, a GP practice and a park, the air quality, the
-noise and the amenities: the walks to a grocery, a pharmacy, a gym and a library, and the cafés,
-restaurants, cuisines and food hygiene near each cell. Each indicator that arrives later adds its
-columns here, through the factor recipe.
+noise, the rent and council tax of the borough, and the amenities: the walks to a grocery, a
+pharmacy, a gym and a library, and the cafés, restaurants, cuisines and food hygiene near each
+cell. Each indicator that arrives later adds its columns here, through the factor recipe.
 """
 
 from collections.abc import Sequence
@@ -22,9 +22,12 @@ from atlas.datasets.countries.gb import (
     ea_flood_risk,
     fsa,
     gias,
+    mhclg_council_tax,
     naptan,
     nhs_ods,
+    ons_local_authorities,
     ons_regions,
+    ons_rents,
     os_open_greenspace,
     output_areas,
     police_uk,
@@ -38,6 +41,7 @@ from atlas.indicators import (
     environment,
     flood,
     health,
+    housing,
     noise,
     transport,
 )
@@ -97,6 +101,7 @@ def build_region(
     columns.update(_walking_columns(network, cells, data_dir, postcodes))
     columns.update(_amenity_columns(region_id, network, cells, data_dir))
     columns.update(_noise_columns(cells, region.grid.resolution, data_dir, postcodes))
+    columns.update(_housing_columns(region_id, cells, data_dir))
     columns.update(_air_columns(cells, region.grid.resolution, data_dir))
     if commercial:
         for indicator in needs_commercial_licence(catalogue, list(columns)):
@@ -145,6 +150,22 @@ def _flood_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[st
         share = flood.share_at_risk(mosaic, cells, resolution)
         columns[indicator] = [None if pd.isna(v) else float(v) for v in share]
     return columns
+
+
+def _housing_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[str, Sequence[Any]]:
+    """Housing and cost, measured for a whole borough: the ONS's average monthly private rent and
+    the council tax of a Band D home (with the Mayor's precept), which every cell takes from the
+    borough that holds its centre."""
+    boundaries = ons_local_authorities.fetch(data_dir, region_id)
+    owner = ons_local_authorities.borough_of(boundaries, cells)
+    rents = ons_rents.read_rents(ons_rents.fetch(data_dir))
+    tax = mhclg_council_tax.read_band_d(mhclg_council_tax.fetch(data_dir))
+    return {
+        indicator: [
+            None if pd.isna(v) else float(v) for v in housing.by_borough(values, owner, cells)
+        ]
+        for indicator, values in (("renting-cost", rents), ("council-tax", tax))
+    }
 
 
 def _air_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[str, Sequence[Any]]:

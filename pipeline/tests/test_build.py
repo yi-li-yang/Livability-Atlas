@@ -19,7 +19,9 @@ from atlas import build as build_module
 from atlas.build import build_region
 from atlas.cli import app
 from atlas.datasets.cities.london import ptal
-from atlas.datasets.countries.gb import ons_regions
+from atlas.datasets.countries.gb import (
+    ons_regions,
+)
 from atlas.datasets.countries.gb.ea_flood_risk import LOW, MEDIUM, VERY_LOW, Mosaic
 from atlas.indicators import crime
 
@@ -316,6 +318,30 @@ def synthetic_ratings(tmp_path: Path) -> Path:
     return path
 
 
+def synthetic_boroughs(tmp_path: Path) -> Path:
+    """Two boroughs that split AREA at -0.1375: Camden in the west, Westminster in the east."""
+
+    def square(west, east):
+        ring = [[west, 51.49], [east, 51.49], [east, 51.53], [west, 51.53], [west, 51.49]]
+        return {"type": "Polygon", "coordinates": [ring]}
+
+    features = [
+        {
+            "type": "Feature",
+            "properties": {"LAD25CD": code, "LAD25NM": name},
+            "geometry": square(west, east),
+        }
+        for code, name, west, east in (
+            ("E09000007", "Camden", -0.17, -0.1375),
+            ("E09000033", "Westminster", -0.1375, -0.10),
+        )
+    ]
+    path = tmp_path / "boroughs.geojson"
+    collection = {"type": "FeatureCollection", "features": features}
+    path.write_text(json.dumps(collection), encoding="utf-8")
+    return path
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -340,6 +366,22 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.openstreetmap, "places", lambda data_dir, region: osm_places)
     ratings = synthetic_ratings(tmp_path)
     monkeypatch.setattr(build_module.fsa, "fetch", lambda data_dir, region: ratings)
+    boroughs = synthetic_boroughs(tmp_path)
+    monkeypatch.setattr(
+        build_module.ons_local_authorities, "fetch", lambda data_dir, region: boroughs
+    )
+    monkeypatch.setattr(build_module.ons_rents, "fetch", lambda data_dir: tmp_path / "rents")
+    monkeypatch.setattr(
+        build_module.ons_rents,
+        "read_rents",
+        lambda path: {"E09000007": 2900.0, "E09000033": 3100.0},
+    )
+    monkeypatch.setattr(build_module.mhclg_council_tax, "fetch", lambda data_dir: tmp_path / "tax")
+    monkeypatch.setattr(
+        build_module.mhclg_council_tax,
+        "read_band_d",
+        lambda path: {"E09000007": 2207.55, "E09000033": 1056.0},
+    )
     air = synthetic_air(tmp_path)
     monkeypatch.setattr(build_module.laei, "fetch", lambda data_dir: air)
     park = synthetic_greenspace(tmp_path)
@@ -608,3 +650,17 @@ def test_the_bundle_holds_the_counts_cuisines_and_hygiene_near_each_cell(monkeyp
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     ids = {i["id"] for i in manifest["indicators"]}
     assert {"cafes", "restaurant-choice", "cuisine-variety", "food-hygiene"} <= ids
+
+
+def test_the_bundle_gives_each_cell_the_rent_and_council_tax_of_its_borough(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    assert table["renting_cost"].notna().all() and table["council_tax"].notna().all()
+    assert set(table[lng < -0.14]["renting_cost"]) == {2900.0}  # Camden
+    assert set(table[lng > -0.135]["renting_cost"]) == {3100.0}  # Westminster
+    assert set(table[lng < -0.14]["council_tax"]) == {2207.55}
+    assert set(table[lng > -0.135]["council_tax"]) == {1056.0}
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert {"renting-cost", "council-tax"} <= {i["id"] for i in manifest["indicators"]}
