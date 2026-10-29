@@ -92,10 +92,10 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [x] Neighbourhood names come from the House of Commons Library's MSOA names, and the top neighbourhoods are listed by name and score.
   - Check: contributions shown in the app add up to the livability score, on the same cases as the golden ones.
 - [ ] **Validation and release.** The QA report runs all its checks. The site is then released as a public static site, with the owner's go-ahead.
-  - [ ] The QA report runs dataset checks, cross-checks and known-fact assertions ([validation.md](methodology/validation.md)), and each factor's data coverage.
-  - [ ] `just build london` rebuilds the bundle from raw downloads, and gives the same result every time.
+  - [x] The QA report runs dataset checks, cross-checks and known-fact assertions ([validation.md](methodology/validation.md)), and each factor's data coverage ([spec](specs/2026-10-29-qa-report.md)). `atlas build` writes `qa.md` beside the bundle and publishes it only if no check failed, and `atlas qa` checks any version again. London's report has 52 checks: 13 of the bundle, its datasets and its values, 12 relations, and 27 known facts.
+  - [x] `just build london` rebuilds the bundle from raw downloads, and gives the same result every time. A synthetic build is pinned by a test, and a rebuild of London from the kept downloads reproduced version `09eb39a09d3c` byte for byte.
   - [ ] A new factor is added by the recipe with no change to the UI's code.
-  - [ ] Every dataset in the bundle has a licence entry, with its attribution shown, and is marked for commercial use or not.
+  - [ ] Every dataset in the bundle has a licence entry, with its attribution shown, and is marked for commercial use or not. The QA report checks the entries and lists the markings, and the evidence layer shows an indicator's sources; a page that credits every dataset ("About the data") is still to build.
   - The release itself is the owner's decision: publishing is outward-facing.
 
 ## Phase 2: depth and trust

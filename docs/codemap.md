@@ -22,7 +22,7 @@ Livability-Atlas/
 │   ├── CLAUDE.md          # its rules for agents (AGENTS.md beside it includes this)
 │   ├── pyproject.toml     # dependencies, ruff, pyright and pytest settings
 │   ├── src/atlas/
-│   │   ├── cli.py         # the `atlas` command: validate, schemas
+│   │   ├── cli.py         # the `atlas` command: validate, schemas, build (which checks the bundle before publishing it), qa
 │   │   ├── paths.py       # the repository's folders
 │   │   ├── secrets.py     # reads a token from the environment or the git-ignored `.env`, and never prints it
 │   │   ├── scoring/       # engine.py: the reference scorer, which reproduces the golden test cases
@@ -30,8 +30,9 @@ Livability-Atlas/
 │   │   ├── fetch.py       # downloads with a cache and a checksum
 │   │   ├── spatial/       # grid.py: a region's hex cells, walking.py: street walks, neighbourhoods.py: which named MSOA each cell is in
 │   │   ├── indicators/    # one module per indicator family: crime.py (rates per 1,000 residents, pooled over two steps with a floor), flood.py (the share of a cell at risk of flooding), transport.py (minutes on foot to a station, lines or routes within a walk, the fare zone, the travel time to the default places), education.py (to a school, the share of nearby schools that meet Ofsted's standard), health.py (to a GP practice, patients per GP within a walk, the straight line to an A&E department), environment.py (to a park), air_quality.py (the mean concentration over a cell), noise.py (the mean level at a cell's addresses), housing.py (a borough's value for each of its cells), connectivity.py (the gigabit share of a cell's homes), prices.py (the price per square metre of the homes sold nearby), community.py (Simpson's diversity index and group shares of a cell's residents), faith.py (to the nearest place of worship of each religion), places.py (Overture's and OpenStreetMap's places pooled), amenities.py (to the nearest of a kind, counts and cuisines within a walk, the share of good hygiene ratings)
-│   │   ├── datasets/      # one module per dataset, by tier: cities/london/{ptal,laei,tfl_api,tfl_lines,tfl_journeys}.py, countries/gb/{ons_regions,census_residents,census_ethnic_group,census_religion,ofsted,arcgis,ons_msoa,hoc_msoa_names,census_country_of_birth,census_age,nhs_ae,nhs_gp,epc,hm_land_registry,addresses,output_areas,police_uk,ea_flood_risk,naptan,gias,nhs_ods,code_point,os_open_greenspace,defra_noise,fsa,ons_local_authorities,ons_rents,mhclg_council_tax,ofcom}.py, world/{openstreetmap,overture}.py
-│   │   ├── publish/       # manifest.py (the contract with the web app) and bundle.py (writes the bundle)
+│   │   ├── datasets/      # one module per dataset, by tier: cities/london/{ptal,laei,tfl_api,tfl_lines,tfl_journeys}.py and facts.py (London's places, known facts and relations for the QA report), countries/gb/{ons_regions,census_residents,census_ethnic_group,census_religion,ofsted,arcgis,ons_msoa,hoc_msoa_names,census_country_of_birth,census_age,nhs_ae,nhs_gp,epc,hm_land_registry,addresses,output_areas,police_uk,ea_flood_risk,naptan,gias,nhs_ods,code_point,os_open_greenspace,defra_noise,fsa,ons_local_authorities,ons_rents,mhclg_council_tax,ofcom}.py, world/{openstreetmap,overture}.py
+│   │   ├── publish/       # manifest.py (the contract with the web app) and bundle.py (writes the bundle, and publishes a version by moving `latest.json`)
+│   │   ├── qa/            # the QA report: cells.py (reads a built bundle), checks.py (the bundle, its datasets, its values), stats.py (the spread of each column, how well each factor is covered), relations.py (independent datasets that should agree), facts.py (known facts), regional.py (a region's places, facts and relations), changes.py (since the previous build), report.py (writes qa.md), release.py (checks a bundle, then publishes it), format.py, results.py
 │   │   └── catalogue/     # models.py (the one definition of the catalogue files), checks.py, load.py, schema.py
 │   ├── tests/
 │   └── notebooks/         # spike scripts: throwaway, never imported by the package
@@ -109,5 +110,7 @@ Livability-Atlas/
         ├── 2026-10-25-safety-research.md
         ├── 2026-10-28-default-weights.md
         ├── 2026-10-28-health-care-research.md
-        └── 2026-10-28-mvp-scope.md
+        ├── 2026-10-28-mvp-scope.md
+        ├── 2026-10-29-qa-report.md
+        └── 2026-10-29-user-choice.md
 ```

@@ -32,7 +32,7 @@ web app (React, in each user's browser)
   - `datasets.yaml`: every dataset and published ranking, with its tier, licence, attribution, date and what it can tell us
   - `regions/<region>.yaml`: each region's boundary, grid, buffer zone and default places
   - `presets/`: ready-made preference profiles
-- **Data pipeline** (`pipeline/`, Python package `atlas`). It runs offline. It fetches and caches datasets, aggregates them to hex cells over the region and its buffer zone, computes and validates measured indicators, computes travel times, and publishes a data bundle. Its command line is `atlas fetch / build / publish / validate`.
+- **Data pipeline** (`pipeline/`, Python package `atlas`). It runs offline. It fetches and caches datasets, aggregates them to hex cells over the region and its buffer zone, computes and validates measured indicators, computes travel times, and publishes a data bundle. Its command line is `atlas validate / schemas / build / qa`: `build` fetches, builds, checks and publishes, and `qa` checks a built bundle again.
 - **Data bundle** (`data/published/<region>/<version>/`). Static files, and the only thing the web app reads.
 - **Web app** (`web/`, React + TypeScript). It loads a data bundle, applies the user's preference profile, estimates travel times to the user's places, and scores every hex cell. It then draws the map, the visual factor tree, the ranked neighbourhoods and the layers of detail.
 

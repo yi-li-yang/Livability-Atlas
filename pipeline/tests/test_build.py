@@ -26,6 +26,8 @@ from atlas.datasets.countries.gb.addresses import address_key
 from atlas.datasets.countries.gb.ea_flood_risk import LOW, MEDIUM, VERY_LOW, Mosaic
 from atlas.indicators import crime
 from atlas.indicators import education as education_module
+from atlas.qa.facts import Facts, expect
+from atlas.qa.regional import Regional
 
 TO_BNG = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
 AREA = box(-0.150, 51.505, -0.125, 51.520)  # part of the West End
@@ -528,6 +530,8 @@ def synthetic_ages() -> pd.DataFrame:
 
 
 def use_synthetic_data(monkeypatch, tmp_path):
+    # London's facts are about London, which this synthetic data is not: the QA report has none.
+    monkeypatch.setattr("atlas.qa.report.regional_of", lambda region: Regional({}, [], []))
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
     crimes = synthetic_crimes(tmp_path)
@@ -686,6 +690,37 @@ def test_the_command_builds_a_region_and_says_where(monkeypatch, tmp_path):
     result = CliRunner().invoke(app, ["build", "london", "--data-dir", str(tmp_path / "data")])
     assert result.exit_code == 0, result.output
     assert "cells" in result.output and "published" in result.output
+
+
+def test_the_command_checks_the_bundle_and_publishes_it(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    result = CliRunner().invoke(app, ["build", "london", "--data-dir", str(tmp_path / "data")])
+    assert result.exit_code == 0, result.output
+    region = tmp_path / "data" / "published" / "london"
+    version = json.loads((region / "latest.json").read_text(encoding="utf-8"))["version"]
+    assert (region / version / "qa.md").exists()
+    assert "QA passed" in result.output and f"Published london {version}" in result.output
+
+
+def test_a_check_that_fails_leaves_the_bundle_built_but_not_published(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    facts = Facts()
+
+    @facts.add("The synthetic data are London's")
+    def never(cells):
+        expect(False, "they are not")
+        return ""
+
+    monkeypatch.setattr("atlas.qa.report.regional_of", lambda region: Regional({}, facts.all, []))
+    result = CliRunner().invoke(app, ["build", "london", "--data-dir", str(tmp_path / "data")])
+    assert result.exit_code == 1
+    assert "QA failed" in result.output and "is not published" in result.output
+    assert "The synthetic data are London's" in result.output and "they are not" in result.output
+    region = tmp_path / "data" / "published" / "london"
+    assert not (region / "latest.json").exists()
+    [bundle] = [p for p in region.iterdir() if p.is_dir()]
+    assert (bundle / "cells.parquet").exists() and (bundle / "qa.md").exists()
+    assert f"atlas qa london --version {bundle.name} --publish" in result.output
 
 
 def test_a_region_the_catalogue_does_not_have_is_an_error(tmp_path):

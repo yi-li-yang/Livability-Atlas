@@ -48,7 +48,7 @@ Steps 1 to 3 are the research. In Claude Code, `/research-factor <id>` runs them
 3. A dataset entry in `catalogue/datasets.yaml`, with its tier and licence checked.
 4. Fetching is idempotent and cached, and the checksum is recorded.
 5. A documented method aggregates the data to hex cells.
-6. QA checks run: range, nulls, coverage, at least one known-fact assertion, and a cross-check wherever an independent dataset exists.
+6. QA checks run: the QA report checks the range, nulls and coverage of every column on its own. Add at least one known fact for the indicator to the region's `facts.py` (`pipeline/src/atlas/datasets/cities/<region>/facts.py`), and a relation to another indicator wherever an independent dataset exists.
 7. A test runs on a small fixture.
 8. The factor appears in the web app through the manifest alone, with no change to UI code: in the factor tree, in its dropdown and in the evidence layer.
 9. The QA report and the progress log are updated.
@@ -64,6 +64,6 @@ Steps 1 to 3 are the research. In Claude Code, `/research-factor <id>` runs them
 1. Write `catalogue/regions/<region>.yaml`: boundary, grid, buffer zone, default places and neighbourhood boundaries.
 2. Write a country adapter for that country's datasets, if none exists yet.
 3. Build every default factor from the best available dataset tier, or mark it unavailable.
-4. Produce a QA report.
+4. Write the region's `facts.py`: its named places, known facts and relations. Then `atlas build <region>` writes the QA report (`qa.md`) beside the bundle and publishes the bundle only if no check failed.
 
 Once the region recipe is proven (Phase 3), country adapters make good first contributions.

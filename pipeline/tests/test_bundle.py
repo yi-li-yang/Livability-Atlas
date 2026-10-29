@@ -5,7 +5,14 @@ import pytest
 
 from atlas.catalogue.load import load_catalogue
 from atlas.paths import CATALOGUE_DIR
-from atlas.publish.bundle import Choice, Neighbourhoods, write_bundle
+from atlas.publish.bundle import (
+    Choice,
+    Neighbourhoods,
+    previous_version,
+    publish_latest,
+    published_version,
+    write_bundle,
+)
 from atlas.publish.manifest import Manifest
 
 CELLS = ["891fa5a0003ffff", "891fa5a0007ffff", "891fa5a000bffff"]
@@ -95,6 +102,103 @@ def test_the_latest_version_is_recorded(catalogue, tmp_path):
     bundle = build(catalogue, tmp_path)
     latest = json.loads((tmp_path / "london" / "latest.json").read_text(encoding="utf-8"))
     assert latest == {"version": bundle.name}
+
+
+def test_a_bundle_can_be_written_without_being_published(catalogue, tmp_path):
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"service-level": ["6b", "2", None]},
+        out_dir=tmp_path,
+        publish=False,
+    )
+    assert (bundle / "cells.parquet").exists()
+    assert not (tmp_path / "london" / "latest.json").exists()
+
+
+def test_publishing_records_the_version_it_replaced(catalogue, tmp_path):
+    one = build(catalogue, tmp_path)
+    other = build(catalogue, tmp_path, bands=("6b", "3", None))
+    latest = json.loads((tmp_path / "london" / "latest.json").read_text(encoding="utf-8"))
+    assert latest == {"version": other.name, "previous": one.name}
+
+
+def test_publishing_the_same_version_again_keeps_what_it_replaced(catalogue, tmp_path):
+    one = build(catalogue, tmp_path)
+    other = build(catalogue, tmp_path, bands=("6b", "3", None))
+    again = build(catalogue, tmp_path, bands=("6b", "3", None))
+    assert again.name == other.name
+    latest = json.loads((tmp_path / "london" / "latest.json").read_text(encoding="utf-8"))
+    assert latest == {"version": other.name, "previous": one.name}
+
+
+def test_a_written_bundle_is_published_later_by_its_version(catalogue, tmp_path):
+    one = build(catalogue, tmp_path)
+    other = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"service-level": ["6b", "3", None]},
+        out_dir=tmp_path,
+        publish=False,
+    )
+    publish_latest(tmp_path / "london", other.name)
+    latest = json.loads((tmp_path / "london" / "latest.json").read_text(encoding="utf-8"))
+    assert latest == {"version": other.name, "previous": one.name}
+
+
+def test_nothing_is_replaced_before_anything_is_published(catalogue, tmp_path):
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"service-level": ["6b", "2", None]},
+        out_dir=tmp_path,
+        publish=False,
+    )
+    assert previous_version(tmp_path / "london", bundle.name) is None
+    assert previous_version(tmp_path / "nowhere", bundle.name) is None
+
+
+def test_publishing_a_new_version_replaces_the_latest_one(catalogue, tmp_path):
+    one = build(catalogue, tmp_path)
+    assert previous_version(tmp_path / "london", "0123456789ab") == one.name
+
+
+def test_the_latest_version_replaced_the_one_before_it(catalogue, tmp_path):
+    one = build(catalogue, tmp_path)
+    other = build(catalogue, tmp_path, bands=("6b", "3", None))
+    assert previous_version(tmp_path / "london", other.name) == one.name
+    assert previous_version(tmp_path / "london", one.name) == other.name
+
+
+def test_the_published_version_is_the_one_latest_names(catalogue, tmp_path):
+    region = tmp_path / "london"
+    assert published_version(region) is None
+    one = build(catalogue, tmp_path)
+    assert published_version(region) == one.name
+
+
+@pytest.mark.parametrize("text", ["", "{", "[]", '{"previous": "x"}', '{"version": 3}', "null"])
+def test_a_pointer_that_cannot_be_read_names_nothing(catalogue, tmp_path, text):
+    one = build(catalogue, tmp_path)
+    (tmp_path / "london" / "latest.json").write_text(text, encoding="utf-8")
+    assert published_version(tmp_path / "london") is None
+    assert previous_version(tmp_path / "london", one.name) is None
+    publish_latest(tmp_path / "london", one.name)  # and publishing replaces it
+    assert published_version(tmp_path / "london") == one.name
+
+
+def test_the_first_version_published_replaced_nothing(catalogue, tmp_path):
+    one = build(catalogue, tmp_path)
+    assert previous_version(tmp_path / "london", one.name) is None
+
+
+def test_only_a_written_version_can_be_published(catalogue, tmp_path):
+    build(catalogue, tmp_path)
+    with pytest.raises(ValueError, match="no bundle"):
+        publish_latest(tmp_path / "london", "0123456789ab")
 
 
 def test_cells_must_be_sorted_and_unique(catalogue, tmp_path):

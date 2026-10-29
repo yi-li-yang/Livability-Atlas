@@ -28,7 +28,8 @@ Every command runs through `just` from the repo root. `just` lists them.
 - `just check` runs what CI runs: lint, types, tests, the catalogue's checks and the factor explorer's tests.
 - `just validate` checks the factor catalogue alone (`atlas validate`).
 - `just generate` rewrites the generated files, such as `shared/schemas/`. Never edit those by hand.
-- `just data london` builds London's data bundle into `data/published/`, fetching what is missing.
+- `just data london` builds London's data bundle into `data/published/`, fetching what is missing. It then checks the bundle, writes `qa.md` beside it, and publishes it only if no check failed.
+- `just qa london` checks a built bundle again (`--version <v>` for another version, `--publish` to publish it if it passes).
 - `just dev`, `just build` and `just e2e` start, build and smoke-test the web app. The first `just e2e` downloads a browser.
 - `just docs` refreshes the factor explorer's copy of the catalogue after an edit to `catalogue/factors.yaml` or `catalogue/datasets.yaml`.
 - `/research-factor <id>` researches one factor of the catalogue, through to an open pull request ([.claude/commands/research-factor.md](.claude/commands/research-factor.md)).

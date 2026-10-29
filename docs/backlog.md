@@ -25,6 +25,8 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Your industry: jobs in a chosen industry within reach | idea |
 | Brand presence: brand groups checked against data | idea |
 | "Why we differ" view against published rankings | idea |
+| Known facts and relations as a data file in the catalogue, once a second city shows which shapes repeat (today they are code in `datasets/cities/<region>/facts.py`, [spec](specs/2026-10-29-qa-report.md)) | idea |
+| The QA report in the app's "About the data", with the version and the date of each dataset | idea |
 
 ## Phase 3: more places
 
