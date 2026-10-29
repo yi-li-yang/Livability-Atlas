@@ -54,7 +54,11 @@ export async function loadBundle(
     // A choice indicator has a column for each option, and none of its own.
     const named = indicator.options?.map((o) => o.column) ?? [indicator.column];
     for (const column of named) {
-      columns[column] = rows.map((row) => row[column] ?? null);
+      // Parquet reads a whole-number column as big integers, which no arithmetic here takes.
+      columns[column] = rows.map((row) => {
+        const value = row[column] ?? null;
+        return typeof value === "bigint" ? Number(value) : value;
+      });
     }
   }
   return { manifest, cells, columns };

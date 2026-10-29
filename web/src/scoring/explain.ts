@@ -1,7 +1,27 @@
-import type { Bundle } from "../data/bundle";
-import type { ManifestFactor } from "../generated/manifest.schema";
+import type { Bundle, Value } from "../data/bundle";
+import type {
+  ManifestDataset,
+  ManifestFactor,
+  ManifestIndicator,
+} from "../generated/manifest.schema";
 import { scoreCell } from "./engine";
-import { effectiveWeight, type Profile, scoreCaseFor } from "./region";
+import {
+  bestPickedOption,
+  effectiveWeight,
+  type Profile,
+  scoreCaseFor,
+} from "./region";
+
+/** The evidence behind a measured indicator's score in one hex cell (interface layer 5). */
+export interface Evidence {
+  indicator: ManifestIndicator;
+  /** The raw value in this cell, or null where there is none. */
+  value: Value | null;
+  /** For a choice indicator, the name of the picked option that scores best here. */
+  option: string | null;
+  /** The datasets the indicator is built from, with their licences and credits. */
+  datasets: ManifestDataset[];
+}
 
 /** One factor's part in a hex cell's score. */
 export interface FactorLine {
@@ -15,6 +35,8 @@ export interface FactorLine {
   share: number | null;
   /** The factors inside it that count, or an empty list for a measured indicator. */
   children: FactorLine[];
+  /** For a measured indicator, its evidence here; null for a factor that holds others. */
+  evidence: Evidence | null;
 }
 
 export interface Explanation {
@@ -40,9 +62,39 @@ export function explainCell(
   cellIndex: number,
 ): Explanation {
   const result = scoreCell(scoreCaseFor(bundle, profile, cellIndex));
+  const evidenceOf = (factor: ManifestFactor): Evidence | null => {
+    const indicator = bundle.manifest.indicators.find(
+      (i) => i.id === factor.indicator,
+    );
+    if (!indicator) return null;
+    const datasets = indicator.datasets.flatMap((id) =>
+      bundle.manifest.datasets.filter((d) => d.id === id),
+    );
+    if (indicator.options) {
+      const best = bestPickedOption(
+        bundle,
+        indicator,
+        profile.choices?.[indicator.id],
+        cellIndex,
+      );
+      return {
+        indicator,
+        value: best ? bundle.columns[best.option.column][cellIndex] : null,
+        option: best?.option.name ?? null,
+        datasets,
+      };
+    }
+    return {
+      indicator,
+      value: bundle.columns[indicator.column][cellIndex],
+      option: null,
+      datasets,
+    };
+  };
   const line = (factor: ManifestFactor): FactorLine => {
     const node = result.nodes[factor.id];
     return {
+      evidence: evidenceOf(factor),
       id: factor.id,
       name: factor.name,
       score: node?.score ?? null,

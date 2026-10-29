@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { type Bundle, loadBundle } from "../data/bundle";
-import { explainCell, rankOf, sortedScores } from "./explain";
+import { explainCell, type FactorLine, rankOf, sortedScores } from "./explain";
 import { allLeafScores, scoreRegion } from "./region";
 
 const FIXTURES = fileURLToPath(
@@ -98,5 +98,51 @@ describe("rankOf", () => {
 
   it("leaves cells without a score out of the count", () => {
     expect(ascending).toHaveLength(4);
+  });
+});
+
+describe("the evidence of a measured indicator", () => {
+  const find = (lines: FactorLine[], id: string): FactorLine | undefined => {
+    for (const line of lines) {
+      if (line.id === id) return line;
+      const inside = find(line.children, id);
+      if (inside) return inside;
+    }
+    return undefined;
+  };
+
+  it("is the indicator, its raw value in the cell and its datasets", async () => {
+    const bundle = await load();
+    const explanation = explainCell(bundle, { weights: {} }, 17);
+    const line = find(explanation.factors, "station-proximity");
+    const evidence = line?.evidence;
+    expect(evidence?.indicator.id).toBe("station-proximity");
+    expect(evidence?.value).toBe(bundle.columns.station_proximity[17]);
+    expect(evidence?.option).toBeNull();
+    const credited = evidence?.datasets.map((d) => d.id) ?? [];
+    expect(credited.length).toBeGreaterThan(0);
+    expect(credited).toEqual(evidence?.indicator.datasets);
+  });
+
+  it("is absent from a factor that only holds others", async () => {
+    const bundle = await load();
+    const explanation = explainCell(bundle, { weights: {} }, 0);
+    expect(find(explanation.factors, "transport")?.evidence).toBeNull();
+  });
+
+  it("names the picked option that carries a choice indicator, with its own value", async () => {
+    const bundle = await load();
+    const profile = {
+      weights: { "community-and-people": 3, faith: 3 },
+      choices: { faith: ["hindu", "sikh"] },
+    };
+    for (const index of [0, 50, 120]) {
+      const explanation = explainCell(bundle, profile, index);
+      const evidence = find(explanation.factors, "faith")?.evidence;
+      const hindu = bundle.columns.faith__hindu[index] as number;
+      const sikh = bundle.columns.faith__sikh[index] as number;
+      expect(evidence?.option).toBe(hindu <= sikh ? "Hindu" : "Sikh");
+      expect(evidence?.value).toBe(Math.min(hindu, sikh));
+    }
   });
 });
