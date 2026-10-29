@@ -169,3 +169,12 @@ def test_housing_costs_follow_the_borough(bundle):
     assert rent[SOHO] > rent[wimbledon] + 500  # Westminster rents are the dearest
     assert tax[SOHO] < 1200 < tax[wimbledon]  # Westminster sets London's lowest Band D
     assert bundle["renting_cost"].nunique() <= 33 and tax.nunique() <= 33  # one value a borough
+
+
+def test_most_london_homes_can_get_gigabit_and_5g(bundle):
+    gigabit, five_g = bundle["gigabit_broadband"], bundle["5g_coverage"]
+    assert gigabit.notna().all() and five_g.notna().all()
+    assert gigabit.between(0, 100).all() and five_g.between(0, 100).all()
+    assert 85 < gigabit.median() <= 100  # Ofcom reports about nine in ten homes
+    assert five_g.median() > 85
+    assert five_g.nunique() <= 33  # one value for each borough
