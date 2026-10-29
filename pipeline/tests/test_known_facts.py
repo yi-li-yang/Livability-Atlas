@@ -186,3 +186,11 @@ def test_diversity_is_high_in_east_london_and_low_on_the_green_edge(bundle):
     east_ham, biggin_hill = cell_at(51.5390, 0.0550), cell_at(51.3080, 0.0330)
     assert diversity[east_ham] > 0.75  # Newham is among England's most mixed boroughs
     assert diversity[biggin_hill] < 0.4  # mostly one group
+
+
+def test_a_gp_serves_a_few_thousand_patients_where_a_practice_is_within_a_walk(bundle):
+    ratio = bundle["gp_list_size"]
+    assert 0.55 < ratio.notna().mean() < 0.75  # where a practice is within 15 minutes with a GP
+    assert 2000 < ratio.median() < 3000  # England's 5th to 95th percentile is 1,357 to 5,559
+    assert ratio.quantile(0.05) > 1000 and ratio.quantile(0.95) < 6000
+    assert ratio[SOHO] < 2500 < ratio[cell_at(51.5390, 0.0550)]  # East Ham is stretched
