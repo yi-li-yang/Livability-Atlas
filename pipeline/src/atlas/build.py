@@ -31,6 +31,7 @@ from atlas.datasets.countries.gb import (
     fsa,
     gias,
     hm_land_registry,
+    hoc_msoa_names,
     mhclg_council_tax,
     naptan,
     nhs_ae,
@@ -39,6 +40,7 @@ from atlas.datasets.countries.gb import (
     ofcom,
     ofsted,
     ons_local_authorities,
+    ons_msoa,
     ons_regions,
     ons_rents,
     os_open_greenspace,
@@ -65,8 +67,8 @@ from atlas.indicators import (
 from atlas.indicators import places as place_pool
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
-from atlas.publish.bundle import Choice, write_bundle
-from atlas.spatial import walking
+from atlas.publish.bundle import Choice, Neighbourhoods, write_bundle
+from atlas.spatial import neighbourhoods, walking
 from atlas.spatial.grid import (
     boundary_from_geojson,
     bounds_bng,
@@ -147,6 +149,7 @@ def build_region(
         cells=cells,
         columns=columns,
         choices=choices,
+        neighbourhoods=_neighbourhoods(cells, data_dir),
         out_dir=data_dir / "published",
     )
 
@@ -277,6 +280,15 @@ def _connectivity_columns(
         "gigabit-broadband": [None if pd.isna(v) else float(v) for v in gigabit],
         "5g-coverage": [None if pd.isna(v) else float(v) for v in five_g],
     }
+
+
+def _neighbourhoods(cells: list[str], data_dir: Path) -> Neighbourhoods:
+    """The named neighbourhood of each cell: the MSOA that holds its centre (the ONS's boundaries),
+    with the House of Commons Library's name for it, such as "Soho"."""
+    areas = ons_msoa.read_boundaries(ons_msoa.fetch(data_dir, bounds_bng(cells, margin=2000)))
+    names = hoc_msoa_names.read_names(hoc_msoa_names.fetch(data_dir))
+    listing, pointers = neighbourhoods.listed(neighbourhoods.neighbourhood_of(areas, cells), names)
+    return Neighbourhoods(listing, pointers, ["hoc-msoa-names", "ons-msoa-boundaries"])
 
 
 def _choices(

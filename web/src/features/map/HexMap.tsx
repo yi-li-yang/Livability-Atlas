@@ -36,6 +36,7 @@ export function HexMap({
   colours,
   opacity,
   selected,
+  focus,
   onHover,
   onSelect,
 }: {
@@ -46,16 +47,19 @@ export function HexMap({
   opacity: number;
   /** The index of the cell the user has clicked, outlined on the map. */
   selected: number | null;
+  /** Where to take the map: a new `request` number makes it fly there, as a repeated choice must. */
+  focus: { lng: number; lat: number; request: number } | null;
   onHover: (hover: Hover | null) => void;
   /** Called with the cell that was clicked, or null for a click on no cell. */
   onSelect: (index: number | null) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const overlay = useRef<MapboxOverlay | null>(null);
+  const map = useRef<MapLibreMap | null>(null);
 
   useEffect(() => {
     if (!container.current) return;
-    const map = new MapLibreMap({
+    const basemap = new MapLibreMap({
       container: container.current,
       style: STYLE_URL,
       center: LONDON_CENTRE,
@@ -66,13 +70,25 @@ export function HexMap({
       ],
     });
     const layers = new MapboxOverlay({ interleaved: false, layers: [] });
-    map.addControl(layers);
+    basemap.addControl(layers);
     overlay.current = layers;
+    map.current = basemap;
     return () => {
       overlay.current = null;
-      map.remove();
+      map.current = null;
+      basemap.remove();
     };
   }, []);
+
+  useEffect(() => {
+    if (focus) {
+      map.current?.flyTo({
+        center: [focus.lng, focus.lat],
+        zoom: 13,
+        duration: 900,
+      });
+    }
+  }, [focus]);
 
   useEffect(() => {
     overlay.current?.setProps({

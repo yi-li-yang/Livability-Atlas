@@ -92,6 +92,7 @@ A `user-range` measured indicator needs an `ideal-range` curve, because its user
 - `CDLA-Permissive-1.0` and `CDLA-Permissive-2.0`
 - `Apache-2.0`
 - `LicenseRef-TfL-Open-Data`: TfL's open data licence, version 2.0 of the Open Government Licence with TfL's amendments
+- `LicenseRef-OPL-3.0`: the Open Parliament Licence v3.0, which the House of Commons Library and other parliamentary bodies use, and which allows commercial use and redistribution with attribution
 
 A dataset marked `commercial_use: true` also needs its `licence_checked` date and its `attribution`. When its licences are joined with AND, every one of them must be on the list.
 

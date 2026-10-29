@@ -46,6 +46,9 @@ export type Licence = string;
 export type Attribution = string;
 export type Date = string;
 export type Datasets1 = ManifestDataset[];
+export type Neighbourhoods = ManifestNeighbourhood[] | null;
+export type Name5 = string;
+export type Area = string;
 
 export interface Manifest {
   format_version?: FormatVersion;
@@ -56,6 +59,7 @@ export interface Manifest {
   factors: Factors;
   indicators: Indicators;
   datasets: Datasets1;
+  neighbourhoods?: Neighbourhoods;
 }
 export interface ManifestRegion {
   id: Id;
@@ -126,4 +130,11 @@ export interface ManifestDataset {
   licence: Licence;
   attribution: Attribution;
   date: Date;
+}
+/**
+ * A named area that hex cells belong to, such as an MSOA: "Soho", in Westminster.
+ */
+export interface ManifestNeighbourhood {
+  name: Name5;
+  area: Area;
 }

@@ -132,7 +132,16 @@ export function WhyPanel({
       className="absolute right-4 top-4 z-10 max-h-[calc(100%-9rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 text-sm shadow"
     >
       <div className="flex items-start justify-between gap-2">
-        <h2 className="font-medium">Why this score</h2>
+        <div>
+          <h2 className="font-medium">Why this score</h2>
+          {explanation.neighbourhood && (
+            <p className="text-xs text-neutral-600">
+              {explanation.neighbourhood.name}
+              {explanation.neighbourhood.area &&
+                `, ${explanation.neighbourhood.area}`}
+            </p>
+          )}
+        </div>
         <button type="button" className="underline" onClick={onClose}>
           Close
         </button>

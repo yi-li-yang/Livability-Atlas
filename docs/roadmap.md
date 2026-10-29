@@ -89,7 +89,7 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [x] hard limits, reproducing the `hard-limit-*` golden cases: the region's limits agree with the one-cell engine in a test, and the "Hard limits" section sets them
 - [ ] **Layers of detail.** Quick look, why this score, inside a factor and the evidence layer; the ranked neighbourhoods; a single-factor view (e.g. crime only).
   - [x] The evidence layer shows each measured indicator's raw value, scoring curve, dataset, date, licence and evidence type.
-  - [ ] Neighbourhood names come from the House of Commons Library's MSOA names.
+  - [x] Neighbourhood names come from the House of Commons Library's MSOA names, and the top neighbourhoods are listed by name and score.
   - Check: contributions shown in the app add up to the livability score, on the same cases as the golden ones.
 - [ ] **Validation and release.** The QA report runs all its checks. The site is then released as a public static site, with the owner's go-ahead.
   - [ ] The QA report runs dataset checks, cross-checks and known-fact assertions ([validation.md](methodology/validation.md)), and each factor's data coverage.

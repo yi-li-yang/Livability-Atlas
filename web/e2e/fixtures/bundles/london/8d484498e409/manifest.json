@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": "7358768169de",
+  "version": "8d484498e409",
   "region": {
     "id": "london",
     "name": "London"
@@ -341,7 +341,7 @@
         "t0": 15.0,
         "t1": 5.0
       },
-      "datasets": ["openstreetmap", "overture-places"],
+      "datasets": ["openstreetmap"],
       "options": [
         {
           "id": "hindu",
@@ -359,6 +359,15 @@
     }
   ],
   "datasets": [
+    {
+      "id": "hoc-msoa-names",
+      "name": "MSOA Names (House of Commons Library)",
+      "publisher": "House of Commons Library",
+      "url": "https://houseofcommonslibrary.github.io/msoanames/",
+      "licence": "LicenseRef-OPL-3.0",
+      "attribution": "Contains Parliamentary information licensed under the Open Parliament Licence v3.0. MSOA names: House of Commons Library.",
+      "date": "version 2.3, 13 February 2026"
+    },
     {
       "id": "naptan",
       "name": "National Public Transport Access Nodes (NaPTAN)",
@@ -393,6 +402,15 @@
       "url": "https://www.nomisweb.co.uk/sources/census_2021_bulk",
       "licence": "OGL-UK-3.0",
       "attribution": "Source: Office for National Statistics, licensed under the Open Government Licence v3.0.",
+      "date": "2021"
+    },
+    {
+      "id": "ons-msoa-boundaries",
+      "name": "Middle layer Super Output Areas (December 2021) Boundaries EW BGC",
+      "publisher": "Office for National Statistics (ONS)",
+      "url": "https://geoportal.statistics.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. Contains OS data © Crown copyright and database right 2026.",
       "date": "2021"
     },
     {
@@ -441,15 +459,6 @@
       "date": "updated every six months"
     },
     {
-      "id": "overture-places",
-      "name": "Overture Maps Places",
-      "publisher": "Overture Maps Foundation",
-      "url": "https://docs.overturemaps.org/guides/places/",
-      "licence": "CDLA-Permissive-2.0 AND Apache-2.0 AND CC0-1.0",
-      "attribution": "Overture Maps Foundation, with places from Meta, Microsoft, Foursquare and others. Copyright 2024 Foursquare Labs, Inc. All rights reserved.",
-      "date": "monthly releases"
-    },
-    {
       "id": "police-uk",
       "name": "Police recorded crime and anti-social behaviour (data.police.uk)",
       "publisher": "The police forces of England, Wales and Northern Ireland, through data.police.uk",
@@ -475,6 +484,120 @@
       "licence": "LicenseRef-TfL-Open-Data",
       "attribution": "Powered by TfL Open Data. Contains OS data © Crown copyright and database rights 2016 and Geomni UK Map data © and database rights [2019].",
       "date": "live, updated continually"
+    }
+  ],
+  "neighbourhoods": [
+    {
+      "name": "City of London",
+      "area": "City of London"
+    },
+    {
+      "name": "Camden Town & Mornington Crescent",
+      "area": "Camden"
+    },
+    {
+      "name": "Somers Town",
+      "area": "Camden"
+    },
+    {
+      "name": "Euston",
+      "area": "Camden"
+    },
+    {
+      "name": "Fitzrovia East & Bloomsbury West",
+      "area": "Camden"
+    },
+    {
+      "name": "Hatton Garden & Theobalds Road",
+      "area": "Camden"
+    },
+    {
+      "name": "Holborn, St Giles & Bloomsbury South",
+      "area": "Camden"
+    },
+    {
+      "name": "Barnsbury West",
+      "area": "Islington"
+    },
+    {
+      "name": "Pentonville",
+      "area": "Islington"
+    },
+    {
+      "name": "Clerkenwell",
+      "area": "Islington"
+    },
+    {
+      "name": "Lambeth Walk & North Kennington",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Kennington West & Vauxhall North",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Borough & Southwark Street",
+      "area": "Southwark"
+    },
+    {
+      "name": "St John's Wood North",
+      "area": "Westminster"
+    },
+    {
+      "name": "Regent's Park",
+      "area": "Westminster"
+    },
+    {
+      "name": "Marylebone & Park Lane",
+      "area": "Westminster"
+    },
+    {
+      "name": "Bryanston & Dorset Square",
+      "area": "Westminster"
+    },
+    {
+      "name": "Fitzrovia West & Soho",
+      "area": "Westminster"
+    },
+    {
+      "name": "Paddington & St George's Fields",
+      "area": "Westminster"
+    },
+    {
+      "name": "Strand, St James & Mayfair",
+      "area": "Westminster"
+    },
+    {
+      "name": "Knightsbridge, Belgravia & Hyde Park",
+      "area": "Westminster"
+    },
+    {
+      "name": "Central Westminster",
+      "area": "Westminster"
+    },
+    {
+      "name": "Millbank",
+      "area": "Westminster"
+    },
+    {
+      "name": "Pimlico North",
+      "area": "Westminster"
+    },
+    {
+      "name": "Victoria",
+      "area": "Westminster"
+    },
+    {
+      "name": "Lambeth North, Waterloo & South Bank",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Southwark St George's",
+      "area": "Southwark"
+    },
+    {
+      "name": "King's Cross & Bloomsbury North",
+      "area": "Camden"
     }
   ]
 }

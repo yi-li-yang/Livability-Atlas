@@ -273,6 +273,41 @@ def synthetic_journey_times() -> pd.DataFrame:
     return pd.DataFrame({"stop": ["S1"] * 4, "place": names, "minutes": [20.0] * 4})
 
 
+def synthetic_msoas(tmp_path: Path) -> tuple[Path, Path]:
+    """Two MSOAs that cover AREA, with a margin (the west one, `E02000001`, and the east one,
+    `E02000002`), and the file of their names."""
+    x0, y0 = TO_BNG.transform(AREA.bounds[0] - 0.01, AREA.bounds[1] - 0.01)
+    x1, y1 = TO_BNG.transform(AREA.bounds[2] + 0.01, AREA.bounds[3] + 0.01)
+    xm, _ = TO_BNG.transform(MIDDLE, 51.51)
+
+    def feature(code: str, left: float, right: float) -> dict:
+        ring = [[left, y0], [right, y0], [right, y1], [left, y1], [left, y0]]
+        return {
+            "type": "Feature",
+            "properties": {"MSOA21CD": code},
+            "geometry": {"type": "Polygon", "coordinates": [ring]},
+        }
+
+    shapes = tmp_path / "msoa.geojson"
+    shapes.write_text(
+        json.dumps(
+            {
+                "type": "FeatureCollection",
+                "features": [feature("E02000001", x0, xm), feature("E02000002", xm, x1)],
+            }
+        ),
+        encoding="utf-8",
+    )
+    names = tmp_path / "MSOA-Names-Latest2.csv"
+    names.write_text(
+        "msoa21cd,msoa21nm,msoa21nmw,msoa21hclnm,msoa21hclnmw,localauthorityname,type\n"
+        "E02000001,Camden 001,,West Hill,,Camden,x\n"
+        "E02000002,Westminster 001,,,,Westminster,x\n",
+        encoding="utf-8",
+    )
+    return shapes, names
+
+
 def synthetic_postcodes(tmp_path: Path) -> Path:
     """The place of that practice's postcode, in the east of AREA."""
     east = TO_BNG.transform(-0.1285, 51.5120)
@@ -571,6 +606,9 @@ def use_synthetic_data(monkeypatch, tmp_path):
     gp_files, postcodes = synthetic_gp_practices(tmp_path), synthetic_postcodes(tmp_path)
     monkeypatch.setattr(build_module.nhs_ods, "fetch", lambda data_dir: gp_files)
     monkeypatch.setattr(build_module.code_point, "fetch", lambda data_dir: postcodes)
+    shapes, names = synthetic_msoas(tmp_path)
+    monkeypatch.setattr(build_module.ons_msoa, "fetch", lambda data_dir, bounds: shapes)
+    monkeypatch.setattr(build_module.hoc_msoa_names, "fetch", lambda data_dir: names)
     monkeypatch.setattr(
         build_module.nhs_ae, "fetch", lambda data_dir, region, seeds: tmp_path / "ae.csv"
     )
@@ -1013,3 +1051,19 @@ def test_the_bundle_holds_the_travel_time_to_the_default_places(monkeypatch, tmp
     assert east.notna().all() and east.median() < 35.0
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert "travel-time-to-places" in {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_names_the_neighbourhood_of_each_cell(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["neighbourhoods"] == [
+        {"name": "West Hill", "area": "Camden"},
+        {"name": "Westminster 001", "area": "Westminster"},  # no name of the Library's: the ONS's
+    ]
+    assert set(table[lng < -0.145]["neighbourhood"]) == {0}
+    assert set(table[lng > -0.130]["neighbourhood"]) == {1}
+    credited = {d["id"] for d in manifest["datasets"]}
+    assert {"hoc-msoa-names", "ons-msoa-boundaries"} <= credited

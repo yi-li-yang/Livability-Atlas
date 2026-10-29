@@ -291,6 +291,26 @@
       "title": "ManifestIndicator",
       "type": "object"
     },
+    "ManifestNeighbourhood": {
+      "additionalProperties": false,
+      "description": "A named area that hex cells belong to, such as an MSOA: \"Soho\", in Westminster.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "area": {
+          "title": "Area",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "area"
+      ],
+      "title": "ManifestNeighbourhood",
+      "type": "object"
+    },
     "ManifestOption": {
       "additionalProperties": false,
       "description": "One of the options a user can pick on a choice indicator, such as a faith.",
@@ -439,6 +459,21 @@
       },
       "title": "Datasets",
       "type": "array"
+    },
+    "neighbourhoods": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ManifestNeighbourhood"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Neighbourhoods"
     }
   },
   "required": [
