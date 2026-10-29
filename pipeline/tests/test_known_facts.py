@@ -138,3 +138,14 @@ def test_noise_is_loud_beside_main_roads_railways_and_under_the_flight_path(bund
     assert rail[cell_at(51.5033, -0.1145)] > 58  # Waterloo
     assert aircraft[cell_at(51.4850, -0.4150)] > 50  # under Heathrow's approach
     assert aircraft.median() == 40  # most of London is beyond the airports' maps
+
+
+def test_central_london_is_near_everything_and_the_edge_is_not(bundle):
+    names = ["groceries", "pharmacies", "gyms", "libraries"]
+    assert bundle[names].notna().all().all()
+    assert (bundle.loc[SOHO, names] < 6).all()
+    richmond_park = cell_at(51.4440, -0.2740)
+    assert (bundle.loc[richmond_park, names] > 15).all()
+    assert (
+        bundle["groceries"].median() < bundle["pharmacies"].median() < bundle["libraries"].median()
+    )
