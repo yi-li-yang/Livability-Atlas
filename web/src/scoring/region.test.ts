@@ -188,6 +188,64 @@ describe("scoring a whole region", () => {
   });
 });
 
+describe("scoring a region by one factor", () => {
+  const bundle = makeBundle(300, 7);
+  const leaves = (profile: Profile) => allLeafScores(bundle, profile.flipped);
+
+  /** What the one-cell engine gives one node of the tree, from 0 to 100. */
+  function slowNode(profile: Profile, id: string): (number | null)[] {
+    return bundle.cells.map((_, i) => {
+      const node = scoreCell(scoreCaseFor(bundle, profile, i)).nodes[id];
+      return node?.score == null ? null : node.score * 100;
+    });
+  }
+
+  for (const id of ["safety", "environment", "quiet", "crime", "comfort"]) {
+    for (const [name, profile] of Object.entries(PROFILES)) {
+      it(`gives the score of ${id} that the one-cell engine gives, with ${name}`, () => {
+        expectSame(
+          scoreRegion(bundle, profile, leaves(profile), id),
+          slowNode(profile, id),
+        );
+      });
+    }
+  }
+
+  it("scores a factor by the weights inside it, whatever its own weight", () => {
+    const profile: Profile = { weights: { safety: 0, crime: 5, band: 1 } };
+    const alone = scoreRegion(bundle, profile, leaves(profile), "safety");
+    expectSame(alone, slowNode(profile, "safety"));
+    expect(alone.some((s) => !Number.isNaN(s))).toBe(true);
+  });
+
+  it("gives no data where everything inside the factor weighs 0", () => {
+    const profile: Profile = { weights: { crime: 0, band: 0 } };
+    const none = scoreRegion(bundle, profile, leaves(profile), "safety");
+    expect(none.every((s) => Number.isNaN(s))).toBe(true);
+  });
+
+  it("leaves the leaf scores alone when it scores a measured indicator", () => {
+    const base = leaves({ weights: {} });
+    const before = new Map([...base].map(([id, scores]) => [id, [...scores]]));
+    const crime = scoreRegion(bundle, { weights: {} }, base, "crime");
+    for (const [id, scores] of base) {
+      expect([...scores], id).toEqual(before.get(id));
+    }
+    // From 0 to 100, as the others are, and not a copy of the 0 to 1 scores.
+    expect(
+      Math.max(...[...crime].filter((s) => !Number.isNaN(s))),
+    ).toBeGreaterThan(1);
+  });
+
+  it("scores the whole tree for an id that the tree does not have", () => {
+    const profile: Profile = { weights: {} };
+    expectSame(
+      scoreRegion(bundle, profile, leaves(profile), "nonsense"),
+      slow(bundle, profile),
+    );
+  });
+});
+
 describe("the time to rescore a region", () => {
   // The size of the MVP: about 17,000 cells, ten factors and forty measured indicators.
   const SIZE = 17_000;

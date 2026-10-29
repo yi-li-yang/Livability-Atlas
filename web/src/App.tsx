@@ -10,6 +10,7 @@ import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
+import { noDataNote, viewOptions } from "./features/map/views";
 import { TopNeighbourhoods } from "./features/neighbourhoods/TopNeighbourhoods";
 import { topNeighbourhoods } from "./features/neighbourhoods/top";
 import type { Manifest, ManifestFactor } from "./generated/manifest.schema";
@@ -28,6 +29,7 @@ import {
 import {
   allLeafScores,
   excludedCells,
+  findFactor,
   type Profile,
   scoreRegion,
 } from "./scoring/region";
@@ -78,6 +80,8 @@ export function App() {
   const [hover, setHover] = useState<Hover | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [opacity, setOpacity] = useState(CELL_OPACITY);
+  // What the map shows in place of the livability score: a factor or a measured indicator.
+  const [view, setView] = useState<string | null>(null);
   const [focus, setFocus] = useState<{
     lng: number;
     lat: number;
@@ -141,9 +145,29 @@ export function App() {
     () => (bundle ? excludedCells(bundle, limits ?? []) : null),
     [bundle, limits],
   );
+  // The map shows the livability score, or one factor's own score, which the ranking and the top
+  // neighbourhoods ignore: they answer where to live, and a view must not change the answer.
+  const shown = useMemo(
+    () =>
+      bundle && leaves && view
+        ? scoreRegion(bundle, profile, leaves, view)
+        : scores,
+    [bundle, leaves, profile, scores, view],
+  );
+  const viewChoices = useMemo(
+    () => (bundle ? viewOptions(bundle.manifest) : []),
+    [bundle],
+  );
+  const viewName = viewChoices.find((o) => o.id === view)?.name ?? null;
+  const viewNode =
+    bundle && view ? findFactor(bundle.manifest.factors, view) : undefined;
+  const viewNote =
+    viewName && shown?.every(Number.isNaN)
+      ? noDataNote(viewName, viewNode, profile)
+      : null;
   const colours = useMemo(
-    () => (scores ? cellColours(scores, excluded ?? undefined) : []),
-    [scores, excluded],
+    () => (shown ? cellColours(shown, excluded ?? undefined) : []),
+    [shown, excluded],
   );
   const ranked = useMemo(
     () =>
@@ -165,7 +189,12 @@ export function App() {
   const explained = (index: number | null) => {
     if (index === null || !bundle || !scores || !ranked) return null;
     const score = scores[index];
+    const onMap = shown?.[index];
     return {
+      onMap:
+        viewName && onMap !== undefined
+          ? { name: viewName, score: Number.isNaN(onMap) ? null : onMap }
+          : null,
       explanation: explainCell(bundle, profile, index),
       rank:
         Number.isNaN(score) || excluded?.[index] ? null : rankOf(ranked, score),
@@ -207,7 +236,7 @@ export function App() {
         {state.status === "ready" && (
           <aside
             aria-label="Your preferences"
-            className="absolute left-4 top-4 z-10 max-h-[calc(100%-12rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
+            className="absolute left-4 top-4 z-10 max-h-[calc(100%-15.5rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
           >
             <TopNeighbourhoods
               top={top}
@@ -265,9 +294,13 @@ export function App() {
         {chosen && <WhyPanel {...chosen} onClose={() => setSelected(null)} />}
         {state.status === "ready" && (
           <Legend
-            title="Livability score"
+            title={viewName ? `${viewName} score` : "Livability score"}
             low="Worse"
             high="Better"
+            options={viewChoices}
+            view={viewName ? view : null}
+            note={viewNote}
+            onView={setView}
             opacity={opacity}
             onOpacity={setOpacity}
           />

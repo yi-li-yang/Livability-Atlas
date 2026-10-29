@@ -177,16 +177,34 @@ export function allLeafScores(
   );
 }
 
+/** The factor, or measured indicator, of a factor tree that has this id. */
+export function findFactor(
+  factors: readonly ManifestFactor[],
+  id: string,
+): ManifestFactor | undefined {
+  for (const factor of factors) {
+    if (factor.id === id) return factor;
+    const inside = findFactor(kidsOf(factor), id);
+    if (inside) return inside;
+  }
+  return undefined;
+}
+
 /**
  * The livability score of every cell, from 0 to 100, with NaN where no factor has data. It is the
  * weighted mean of the children that have data, down the factor tree, as `scoreCell` computes it
  * for one cell, but without building a tree for each cell, so a change of weights recolours the
  * whole region quickly.
+ *
+ * With `only`, the id of a factor or measured indicator, it gives that node's own score instead:
+ * the weighted mean of the children inside it, by the weights inside it, whatever its own weight.
+ * An id that the tree does not have gives the livability score.
  */
 export function scoreRegion(
   bundle: Bundle,
   profile: Profile,
   leaves: ReadonlyMap<string, Float64Array>,
+  only?: string,
 ): Float64Array {
   const size = bundle.cells.length;
 
@@ -224,7 +242,10 @@ export function scoreRegion(
     default_weight: 1,
     children: bundle.manifest.factors,
   };
-  const scores = scoreOf(root);
+  const target =
+    only === undefined ? undefined : findFactor(bundle.manifest.factors, only);
+  // A copy, because a measured indicator's scores are the leaf scores that other calls share.
+  const scores = Float64Array.from(scoreOf(target ?? root));
   for (let i = 0; i < size; i++) scores[i] *= 100;
   return scores;
 }

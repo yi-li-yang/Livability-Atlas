@@ -87,9 +87,10 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [x] travel times to the default places, as an estimate from the station times (the evidence type says so)
   - [ ] the in-browser estimate for a user's places, with its error checked on a larger sample and several departure times
   - [x] hard limits, reproducing the `hard-limit-*` golden cases: the region's limits agree with the one-cell engine in a test, and the "Hard limits" section sets them
-- [ ] **Layers of detail.** Quick look, why this score, inside a factor and the evidence layer; the ranked neighbourhoods; a single-factor view (e.g. crime only).
+- [x] **Layers of detail.** Quick look, why this score, inside a factor and the evidence layer; the ranked neighbourhoods; a single-factor view (e.g. crime only).
   - [x] The evidence layer shows each measured indicator's raw value, scoring curve, dataset, date, licence and evidence type.
   - [x] Neighbourhood names come from the House of Commons Library's MSOA names, and the top neighbourhoods are listed by name and score.
+  - [x] A single-factor view: the legend's "Show on the map" colours the map by one factor's or one measured indicator's own score ([spec](specs/2026-10-29-map-by-factor.md)). Its list is made from the manifest alone, and a test compares it with the manifest.
   - Check: contributions shown in the app add up to the livability score, on the same cases as the golden ones.
 - [ ] **Validation and release.** The QA report runs all its checks. The site is then released as a public static site, with the owner's go-ahead.
   - [x] The QA report runs dataset checks, cross-checks and known-fact assertions ([validation.md](methodology/validation.md)), and each factor's data coverage ([spec](specs/2026-10-29-qa-report.md)). `atlas build` writes `qa.md` beside the bundle and publishes it only if no check failed, and `atlas qa` checks any version again. London's report has 52 checks: 13 of the bundle, its datasets and its values, 12 relations, and 27 known facts.
