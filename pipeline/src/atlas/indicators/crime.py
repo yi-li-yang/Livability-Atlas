@@ -34,9 +34,20 @@ def residents_by_cell(areas: gpd.GeoDataFrame, residents: pd.Series, cells: list
     `residents` is indexed by the same codes. An area's residents are shared by the part of the
     area that lies in each of `cells`, so those outside the cells are dropped, not given to others.
     """
+    shared = counts_shared_by_cell(areas, residents.to_frame("residents"), cells)
+    return cast(pd.Series, shared["residents"])
+
+
+def counts_shared_by_cell(
+    areas: gpd.GeoDataFrame, counts: pd.DataFrame, cells: list[str]
+) -> pd.DataFrame:
+    """The same sharing for several counts at once, one column each, overlaying the areas with the
+    cells only once. A cell that no area overlaps is missing from the result."""
     areas = cast(gpd.GeoDataFrame, areas[["OA21CD", "geometry"]].copy())
-    known = residents.to_dict()
-    areas["residents"] = [float(known.get(code, 0.0)) for code in areas["OA21CD"]]
+    names = [str(name) for name in counts.columns]
+    known = counts.reindex(areas["OA21CD"]).fillna(0.0).to_numpy(dtype=float)
+    for position, name in enumerate(names):
+        areas[name] = known[:, position]
     areas["area"] = areas.geometry.area
     hexes = gpd.GeoDataFrame(
         {"cell": cells},
@@ -44,8 +55,10 @@ def residents_by_cell(areas: gpd.GeoDataFrame, residents: pd.Series, cells: list
         crs="EPSG:4326",
     ).to_crs("EPSG:27700")
     pieces = gpd.overlay(areas, hexes, how="intersection")
-    pieces["share"] = pieces["residents"] * pieces.geometry.area / pieces["area"]
-    return cast(pd.Series, pieces.groupby("cell")["share"].sum())
+    fraction = pieces.geometry.area / pieces["area"]
+    for name in names:
+        pieces[name] = pieces[name] * fraction
+    return cast(pd.DataFrame, pieces.groupby("cell")[names].sum())
 
 
 def counts_by_cell(crimes: pd.DataFrame, cells: list[str], resolution: int) -> dict[str, pd.Series]:

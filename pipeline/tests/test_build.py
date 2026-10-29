@@ -350,6 +350,15 @@ def synthetic_homes() -> pd.DataFrame:
     )
 
 
+def synthetic_ethnic_groups() -> pd.DataFrame:
+    """Residents by ethnic group for the two output areas of AREA: the west one of a single
+    group, the east one split evenly over four."""
+    return pd.DataFrame(
+        {"a": [100.0, 25.0], "b": [0.0, 25.0], "c": [0.0, 25.0], "d": [0.0, 25.0]},
+        index=["W1", "E1"],
+    )
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -398,6 +407,12 @@ def use_synthetic_data(monkeypatch, tmp_path):
         build_module.ofcom,
         "read_five_g",
         lambda path: {"E09000007": 40.0, "E09000033": 90.0},
+    )
+    monkeypatch.setattr(
+        build_module.census_ethnic_group, "fetch", lambda data_dir: tmp_path / "ethnic"
+    )
+    monkeypatch.setattr(
+        build_module.census_ethnic_group, "read_groups", lambda path: synthetic_ethnic_groups()
     )
     air = synthetic_air(tmp_path)
     monkeypatch.setattr(build_module.laei, "fetch", lambda data_dir: air)
@@ -697,3 +712,14 @@ def test_the_bundle_holds_the_gigabit_share_of_homes_and_the_5g_of_the_borough(
     assert set(east["5g_coverage"]) == {90.0}  # Westminster
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert {"gigabit-broadband", "5g-coverage"} <= {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_diversity_of_each_cells_residents(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    assert table[lng < -0.145]["diversity"].median() == pytest.approx(0.0)
+    assert table[lng > -0.130]["diversity"].median() == pytest.approx(0.75)
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "diversity" in {i["id"] for i in manifest["indicators"]}
