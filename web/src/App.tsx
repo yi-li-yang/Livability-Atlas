@@ -251,7 +251,7 @@ export function App() {
     ) : null;
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-dvh flex-col">
       <header className="px-4 py-2">
         <h1 className="text-2xl font-semibold">Livability Atlas</h1>
         {state.status === "failed" && (
@@ -359,6 +359,11 @@ export function App() {
             <p>
               Basemap: OpenFreeMap, © OpenMapTiles, with data from OpenStreetMap
               contributors.
+            </p>
+            <p>
+              Privacy: your weights, limits and choices stay in your browser and
+              are sent to no server. The map's tiles and labels come from
+              OpenFreeMap.
             </p>
             {/* Datasets from one publisher often share a line of credit: show each line once. */}
             {[

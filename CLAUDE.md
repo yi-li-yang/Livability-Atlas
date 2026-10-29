@@ -6,7 +6,7 @@ Operating manual for the coding agents in this repository. Claude Code reads it 
 
 Livability Atlas is an open-source tool that answers "where should I live?". An offline Python data pipeline turns open datasets into measured indicators per hex cell and publishes a static data bundle per region. A React web app scores every hex cell in the browser by the user's preference profile. The first region is London. The repo owner is the first user, but everything is built for any user.
 
-The project is in **Phase 0**: decisions, factor catalogue, spikes and scaffold. See [docs/roadmap.md](docs/roadmap.md).
+The project is in **Phase 1**, the London MVP: the data pipeline and the web app run end to end, and the remaining work is in [docs/roadmap.md](docs/roadmap.md). Phase 0 (decisions, the factor catalogue, spikes and the scaffold) is done but for one exit criterion.
 
 ## Start and end of every session
 
