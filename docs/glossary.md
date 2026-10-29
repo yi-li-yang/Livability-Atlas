@@ -43,6 +43,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Weight | How much a factor matters to the user, from 0 (ignore) to 5 (crucial) | |
 | Default weight | The starting weight, set from evidence of what people value. Users change it | |
 | Share of total weight | How much of the user's total weight one factor carries. Each factor's share splits among its sub-factors by their weights, and the factor tree draws it as area | Weights of 4, 4 and 2 give shares of 40%, 40% and 20% |
+| Boxes, Rings | The two ways the factor tree is drawn, which the user switches between. Boxes are nested rectangles, one for each factor. Rings are an inner ring of factors with their sub-factors in a ring round it. Either way the size is the factor's share of total weight | The "Boxes" and "Rings" buttons above the factor tree |
 | Not counted | A factor at weight 0, or whose sub-factors are all at weight 0. The factor tree leaves it out of the drawing and lists it apart, from where the user can count it again | Climate, when its weight is 0 |
 | Scoring curve | The rule that turns a measured value into a score from 0 (worst) to 1 (best) | PM2.5: 5 µg/m³ scores 1, and 25 µg/m³ scores 0 |
 | Ideal range | A band of values the user likes best. The score falls away on both sides | Summer temperature 20–26 °C |
@@ -114,7 +115,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Quick look | What hovering over a hex cell shows: name, score, rank, main strengths and weakness | "+ Transport, − Cost" |
 | Evidence layer | The deepest layer: raw value, scoring curve, dataset, date, licence and evidence type | |
 | Visual factor tree | The factor tree drawn so that each factor's area is its share of total weight | |
-| Treemap, sunburst | Two ways to draw the visual factor tree: nested rectangles, or rings around a centre | |
+| Treemap, sunburst | Two ways to draw the visual factor tree: nested rectangles, or rings around a centre. The app calls them "Boxes" and "Rings" | |
 | Factor explorer | A standalone page that prototypes the visual factor tree on the factor catalogue | `docs/factors/explorer.html` (step 0.2) |
 
 ### Data pipeline

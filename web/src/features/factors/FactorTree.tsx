@@ -4,6 +4,7 @@ import type {
   ManifestIndicator,
 } from "../../generated/manifest.schema";
 import type { Profile } from "../../scoring/region";
+import type { Layout } from "./layout";
 import {
   countAgain,
   type FactorView,
@@ -11,6 +12,7 @@ import {
   withChoice,
   withWeight,
 } from "./level";
+import { Rings } from "./Rings";
 import { squarify } from "./treemap";
 
 // The treemap is laid out in a box of 100 by 62 units, and drawn in percentages of its container.
@@ -18,23 +20,33 @@ const BOX = { x: 0, y: 0, w: 100, h: 62 };
 
 const percent = (share: number): string => `${Math.round(share * 100)}%`;
 
+const LAYOUTS: { layout: Layout; name: string }[] = [
+  { layout: "boxes", name: "Boxes" },
+  { layout: "rings", name: "Rings" },
+];
+
 /**
- * The factors the user can weigh, drawn as a treemap whose areas are the factors' shares of the
- * weight, with a slider for each. Opening a factor shows its sub-factors; a factor at weight 0
- * leaves the drawing and waits in the list of those not counted.
+ * The factors the user can weigh, drawn as boxes (a treemap) or as rings (a sunburst) whose sizes
+ * are the factors' shares of the weight, with a slider for each. Opening a factor shows its
+ * sub-factors; a factor at weight 0 leaves the drawing and waits in the list of those not counted.
  */
 export function FactorTree({
   factors,
   indicators = [],
   profile,
+  layout,
   onChange,
+  onLayout,
   onReset,
 }: {
   factors: readonly ManifestFactor[];
   /** The measured indicators, to find the ones that offer a choice. */
   indicators?: readonly ManifestIndicator[];
   profile: Profile;
+  /** How the factors are drawn. */
+  layout: Layout;
   onChange: (profile: Profile) => void;
+  onLayout: (layout: Layout) => void;
   /** Returns every weight to its default. */
   onReset: () => void;
 }) {
@@ -80,10 +92,45 @@ export function FactorTree({
       ),
     [level],
   );
+  // The rings also draw the counted sub-factors of each factor, outside it. The boxes do not.
+  const parts = useMemo(
+    () =>
+      new Map(
+        layout === "rings"
+          ? level.counted
+              .filter((f) => f.opens)
+              .map((f) => [
+                f.id,
+                levelAt(factors, profile, [...opened, f.id]).counted,
+              ])
+          : [],
+      ),
+    [layout, factors, profile, level, opened],
+  );
 
   return (
     <section aria-label="What matters to you" className="space-y-3 text-sm">
-      <h2 className="font-medium">What matters to you</h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="font-medium">What matters to you</h2>
+        <fieldset className="m-0 flex min-w-0 overflow-hidden rounded border border-neutral-400 p-0 text-xs">
+          <legend className="sr-only">Draw the factors as</legend>
+          {LAYOUTS.map(({ layout: option, name }) => (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={layout === option}
+              className={
+                layout === option
+                  ? "bg-neutral-800 px-2 py-0.5 text-white"
+                  : "bg-white px-2 py-0.5 hover:bg-neutral-100"
+              }
+              onClick={() => onLayout(option)}
+            >
+              {name}
+            </button>
+          ))}
+        </fieldset>
+      </div>
 
       <nav
         aria-label="Where you are in the factors"
@@ -115,30 +162,47 @@ export function FactorTree({
       <div
         data-testid="factor-tree"
         className="relative w-full overflow-hidden rounded"
-        style={{ aspectRatio: `${BOX.w} / ${BOX.h}` }}
+        style={
+          layout === "boxes"
+            ? { aspectRatio: `${BOX.w} / ${BOX.h}` }
+            : undefined
+        }
       >
-        {tiles.map(({ item, x, y, w, h }) => (
-          <div
-            key={item.id}
-            data-testid="factor-tile"
-            data-factor={item.id}
-            data-share={item.share.toFixed(4)}
-            aria-hidden="true"
-            className="absolute overflow-hidden border border-white p-1 text-xs leading-tight"
-            style={{
-              left: `${(x / BOX.w) * 100}%`,
-              top: `${(y / BOX.h) * 100}%`,
-              width: `${(w / BOX.w) * 100}%`,
-              height: `${(h / BOX.h) * 100}%`,
-              background: item.colour,
-              color: item.ink,
-            }}
-          >
-            <span className="font-medium">{item.name}</span>{" "}
-            <span>{percent(item.share)}</span>
-          </div>
-        ))}
-        {tiles.length === 0 && (
+        {layout === "rings" && level.counted.length > 0 && (
+          <Rings
+            key={opened.join("/")}
+            title={level.trail.at(-1)?.name ?? "All factors"}
+            counted={level.counted}
+            parts={parts}
+            onOpen={(ids) => setPath([...opened, ...ids])}
+            onBack={
+              opened.length > 0 ? () => setPath(opened.slice(0, -1)) : undefined
+            }
+          />
+        )}
+        {layout === "boxes" &&
+          tiles.map(({ item, x, y, w, h }) => (
+            <div
+              key={item.id}
+              data-testid="factor-tile"
+              data-factor={item.id}
+              data-share={item.share.toFixed(4)}
+              aria-hidden="true"
+              className="absolute overflow-hidden border border-white p-1 text-xs leading-tight"
+              style={{
+                left: `${(x / BOX.w) * 100}%`,
+                top: `${(y / BOX.h) * 100}%`,
+                width: `${(w / BOX.w) * 100}%`,
+                height: `${(h / BOX.h) * 100}%`,
+                background: item.colour,
+                color: item.ink,
+              }}
+            >
+              <span className="font-medium">{item.name}</span>{" "}
+              <span>{percent(item.share)}</span>
+            </div>
+          ))}
+        {level.counted.length === 0 && (
           <p className="p-2 text-neutral-600">
             Nothing here counts. Give a factor a weight above 0.
           </p>

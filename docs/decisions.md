@@ -280,6 +280,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **History:**
   - 2026-10-23: proposed after review asked for layered details and a visual, interactive factor list.
   - 2026-10-24: accepted after the owner tried the factor explorer. Both layouts stay, with a switch, and each factor has its own colour.
+  - 2026-10-29: the switch is built, as "Boxes" and "Rings" in the app (the treemap and the sunburst are the contributors' words). The boxes still show first. The choice is kept in the browser and not in the link, because it is how the user likes to see the factors and not what they want, so a shared link opens in the recipient's own layout.
 
 ## D18 Preference types
 

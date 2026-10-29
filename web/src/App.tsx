@@ -2,6 +2,7 @@ import { cellToLatLng } from "h3-js";
 import { useEffect, useMemo, useState } from "react";
 import { type Bundle, loadBundle } from "./data/bundle";
 import { FactorTree } from "./features/factors/FactorTree";
+import { type Layout, loadLayout, saveLayout } from "./features/factors/layout";
 import { QuickLook } from "./features/factors/QuickLook";
 import { WhyPanel } from "./features/factors/WhyPanel";
 import { LimitsPanel } from "./features/limits/LimitsPanel";
@@ -70,6 +71,9 @@ export function App() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [profile, setProfile] = useState<Profile>(() =>
     loadProfile(window.location.hash, browserStorage()),
+  );
+  const [layout, setLayout] = useState<Layout>(() =>
+    loadLayout(browserStorage()),
   );
   const [hover, setHover] = useState<Hover | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
@@ -223,7 +227,12 @@ export function App() {
               factors={state.bundle.manifest.factors}
               indicators={state.bundle.manifest.indicators}
               profile={profile}
+              layout={layout}
               onChange={setProfile}
+              onLayout={(next) => {
+                setLayout(next);
+                saveLayout(next, browserStorage());
+              }}
               onReset={() => setProfile({ weights: {} })}
             />
             <div className="mt-4 border-t border-neutral-300 pt-3">
