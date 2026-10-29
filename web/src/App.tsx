@@ -33,6 +33,7 @@ import {
   type Profile,
   scoreRegion,
 } from "./scoring/region";
+import { useIsPhone } from "./useIsPhone";
 
 const BUNDLES_URL = import.meta.env.VITE_BUNDLES_URL ?? "/bundles";
 const REGION = "london";
@@ -82,6 +83,9 @@ export function App() {
   const [opacity, setOpacity] = useState(CELL_OPACITY);
   // What the map shows in place of the livability score: a factor or a measured indicator.
   const [view, setView] = useState<string | null>(null);
+  // On a phone the preferences are a sheet along the bottom, shut until the user opens it.
+  const phone = useIsPhone();
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [focus, setFocus] = useState<{
     lng: number;
     lat: number;
@@ -205,6 +209,47 @@ export function App() {
     hover && hover.index !== selected ? explained(hover.index) : null;
   const chosen = explained(selected);
 
+  const preferences =
+    state.status === "ready" ? (
+      <>
+        <TopNeighbourhoods
+          top={top}
+          onChoose={(neighbourhood) => {
+            const [lat, lng] = cellToLatLng(
+              state.bundle.cells[neighbourhood.bestCell],
+            );
+            setSelected(neighbourhood.bestCell);
+            setSheetOpen(false); // so that the map shows where it went
+            setFocus((now) => ({
+              lng,
+              lat,
+              request: (now?.request ?? 0) + 1,
+            }));
+          }}
+        />
+        <FactorTree
+          factors={state.bundle.manifest.factors}
+          indicators={state.bundle.manifest.indicators}
+          profile={profile}
+          layout={layout}
+          heading={!phone}
+          onChange={setProfile}
+          onLayout={(next) => {
+            setLayout(next);
+            saveLayout(next, browserStorage());
+          }}
+          onReset={() => setProfile({ weights: {} })}
+        />
+        <div className="mt-4 border-t border-neutral-300 pt-3">
+          <LimitsPanel
+            bundle={state.bundle}
+            profile={profile}
+            onChange={setProfile}
+          />
+        </div>
+      </>
+    ) : null;
+
   return (
     <div className="flex h-screen flex-col">
       <header className="px-4 py-2">
@@ -222,7 +267,7 @@ export function App() {
           opacity={opacity}
           selected={selected}
           focus={focus}
-          onHover={setHover}
+          onHover={phone ? () => {} : setHover}
           onSelect={setSelected}
         />
         {state.status === "loading" && (
@@ -233,47 +278,38 @@ export function App() {
             Loading the map data…
           </p>
         )}
-        {state.status === "ready" && (
-          <aside
-            aria-label="Your preferences"
-            className="absolute left-4 top-4 z-10 max-h-[calc(100%-15.5rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
-          >
-            <TopNeighbourhoods
-              top={top}
-              onChoose={(neighbourhood) => {
-                const [lat, lng] = cellToLatLng(
-                  state.bundle.cells[neighbourhood.bestCell],
-                );
-                setSelected(neighbourhood.bestCell);
-                setFocus((now) => ({
-                  lng,
-                  lat,
-                  request: (now?.request ?? 0) + 1,
-                }));
-              }}
-            />
-            <FactorTree
-              factors={state.bundle.manifest.factors}
-              indicators={state.bundle.manifest.indicators}
-              profile={profile}
-              layout={layout}
-              onChange={setProfile}
-              onLayout={(next) => {
-                setLayout(next);
-                saveLayout(next, browserStorage());
-              }}
-              onReset={() => setProfile({ weights: {} })}
-            />
-            <div className="mt-4 border-t border-neutral-300 pt-3">
-              <LimitsPanel
-                bundle={state.bundle}
-                profile={profile}
-                onChange={setProfile}
-              />
-            </div>
-          </aside>
-        )}
-        {hover && hovered && (
+        {state.status === "ready" &&
+          (phone ? (
+            <aside
+              aria-label="Your preferences"
+              className={`absolute inset-x-0 bottom-0 z-10 max-h-[66%] flex-col rounded-t-xl bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.25)] landscape:max-h-[50%] ${chosen ? "hidden" : "flex"}`}
+            >
+              <button
+                type="button"
+                aria-expanded={sheetOpen}
+                className="flex h-12 w-full shrink-0 items-center justify-between px-4 text-left font-medium"
+                onClick={() => setSheetOpen(!sheetOpen)}
+              >
+                What matters to you
+                <span aria-hidden="true">{sheetOpen ? "⌄" : "⌃"}</span>
+              </button>
+              {/* Shut, not removed, so that what the user had opened inside is still there. */}
+              <div
+                hidden={!sheetOpen}
+                className="min-h-0 overflow-y-auto p-3 pt-0"
+              >
+                {preferences}
+              </div>
+            </aside>
+          ) : (
+            <aside
+              aria-label="Your preferences"
+              className="absolute left-4 top-4 z-10 max-h-[calc(100%-15.5rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
+            >
+              {preferences}
+            </aside>
+          ))}
+        {hover && hovered && !phone && (
           <div
             data-testid="quick-look"
             className="pointer-events-none absolute z-10 w-52 rounded bg-white/95 p-3 shadow"
@@ -291,7 +327,13 @@ export function App() {
             <QuickLook {...hovered} />
           </div>
         )}
-        {chosen && <WhyPanel {...chosen} onClose={() => setSelected(null)} />}
+        {chosen && (
+          <WhyPanel
+            {...chosen}
+            phone={phone}
+            onClose={() => setSelected(null)}
+          />
+        )}
         {state.status === "ready" && (
           <Legend
             title={viewName ? `${viewName} score` : "Livability score"}
@@ -300,6 +342,7 @@ export function App() {
             options={viewChoices}
             view={viewName ? view : null}
             note={viewNote}
+            phone={phone}
             onView={setView}
             opacity={opacity}
             onOpacity={setOpacity}
@@ -313,6 +356,10 @@ export function App() {
         >
           <details>
             <summary className="cursor-pointer">About the data</summary>
+            <p>
+              Basemap: OpenFreeMap, © OpenMapTiles, with data from OpenStreetMap
+              contributors.
+            </p>
             {/* Datasets from one publisher often share a line of credit: show each line once. */}
             {[
               ...new Set(

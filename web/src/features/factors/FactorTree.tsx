@@ -35,6 +35,7 @@ export function FactorTree({
   indicators = [],
   profile,
   layout,
+  heading = true,
   onChange,
   onLayout,
   onReset,
@@ -45,6 +46,8 @@ export function FactorTree({
   profile: Profile;
   /** How the factors are drawn. */
   layout: Layout;
+  /** Whether to show the heading, which a phone's sheet shows on its own handle. */
+  heading?: boolean;
   onChange: (profile: Profile) => void;
   onLayout: (layout: Layout) => void;
   /** Returns every weight to its default. */
@@ -111,7 +114,9 @@ export function FactorTree({
   return (
     <section aria-label="What matters to you" className="space-y-3 text-sm">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="font-medium">What matters to you</h2>
+        <h2 className={heading ? "font-medium" : "sr-only"}>
+          What matters to you
+        </h2>
         <fieldset className="m-0 flex min-w-0 overflow-hidden rounded border border-neutral-400 p-0 text-xs">
           <legend className="sr-only">Draw the factors as</legend>
           {LAYOUTS.map(({ layout: option, name }) => (

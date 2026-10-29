@@ -90,6 +90,7 @@ Each milestone ends when its checks pass. The order follows what depends on what
 - [x] **Layers of detail.** Quick look, why this score, inside a factor and the evidence layer; the ranked neighbourhoods; a single-factor view (e.g. crime only).
   - [x] The evidence layer shows each measured indicator's raw value, scoring curve, dataset, date, licence and evidence type.
   - [x] Neighbourhood names come from the House of Commons Library's MSOA names, and the top neighbourhoods are listed by name and score.
+  - [x] The phone layout: below 768 px of width the panels become bottom sheets and the map shows above them ([spec](specs/2026-10-29-phone-layout.md)). Playwright tests run in a phone-sized window.
   - [x] A single-factor view: the legend's "Show on the map" colours the map by one factor's or one measured indicator's own score ([spec](specs/2026-10-29-map-by-factor.md)). Its list is made from the manifest alone, and a test compares it with the manifest.
   - Check: contributions shown in the app add up to the livability score, on the same cases as the golden ones.
 - [ ] **Validation and release.** The QA report runs all its checks. The site is then released as a public static site, with the owner's go-ahead.

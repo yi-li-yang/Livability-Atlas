@@ -21,7 +21,7 @@ The same rule applies across the app:
 - Scoring curves and data-coverage settings sit behind "Advanced".
 - Dataset credits sit behind "About the data".
 - The legend's "Show on the map" list colours the map by one factor's or one measured indicator's own score in place of the livability score ([spec](specs/2026-10-29-map-by-factor.md)). The ranking, the top neighbourhoods and the hard limits stay as they are, and the quick look and the reasons add the score on the map beside the livability score.
-- On a phone, panels become bottom sheets that slide up over the map.
+- On a phone (under 768 px wide), panels become bottom sheets ([spec](specs/2026-10-29-phone-layout.md)): the preferences are a bar along the bottom that opens, the legend moves across the top, tapping a cell opens the reasons as a sheet, and there is no quick look, since a phone has no hover.
 
 ## Visual factor tree
 

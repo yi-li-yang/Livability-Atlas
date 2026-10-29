@@ -14,6 +14,7 @@ export function Legend({
   options,
   view,
   note,
+  phone = false,
   onView,
   opacity,
   onOpacity,
@@ -27,6 +28,8 @@ export function Legend({
   view: string | null;
   /** Something to say about what is shown, such as that it has no data. */
   note?: string | null;
+  /** Whether to lay it out for a phone: across the top of the map, with the opacity tucked away. */
+  phone?: boolean;
   onView: (view: string | null) => void;
   /** How strongly the cells show over the map, from 0 to 1. */
   opacity: number;
@@ -41,13 +44,37 @@ export function Legend({
     };
     groups.set(option.groupId, { ...group, items: [...group.items, option] });
   }
+  const opacityControl = (
+    <>
+      <input
+        id="cell-opacity"
+        type="range"
+        min={0}
+        max={100}
+        step={5}
+        value={Math.round(opacity * 100)}
+        aria-label="Cell opacity"
+        aria-valuetext={`${Math.round(opacity * 100)}%`}
+        className="block w-full"
+        onChange={(event) => onOpacity(Number(event.target.value) / 100)}
+      />
+      <span className="flex justify-between">
+        <span>Map</span>
+        <span>Cells</span>
+      </span>
+    </>
+  );
   return (
     <section
       aria-label="Legend"
-      className="absolute bottom-6 left-4 z-10 w-56 rounded bg-white/90 p-3 text-sm shadow"
+      className={
+        phone
+          ? "absolute left-2 right-2 top-2 z-10 rounded bg-white/90 p-2 text-sm shadow"
+          : "absolute bottom-6 left-4 z-10 w-56 rounded bg-white/90 p-3 text-sm shadow"
+      }
     >
       <label className="mb-2 block text-xs text-neutral-600">
-        Show on the map
+        <span className={phone ? "sr-only" : undefined}>Show on the map</span>
         <select
           aria-label="Show on the map"
           value={view ?? ""}
@@ -68,7 +95,7 @@ export function Legend({
           ))}
         </select>
       </label>
-      <h2 className="mb-1 font-medium">{title}</h2>
+      <h2 className={phone ? "sr-only" : "mb-1 font-medium"}>{title}</h2>
       <div
         data-testid="legend-bar"
         className="h-3 rounded"
@@ -83,24 +110,20 @@ export function Legend({
           {note}
         </p>
       )}
-      <label className="mt-2 block text-xs text-neutral-600">
-        Cell opacity
-        <input
-          type="range"
-          min={0}
-          max={100}
-          step={5}
-          value={Math.round(opacity * 100)}
-          aria-label="Cell opacity"
-          aria-valuetext={`${Math.round(opacity * 100)}%`}
-          className="block w-full"
-          onChange={(event) => onOpacity(Number(event.target.value) / 100)}
-        />
-        <span className="flex justify-between">
-          <span>Map</span>
-          <span>Cells</span>
-        </span>
-      </label>
+      {phone ? (
+        <details className="mt-1 text-xs text-neutral-600">
+          <summary className="cursor-pointer">Cell opacity</summary>
+          {opacityControl}
+        </details>
+      ) : (
+        <label
+          htmlFor="cell-opacity"
+          className="mt-2 block text-xs text-neutral-600"
+        >
+          Cell opacity
+          {opacityControl}
+        </label>
+      )}
     </section>
   );
 }
