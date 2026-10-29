@@ -129,7 +129,8 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Data bundle | The files the data pipeline publishes for one region. The web app reads only these | `data/published/london/…` |
 | Manifest | The index file of a data bundle: factor tree, scoring curves, datasets, dates | `manifest.json` |
 | Station travel-time matrix | Public-transport times between every pair of stations in a region, including average waits and changes | `station-matrix.parquet` |
-| QA report | The checks run on each build, and their results | `qa.md` |
+| QA report | The checks run on each build, and their results. A build with a failing check is not published | `qa.md` |
+| Relation | Two columns from independent datasets that should rise and fall together, checked in the QA report by their rank correlation | The walk to a station and the PTAL band |
 | PTAL | TfL's Public Transport Accessibility Level, from 0 (worst) to 6b (best) | |
 | Brand tag | A label in OpenStreetMap or Overture that links a shop to its company | `brand:wikidata` |
 
@@ -144,7 +145,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Walking skeleton | The thinnest version that runs end to end | One factor from download to coloured map |
 | Recipe | A written checklist for a repeated job | Add a factor |
 | Golden test cases | Fixed examples of input and expected score that both scoring engines must reproduce | |
-| Known-fact assertion | An automated test that checks the data against a fact anyone can verify | Heathrow's surroundings have the highest aircraft noise |
+| Known-fact assertion | A check of the data against a fact anyone can verify, run by the QA report on every build. A region lists its own | Heathrow's surroundings have the highest aircraft noise |
 | Decision register | The living list of project decisions | `docs/decisions.md` |
 | Backlog | The living list of features to add | `docs/backlog.md` |
 | AGPL-3.0 | The code licence: open source, and anyone running a modified copy as a web service must publish their changes | |

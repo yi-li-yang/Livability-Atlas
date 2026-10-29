@@ -100,12 +100,14 @@ def build_region(
     catalogue_dir: Path = CATALOGUE_DIR,
     data_dir: Path | None = None,
     commercial: bool = False,
+    publish: bool = True,
 ) -> Path:
     """Fetches what the region needs (each download is cached), and builds its bundle.
 
     `data_dir` defaults to `ATLAS_DATA_DIR`, or `data/` in the repository. The build is
     non-commercial, and uses every dataset. A `commercial` build leaves out the indicators from
-    datasets without a licence for commercial use (D07).
+    datasets without a licence for commercial use (D07). With `publish` false the bundle is
+    written but not published, for the QA report to check it first (the command does this).
     """
     data_dir = data_dir or default_data_dir()
     catalogue = load_catalogue(catalogue_dir)
@@ -151,6 +153,7 @@ def build_region(
         choices=choices,
         neighbourhoods=_neighbourhoods(cells, data_dir),
         out_dir=data_dir / "published",
+        publish=publish,
     )
 
 

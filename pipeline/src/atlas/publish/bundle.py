@@ -1,8 +1,9 @@
 """Writes a region's data bundle: `manifest.json` and `cells.parquet`.
 
 The bundle lives in `<out_dir>/<region>/<version>/`, and `<out_dir>/<region>/latest.json` names the
-newest version. The version is a hash of the content, so the same data always gives the same
-bundle, byte for byte.
+newest published version. The version is a hash of the content, so the same data always gives the
+same bundle, byte for byte. The QA report (`qa.md`) is written beside them afterwards and is not
+part of the hash.
 """
 
 import hashlib
@@ -168,9 +169,12 @@ def write_bundle(
     choices: dict[str, list[Choice]] | None = None,
     neighbourhoods: Neighbourhoods | None = None,
     out_dir: Path,
+    publish: bool = True,
 ) -> Path:
     """Writes the bundle and returns its folder. `columns` maps indicator ids to raw values, and
-    `choices` maps the ids of choice indicators to their options, each with raw values."""
+    `choices` maps the ids of choice indicators to their options, each with raw values. With
+    `publish` false the bundle is written but `latest.json` is left alone, for the QA report to
+    check it first (`publish_latest` moves the pointer afterwards)."""
     choices = choices or {}
     if neighbourhoods is not None:
         if len(neighbourhoods.of_cell) != len(cells):
@@ -226,7 +230,48 @@ def write_bundle(
     bundle.mkdir(parents=True, exist_ok=True)
     (bundle / "cells.parquet").write_bytes(parquet)
     (bundle / "manifest.json").write_text(_json(manifest), encoding="utf-8", newline="\n")
-    (out_dir / region_id / "latest.json").write_text(
-        json.dumps({"version": digest}) + "\n", encoding="utf-8", newline="\n"
-    )
+    if publish:
+        publish_latest(out_dir / region_id, digest)
     return bundle
+
+
+def publish_latest(region_dir: Path, version: str) -> None:
+    """Points `latest.json`, which the web app follows, at a written version. It also records the
+    version it replaced as `previous`, which the QA report compares against; publishing the
+    version that is already the latest keeps the `previous` it had."""
+    if not (region_dir / version / "manifest.json").exists():
+        raise ValueError(f"there is no bundle {version} in {region_dir}")
+    record = {"version": version}
+    replaced = previous_version(region_dir, version)
+    if replaced is not None:
+        record["previous"] = replaced
+    (region_dir / "latest.json").write_text(
+        json.dumps(record) + "\n", encoding="utf-8", newline="\n"
+    )
+
+
+def _pointer(region_dir: Path) -> dict[str, Any] | None:
+    """What `latest.json` holds, or None where it is missing or cannot be read."""
+    try:
+        record = json.loads((region_dir / "latest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(record, dict) or not isinstance(record.get("version"), str):
+        return None
+    return record
+
+
+def published_version(region_dir: Path) -> str | None:
+    """The version that `latest.json` names, or None where there is none."""
+    record = _pointer(region_dir)
+    return record["version"] if record is not None else None
+
+
+def previous_version(region_dir: Path, version: str) -> str | None:
+    """The version that publishing `version` replaces: the latest one now, or if `version` is the
+    latest already, the one it replaced. None where there is none."""
+    record = _pointer(region_dir)
+    if record is None:
+        return None
+    replaced = record.get("previous") if record["version"] == version else record["version"]
+    return replaced if isinstance(replaced, str) else None

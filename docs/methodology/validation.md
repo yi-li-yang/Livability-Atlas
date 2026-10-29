@@ -25,6 +25,15 @@ Status: draft. This document describes how the project checks its inputs and its
 
 Every build writes `qa.md` into its data bundle. For each measured indicator it reports coverage, value ranges, nulls, the result of every check, and changes since the previous build. A build with a failing check is not published.
 
+It is built ([the spec](../specs/2026-10-29-qa-report.md)). `atlas build` runs it on the bundle it has just written and moves `latest.json`, which publishes the bundle, only if no check failed. `atlas qa <region>` checks any built version again, in seconds, because it reads only the bundle. What it checks:
+
+- **The bundle's structure:** the rows, the cells, the columns and the neighbourhoods agree with the manifest.
+- **Datasets:** every dataset an indicator cites is listed, credited, and licensed (an unknown licence is a warning).
+- **Values:** none is infinite or negative, a percentage is within 0 to 100, an index within 0 to 1, a text value is one that its curve can score, and no indicator is empty, mostly empty or constant.
+- **Relations** (cross-checks): pairs of columns from independent datasets whose rank correlation must have the expected sign and strength, such as the walk to a station against the PTAL band.
+- **Known facts:** a region's own list, in `datasets/cities/<region>/facts.py`.
+- **Method tests** stay in the test suite, with the golden cases. **Dataset reproduction checks** (crime counts per borough against Police.uk's totals) need the raw files, so they belong to each indicator's own tests.
+
 ## Known traps
 
 - **Edge effects.** The buffer zone handles them ([scoring.md](scoring.md#1-spatial-framework)).

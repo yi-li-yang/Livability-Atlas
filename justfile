@@ -47,6 +47,10 @@ generate:
 data region:
     cd pipeline; uv run atlas build {{region}}
 
+# Check a built bundle again and write its QA report: `just qa london`, or with `--version <v> --publish`
+qa region *options:
+    cd pipeline; uv run atlas qa {{region}} {{options}}
+
 # Build the web app
 build:
     cd web; npm run build
