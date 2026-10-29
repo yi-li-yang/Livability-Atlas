@@ -14,19 +14,24 @@
 ## Next
 
 1. Phase 1, scoring and the visual factor tree ([roadmap](roadmap.md#phase-1-london-mvp)): the profile in browser storage and the URL, then the sunburst layout with its switch (the engines, whole-region scoring and the treemap with sliders are done). Every other Phase 1 milestone is detailed there, with the check that closes it.
-2. Close Phase 0: its one open exit criterion is that a fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and this file alone. Only a fresh session can show that, so it waits for the next one to try.
-3. Checks only the owner can make, none of them blocking the licence side any more (the project is non-commercial for now, D07):
+2. User-choice indicators (Your community, Faith, and later cuisines): design how a bundle holds one column per option and how the manifest and the app pick one, then build them from Census 2021 (ethnic group, religion, country of birth, language, age) and the places layer.
+3. Close Phase 0: its one open exit criterion is that a fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and this file alone. Only a fresh session can show that, so it waits for the next one to try.
+4. Checks only the owner can make, none of them blocking the licence side any more (the project is non-commercial for now, D07):
    - Sign in with a GOV.UK One Login and download the domestic energy performance certificates (CSV, England and Wales) into `data/raw/epc/`, so that spike S3 can finish the price per m².
    - Register for the three timetable sources that r5py needs (the Bus Open Data Service, National Rail Open Data and TfL's open data portal), keep the credentials in `.env`, and then install JDK 21. Until then the station matrix can only be built from the TfL Journey Planner API ([S4](spikes/S4-routing.md)).
    - Ask TfL's WebCAT team for its latest PTAL data, since the open release is from 2015, before the Elizabeth line (spike S1).
    - For a future commercial edition only: the LAEI's licence (the GLA Air Quality Team), Defra's background maps, the ONS Postcode Directory and Royal Mail's terms on matching addresses. Each dataset's `commercial_use` marking records where it stands.
-4. Optionally, upgrade Git for Windows from 2.41 and set `core.longpaths true`.
+5. Optionally, upgrade Git for Windows from 2.41 and set `core.longpaths true`.
 
 ## Blocked
 
 - Nothing.
 
 ## Log
+
+### 2026-10-29
+
+- **Community and people: diversity.** Simpson's index over Census 2021's 19 detailed ethnic groups (table TS021 by output area, Open Government Licence, fetched from Nomis and kept): the chance that two residents picked at random belong to different groups, from 0 (one group) towards 1. Each cell's residents in each group are its output areas' counts shared by area, and the index is taken on those, not averaged from the areas' indexes (a test pins the difference). `crime.residents_by_cell` now wraps `counts_shared_by_cell`, which shares many counts with one overlay, so the 19 groups cost one. London: median cell 0.74 (middle half 0.57 to 0.82; 0.07 to 0.91 overall), every cell has a value; East Ham 0.82, Whitechapel 0.81, Soho 0.78, Southall 0.65 (mostly one group), Biggin Hill 0.25. The percentile curve is the catalogue's. Your community and Faith are user choices (D18) and stay unbuilt: the bundle format has one column for each indicator, and a picker needs one column for each option (an ethnic group, a religion, a faith's places) and a way for the manifest to list them and for the app to read the chosen one, which is its own design. 31 of the 41 measured indicators are now in the bundle.
 
 ### 2026-10-28
 

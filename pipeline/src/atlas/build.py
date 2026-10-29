@@ -17,6 +17,7 @@ import pandas as pd
 from atlas.catalogue.load import Catalogue, load_catalogue
 from atlas.datasets.cities.london import laei, ptal
 from atlas.datasets.countries.gb import (
+    census_ethnic_group,
     census_residents,
     code_point,
     defra_noise,
@@ -38,6 +39,7 @@ from atlas.datasets.world import openstreetmap, overture
 from atlas.indicators import (
     air_quality,
     amenities,
+    community,
     connectivity,
     crime,
     education,
@@ -106,6 +108,7 @@ def build_region(
     columns.update(_noise_columns(cells, region.grid.resolution, data_dir, postcodes))
     columns.update(_housing_columns(region_id, cells, data_dir))
     columns.update(_connectivity_columns(region_id, cells, data_dir))
+    columns.update(_community_columns(cells, data_dir))
     columns.update(_air_columns(cells, region.grid.resolution, data_dir))
     if commercial:
         for indicator in needs_commercial_licence(catalogue, list(columns)):
@@ -191,6 +194,17 @@ def _connectivity_columns(
         "gigabit-broadband": [None if pd.isna(v) else float(v) for v in gigabit],
         "5g-coverage": [None if pd.isna(v) else float(v) for v in five_g],
     }
+
+
+def _community_columns(cells: list[str], data_dir: Path) -> dict[str, Sequence[Any]]:
+    """Community and people: how mixed each cell's residents are by ethnic group (Census 2021, by
+    output area, shared by area)."""
+    areas = output_areas.read_boundaries(
+        output_areas.fetch(data_dir, bounds_bng(cells, margin=2000))
+    )
+    groups = census_ethnic_group.read_groups(census_ethnic_group.fetch(data_dir))
+    index = community.diversity(areas, groups, cells)
+    return {"diversity": [None if pd.isna(v) else float(v) for v in index]}
 
 
 def _air_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[str, Sequence[Any]]:

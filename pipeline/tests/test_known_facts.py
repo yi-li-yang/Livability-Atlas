@@ -178,3 +178,11 @@ def test_most_london_homes_can_get_gigabit_and_5g(bundle):
     assert 85 < gigabit.median() <= 100  # Ofcom reports about nine in ten homes
     assert five_g.median() > 85
     assert five_g.nunique() <= 33  # one value for each borough
+
+
+def test_diversity_is_high_in_east_london_and_low_on_the_green_edge(bundle):
+    diversity = bundle["diversity"]
+    assert diversity.notna().all() and diversity.between(0, 1).all()
+    east_ham, biggin_hill = cell_at(51.5390, 0.0550), cell_at(51.3080, 0.0330)
+    assert diversity[east_ham] > 0.75  # Newham is among England's most mixed boroughs
+    assert diversity[biggin_hill] < 0.4  # mostly one group
