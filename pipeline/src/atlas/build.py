@@ -26,6 +26,7 @@ from atlas.datasets.countries.gb import (
     gias,
     mhclg_council_tax,
     naptan,
+    nhs_gp,
     nhs_ods,
     ofcom,
     ons_local_authorities,
@@ -277,7 +278,7 @@ def _walking_columns(
     network: walking.Network, cells: list[str], data_dir: Path, postcodes: pd.DataFrame
 ) -> dict[str, Sequence[Any]]:
     """The indicators that are walks along streets (spike S6): minutes to the nearest station,
-    school, GP practice and way into a park."""
+    school, GP practice and way into a park, and the patients per GP within a walk."""
     stations = naptan.read_stations(naptan.fetch(data_dir))
     minutes = transport.station_minutes(network, stations, cells)
     columns: dict[str, Sequence[Any]] = {
@@ -291,6 +292,15 @@ def _walking_columns(
     columns["gp-walk"] = [
         None if pd.isna(m) else float(m) for m in health.gp_minutes(network, places, cells)
     ]
+    practices = health.located_practices(nhs_gp.read_practices(*nhs_gp.fetch(data_dir)), postcodes)
+    ratio = health.patients_per_gp(
+        network,
+        practices[["Easting", "Northing"]].to_numpy(dtype=float),
+        practices["patients"].to_numpy(dtype=float),
+        practices["gps"].to_numpy(dtype=float),
+        cells,
+    )
+    columns["gp-list-size"] = [None if pd.isna(v) else float(v) for v in ratio]
     gates = os_open_greenspace.read_access_points(
         os_open_greenspace.fetch(data_dir), bounds_bng(cells, margin=3000)
     )

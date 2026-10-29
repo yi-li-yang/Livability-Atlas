@@ -1148,32 +1148,35 @@ factors:
             name: Patients per GP
             description: How many registered patients each full-time GP nearby serves.
             default_weight: 3
-            status: researched
+            status: built
             unit: patients per full-time GP
             preference_type: fixed
+            curve: {shape: ramp, t0: 5559, t1: 1800}
             curve_reason: >-
-              The good end has a source and the other end does not. The
-              Healthy Urban Development Unit's planning model (NHS London
-              HUDU) plans for one GP per 1,800 patients, so 1,800 is where the
-              score would start to fall. No source says where access becomes
-              poor. An Oxford study of NHS England's workforce data, Counting
-              general practitioners (data from 2015 to 2024), found the 5th to
-              95th percentile of patients per fully qualified full-time GP
-              ran from 1,357 to 5,559 across England. The other end waits for
-              how this measure spreads across London's hex cells once the data
-              is built.
+              Both ends have a source. The Healthy Urban Development Unit's
+              planning model (NHS London HUDU) plans for one GP per 1,800
+              patients, so 1,800 scores in full. An Oxford study of NHS
+              England's workforce data, Counting general practitioners (data
+              from 2015 to 2024), found the 95th percentile of patients per
+              fully qualified full-time GP across England to be 5,559, so that
+              scores 0: it is a mark of the worst-served 1 in 20, not a
+              threshold of harm, which no source sets. London's cells agree
+              (built data: median 2,394, 95th percentile 4,459).
             evidence_type: indirect
             comparable_across_regions: false
             method: >-
               For each hex cell, the registered patients of every GP practice
-              within a 15-minute walk (1,200 m at 4.8 km/h), divided by those
-              practices' full-time fully qualified GPs (trainees excluded),
-              from the latest month. It is indirect: it shows how easy an
-              appointment is likely to be, and does not count appointments. A
-              cell with no practice in reach has no value here, because the
-              walk to a GP practice already scores it. The register covers
-              England only.
-            datasets: [nhs-gp-registered-patients, nhs-gp-workforce, nhs-ods, os-code-point-open]
+              within a 15-minute walk (1,200 m at 4.8 km/h, along streets and
+              paths), divided by those practices' full-time fully qualified GPs
+              (partners, salaried GPs, locums and retainers; trainees
+              excluded), from September 2026. A practice is placed at its main
+              postcode, and its branch surgeries' patients are counted there.
+              It is indirect: it shows how easy an appointment is likely to
+              be, and does not count appointments. A cell with no practice in
+              reach, or whose practices have no GP on record, has no value
+              here, because the walk to a GP practice already scores the
+              first. The register covers England only.
+            datasets: [nhs-gp-registered-patients, nhs-gp-workforce, os-code-point-open]
       - id: ae-distance
         name: Distance to A&E
         description: How far the nearest hospital with a 24-hour emergency department is.

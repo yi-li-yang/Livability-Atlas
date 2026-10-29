@@ -188,6 +188,14 @@ def synthetic_gp_practices(tmp_path: Path) -> tuple[Path, Path]:
     return practices, branches
 
 
+def synthetic_gp_lists() -> pd.DataFrame:
+    """The practice of `synthetic_gp_practices` with 6,000 patients and 2 GPs."""
+    return pd.DataFrame(
+        {"Postcode": ["W1 1AA"], "patients": [6000], "gps": [2.0]},
+        index=pd.Index(["A1"], name="code"),
+    )
+
+
 def synthetic_postcodes(tmp_path: Path) -> Path:
     """The place of that practice's postcode, in the east of AREA."""
     east = TO_BNG.transform(-0.1285, 51.5120)
@@ -421,6 +429,12 @@ def use_synthetic_data(monkeypatch, tmp_path):
     gp_files, postcodes = synthetic_gp_practices(tmp_path), synthetic_postcodes(tmp_path)
     monkeypatch.setattr(build_module.nhs_ods, "fetch", lambda data_dir: gp_files)
     monkeypatch.setattr(build_module.code_point, "fetch", lambda data_dir: postcodes)
+    monkeypatch.setattr(
+        build_module.nhs_gp, "fetch", lambda data_dir: (tmp_path / "p", tmp_path / "w")
+    )
+    monkeypatch.setattr(
+        build_module.nhs_gp, "read_practices", lambda patients, workforce: synthetic_gp_lists()
+    )
     monkeypatch.setattr(
         build_module.ea_flood_risk,
         "fetch",
@@ -723,3 +737,14 @@ def test_the_bundle_holds_the_diversity_of_each_cells_residents(monkeypatch, tmp
     assert table[lng > -0.130]["diversity"].median() == pytest.approx(0.75)
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert "diversity" in {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_patients_per_gp_of_the_practices_within_a_walk(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    assert set(table["gp_list_size"].dropna()) == {3000.0}  # 6,000 patients over 2 GPs
+    assert table[lng > -0.130]["gp_list_size"].notna().all()  # next to the practice
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "gp-list-size" in {i["id"] for i in manifest["indicators"]}
