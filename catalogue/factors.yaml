@@ -322,7 +322,7 @@ factors:
             name: Cafés
             description: The number of cafés within a 10-minute walk.
             default_weight: 3
-            status: spiked
+            status: built
             unit: cafés
             preference_type: fixed
             curve: {shape: percentile, better: higher}
@@ -382,7 +382,7 @@ factors:
             description: The number of restaurants within a 10-minute walk.
             default_weight: 3
             scales: [within-city]
-            status: spiked
+            status: built
             unit: restaurants
             preference_type: fixed
             curve: {shape: percentile, better: higher}
@@ -396,7 +396,7 @@ factors:
             description: The number of different cuisines served by restaurants within a 10-minute walk.
             default_weight: 3
             scales: [within-city]
-            status: spiked
+            status: built
             unit: cuisines
             preference_type: fixed
             curve: {shape: percentile, better: higher}
@@ -426,7 +426,7 @@ factors:
             description: The share of the food businesses within a 10-minute walk rated good or very good for hygiene.
             default_weight: 3
             scales: [within-city]
-            status: spiked
+            status: built
             unit: "% of food businesses"
             preference_type: fixed
             curve: {shape: ramp, t0: 0, t1: 100}
@@ -439,7 +439,7 @@ factors:
             method: >-
               The share of the food businesses with a rating within a 10-minute
               walk along streets and paths (800 m at 4.8 km/h) that are rated 4
-              or 5. Businesses awaiting inspection are left out. Scotland rates
+              or 5. Businesses awaiting inspection are left out, and so is a cell with fewer than 5 rated businesses in reach, whose share would say little. Scotland rates
               food hygiene under a different scheme, so the share does not
               compare across regions. Spike S8 found that 98% of London's homes
               cells have 10 or more rated businesses within 800 m, and that the

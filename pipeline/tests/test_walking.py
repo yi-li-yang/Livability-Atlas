@@ -155,3 +155,57 @@ class TestSeparateFragments:
             places=np.array([[40.0, 30.0]]), origins=np.array([[400.0, 0.0]])
         )
         assert np.isfinite(minutes[0])
+
+
+class TestPlacesWithin:
+    """`LINE` is a street from (0, 0) to (400, 0) with a node every 80 m."""
+
+    def test_the_places_within_the_walk_are_found_by_following_the_street(self):
+        net = street(LINE)
+        places = np.array([[0.0, 0.0], [160.0, 0.0], [400.0, 0.0]])
+        found = net.places_within(places, origins=np.array([[80.0, 0.0]]), minutes=2.0)
+        assert found[0].tolist() == [0, 1]  # 80 m and 80 m away; the third is 320 m away
+
+    def test_a_walk_of_exactly_the_limit_counts(self):
+        net = street(LINE)
+        found = net.places_within(np.array([[160.0, 0.0]]), np.array([[0.0, 0.0]]), minutes=2.0)
+        assert found[0].tolist() == [0]
+
+    def test_the_straight_stretch_off_the_street_counts_towards_the_limit(self):
+        net = street(LINE)
+        places = np.array([[160.0, 40.0]])  # 40 m off the street
+        near = net.places_within(places, np.array([[0.0, 0.0]]), minutes=2.5)  # 200 m: 160 + 40
+        far = net.places_within(places, np.array([[0.0, 0.0]]), minutes=2.4)  # 192 m
+        assert near[0].tolist() == [0] and far[0].tolist() == []
+
+    def test_a_place_close_in_a_straight_line_but_far_round_by_the_street_is_out_of_reach(self):
+        # A U of street: 100 m across in a straight line, 580 m (7.25 minutes) round the U.
+        u = [(0, 0.0, 0.0), (1, 240.0, 0.0), (2, 240.0, 100.0), (3, 0.0, 100.0)]
+        net = street(u)
+        place, origin = np.array([[0.0, 100.0]]), np.array([[0.0, 0.0]])
+        assert net.places_within(place, origin, minutes=7.0)[0].tolist() == []
+        assert net.places_within(place, origin, minutes=7.5)[0].tolist() == [0]
+
+    def test_every_origin_gets_its_own_answer_and_origins_may_share_a_node(self):
+        net = street(LINE)
+        places = np.array([[0.0, 0.0], [400.0, 0.0]])
+        origins = np.array([[10.0, 0.0], [20.0, 0.0], [390.0, 0.0]])
+        found = net.places_within(places, origins, minutes=1.0)
+        assert [f.tolist() for f in found] == [[0], [0], [1]]
+
+    def test_several_groups_of_places_are_answered_together_as_they_would_be_apart(self):
+        net = street(LINE)
+        a = np.array([[0.0, 0.0], [160.0, 0.0]])
+        b = np.array([[240.0, 0.0], [400.0, 0.0], [80.0, 30.0]])
+        origins = np.array([[80.0, 0.0], [320.0, 0.0]])
+        together = net.groups_within([a, b], origins, minutes=2.0)
+        for group, places in enumerate((a, b)):
+            apart = net.places_within(places, origins, minutes=2.0)
+            assert [t.tolist() for t in together[group]] == [x.tolist() for x in apart]
+
+    def test_the_straight_stretch_from_an_origin_off_the_street_counts_too(self):
+        net = street(LINE)
+        place = np.array([[160.0, 0.0]])
+        origin = np.array([[0.0, 40.0]])  # 40 m off the street: 200 m in all
+        assert net.places_within(place, origin, minutes=2.5)[0].tolist() == [0]
+        assert net.places_within(place, origin, minutes=2.4)[0].tolist() == []

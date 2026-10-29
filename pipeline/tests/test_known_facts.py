@@ -149,3 +149,13 @@ def test_central_london_is_near_everything_and_the_edge_is_not(bundle):
     assert (
         bundle["groceries"].median() < bundle["pharmacies"].median() < bundle["libraries"].median()
     )
+
+
+def test_the_food_scene_is_dense_in_soho_and_thin_in_chingford(bundle):
+    soho, chingford = bundle.loc[SOHO], bundle.loc[cell_at(51.6330, -0.0100)]
+    for column in ("cafes", "restaurant_choice", "cuisine_variety"):
+        assert bundle[column].notna().all()
+        assert soho[column] > 10 * chingford[column] or soho[column] > 50
+    assert soho["restaurant_choice"] > 500
+    assert 70 < bundle["food_hygiene"].median() < 95  # the share rated 4 or 5, S8 found 87
+    assert bundle["food_hygiene"].notna().mean() > 0.6  # cells with 5 or more rated businesses
