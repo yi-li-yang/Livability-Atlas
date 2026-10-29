@@ -75,7 +75,7 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [x] The factor tree as a treemap with a slider for each factor, drill-down, a "Not counted" list and the Salt colours, from the manifest's default weights. Playwright tests resize, drill, count again and recolour the map.
   - [x] Interface layers 2 to 4: a quick look on hover (score, rank, strengths, weakness) and a panel of reasons on click, with each factor opening into its parts.
   - [x] The profile lives in the browser's storage and in the link's fragment, never on a server (D08): weights survive a reload, a link carries them to a friend, and "Reset to defaults" clears both. A bad link is ignored, not an error.
-  - [ ] The sunburst layout, with a switch between it and the treemap (D17).
+  - [x] The sunburst layout, with a switch between it and the treemap (D17): "Boxes" and "Rings" in the app, the choice kept in the browser. Playwright tests switch, resize, drill down and go back in the rings.
   - [x] The whole region is scored from the factor tree in the manifest (`web/src/scoring/region.ts`), equal to the one-cell engine in a test, and the map is coloured by the livability score. Rescoring 17,000 cells over 10 factors and 40 measured indicators takes about 3 ms.
   - Check: the map recolours within about 100 ms of a weight change over about 17,000 cells, measured in a test. The scoring half is measured in a test (under 100 ms); the weight sliders that trigger it are not built yet.
 - [ ] **MVP factors.** The remaining factors, each added through the factor recipe.

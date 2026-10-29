@@ -29,7 +29,8 @@ The preferences panel draws the factor tree, and each factor's area is its share
 - **Resizing.** Moving a weight slider resizes that factor at once, and the others shrink or grow to match. This is exactly how weights act in the score.
 - **Drill-down.** Clicking a factor zooms into its sub-factors, which resize the same way. "Back" returns to the level above.
 - **Weight 0.** A factor at weight 0 leaves the drawing and moves to a short "not counted" list, from which it can be brought back.
-- **Layout.** A treemap (nested rectangles) or a sunburst (rings around a centre), with a switch between them. The treemap shows first (D17).
+- **Layout.** A treemap (nested rectangles) or a sunburst (rings around a centre), with a switch between them. The treemap shows first (D17). The app calls them "Boxes" and "Rings", the switch sits beside the heading, and the choice is kept in the browser and not in the link, since it is how the user likes to see the factors and not what they want.
+- **The rings.** An inner ring of the factors at this level, each as wide as its share of the weight, with the counted sub-factors of each in a lighter ring outside it, sharing its angle. The centre names the level. Pointing at an arc names it and gives its share, clicking an arc opens the factor (an outer arc opens its factor and the sub-factor inside it), and clicking the centre goes up a level. The sliders beside the drawing stay the way to set a weight, and the way to use a keyboard.
 - **Colour.** Each factor has its own colour, from the categorical palette of the Salt design system. Its sub-factors take a tint of it. The weights panel shows each colour beside its factor's name, so it doubles as the legend, and labels name every shape, so colour is never the only cue.
 
 ## Controls inside a factor
