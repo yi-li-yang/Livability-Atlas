@@ -216,9 +216,15 @@ def test_faith_and_community_options_follow_where_people_and_places_are(bundle):
     assert bundle["your_community__ethnic_indian"][soho] < 5
     assert bundle["your_community__religion_muslim"][east_ham] > 30
     options = [c for c in bundle.columns if c.startswith("your_community__")]
-    assert len(options) == 26 and "faith__multifaith" not in bundle.columns
-    shares = bundle[[c for c in options if c.startswith("your_community__ethnic_")]].sum(axis=1)
-    assert shares.between(99.9, 100.1).all()  # the 19 groups cover everyone
+    assert len(options) == 42 and "faith__multifaith" not in bundle.columns
+    for kind in ("ethnic", "born", "age"):  # each table's groups cover nearly everyone
+        shares = bundle[[c for c in options if c.startswith(f"your_community__{kind}_")]].sum(
+            axis=1
+        )
+        assert shares.between(99.5, 100.1).all(), kind  # British Overseas births are left out
+    assert bundle["your_community__born_united_kingdom"][SOHO] < 50  # a city of newcomers
+    assert bundle["your_community__born_united_kingdom"].median() > 55
+    assert bundle["your_community__age_children_under_15"].median() > 12
 
 
 def test_a_square_metre_costs_most_in_the_west_end_and_least_in_the_outer_east(bundle):

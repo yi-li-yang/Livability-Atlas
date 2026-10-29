@@ -433,6 +433,31 @@ def synthetic_religions() -> pd.DataFrame:
     )
 
 
+def synthetic_birth_places() -> pd.DataFrame:
+    """Residents by place of birth for the two output areas: the west one all born in the United
+    Kingdom, the east one half in Africa."""
+    return pd.DataFrame(
+        {"United Kingdom": [100.0, 50.0], "Africa": [0.0, 50.0]}, index=["W1", "E1"]
+    )
+
+
+def synthetic_ages() -> pd.DataFrame:
+    """Residents by five-year age band for the two output areas: the west one all children under
+    five, the east one all aged 85 and over."""
+    names = [
+        "Aged 4 years and under", "Aged 5 to 9 years", "Aged 10 to 14 years",
+        "Aged 15 to 19 years", "Aged 20 to 24 years", "Aged 25 to 29 years",
+        "Aged 30 to 34 years", "Aged 35 to 39 years", "Aged 40 to 44 years",
+        "Aged 45 to 49 years", "Aged 50 to 54 years", "Aged 55 to 59 years",
+        "Aged 60 to 64 years", "Aged 65 to 69 years", "Aged 70 to 74 years",
+        "Aged 75 to 79 years", "Aged 80 to 84 years", "Aged 85 years and over",
+    ]  # fmt: skip
+    table = pd.DataFrame(0.0, index=["W1", "E1"], columns=names)
+    table.loc["W1", "Aged 4 years and under"] = 100.0
+    table.loc["E1", "Aged 85 years and over"] = 100.0
+    return table
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -494,6 +519,14 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(
         build_module.census_religion, "read_groups", lambda path: synthetic_religions()
     )
+    monkeypatch.setattr(
+        build_module.census_country_of_birth, "fetch", lambda data_dir: tmp_path / "birth"
+    )
+    monkeypatch.setattr(
+        build_module.census_country_of_birth, "read_groups", lambda path: synthetic_birth_places()
+    )
+    monkeypatch.setattr(build_module.census_age, "fetch", lambda data_dir: tmp_path / "age")
+    monkeypatch.setattr(build_module.census_age, "read_groups", lambda path: synthetic_ages())
     air = synthetic_air(tmp_path)
     monkeypatch.setattr(build_module.laei, "fetch", lambda data_dir: air)
     park = synthetic_greenspace(tmp_path)
@@ -868,6 +901,11 @@ def test_the_bundle_holds_a_column_for_each_option_of_the_choice_indicators(monk
     community = next(i for i in manifest["indicators"] if i["id"] == "your-community")
     ids = [o["id"] for o in community["options"]]
     assert "religion-hindu" in ids and "religion-not-answered" not in ids
+    assert {"born-united-kingdom", "born-africa", "age-children-under-15"} <= set(ids)
+    assert west["your_community__born_united_kingdom"].median() == pytest.approx(100.0)
+    assert east["your_community__born_africa"].median() == pytest.approx(50.0)
+    assert west["your_community__age_children_under_15"].median() == pytest.approx(100.0)
+    assert east["your_community__age_aged_65_and_over"].median() == pytest.approx(100.0)
     faith = next(i for i in manifest["indicators"] if i["id"] == "faith")
     assert [o["id"] for o in faith["options"]] == ["hindu"]
 

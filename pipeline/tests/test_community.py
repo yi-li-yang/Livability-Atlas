@@ -8,7 +8,12 @@ import pandas as pd
 import pytest
 from shapely.geometry import Polygon
 
-from atlas.datasets.countries.gb import census_ethnic_group, census_religion
+from atlas.datasets.countries.gb import (
+    census_age,
+    census_country_of_birth,
+    census_ethnic_group,
+    census_religion,
+)
 from atlas.indicators import community
 
 HEADER = (
@@ -206,3 +211,120 @@ class TestCommunityOptions:
     def test_an_option_carries_the_share_of_each_cell(self):
         options = community.community_options(*self.frames())
         assert options[0][3].tolist() == [10.0, 20.0]
+
+
+BIRTH_HEADER = (
+    "date,geography,geography code,Country of birth: Total; measures: Value,"
+    "Country of birth: Europe; measures: Value,"
+    "Country of birth: Europe: United Kingdom; measures: Value,"
+    "Country of birth: Europe: EU countries; measures: Value,"
+    "Country of birth: Europe: EU countries: European Union EU8; measures: Value,"
+    "Country of birth: Europe: EU countries: All other EU countries; measures: Value,"
+    "Country of birth: Africa; measures: Value,"
+    "Country of birth: British Overseas ; measures: Value"
+)
+AGE_HEADER = (
+    "date,geography,geography code,Age: Total,Age: Aged 4 years and under,"
+    "Age: Aged 5 to 9 years,Age: Aged 10 to 14 years,Age: Aged 15 to 19 years,"
+    "Age: Aged 20 to 24 years,Age: Aged 25 to 29 years,Age: Aged 30 to 34 years,"
+    "Age: Aged 35 to 39 years,Age: Aged 40 to 44 years,Age: Aged 45 to 49 years,"
+    "Age: Aged 50 to 54 years,Age: Aged 55 to 59 years,Age: Aged 60 to 64 years,"
+    "Age: Aged 65 to 69 years,Age: Aged 70 to 74 years,Age: Aged 75 to 79 years,"
+    "Age: Aged 80 to 84 years,Age: Aged 85 years and over"
+)
+
+
+def one_table_zip(tmp_path: Path, name: str, header: str, rows: list[str]) -> Path:
+    path = tmp_path / f"{name}.zip"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr(f"{name}-oa.csv", "\n".join([header, *rows]) + "\n")
+    return path
+
+
+class TestCountryOfBirth:
+    def test_it_reads_the_places_of_birth_that_nothing_is_split_from(self, tmp_path):
+        path = one_table_zip(
+            tmp_path, "census2021-ts004", BIRTH_HEADER, ["2021,E1,E1,100,70,50,20,12,8,25,5"]
+        )
+        groups = census_country_of_birth.read_groups(path)
+        assert groups.loc["E1"].to_dict() == {
+            "United Kingdom": 50,
+            "European Union EU8": 12,
+            "All other EU countries": 8,
+            "Africa": 25,
+            "British Overseas": 5,
+        }  # Europe and the EU countries only add up what is under them, and so does the total
+
+    def test_the_file_is_fetched_once(self, tmp_path, monkeypatch):
+        asked = []
+        monkeypatch.setattr(
+            census_country_of_birth, "download", lambda url, target: asked.append(1)
+        )
+        assert census_country_of_birth.fetch(tmp_path).name == "census2021-ts004.zip"
+        assert asked == [1]
+
+
+class TestAge:
+    def test_it_reads_the_residents_of_each_five_year_band(self, tmp_path):
+        row = "2021,E1,E1,190," + ",".join(str(n) for n in range(1, 19))
+        path = one_table_zip(tmp_path, "census2021-ts007a", AGE_HEADER, [row])
+        bands = census_age.read_groups(path)
+        assert bands.shape == (1, 18)
+        assert bands.loc["E1", "Aged 4 years and under"] == 1
+        assert bands.loc["E1", "Aged 85 years and over"] == 18
+
+    def test_the_file_is_fetched_once(self, tmp_path, monkeypatch):
+        asked = []
+        monkeypatch.setattr(census_age, "download", lambda url, target: asked.append(1))
+        assert census_age.fetch(tmp_path).name == "census2021-ts007a.zip"
+        assert asked == [1]
+
+
+class TestLifeStages:
+    def test_the_bands_are_added_into_six_life_stages_that_cover_everyone(self):
+        names = [
+            "Aged 4 years and under", "Aged 5 to 9 years", "Aged 10 to 14 years",
+            "Aged 15 to 19 years", "Aged 20 to 24 years", "Aged 25 to 29 years",
+            "Aged 30 to 34 years", "Aged 35 to 39 years", "Aged 40 to 44 years",
+            "Aged 45 to 49 years", "Aged 50 to 54 years", "Aged 55 to 59 years",
+            "Aged 60 to 64 years", "Aged 65 to 69 years", "Aged 70 to 74 years",
+            "Aged 75 to 79 years", "Aged 80 to 84 years", "Aged 85 years and over",
+        ]  # fmt: skip
+        bands = pd.DataFrame([np.arange(1, 19)], columns=names, index=["E1"])
+        stages = community.life_stages(bands)
+        assert stages.loc["E1"].to_dict() == {
+            "Children under 15": 1 + 2 + 3,
+            "Aged 15 to 24": 4 + 5,
+            "Aged 25 to 34": 6 + 7,
+            "Aged 35 to 49": 8 + 9 + 10,
+            "Aged 50 to 64": 11 + 12 + 13,
+            "Aged 65 and over": 14 + 15 + 16 + 17 + 18,
+        }
+        assert stages.loc["E1"].sum() == bands.loc["E1"].sum()
+
+
+class TestMoreOptions:
+    def test_birth_and_age_join_the_options_under_their_own_titles(self):
+        cells = ["a", "b"]
+        ethnic = pd.DataFrame({"White: Irish": [1.0, 2.0]}, index=cells)
+        religion = pd.DataFrame({"Hindu": [5.0, 6.0]}, index=cells)
+        birth = pd.DataFrame(
+            {
+                "United Kingdom": [60.0, 70.0],
+                "European Union EU8": [3.0, 4.0],
+                "British Overseas": [0.0, 0.1],
+            },
+            index=cells,
+        )
+        age = pd.DataFrame({"Children under 15": [18.0, 20.0]}, index=cells)
+        options = community.community_options(ethnic, religion, birth=birth, age=age)
+        found = [(o[0], o[1], o[2]) for o in options]
+        assert ("born-united-kingdom", "Born in the United Kingdom", "Country of birth") in found
+        assert (
+            "born-european-union-eu8",
+            "Born in the eastern EU (such as Poland)",
+            "Country of birth",
+        ) in found
+        assert ("age-children-under-15", "Children under 15", "Age") in found
+        assert not any("overseas" in option[0] for option in options)  # too few to rank
+        assert options[-1][3].tolist() == [18.0, 20.0]

@@ -4,7 +4,7 @@ Status: built in two pull requests. [D18](../decisions.md#d18-preference-types) 
 
 ## Which indicators
 
-- **Your community:** the share of residents in a group, from Census 2021 by output area. The options are the census's detailed ethnic groups and its religions. Country of birth, main language and age use the same mechanism and come later.
+- **Your community:** the share of residents in a group, from Census 2021 by output area. The options are the census's detailed ethnic groups, its religions, the places of birth it gives at the smallest areas, and life stages made from its age bands. Main language is not offered, because the census gives the detailed languages only down to boroughs.
 - **Faith:** the walking minutes to the nearest place of worship of a religion, from OpenStreetMap. The options are the religions with enough places in the region.
 - Cuisines (D19) will use it too.
 
