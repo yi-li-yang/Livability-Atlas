@@ -27,6 +27,8 @@ Read, in this order:
 
 Never commit data files, `.env` files, secrets or personal locations.
 
+One dataset needs a token: the energy performance certificates, for the price per square metre. Sign in with a GOV.UK One Login at [the service](https://get-energy-performance-data.communities.gov.uk/), copy the bearer token from your account page, and put `EPC_TOKEN=...` in a `.env` file at the repository root (git ignores it). The first build then downloads the register, 8.3 GB, and reads it once.
+
 ## Recipes
 
 These checklists define when a repeated job is done.

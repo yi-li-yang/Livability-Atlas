@@ -55,6 +55,13 @@ def cell_centres_bng(cells: list[str]) -> np.ndarray:
     return np.column_stack([x, y])
 
 
+def cells_at_bng(x: np.ndarray, y: np.ndarray, resolution: int) -> list[str]:
+    """The cell that holds each point, given in metres of British National Grid."""
+    from_bng = Transformer.from_crs("EPSG:27700", "EPSG:4326", always_xy=True)
+    lng, lat = from_bng.transform(x, y)
+    return [h3.latlng_to_cell(a, o, resolution) for a, o in zip(lat, lng, strict=True)]
+
+
 def lonlat_box(cells: list[str], margin: float = 0.0) -> tuple[float, float, float, float]:
     """The box around the centres of `cells` (west, south, east, north, in degrees), widened by
     `margin` degrees on every side."""

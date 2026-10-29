@@ -12,6 +12,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from atlas.catalogue.load import Catalogue, load_catalogue
@@ -23,8 +24,10 @@ from atlas.datasets.countries.gb import (
     code_point,
     defra_noise,
     ea_flood_risk,
+    epc,
     fsa,
     gias,
+    hm_land_registry,
     mhclg_council_tax,
     naptan,
     nhs_gp,
@@ -51,6 +54,7 @@ from atlas.indicators import (
     health,
     housing,
     noise,
+    prices,
     transport,
 )
 from atlas.indicators import places as place_pool
@@ -58,18 +62,29 @@ from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
 from atlas.publish.bundle import Choice, write_bundle
 from atlas.spatial import walking
-from atlas.spatial.grid import boundary_from_geojson, bounds_bng, lonlat_box, region_cells
+from atlas.spatial.grid import (
+    boundary_from_geojson,
+    bounds_bng,
+    cells_at_bng,
+    lonlat_box,
+    region_cells,
+)
 
 # The measured indicators that are built from a dataset without a licence for commercial use (D07),
-# with that dataset. The build is non-commercial and uses them; a commercial build leaves them out.
-BUILT_FROM = {"no2": "laei", "pm25": "laei"}
+# with the datasets they are built from. The build is non-commercial and uses them; a commercial
+# build leaves them out.
+BUILT_FROM = {
+    "no2": ("laei",),
+    "pm25": ("laei",),
+    "buying-cost": ("hm-land-registry-price-paid", "epc-domestic"),
+}
 
 
 def needs_commercial_licence(catalogue: Catalogue, indicators: Sequence[str]) -> list[str]:
     """The indicators among `indicators` that are built from a dataset without a licence for
     commercial use."""
     allowed = {d.id for d in catalogue.datasets.datasets if d.commercial_use}
-    return [i for i in indicators if i in BUILT_FROM and BUILT_FROM[i] not in allowed]
+    return [i for i in indicators if i in BUILT_FROM and not set(BUILT_FROM[i]) <= allowed]
 
 
 def build_region(
@@ -110,6 +125,7 @@ def build_region(
     columns.update(_amenity_columns(region_id, network, cells, data_dir))
     columns.update(_noise_columns(cells, region.grid.resolution, data_dir, postcodes))
     columns.update(_housing_columns(region_id, cells, data_dir))
+    columns.update(_price_columns(region_id, cells, data_dir, region.grid.resolution, postcodes))
     columns.update(_connectivity_columns(region_id, cells, data_dir))
     columns.update(_community_columns(cells, data_dir))
     columns.update(_air_columns(cells, region.grid.resolution, data_dir))
@@ -178,6 +194,40 @@ def _housing_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[s
         ]
         for indicator, values in (("renting-cost", rents), ("council-tax", tax))
     }
+
+
+def _price_columns(
+    region_id: str,
+    cells: list[str],
+    data_dir: Path,
+    resolution: int,
+    postcodes: pd.DataFrame,
+) -> dict[str, Sequence[Any]]:
+    """Buying cost: the median price per square metre of the homes sold in a cell and the cells
+    within two steps over 24 months. A sale's floor area is that of the energy certificate at its
+    address; the addresses serve only for that match, and none is kept."""
+    x0, y0, x1, y1 = bounds_bng(cells, margin=2000)
+    east, north = postcodes["Easting"].to_numpy(), postcodes["Northing"].to_numpy()
+    inside = postcodes.loc[(east >= x0) & (east <= x1) & (north >= y0) & (north <= y1)]
+    sales = hm_land_registry.read_sales(
+        hm_land_registry.fetch(data_dir, hm_land_registry.YEARS), months=24
+    )
+    keys = pd.Index([code_point.normalise(p) for p in sales["postcode"]])
+    where = inside.reindex(keys)
+    easting = where["Easting"].to_numpy(dtype=float)
+    northing = where["Northing"].to_numpy(dtype=float)
+    known = ~np.isnan(easting)
+    located = sales.loc[known].reset_index(drop=True)
+    certificates = epc.certificates(data_dir, region_id, set(inside.index))
+    area = prices.floor_areas(located, certificates)
+    sold = pd.DataFrame(
+        {
+            "cell": cells_at_bng(easting[known], northing[known], resolution),
+            "per_metre": prices.per_metre(located["price"], area),
+        }
+    ).dropna()
+    median = prices.pooled_median(sold, cells)
+    return {"buying-cost": [None if pd.isna(v) else float(v) for v in median]}
 
 
 def _connectivity_columns(

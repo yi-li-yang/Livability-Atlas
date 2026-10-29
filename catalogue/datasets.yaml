@@ -315,15 +315,28 @@ datasets:
     resolution: individual buildings, identified by UPRN
     date: certificates lodged since 2008
     licence: OGL-UK-3.0
-    licence_checked: 2026-10-25
-    commercial_use: true
+    licence_checked: 2026-10-29
+    commercial_use: false
     licence_note: >-
       The Open Government Licence v3.0 covers every field except the address
-      and postcode, UPRNs included. The address fields may be used only for
-      purposes tied to the energy performance of buildings, so the pipeline
-      must locate certificates by UPRN, not by address. The service also sets
-      data protection requirements.
-    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+      and postcode (UPRNs are under it). Ordnance Survey and Royal Mail permit
+      the address and postcode solely for purposes tied to the energy
+      performance of buildings, and under the copyright exceptions, such as
+      non-commercial research. Matching a certificate to a sale by address, to
+      find a price per square metre, is not one of those purposes, so the
+      build relies on the non-commercial research exception, which D07 allows
+      while the project is non-commercial. It keeps no address: only a hash of
+      each, and the register stays in data/raw, which git ignores. A
+      commercial build must not use it. It needs a licence from Ordnance
+      Survey and Royal Mail, or a match by UPRN with a look-up that has its own
+      licence. The service also sets data protection requirements: the
+      register holds personal data, whoever processes it becomes a data
+      controller, and the service keeps the email address of whoever
+      downloads it. The full file is 8.3 GB.
+    attribution: >-
+      Contains public sector information licensed under the Open Government
+      Licence v3.0. Address data © Ordnance Survey and Royal Mail, used only to
+      match certificates to sales.
     tells:
       - The floor area, energy rating, property type, age and heating of each certificated home
 

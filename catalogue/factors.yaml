@@ -39,7 +39,7 @@ factors:
         description: The price per square metre of the homes sold nearby.
         default_weight: 3
         scales: [within-city]
-        status: researched
+        status: built
         unit: £ per m²
         preference_type: fixed
         curve: {shape: percentile, better: lower}
@@ -51,16 +51,24 @@ factors:
         comparable_across_regions: false
         method: >-
           The median price per square metre of the homes sold in and around the
-          hex cell in recent years: each sale's price from HM Land Registry,
-          divided by the home's floor area from its energy certificate. Spike S3
+          hex cell over the last 24 months of HM Land Registry's Price Paid
+          Data (standard sales of houses and flats): each sale's price divided
+          by the floor area on the energy certificate of the same home. A sale
+          is matched to its certificate by its postcode and the words of its
+          address, whatever their order or abbreviation, using every
+          certificate since 2008 (a home with several has the median of their
+          areas). In London 84% of sales find a certificate (73% of detached
+          homes, 83% of flats, 85% of semi-detached and 90% of terraced). The
+          others, and floor areas under 10 or over 500 m², are left out. A sale
+          sits in the cell of its postcode's centre (Code-Point Open). Spike S3
           found that pooling the sales of a cell and its neighbours within two
-          steps over 24 months gives 20 or more sales in 99% of London's
-          homes cells and 40 or more in 95%, against the 37 that a median
-          within 15% needs. A cell alone has 5 or more sales a year in only
-          37%. How to match sales to certificates within the licences' terms is
-          still open: the certificates need a GOV.UK One Login to download in bulk, and
-          the match waits for Royal Mail.
-        datasets: [hm-land-registry-price-paid, epc-domestic]
+          steps gives 20 or more sales in 99% of London's homes cells, against
+          the 37 that a median within 15% needs for a price, and fewer for a
+          price per square metre, which separates flats from houses. A cell
+          with fewer than 20 sales around it has no value (16% of London's:
+          parks, and the edge). The addresses serve only for the match, and
+          the build keeps a hash of each, not the address.
+        datasets: [hm-land-registry-price-paid, epc-domestic, os-code-point-open]
       - id: renting-cost
         name: Renting cost
         description: The average monthly private rent in the borough.
