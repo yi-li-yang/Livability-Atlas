@@ -63,8 +63,10 @@ test("clicking a hex cell says why it scores what it does, and the parts add up"
   await panel.locator("summary", { hasText: "Transport" }).first().click();
   await expect(panel.getByText("Getting around")).toBeVisible();
   await panel.locator("summary", { hasText: "Getting around" }).first().click();
-  await expect(panel.getByText("Service level")).toBeVisible();
-  await expect(panel.getByText("Walk to the nearest station")).toBeVisible();
+  await expect(panel.getByText("Service level", { exact: true })).toBeVisible();
+  await expect(
+    panel.getByText("Walk to the nearest station", { exact: true }),
+  ).toBeVisible();
 });
 
 test("the reasons close with the button, with Escape, and by clicking where there is no cell", async ({
@@ -91,4 +93,32 @@ test("the reasons close with the button, with Escape, and by clicking where ther
   await open();
   await page.mouse.click(box.x + box.width - 30, box.y + 30);
   await expect(panel).toHaveCount(0);
+});
+
+test("the details of a measured indicator give its value, its curve, its kind of evidence and its source", async ({
+  page,
+}) => {
+  const { x, y } = await openOverCells(page);
+  const panel = page.getByRole("complementary", { name: "Why this score" });
+  await expect(async () => {
+    await page.mouse.move(x, y);
+    await page.mouse.click(x, y);
+    await expect(panel).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 10_000 });
+
+  const details = panel.getByTestId("evidence-service-level");
+  await expect(details).toBeHidden(); // nothing of it shows until the factors are opened
+  await panel.locator("summary", { hasText: "Transport" }).first().click();
+  await panel.locator("summary", { hasText: "Getting around" }).first().click();
+  await expect(details.getByText("Value here")).toBeHidden();
+  await details.locator("summary").click();
+  await expect(details.getByText(/^PTAL band /)).toBeVisible();
+  await expect(details.getByText("How it scores")).toBeVisible();
+  await expect(details.getByText(/Each value has its own score/)).toBeVisible();
+  await expect(details.getByText("Measured directly")).toBeVisible();
+  await expect(
+    details.getByRole("link", { name: /PTAL/ }).first(),
+  ).toHaveAttribute("href", /^https?:\/\//);
+  await expect(details).toContainText("Transport for London");
+  await expect(details).toContainText("Licence");
 });

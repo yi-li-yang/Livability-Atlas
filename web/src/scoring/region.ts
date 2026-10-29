@@ -215,6 +215,28 @@ export function scoreRegion(
   return scores;
 }
 
+/**
+ * The picked option of a choice indicator that scores best in one cell, or null where none of the
+ * picked options has a value there.
+ */
+export function bestPickedOption(
+  bundle: Bundle,
+  indicator: ManifestIndicator,
+  picked: readonly string[] | undefined,
+  cellIndex: number,
+): { option: ManifestOption; score: number } | null {
+  let best: { option: ManifestOption; score: number } | null = null;
+  for (const option of pickedOptions(indicator, picked)) {
+    const score = columnScores(bundle, option.column, indicator.curve, false)[
+      cellIndex
+    ];
+    if (!Number.isNaN(score) && (best === null || score > best.score)) {
+      best = { option, score };
+    }
+  }
+  return best;
+}
+
 /** The scoring case for one cell, to explain its score with `scoreCell`. */
 export function scoreCaseFor(
   bundle: Bundle,
@@ -228,26 +250,20 @@ export function scoreCaseFor(
     weight: number,
     indicator: ManifestIndicator,
   ): ScoreNode => {
-    let best: { column: string; score: number } | null = null;
-    for (const option of pickedOptions(
+    const best = bestPickedOption(
+      bundle,
       indicator,
       profile.choices?.[indicator.id],
-    )) {
-      const score = columnScores(bundle, option.column, indicator.curve, false)[
-        cellIndex
-      ];
-      if (!Number.isNaN(score) && (best === null || score > best.score)) {
-        best = { column: option.column, score };
-      }
-    }
+      cellIndex,
+    );
     return {
       id: factor.id,
       weight,
       curve: indicator.curve ?? undefined,
-      value: best ? bundle.columns[best.column][cellIndex] : null,
+      value: best ? bundle.columns[best.option.column][cellIndex] : null,
       region_values:
         best && indicator.curve?.shape === "percentile"
-          ? regionValues(bundle, best.column)
+          ? regionValues(bundle, best.option.column)
           : undefined,
     };
   };

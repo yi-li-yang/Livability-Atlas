@@ -45,6 +45,15 @@ describe("loadBundle", () => {
     expect(bundle.columns[faith?.column ?? "faith"]).toBeUndefined();
   });
 
+  it("holds whole numbers as numbers, not as the big integers that Parquet reads them as", async () => {
+    const { columns } = await loadBundle("/bundles", "london", fixtureFetch);
+    const kinds = new Set(
+      Object.values(columns).flatMap((values) => values.map((v) => typeof v)),
+    );
+    expect(kinds).not.toContain("bigint");
+    expect(kinds).toContain("number");
+  });
+
   it("holds the cells as H3 indexes, sorted", async () => {
     const { cells } = await loadBundle("/bundles", "london", fixtureFetch);
     expect(cells.every((cell) => /^[0-9a-f]{15}$/.test(cell))).toBe(true);

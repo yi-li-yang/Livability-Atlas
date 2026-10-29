@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import type { Explanation, FactorLine } from "../../scoring/explain";
 import { factorColour } from "./colours";
+import { EvidenceDetails } from "./EvidenceDetails";
 
 const wholeNumber = new Intl.NumberFormat("en-GB");
 const points = (value: number): string => String(Math.round(value));
@@ -67,7 +68,14 @@ function Line({
       <Bar line={line} widest={widest} colour={colour} />
     </div>
   );
-  if (line.children.length === 0) return <li>{summary}</li>;
+  if (line.children.length === 0) {
+    return (
+      <li>
+        {summary}
+        {line.evidence && <EvidenceDetails evidence={line.evidence} />}
+      </li>
+    );
+  }
   const widestInside = Math.max(
     ...line.children.map((c) => c.share ?? 0),
     Number.MIN_VALUE,

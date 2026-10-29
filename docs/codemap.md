@@ -41,7 +41,7 @@ Livability-Atlas/
 │   │   ├── data/          # bundle.ts: reads a data bundle (manifest and Parquet cells)
 │   │   ├── scoring/       # curves.ts: scoring curves; engine.ts: the scorer for one hex cell; region.ts: the fast scorer for the whole region; explain.ts: one cell's score, factor by factor, with its rank. All reproduce the golden test cases, as the Python reference scorer does
 │   │   ├── profile/       # storage.ts: the preference profile in the browser's storage and the link
-│   │   ├── features/factors/  # FactorTree (the treemap with sliders), treemap (the layout), level (what each level shows), colours, QuickLook (the hover card), WhyPanel (the reasons for a hex cell's score)
+│   │   ├── features/factors/  # FactorTree (the treemap with sliders), treemap (the layout), level (what each level shows), colours, QuickLook (the hover card), WhyPanel (the reasons for a hex cell's score), EvidenceDetails and evidence (the value, curve, evidence type and sources behind a measure)
 │   │   ├── features/map/  # HexMap (the basemap with the hex cells over it), hexcells (shapes and colours), colour, Legend
 │   │   └── generated/     # TypeScript types from shared/schemas (generated)
 │   ├── serve-bundles.ts   # serves data/published/ at /bundles/ in dev and preview
