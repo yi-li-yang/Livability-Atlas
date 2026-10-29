@@ -231,3 +231,12 @@ def test_a_square_metre_costs_most_in_the_west_end_and_least_in_the_outer_east(b
     assert (
         price[cell_at(51.4440, -0.2750)] != price[cell_at(51.4440, -0.2750)]
     )  # no sales in the park
+
+
+def test_an_ae_department_is_a_few_kilometres_from_anywhere_in_london(bundle):
+    km = bundle["ae_distance"]
+    assert km.notna().all() and (km > 0).all()
+    assert 2.5 < km.median() < 5.0 and km.max() < 20
+    assert km[SOHO] < 2.0  # University College Hospital and St Thomas' are near
+    assert km[cell_at(51.4214, -0.2056)] < 3.0  # Wimbledon village, St George's
+    assert km[cell_at(51.3080, 0.0330)] > 5.0  # Biggin Hill, on the green edge
