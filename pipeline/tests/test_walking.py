@@ -209,3 +209,26 @@ class TestPlacesWithin:
         origin = np.array([[0.0, 40.0]])  # 40 m off the street: 200 m in all
         assert net.places_within(place, origin, minutes=2.5)[0].tolist() == [0]
         assert net.places_within(place, origin, minutes=2.4)[0].tolist() == []
+
+
+class TestTimesWithin:
+    def test_it_gives_the_minutes_of_each_walk_beside_the_places_reached(self):
+        net = street(LINE)
+        places = np.array([[0.0, 0.0], [160.0, 0.0], [400.0, 0.0]])
+        reached = net.times_within(places, np.array([[80.0, 0.0]]), minutes=5.0)
+        indexes, minutes = reached[0]
+        assert indexes.tolist() == [0, 1, 2]
+        assert minutes.tolist() == pytest.approx([1.0, 1.0, 4.0])  # 80 m, 80 m and 320 m
+
+    def test_a_place_beyond_the_limit_is_left_out_with_its_time(self):
+        net = street(LINE)
+        places = np.array([[0.0, 0.0], [400.0, 0.0]])
+        indexes, minutes = net.times_within(places, np.array([[0.0, 0.0]]), minutes=2.0)[0]
+        assert indexes.tolist() == [0] and minutes.tolist() == pytest.approx([0.0], abs=0.05)
+
+    def test_the_straight_stretch_off_the_street_is_in_the_time(self):
+        net = street(LINE)
+        indexes, minutes = net.times_within(
+            np.array([[160.0, 0.0]]), np.array([[0.0, 40.0]]), minutes=5.0
+        )[0]
+        assert minutes.tolist() == pytest.approx([200 / SPEED])

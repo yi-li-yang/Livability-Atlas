@@ -25,6 +25,7 @@ from atlas.datasets.countries.gb import (
 from atlas.datasets.countries.gb.addresses import address_key
 from atlas.datasets.countries.gb.ea_flood_risk import LOW, MEDIUM, VERY_LOW, Mosaic
 from atlas.indicators import crime
+from atlas.indicators import education as education_module
 
 TO_BNG = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
 AREA = box(-0.150, 51.505, -0.125, 51.520)  # part of the West End
@@ -177,6 +178,32 @@ def synthetic_schools(tmp_path: Path) -> Path:
     return path
 
 
+def synthetic_inspections(tmp_path: Path) -> Path:
+    """Ofsted's judgements of the two schools of AREA: the west one good, the east one requiring
+    improvement."""
+    areas = [
+        "Inclusion",
+        "Curriculum and teaching",
+        "Achievement",
+        "Attendance and behaviour",
+        "Personal development and wellbeing",
+        "Leadership and governance",
+        "Early years (where applicable)",
+        "Post-16 provision (where applicable)",
+    ]
+    head = ["URN", "Ofsted phase", "Safeguarding standards", *areas]
+    head += ["Latest OEIF overall effectiveness", "Ungraded inspection overall outcome"]
+    blanks = [""] * (len(areas) + 1)
+    rows = [
+        ",".join(head),
+        ",".join(["1", "Primary", *blanks, "2", ""]),
+        ",".join(["2", "Secondary", *blanks, "3", ""]),
+    ]
+    path = tmp_path / "latest-inspections.csv"
+    path.write_text("\n".join(rows) + "\n", encoding="latin-1")
+    return path
+
+
 def synthetic_gp_practices(tmp_path: Path) -> tuple[Path, Path]:
     """One GP practice in the east of AREA, in the layout of NHS England's two files."""
     row = [""] * 27
@@ -207,6 +234,7 @@ def synthetic_line_stops() -> pd.DataFrame:
             "stop": ["S1"] * len(rows),
             "Latitude": 51.5120,
             "Longitude": -0.1285,
+            "zone": ["3", "3", "", "", ""],
         }
     )
 
@@ -237,6 +265,12 @@ def synthetic_sales() -> tuple[pd.DataFrame, pd.DataFrame]:
 def synthetic_ae_sites() -> pd.DataFrame:
     """One hospital with an A&E department, at the postcode in the east of AREA."""
     return pd.DataFrame({"code": ["R0001"], "name": ["East Hospital"], "Postcode": ["W1 1AA"]})
+
+
+def synthetic_journey_times() -> pd.DataFrame:
+    """Twenty minutes from the one station of AREA to each of London's four default places."""
+    names = ["The City (Bank)", "The West End (Oxford Circus)", "Canary Wharf", "King's Cross"]
+    return pd.DataFrame({"stop": ["S1"] * 4, "place": names, "minutes": [20.0] * 4})
 
 
 def synthetic_postcodes(tmp_path: Path) -> Path:
@@ -472,6 +506,9 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.naptan, "fetch", lambda data_dir: stations)
     schools = synthetic_schools(tmp_path)
     monkeypatch.setattr(build_module.gias, "fetch", lambda data_dir: schools)
+    inspections = synthetic_inspections(tmp_path)
+    monkeypatch.setattr(build_module.ofsted, "fetch", lambda data_dir: inspections)
+    monkeypatch.setattr(education_module, "MINIMUM_JUDGED", 2)  # the area has two schools
     tiles = {
         kind: [synthetic_noise_tile(tmp_path, kind, level)]
         for kind, level in (("road", 65.0), ("rail", 50.0), ("aircraft", 60.0))
@@ -545,6 +582,14 @@ def use_synthetic_data(monkeypatch, tmp_path):
         build_module.epc, "certificates", lambda data_dir, region, codes: certificates
     )
     monkeypatch.setattr(build_module.tfl_lines, "fetch", lambda data_dir: tmp_path / "lines")
+    monkeypatch.setattr(
+        build_module.tfl_journeys,
+        "fetch",
+        lambda data_dir, region, stations, places: tmp_path / "j",
+    )
+    monkeypatch.setattr(
+        build_module.tfl_journeys, "read_times", lambda path: synthetic_journey_times()
+    )
     monkeypatch.setattr(build_module.tfl_lines, "read_stops", lambda path: synthetic_line_stops())
     monkeypatch.setattr(
         build_module.nhs_gp, "fetch", lambda data_dir: (tmp_path / "p", tmp_path / "w")
@@ -934,3 +979,37 @@ def test_the_bundle_holds_the_distance_to_the_nearest_ae_department(monkeypatch,
     assert 1.0 < table[lng < -0.145]["ae_distance"].median() < 3.0  # km to the west
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert "ae-distance" in {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_share_of_nearby_schools_that_meet_the_standard(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    found = table["school_inspections"].dropna()
+    assert len(found) > 0 and set(found) == {50.0}  # one of the two schools is good
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "school-inspections" in {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_fare_zone_of_the_nearest_station(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    assert set(table["travel_cost"]) == {"3"}  # the one station in the zones
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "travel-cost" in {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_travel_time_to_the_default_places(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    found = table["travel_time_to_places"].dropna()
+    assert len(found) > 0 and found.min() >= 20.0  # the walk to the station and its 20 minutes
+    assert found.max() <= 60.0  # a walk of at most 40 minutes
+    assert found.min() < 25.0  # the cells beside the station
+    east = table[lng > -0.130]["travel_time_to_places"]
+    assert east.notna().all() and east.median() < 35.0
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "travel-time-to-places" in {i["id"] for i in manifest["indicators"]}

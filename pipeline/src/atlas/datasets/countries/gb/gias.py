@@ -26,6 +26,7 @@ NOT_MAINSTREAM = ("special", "alternative provision", "pupil referral", "16 to 1
 PRIMARY = {"Primary", "Middle-deemed primary", "All-through"}
 SECONDARY = {"Secondary", "Middle-deemed secondary", "All-through"}
 COLUMNS = [
+    "URN",
     "EstablishmentStatus (name)",
     "EstablishmentTypeGroup (name)",
     "TypeOfEstablishment (name)",
@@ -55,7 +56,7 @@ def fetch(data_dir: Path, today: date | None = None) -> Path:
 
 def read_schools(path: Path) -> pd.DataFrame:
     """The open, state-funded, mainstream schools with a location, as a table with the columns
-    `Easting`, `Northing` (metres of British National Grid), `primary` and `secondary`. An
+    `URN`, `Easting`, `Northing` (metres of British National Grid), `primary` and `secondary`. An
     all-through school is both."""
     frame = pd.read_csv(path, encoding="cp1252", usecols=COLUMNS, low_memory=False)
     kind = frame["TypeOfEstablishment (name)"].fillna("").str.lower()
@@ -72,5 +73,5 @@ def read_schools(path: Path) -> pd.DataFrame:
     schools["primary"] = phase.isin(list(PRIMARY))
     schools["secondary"] = phase.isin(list(SECONDARY))
     return schools.loc[schools["primary"] | schools["secondary"]].reset_index(drop=True)[
-        ["Easting", "Northing", "primary", "secondary"]
+        ["URN", "Easting", "Northing", "primary", "secondary"]
     ]

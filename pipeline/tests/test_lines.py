@@ -8,8 +8,11 @@ from atlas.spatial.grid import cell_centres_bng
 from atlas.spatial.walking import Network
 
 
-def stop(stop_id: str, lat: float = 51.5, lon: float = -0.1) -> dict:
-    return {"id": stop_id, "lat": lat, "lon": lon}
+def stop(stop_id: str, lat: float = 51.5, lon: float = -0.1, zone: str | None = None) -> dict:
+    point: dict = {"id": stop_id, "lat": lat, "lon": lon}
+    if zone is not None:
+        point["additionalProperties"] = [{"key": "Zone", "value": zone}]
+    return point
 
 
 class FakeTfl:
@@ -37,7 +40,7 @@ class TestFetch:
                 "bus": [line("1"), line("n1", "Night")],
             },
             {
-                "victoria": [stop("S1"), stop("S2", 51.6)],
+                "victoria": [stop("S1", zone="1"), stop("S2", 51.6, zone="2+3")],
                 "southeastern": [stop("S2", 51.6)],
                 "1": [stop("B1"), stop("B2")],
             },
@@ -56,6 +59,9 @@ class TestFetch:
             ("bus", "1", "B2"),
         }  # the night route is out
         assert stops.loc[stops["stop"] == "S2", "Latitude"].iloc[0] == pytest.approx(51.6)
+        zones = {(line, stop): z for line, stop, z in stops[["line", "stop", "zone"]].to_numpy()}
+        assert zones[("victoria", "S1")] == "1" and zones[("victoria", "S2")] == "2+3"
+        assert zones[("southeastern", "S2")] == "" and zones[("1", "B1")] == ""  # none given
 
     def test_it_is_fetched_once(self, tmp_path, monkeypatch):
         fake = self.make()
@@ -131,3 +137,33 @@ def test_a_stopped_fetch_carries_on_without_asking_again(tmp_path, monkeypatch):
     fake.asked.clear()
     tfl_lines.fetch(tmp_path)
     assert "Line/victoria/StopPoints" not in fake.asked  # the first lines were kept
+
+
+class TestFareZones:
+    cell = h3.latlng_to_cell(51.5136, -0.1337, 9)
+
+    def stations(self, rows):
+        x, y = cell_centres_bng([self.cell])[0]
+        return pd.DataFrame(
+            {
+                "Easting": [x + dx for dx, _ in rows],
+                "Northing": [y] * len(rows),
+                "zone": [zone for _, zone in rows],
+            }
+        )
+
+    def test_a_cell_takes_the_zone_of_the_nearest_station(self):
+        stations = self.stations([(500, "2"), (200, "1"), (900, "3")])
+        assert transport.fare_zones(stations, [self.cell])[self.cell] == "1"
+
+    @pytest.mark.parametrize("zone, lowest", [("2+3", "2"), ("2/3", "2"), ("1+2", "1"), ("9", "9")])
+    def test_a_station_in_two_zones_counts_as_the_lower(self, zone, lowest):
+        assert transport.fare_zones(self.stations([(100, zone)]), [self.cell])[self.cell] == lowest
+
+    @pytest.mark.parametrize("zone", ["NA", "", "n/a"])
+    def test_a_station_outside_the_fare_zones_is_not_a_choice(self, zone):
+        stations = self.stations([(100, zone), (3000, "5")])
+        assert transport.fare_zones(stations, [self.cell])[self.cell] == "5"
+
+    def test_with_no_station_in_the_zones_there_is_no_value(self):
+        assert transport.fare_zones(self.stations([(100, "NA")]), [self.cell]).isna().all()
