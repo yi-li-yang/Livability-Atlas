@@ -929,9 +929,10 @@ factors:
         description: How far the nearest hospital with a 24-hour emergency department is.
         default_weight: 3
         scales: [within-city]
-        status: researched
+        status: built
         unit: km in a straight line
         preference_type: fixed
+        curve: {shape: percentile, better: lower}
         curve_reason: >-
           No standard sets a distance. Nicholl and colleagues (Emergency
           Medicine Journal, 2007, volume 24, pages 665 to 668) followed 10,315
@@ -940,21 +941,27 @@ factors:
           went with about a 1% higher absolute risk of death, with no
           threshold. Their data are from 1997 to 2001, and the Patients
           Association has criticised the design. A ramp needs a distance at
-          which the score is 0, and none has a source, so the curve waits for
-          how distances spread across London's hex cells once the data is built.
+          which the score is 0, and none has a source, so a hex cell scores by
+          its rank within the region: the share of hex cells that are farther.
+          London's cells are 0.05 to 11.9 km from a department (median 3.5 km,
+          95th percentile 7.5 km), so the differences are small beside the
+          study's 10 km, and the rank shows them as a ranking, not as a risk.
         evidence_type: direct
         comparable_across_regions: true
         method: >-
           The straight line from the hex cell's centre to the nearest hospital
-          with a type 1 emergency department: consultant-led, open 24 hours,
-          with full resuscitation facilities, as NHS England defines it. It is
-          a straight line because the evidence is in straight-line distance.
-          Hospitals come from OpenStreetMap, where those with an emergency
-          department carry the tag emergency=yes, and NHS England's list of
-          trust sites cross-checks them. NHS England publishes no list of
-          emergency departments by site. Spike S6 compares how complete the
-          sources are.
-        datasets: [openstreetmap, nhs-ods]
+          with an emergency department open 24 hours, which NHS England counts
+          as a type 1 department. It is a straight line because the evidence is
+          in straight-line distance. NHS England publishes no list of
+          emergency departments by site, so the departments come from the NHS
+          website's "Find your nearest A&E", which lists them with the NHS
+          organisation code, the address and the opening hours: about ten
+          searches from places across the region list every department in and
+          around it, 64 of them for London and its surroundings. A department
+          is placed at its postcode (Code-Point Open). Departments for children
+          only or for adults only count, as do those outside the region, so a
+          cell at the edge measures to the nearest one across the boundary.
+        datasets: [nhs-find-an-ae, os-code-point-open]
       # Dentists stay an idea: where practices are is open, but whether they take new NHS patients is not.
       - {id: dentists, name: "Dentists", default_weight: 3, scales: [within-city]}
       - {id: health-care-quality, name: "Health-care quality and cost", default_weight: 3, scales: [across-cities]}

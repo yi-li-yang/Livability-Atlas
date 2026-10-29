@@ -234,6 +234,11 @@ def synthetic_sales() -> tuple[pd.DataFrame, pd.DataFrame]:
     return sales, certificates
 
 
+def synthetic_ae_sites() -> pd.DataFrame:
+    """One hospital with an A&E department, at the postcode in the east of AREA."""
+    return pd.DataFrame({"code": ["R0001"], "name": ["East Hospital"], "Postcode": ["W1 1AA"]})
+
+
 def synthetic_postcodes(tmp_path: Path) -> Path:
     """The place of that practice's postcode, in the east of AREA."""
     east = TO_BNG.transform(-0.1285, 51.5120)
@@ -496,6 +501,10 @@ def use_synthetic_data(monkeypatch, tmp_path):
     gp_files, postcodes = synthetic_gp_practices(tmp_path), synthetic_postcodes(tmp_path)
     monkeypatch.setattr(build_module.nhs_ods, "fetch", lambda data_dir: gp_files)
     monkeypatch.setattr(build_module.code_point, "fetch", lambda data_dir: postcodes)
+    monkeypatch.setattr(
+        build_module.nhs_ae, "fetch", lambda data_dir, region, seeds: tmp_path / "ae.csv"
+    )
+    monkeypatch.setattr(build_module.nhs_ae, "read_sites", lambda path: synthetic_ae_sites())
     sales, certificates = synthetic_sales()
     monkeypatch.setattr(build_module.hm_land_registry, "fetch", lambda data_dir, years: [])
     monkeypatch.setattr(build_module.hm_land_registry, "read_sales", lambda paths, months: sales)
@@ -875,3 +884,15 @@ def test_the_bundle_holds_the_price_per_square_metre_of_the_homes_sold_nearby(
     assert table[lng < -0.145]["buying_cost"].isna().all()  # beyond two steps of them
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert "buying-cost" in {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_the_distance_to_the_nearest_ae_department(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    assert table["ae_distance"].notna().all()
+    assert table[lng > -0.130]["ae_distance"].median() < 0.5  # beside the hospital
+    assert 1.0 < table[lng < -0.145]["ae_distance"].median() < 3.0  # km to the west
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert "ae-distance" in {i["id"] for i in manifest["indicators"]}

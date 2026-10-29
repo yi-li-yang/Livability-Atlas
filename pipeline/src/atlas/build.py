@@ -30,6 +30,7 @@ from atlas.datasets.countries.gb import (
     hm_land_registry,
     mhclg_council_tax,
     naptan,
+    nhs_ae,
     nhs_gp,
     nhs_ods,
     ofcom,
@@ -128,6 +129,7 @@ def build_region(
     columns.update(_price_columns(region_id, cells, data_dir, region.grid.resolution, postcodes))
     columns.update(_connectivity_columns(region_id, cells, data_dir))
     columns.update(_community_columns(cells, data_dir))
+    columns.update(_ae_columns(region_id, cells, data_dir, postcodes))
     columns.update(_air_columns(cells, region.grid.resolution, data_dir))
     if commercial:
         for indicator in needs_commercial_licence(catalogue, list(columns)):
@@ -283,6 +285,17 @@ def _choices(
 
 def _floats(values: pd.Series) -> list[float | None]:
     return [None if pd.isna(v) else float(v) for v in values]
+
+
+def _ae_columns(
+    region_id: str, cells: list[str], data_dir: Path, postcodes: pd.DataFrame
+) -> dict[str, Sequence[Any]]:
+    """Distance to A&E: the straight line from each cell's centre to the nearest hospital with an
+    emergency department open 24 hours, from the NHS website's search, placed by postcode."""
+    seeds = health.ae_seed_postcodes(cells, postcodes)
+    sites = nhs_ae.read_sites(nhs_ae.fetch(data_dir, region_id, seeds))
+    km = health.ae_distance(health.site_places(sites, postcodes), cells)
+    return {"ae-distance": [float(v) for v in km]}
 
 
 def _community_columns(cells: list[str], data_dir: Path) -> dict[str, Sequence[Any]]:

@@ -784,6 +784,28 @@ datasets:
       - Every GP practice and branch surgery, with its postcode and whether it is active
       - NHS trusts and their sites, which cross-check where hospitals are
       - Dental practices, with their postcodes
+  - id: nhs-find-an-ae
+    name: Find your nearest A&E (NHS website)
+    publisher: NHS England, on the NHS website
+    url: https://www.nhs.uk/service-search/find-an-accident-and-emergency-service
+    tier: country
+    area: England
+    resolution: hospitals, with their address and opening hours
+    date: live, read on 2026-10-29
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-29
+    commercial_use: true
+    licence_note: >-
+      The NHS website's terms and conditions (3.3) release its content free of
+      charge under the Open Government Licence, and ask adapted content to
+      carry the standard attribution without naming the NHS website. The
+      service search has no API, so the pipeline reads its result pages about
+      ten times, a second apart, and keeps the departments it lists. The
+      pages' markup may change without notice.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - Each hospital with an A&E department near a postcode, with its NHS organisation code, address and opening hours
+
   - id: nhs-gp-registered-patients
     name: Patients Registered at a GP Practice
     publisher: NHS England
