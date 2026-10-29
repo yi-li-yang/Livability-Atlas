@@ -41,6 +41,9 @@ test("the app loads the data bundle, and says what it is and where it comes from
   await sources.getByText("About the data").click();
   await expect(sources.getByText(/Transport for London/)).toBeVisible();
   await expect(sources.getByText(/data\.police\.uk/)).toBeVisible();
+  // And where the user's own settings go: nowhere.
+  await expect(sources.getByText(/stay in your browser/)).toBeVisible();
+  await expect(sources.getByText(/sent to no server/)).toBeVisible();
   const lines = await sources.locator("p").allTextContents();
   expect(new Set(lines).size).toBe(lines.length);
   await expect(page.getByRole("alert")).toHaveCount(0);
