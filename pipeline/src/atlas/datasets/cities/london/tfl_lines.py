@@ -12,24 +12,25 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-import requests
 
-API = "https://api.tfl.gov.uk/"
+from atlas.datasets.cities.london import tfl_api
+
 RAIL_MODES = "tube,dlr,overground,elizabeth-line,tram,national-rail"
 KINDS = {"rail": RAIL_MODES, "bus": "bus"}
-RETRIES = 8
 PAUSE = 1.3  # seconds between requests: without a key TfL allows about 50 a minute
 
 
 def _get(path: str) -> Any:
     """One request to the API, waiting and trying again when TfL asks to slow down."""
-    for attempt in range(RETRIES):
-        reply = requests.get(API + path, timeout=120)
-        if reply.status_code != 429:
-            reply.raise_for_status()
-            return reply.json()
-        time.sleep(15.0 * (attempt + 1))
-    raise RuntimeError(f"TfL kept refusing {path}")
+    return tfl_api.get(path)
+
+
+def _zone(point: dict[str, Any]) -> str:
+    """The fare zone TfL gives a stop, such as `2` or `2+3`, or empty text where it gives none."""
+    for property in point.get("additionalProperties", []):
+        if property.get("key") == "Zone":
+            return str(property.get("value", ""))
+    return ""
 
 
 def _day_lines(path: str) -> list[str]:
@@ -42,9 +43,10 @@ def _day_lines(path: str) -> list[str]:
 
 
 def fetch(data_dir: Path) -> Path:
-    """Fetches the stop points of every line to `data/raw/tfl/line-stops.parquet` once, and
-    returns it. A failed request leaves no file."""
-    target = data_dir / "raw" / "tfl" / "line-stops.parquet"
+    """Fetches the stop points of every line to `data/raw/tfl/line-stops-v2.parquet` once, and
+    returns it. Each line's answer is kept in `data/raw/tfl/stops/`, so a stopped fetch carries
+    on, and a new table is made from the answers already kept."""
+    target = data_dir / "raw" / "tfl" / "line-stops-v2.parquet"
     if target.exists():
         return target
     kept = target.parent / "stops"  # each line's answer, so a stopped fetch carries on
@@ -64,6 +66,7 @@ def fetch(data_dir: Path) -> Path:
                         "stop": point["id"],
                         "Latitude": point["lat"],
                         "Longitude": point["lon"],
+                        "zone": _zone(point),
                     }
                 )
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -74,6 +77,6 @@ def fetch(data_dir: Path) -> Path:
 
 
 def read_stops(path: Path) -> pd.DataFrame:
-    """A row for each line at each stop: `kind` (`rail` or `bus`), `line`, `stop`, `Latitude`
-    and `Longitude`."""
+    """A row for each line at each stop: `kind` (`rail` or `bus`), `line`, `stop`, `Latitude`,
+    `Longitude` and the fare `zone` TfL gives the stop (empty for most)."""
     return pd.read_parquet(path)

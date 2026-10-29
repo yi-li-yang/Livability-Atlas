@@ -247,3 +247,20 @@ def test_an_ae_department_is_a_few_kilometres_from_anywhere_in_london(bundle):
     assert km[SOHO] < 2.0  # University College Hospital and St Thomas' are near
     assert km[cell_at(51.4214, -0.2056)] < 3.0  # Wimbledon village, St George's
     assert km[cell_at(51.3080, 0.0330)] > 5.0  # Biggin Hill, on the green edge
+
+
+def test_nearly_all_of_londons_schools_meet_the_standard_but_not_everywhere(bundle):
+    share = bundle["school_inspections"]
+    assert 0.70 < share.notna().mean() < 0.95  # cells with 3 or more judged schools in reach
+    assert share.dropna().between(0, 100).all()
+    assert share.median() >= 95 and share.quantile(0.05) > 60
+    assert share.min() < 80  # some neighbourhoods have no good school nearby
+
+
+def test_the_fare_zone_follows_the_distance_from_the_centre(bundle):
+    zone = bundle["travel_cost"]
+    assert zone.notna().all() and set(zone) <= {"1", "2", "3", "4", "5", "6", "7", "8", "9"}
+    assert zone[SOHO] == "1" and zone[BANK] == "1"
+    assert zone[WIMBLEDON_VILLAGE] == "3"  # Wimbledon station
+    assert zone[cell_at(51.6330, -0.0100)] == "5"  # Chingford
+    assert zone[cell_at(51.3762, -0.0982)] == "5"  # East Croydon

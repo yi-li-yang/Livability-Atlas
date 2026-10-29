@@ -16,7 +16,8 @@ import numpy as np
 import pandas as pd
 
 from atlas.catalogue.load import Catalogue, load_catalogue
-from atlas.datasets.cities.london import laei, ptal, tfl_lines
+from atlas.catalogue.models import Region
+from atlas.datasets.cities.london import laei, ptal, tfl_journeys, tfl_lines
 from atlas.datasets.countries.gb import (
     census_age,
     census_country_of_birth,
@@ -36,6 +37,7 @@ from atlas.datasets.countries.gb import (
     nhs_gp,
     nhs_ods,
     ofcom,
+    ofsted,
     ons_local_authorities,
     ons_regions,
     ons_rents,
@@ -126,6 +128,7 @@ def build_region(
     network = walking.Network.from_ways(walking.read_ways(openstreetmap.fetch(data_dir, region_id)))
     columns.update(_walking_columns(network, cells, data_dir, postcodes))
     columns.update(_amenity_columns(region_id, network, cells, data_dir))
+    columns.update(_travel_columns(region, network, cells, data_dir))
     columns.update(_noise_columns(cells, region.grid.resolution, data_dir, postcodes))
     columns.update(_housing_columns(region_id, cells, data_dir))
     columns.update(_price_columns(region_id, cells, data_dir, region.grid.resolution, postcodes))
@@ -198,6 +201,27 @@ def _housing_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[s
         ]
         for indicator, values in (("renting-cost", rents), ("council-tax", tax))
     }
+
+
+def _travel_columns(
+    region: Region, network: walking.Network, cells: list[str], data_dir: Path
+) -> dict[str, Sequence[Any]]:
+    """Travel time to places: the mean over the region's default places (D09) of the quickest
+    door-to-door time by public transport on a weekday morning. The Journey Planner is asked for
+    the journey from each station, and a cell takes the walk to a station within 20 minutes and
+    that station's journey (an estimate: see `transport.travel_minutes`)."""
+    if not region.default_places:
+        return {}
+    rail = tfl_lines.read_stops(tfl_lines.fetch(data_dir))
+    rail = transport.place_stops(pd.DataFrame(rail[rail["kind"] == "rail"]))
+    x0, y0, x1, y1 = bounds_bng(cells, margin=3000)
+    east, north = rail["Easting"].to_numpy(), rail["Northing"].to_numpy()
+    inside = (east >= x0) & (east <= x1) & (north >= y0) & (north <= y1)
+    stations = pd.DataFrame(rail.loc[inside]).drop_duplicates("stop").reset_index(drop=True)
+    places = [(p.name, p.lat, p.lng) for p in region.default_places]
+    times = tfl_journeys.read_times(tfl_journeys.fetch(data_dir, region.id, stations, places))
+    minutes = transport.travel_minutes(network, stations, times, cells)
+    return {"travel-time-to-places": [None if pd.isna(v) else float(v) for v in minutes]}
 
 
 def _price_columns(
@@ -388,7 +412,7 @@ def _walking_columns(
 ) -> dict[str, Sequence[Any]]:
     """The indicators that are walks along streets (spike S6): minutes to the nearest station,
     school, GP practice and way into a park; the patients per GP, the rail lines and the bus routes
-    within a walk."""
+    within a walk, and the fare zone of the nearest station."""
     stations = naptan.read_stations(naptan.fetch(data_dir))
     minutes = transport.station_minutes(network, stations, cells)
     columns: dict[str, Sequence[Any]] = {
@@ -397,6 +421,11 @@ def _walking_columns(
     schools = gias.read_schools(gias.fetch(data_dir))
     for indicator, walk in education.school_minutes(network, schools, cells).items():
         columns[indicator] = [None if pd.isna(m) else float(m) for m in walk]
+    judgements = ofsted.read_judgements(ofsted.fetch(data_dir))
+    verdict = dict(zip(judgements["URN"], education.meets_standard(judgements), strict=True))
+    inspected = schools.assign(meets=[verdict.get(urn, np.nan) for urn in schools["URN"]])
+    share = education.inspection_share(network, inspected, cells)
+    columns["school-inspections"] = [None if pd.isna(v) else float(v) for v in share]
     sites = nhs_ods.read_gp_sites(*nhs_ods.fetch(data_dir))
     places = health.gp_places(sites, postcodes)
     columns["gp-walk"] = [
@@ -419,6 +448,8 @@ def _walking_columns(
         of_kind = pd.DataFrame(stops[stops["kind"] == kind])
         found = transport.lines_within_a_walk(network, of_kind, cells, minutes)
         columns[indicator] = [int(n) for n in found]
+    zones = transport.fare_zones(pd.DataFrame(stops[stops["kind"] == "rail"]), cells)
+    columns["travel-cost"] = [None if pd.isna(z) else str(z) for z in zones]
     gates = os_open_greenspace.read_access_points(
         os_open_greenspace.fetch(data_dir), bounds_bng(cells, margin=3000)
     )

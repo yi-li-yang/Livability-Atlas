@@ -198,7 +198,21 @@ class Network:
         self, groups: Sequence[np.ndarray], origins: np.ndarray, minutes: float
     ) -> list[list[np.ndarray]]:
         """`places_within` for several sets of places at once, sharing the street searches:
-        `result[g][o]` holds the indexes of the places of group `g` within reach of origin `o`.
+        `result[g][o]` holds the indexes of the places of group `g` within reach of origin `o`."""
+        return [[found for found, _ in group] for group in self._reach(groups, origins, minutes)]
+
+    def times_within(
+        self, places: np.ndarray, origins: np.ndarray, minutes: float
+    ) -> list[tuple[np.ndarray, np.ndarray]]:
+        """For each of `origins`, the indexes of the `places` that can be walked to in `minutes` or
+        less, and the minutes each walk takes."""
+        return self._reach([places], origins, minutes)[0]
+
+    def _reach(
+        self, groups: Sequence[np.ndarray], origins: np.ndarray, minutes: float
+    ) -> list[list[tuple[np.ndarray, np.ndarray]]]:
+        """For each group of places and each origin, the indexes of the places within reach and
+        the minutes of the walk to each.
 
         A search from an origin cannot go further than the walk, so it runs on the streets within
         that straight-line distance only: the walk is never shorter than the straight line.
@@ -209,8 +223,10 @@ class Network:
         count = len(self.refs)
         graph = csr_matrix((self._length, (self._src, self._dst)), shape=(count, count))
         local = np.full(count, -1, dtype=np.int64)
-        empty = np.empty(0, dtype=np.int64)
-        found: list[list[np.ndarray]] = [[empty] * len(origins) for _ in groups]
+        nothing = (np.empty(0, dtype=np.int64), np.empty(0, dtype=float))
+        found: list[list[tuple[np.ndarray, np.ndarray]]] = [
+            [nothing] * len(origins) for _ in groups
+        ]
         owners: dict[int, list[int]] = {}
         for index, node in enumerate(origin_node):
             owners.setdefault(int(node), []).append(index)
@@ -224,6 +240,8 @@ class Network:
                 reachable = np.flatnonzero(local[place_node] >= 0)
                 along = walk[local[place_node[reachable]]] + place_gap[reachable]
                 for index in indexes:
-                    found[group][index] = reachable[along + origin_gap[index] <= limit]
+                    metres = along + origin_gap[index]
+                    within = metres <= limit
+                    found[group][index] = (reachable[within], metres[within] / SPEED)
             local[around] = -1
         return found
