@@ -221,7 +221,8 @@ def test_faith_and_community_options_follow_where_people_and_places_are(bundle):
         shares = bundle[[c for c in options if c.startswith(f"your_community__{kind}_")]].sum(
             axis=1
         )
-        assert shares.between(99.5, 100.1).all(), kind  # British Overseas births are left out
+        assert shares.between(90, 100.1).all(), kind  # British Overseas births (< 8%) are left out
+        assert shares.median() > 99.9, kind
     assert bundle["your_community__born_united_kingdom"][SOHO] < 50  # a city of newcomers
     assert bundle["your_community__born_united_kingdom"].median() > 55
     assert bundle["your_community__age_children_under_15"].median() > 12
