@@ -20,6 +20,21 @@ export function encodeProfile(profile: Profile): string {
 }
 
 /**
+ * The profile as text for the browser's storage: the link's text and the choices, as
+ * `c=faith:hindu.sikh,your-community:ethnic-indian`. Choices can say a faith or an ethnic group,
+ * so they go no further than this browser (D08).
+ */
+export function encodeStored(profile: Profile): string {
+  const choices = Object.entries(profile.choices ?? {})
+    .filter(([, options]) => options.length > 0)
+    .map(([id, options]) => `${id}:${options.join(".")}`);
+  const link = encodeProfile(profile);
+  return choices.length > 0
+    ? `${link}${link ? "&" : ""}c=${choices.join(",")}`
+    : link;
+}
+
+/**
  * The profile that text from the URL or the browser's storage holds. Anything malformed is left
  * out, never an error: the text comes from outside, and a bad link must not break the app.
  */
@@ -44,10 +59,30 @@ export function decodeProfile(text: string): Profile {
   const flipped = (params.get("f") ?? "")
     .split(",")
     .filter((id) => ID.test(id));
-  return flipped.length > 0 ? { weights, flipped } : { weights };
+  const choices: Record<string, string[]> = {};
+  for (const entry of (params.get("c") ?? "").split(",")) {
+    const [id, list, ...rest] = entry.split(":");
+    const options = (list ?? "").split(".");
+    if (
+      rest.length === 0 &&
+      ID.test(id ?? "") &&
+      options.length > 0 &&
+      options.every((option) => ID.test(option))
+    ) {
+      choices[id] = options;
+    }
+  }
+  return {
+    weights,
+    ...(flipped.length > 0 ? { flipped } : {}),
+    ...(Object.keys(choices).length > 0 ? { choices } : {}),
+  };
 }
 
-/** Keeps only the weights and directions of ids that the region's factor tree has. */
+/**
+ * Keeps only the weights, directions and choices of ids that the region's factor tree has. An
+ * option is known as `indicator:option`.
+ */
 export function pruneProfile(
   profile: Profile,
   known: ReadonlySet<string>,
@@ -56,7 +91,25 @@ export function pruneProfile(
     Object.entries(profile.weights).filter(([id]) => known.has(id)),
   );
   const flipped = (profile.flipped ?? []).filter((id) => known.has(id));
-  return flipped.length > 0 ? { weights, flipped } : { weights };
+  const choices = Object.fromEntries(
+    Object.entries(profile.choices ?? {})
+      .filter(([id]) => known.has(id))
+      .map(([id, options]) => [
+        id,
+        options.filter((option) => known.has(`${id}:${option}`)),
+      ])
+      .filter(([, options]) => options.length > 0),
+  );
+  return {
+    weights,
+    ...(flipped.length > 0 ? { flipped } : {}),
+    ...(Object.keys(choices).length > 0 ? { choices } : {}),
+  };
+}
+
+/** The profile without its choices. */
+function withoutChoices({ choices: _, ...rest }: Profile): Profile {
+  return rest;
 }
 
 /** The part of `Storage` that the profile uses, so that tests can stand in for it. */
@@ -70,19 +123,23 @@ export interface Store {
  * one saved in this browser, else none. Reading may throw where storage is blocked.
  */
 export function loadProfile(fragment: string, store: Store | null): Profile {
-  const fromLink = decodeProfile(fragment);
-  if (encodeProfile(fromLink) !== "") return fromLink;
+  const fromLink = withoutChoices(decodeProfile(fragment));
+  let saved: Profile = { weights: {} };
   try {
-    return decodeProfile(store?.getItem(STORAGE_KEY) ?? "");
+    saved = decodeProfile(store?.getItem(STORAGE_KEY) ?? "");
   } catch {
-    return { weights: {} };
+    // Storage is blocked: the link alone speaks.
   }
+  // A link wins over what is saved, but only for the weights and directions. The choices are
+  // this browser's own: a link never carries them.
+  const base = encodeProfile(fromLink) !== "" ? fromLink : saved;
+  return saved.choices ? { ...base, choices: saved.choices } : base;
 }
 
 /** Saves the profile in the browser. It stays there: nothing is sent anywhere (D08). */
 export function saveProfile(profile: Profile, store: Store | null): void {
   try {
-    store?.setItem(STORAGE_KEY, encodeProfile(profile));
+    store?.setItem(STORAGE_KEY, encodeStored(profile));
   } catch {
     // Storage can be full or blocked, as in a private window: the app works without it.
   }

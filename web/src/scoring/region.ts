@@ -2,6 +2,7 @@ import type { Bundle } from "../data/bundle";
 import type {
   ManifestFactor,
   ManifestIndicator,
+  ManifestOption,
 } from "../generated/manifest.schema";
 import { curveScore } from "./curves";
 import type { ScoreCase, ScoreNode } from "./engine";
@@ -12,6 +13,11 @@ export interface Profile {
   weights: Record<string, number>;
   /** Ids of measured indicators whose direction the user has flipped (1 - score). */
   flipped?: readonly string[];
+  /**
+   * For each choice indicator, the ids of the options the user has picked. These stay in this
+   * browser and out of shared links (D08): they can say a faith or an ethnic group.
+   */
+  choices?: Readonly<Record<string, readonly string[]>>;
 }
 
 /** The id of the tree's root, which holds the top-level factors. */
@@ -41,8 +47,16 @@ const indicatorOf = (
   bundle.manifest.indicators.find((i) => i.id === id);
 
 /** The values of a column that a percentile curve compares a cell with. */
-function regionValues(bundle: Bundle, indicator: ManifestIndicator): number[] {
-  return bundle.columns[indicator.column].filter((v) => v !== null).map(Number);
+function regionValues(bundle: Bundle, column: string): number[] {
+  return bundle.columns[column].filter((v) => v !== null).map(Number);
+}
+
+/** The options of a choice indicator that the user has picked and the bundle has. */
+function pickedOptions(
+  indicator: ManifestIndicator,
+  picked: readonly string[] = [],
+): ManifestOption[] {
+  return (indicator.options ?? []).filter((o) => picked.includes(o.id));
 }
 
 /**
@@ -54,16 +68,39 @@ export function leafScores(
   bundle: Bundle,
   indicator: ManifestIndicator,
   flipped = false,
+  picked: readonly string[] = [],
 ): Float64Array {
-  const values = bundle.columns[indicator.column];
+  if (!indicator.options) {
+    return columnScores(bundle, indicator.column, indicator.curve, flipped);
+  }
+  // A choice indicator scores the best of the options picked, in a fixed direction. With none
+  // picked it has no score.
+  const out = new Float64Array(bundle.cells.length).fill(Number.NaN);
+  for (const option of pickedOptions(indicator, picked)) {
+    const scores = columnScores(bundle, option.column, indicator.curve, false);
+    for (let i = 0; i < out.length; i++) {
+      if (Number.isNaN(scores[i])) continue;
+      if (Number.isNaN(out[i]) || scores[i] > out[i]) out[i] = scores[i];
+    }
+  }
+  return out;
+}
+
+/** The score of every cell on one column of the bundle, with the given curve. */
+function columnScores(
+  bundle: Bundle,
+  column: string,
+  curve: ManifestIndicator["curve"],
+  flipped: boolean,
+): Float64Array {
+  const values = bundle.columns[column];
   const out = new Float64Array(values.length).fill(Number.NaN);
-  const curve = indicator.curve;
   if (!curve) return out;
 
   // A percentile needs the rank of a value among all of the region's, so sort them once.
   let sorted: Float64Array | undefined;
   if (curve.shape === "percentile") {
-    sorted = Float64Array.from(regionValues(bundle, indicator)).sort();
+    sorted = Float64Array.from(regionValues(bundle, column)).sort();
   }
   const below = (x: number): number => {
     // The number of values < x, by binary search in the ascending array.
@@ -115,12 +152,13 @@ export function leafScores(
 export function allLeafScores(
   bundle: Bundle,
   flippedIds: readonly string[] = [],
+  choices: Profile["choices"] = {},
 ): Map<string, Float64Array> {
   const flipped = new Set(flippedIds);
   return new Map(
     bundle.manifest.indicators.map((i) => [
       i.id,
-      leafScores(bundle, i, flipped.has(i.id)),
+      leafScores(bundle, i, flipped.has(i.id), choices?.[i.id]),
     ]),
   );
 }
@@ -184,6 +222,35 @@ export function scoreCaseFor(
   cellIndex: number,
 ): ScoreCase {
   const flipped = new Set(profile.flipped);
+  /** A choice indicator in this cell: the picked option that scores best, with its own value. */
+  const buildChoice = (
+    factor: ManifestFactor,
+    weight: number,
+    indicator: ManifestIndicator,
+  ): ScoreNode => {
+    let best: { column: string; score: number } | null = null;
+    for (const option of pickedOptions(
+      indicator,
+      profile.choices?.[indicator.id],
+    )) {
+      const score = columnScores(bundle, option.column, indicator.curve, false)[
+        cellIndex
+      ];
+      if (!Number.isNaN(score) && (best === null || score > best.score)) {
+        best = { column: option.column, score };
+      }
+    }
+    return {
+      id: factor.id,
+      weight,
+      curve: indicator.curve ?? undefined,
+      value: best ? bundle.columns[best.column][cellIndex] : null,
+      region_values:
+        best && indicator.curve?.shape === "percentile"
+          ? regionValues(bundle, best.column)
+          : undefined,
+    };
+  };
   const build = (factor: ManifestFactor): ScoreNode => {
     const weight = weightIn(profile, factor);
     const kids = kidsOf(factor);
@@ -191,6 +258,7 @@ export function scoreCaseFor(
       return { id: factor.id, weight, children: kids.map(build) };
     }
     const indicator = indicatorOf(bundle, factor.indicator);
+    if (indicator?.options) return buildChoice(factor, weight, indicator);
     return {
       id: factor.id,
       weight,
@@ -198,7 +266,7 @@ export function scoreCaseFor(
       value: indicator ? bundle.columns[indicator.column][cellIndex] : null,
       region_values:
         indicator?.curve?.shape === "percentile"
-          ? regionValues(bundle, indicator)
+          ? regionValues(bundle, indicator.column)
           : undefined,
       flipped: indicator ? flipped.has(indicator.id) : false,
     };

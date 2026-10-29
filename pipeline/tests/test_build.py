@@ -316,9 +316,23 @@ def synthetic_places(tmp_path: Path) -> tuple[Path, pd.DataFrame]:
             "amenity": [None, "library"],
             "shop": [None, None],
             "leisure": ["fitness_centre", None],
+            "religion": [None, None],
         }
     )
-    return path, osm_places
+    worship = pd.DataFrame(
+        {
+            "lng": [east[0]] * 10,
+            "lat": [east[1]] * 10,
+            "name": [None] * 10,
+            "brand": [None] * 10,
+            "cuisine": [None] * 10,
+            "amenity": ["place_of_worship"] * 10,
+            "shop": [None] * 10,
+            "leisure": [None] * 10,
+            "religion": ["hindu"] * 10,
+        }
+    )
+    return path, pd.concat([osm_places, worship], ignore_index=True)
 
 
 def synthetic_ratings(tmp_path: Path) -> Path:
@@ -381,6 +395,15 @@ def synthetic_ethnic_groups() -> pd.DataFrame:
     )
 
 
+def synthetic_religions() -> pd.DataFrame:
+    """Residents by religion for the two output areas of AREA: the west one all Hindu, the east
+    one half Christian and half without religion."""
+    return pd.DataFrame(
+        {"Hindu": [100.0, 0.0], "Christian": [0.0, 50.0], "No religion": [0.0, 50.0]},
+        index=["W1", "E1"],
+    )
+
+
 def use_synthetic_data(monkeypatch, tmp_path):
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
@@ -435,6 +458,12 @@ def use_synthetic_data(monkeypatch, tmp_path):
     )
     monkeypatch.setattr(
         build_module.census_ethnic_group, "read_groups", lambda path: synthetic_ethnic_groups()
+    )
+    monkeypatch.setattr(
+        build_module.census_religion, "fetch", lambda data_dir: tmp_path / "religion"
+    )
+    monkeypatch.setattr(
+        build_module.census_religion, "read_groups", lambda path: synthetic_religions()
     )
     air = synthetic_air(tmp_path)
     monkeypatch.setattr(build_module.laei, "fetch", lambda data_dir: air)
@@ -778,3 +807,21 @@ def test_the_bundle_holds_the_rail_lines_and_bus_routes_within_a_walk(monkeypatc
     assert table["rail_lines_nearby"].max() == 2 and table["bus_routes_nearby"].max() == 3
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
     assert {"rail-lines-nearby", "bus-routes-nearby"} <= {i["id"] for i in manifest["indicators"]}
+
+
+def test_the_bundle_holds_a_column_for_each_option_of_the_choice_indicators(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    lng = pd.Series([h3.cell_to_latlng(c)[1] for c in table["cell"]], index=table.index)
+    west, east = table[lng < -0.145], table[lng > -0.130]
+    assert west["your_community__religion_hindu"].median() == pytest.approx(100.0)
+    assert east["your_community__religion_christian"].median() == pytest.approx(50.0)
+    assert east["your_community__ethnic_d"].median() == pytest.approx(25.0)  # a quarter of four
+    assert east["faith__hindu"].median() < west["faith__hindu"].median()  # the places are east
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    community = next(i for i in manifest["indicators"] if i["id"] == "your-community")
+    ids = [o["id"] for o in community["options"]]
+    assert "religion-hindu" in ids and "religion-not-answered" not in ids
+    faith = next(i for i in manifest["indicators"] if i["id"] == "faith")
+    assert [o["id"] for o in faith["options"]] == ["hindu"]

@@ -7,7 +7,7 @@ import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
-import type { ManifestFactor } from "./generated/manifest.schema";
+import type { Manifest, ManifestFactor } from "./generated/manifest.schema";
 import {
   encodeProfile,
   loadProfile,
@@ -34,8 +34,9 @@ function browserStorage(): Storage | null {
   }
 }
 
-/** The ids of every factor and measured indicator in a factor tree. */
-function idsIn(factors: readonly ManifestFactor[]): Set<string> {
+/** The ids of every factor and measured indicator in a factor tree, and `indicator:option`. */
+function idsIn(manifest: Manifest): Set<string> {
+  const factors = manifest.factors;
   const ids = new Set<string>();
   const visit = (factor: ManifestFactor) => {
     ids.add(factor.id);
@@ -43,6 +44,11 @@ function idsIn(factors: readonly ManifestFactor[]): Set<string> {
     for (const child of factor.children ?? []) visit(child);
   };
   for (const factor of factors) visit(factor);
+  for (const indicator of manifest.indicators) {
+    for (const option of indicator.options ?? []) {
+      ids.add(`${indicator.id}:${option.id}`);
+    }
+  }
   return ids;
 }
 
@@ -66,7 +72,8 @@ export function App() {
   }, []);
 
   // The weights stay in this browser: in its storage, and in the link's fragment, which is never
-  // sent to a server, so that a link carries them to a friend (D08).
+  // sent to a server, so that a link carries them to a friend. The choices (a faith, an ethnic
+  // group) are kept in the storage only, so that a link does not say who sent it (D08).
   const loaded = state.status === "ready";
   useEffect(() => {
     if (!loaded) return;
@@ -82,7 +89,7 @@ export function App() {
   // A saved profile or link may name factors that this bundle does not have.
   useEffect(() => {
     if (state.status !== "ready") return;
-    const known = idsIn(state.bundle.manifest.factors);
+    const known = idsIn(state.bundle.manifest);
     setProfile((current) => {
       const pruned = pruneProfile(current, known);
       return encodeProfile(pruned) === encodeProfile(current)
@@ -92,13 +99,14 @@ export function App() {
   }, [state]);
 
   const flipped = profile.flipped;
+  const choices = profile.choices;
   const bundle = state.status === "ready" ? state.bundle : null;
   const cells = useMemo(() => (bundle ? toHexCells(bundle) : []), [bundle]);
   // What a cell scores on each indicator depends on the data and the user's directions, not on
   // the weights, so a change of weights only repeats the cheaper weighted sum below.
   const leaves = useMemo(
-    () => (bundle ? allLeafScores(bundle, flipped) : null),
-    [bundle, flipped],
+    () => (bundle ? allLeafScores(bundle, flipped, choices) : null),
+    [bundle, flipped, choices],
   );
   const scores = useMemo(
     () => (bundle && leaves ? scoreRegion(bundle, profile, leaves) : null),
@@ -154,10 +162,11 @@ export function App() {
         {state.status === "ready" && (
           <aside
             aria-label="Your preferences"
-            className="absolute left-4 top-4 z-10 max-h-[calc(100%-9rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
+            className="absolute left-4 top-4 z-10 max-h-[calc(100%-12rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
           >
             <FactorTree
               factors={state.bundle.manifest.factors}
+              indicators={state.bundle.manifest.indicators}
               profile={profile}
               onChange={setProfile}
               onReset={() => setProfile({ weights: {} })}

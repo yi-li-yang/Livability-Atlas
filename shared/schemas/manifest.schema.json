@@ -262,6 +262,21 @@
           },
           "title": "Datasets",
           "type": "array"
+        },
+        "options": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ManifestOption"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Options"
         }
       },
       "required": [
@@ -274,6 +289,43 @@
         "datasets"
       ],
       "title": "ManifestIndicator",
+      "type": "object"
+    },
+    "ManifestOption": {
+      "additionalProperties": false,
+      "description": "One of the options a user can pick on a choice indicator, such as a faith.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "group": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Group"
+        },
+        "column": {
+          "title": "Column",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "column"
+      ],
+      "title": "ManifestOption",
       "type": "object"
     },
     "ManifestRegion": {

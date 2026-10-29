@@ -1053,7 +1053,7 @@ factors:
             default_weight: 0
             weight_reason: "Choice factor: weight 0 until the user picks a group (D18)."
             scales: [within-city]
-            status: researched
+            status: built
             unit: "% of residents"
             preference_type: user-choice
             curve: {shape: percentile, better: higher}
@@ -1069,7 +1069,9 @@ factors:
               output area, combined over the output areas that overlap the hex
               cell, weighted by residents. The groups are the census's own
               categories, which differ between countries, so the share does not
-              compare across regions.
+              compare across regions. The first build offers the census's detailed
+              ethnic groups and its religions; country of birth, main language and
+              age follow.
             datasets: &census-composition-datasets [ons-census-2021-topic-summaries, ons-output-area-boundaries]
           - id: diversity
             name: Diversity
@@ -1100,7 +1102,7 @@ factors:
         default_weight: 0
         scales: [within-city]
         weight_reason: "Choice factor: weight 0 until the user picks a faith (D18)."
-        status: researched
+        status: built
         unit: minutes on foot
         preference_type: user-choice
         curve: {shape: ramp, t0: 15, t1: 5}
@@ -1111,9 +1113,14 @@ factors:
           The walking time along streets and paths from the hex cell's centre to
           the nearest place of worship of the chosen faith, at 4.8 km/h, from the
           religion that the place data records. Residents who share the faith
-          count under Your community, by religion. Spike S6 checks how complete
-          the religion tags are.
-        datasets: [openstreetmap, overture-places]
+          count under Your community, by religion. Only OpenStreetMap records a
+          place's religion (Overture does not). It is far from complete: London
+          has 3,297 places of worship in OpenStreetMap, 98% with a religion,
+          among them 2,752 Christian, 238 Muslim, 104 Jewish, 48 Hindu and 31
+          Sikh, which is fewer than exist, so the walks to the smaller faiths'
+          places are overstated. A religion with fewer than 10 places is not
+          offered, and neither is "multifaith".
+        datasets: [openstreetmap]
       - id: community-life
         name: Community life
         default_weight: 3

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   decodeProfile,
   encodeProfile,
+  encodeStored,
   loadProfile,
   pruneProfile,
   STORAGE_KEY,
@@ -107,5 +108,55 @@ describe("loadProfile and saveProfile", () => {
     expect(loadProfile("", blocked)).toEqual({ weights: {} });
     expect(() => saveProfile({ weights: { a: 1 } }, blocked)).not.toThrow();
     expect(() => saveProfile({ weights: { a: 1 } }, null)).not.toThrow();
+  });
+});
+
+describe("choices", () => {
+  const profile = {
+    weights: { faith: 3 },
+    choices: { faith: ["hindu", "sikh"], "your-community": ["ethnic-indian"] },
+  };
+
+  it("stay out of the link, which a friend may read (D08)", () => {
+    expect(encodeProfile(profile)).toBe("w=faith:3");
+  });
+
+  it("are kept in the browser's storage and round-trip there", () => {
+    const stored = encodeStored(profile);
+    expect(stored).toContain("c=");
+    expect(decodeProfile(stored)).toEqual(profile);
+  });
+
+  it("are not read from a link, even one that carries them", () => {
+    const store = memory();
+    const loaded = loadProfile(`#${encodeStored(profile)}`, store);
+    expect(loaded.weights).toEqual({ faith: 3 });
+    expect(loaded.choices).toBeUndefined();
+  });
+
+  it("come back from storage even when a link sets the weights", () => {
+    const store = memory();
+    saveProfile(profile, store);
+    const loaded = loadProfile("#w=park:1", store);
+    expect(loaded.weights).toEqual({ park: 1 });
+    expect(loaded.choices).toEqual(profile.choices);
+  });
+
+  it("are saved with the weights", () => {
+    const store = memory();
+    saveProfile(profile, store);
+    expect(decodeProfile(store.data[STORAGE_KEY])).toEqual(profile);
+  });
+
+  it("are dropped when malformed", () => {
+    expect(
+      decodeProfile("c=faith:,:hindu,a b:c,faith:hi ndu").choices,
+    ).toBeUndefined();
+  });
+
+  it("are pruned to the indicators and options that the bundle has", () => {
+    const known = new Set(["faith", "faith:hindu"]);
+    const pruned = pruneProfile(profile, known);
+    expect(pruned.choices).toEqual({ faith: ["hindu"] });
   });
 });

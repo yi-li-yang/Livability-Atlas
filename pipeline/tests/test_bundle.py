@@ -5,7 +5,7 @@ import pytest
 
 from atlas.catalogue.load import load_catalogue
 from atlas.paths import CATALOGUE_DIR
-from atlas.publish.bundle import write_bundle
+from atlas.publish.bundle import Choice, write_bundle
 from atlas.publish.manifest import Manifest
 
 CELLS = ["891fa5a0003ffff", "891fa5a0007ffff", "891fa5a000bffff"]
@@ -126,5 +126,87 @@ def test_an_indicator_the_catalogue_does_not_have_is_an_error(catalogue, tmp_pat
             region_id="london",
             cells=CELLS,
             columns={"nope": [1, 2, 3]},
+            out_dir=tmp_path,
+        )
+
+
+def choices():
+    return {
+        "faith": [
+            Choice("hindu", "Hindu", "Religion", [4.0, None, 12.0]),
+            Choice("sikh", "Sikh", "Religion", [9.0, 9.0, None]),
+        ]
+    }
+
+
+def build_with_choices(catalogue, tmp_path):
+    return write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"service-level": ["6b", "2", None]},
+        choices=choices(),
+        out_dir=tmp_path,
+    )
+
+
+def test_each_option_of_a_choice_has_a_column_named_by_the_indicator_and_the_option(
+    catalogue, tmp_path
+):
+    bundle = build_with_choices(catalogue, tmp_path)
+    table = pq.read_table(bundle / "cells.parquet")
+    assert table.column_names == ["cell", "service_level", "faith__hindu", "faith__sikh"]
+    assert table["faith__hindu"].to_pylist() == [4.0, None, 12.0]
+
+
+def test_the_manifest_lists_the_options_of_a_choice_indicator(catalogue, tmp_path):
+    bundle = build_with_choices(catalogue, tmp_path)
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    faith = next(i for i in manifest.indicators if i.id == "faith")
+    assert faith.preference_type == "user-choice"
+    assert faith.column == "faith"
+    assert faith.options is not None
+    assert [(o.id, o.name, o.group, o.column) for o in faith.options] == [
+        ("hindu", "Hindu", "Religion", "faith__hindu"),
+        ("sikh", "Sikh", "Religion", "faith__sikh"),
+    ]
+    plain = next(i for i in manifest.indicators if i.id == "service-level")
+    assert plain.options is None
+
+
+def test_a_choice_enters_the_factor_tree_like_any_other_indicator(catalogue, tmp_path):
+    bundle = build_with_choices(catalogue, tmp_path)
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    ids: list[str] = []
+
+    def walk(nodes):
+        for node in nodes:
+            ids.append(node.id)
+            walk(node.children or [])
+
+    walk(manifest.factors)
+    assert "faith" in ids and "community-and-people" in ids
+
+
+def test_an_indicator_cannot_be_both_plain_and_a_choice(catalogue, tmp_path):
+    with pytest.raises(ValueError, match="faith"):
+        write_bundle(
+            catalogue,
+            region_id="london",
+            cells=CELLS,
+            columns={"faith": [1.0, 2.0, 3.0]},
+            choices=choices(),
+            out_dir=tmp_path,
+        )
+
+
+def test_an_option_needs_a_value_for_every_cell(catalogue, tmp_path):
+    with pytest.raises(ValueError, match="hindu"):
+        write_bundle(
+            catalogue,
+            region_id="london",
+            cells=CELLS,
+            columns={},
+            choices={"faith": [Choice("hindu", "Hindu", "Religion", [1.0])]},
             out_dir=tmp_path,
         )

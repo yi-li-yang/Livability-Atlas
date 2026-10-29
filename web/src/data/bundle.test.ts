@@ -35,6 +35,16 @@ describe("loadBundle", () => {
     expect([...bands].every((band) => typeof band === "string")).toBe(true);
   });
 
+  it("gives a choice indicator a column for each option, and none of its own", async () => {
+    const bundle = await loadBundle("/bundles", "london", fixtureFetch);
+    const faith = bundle.manifest.indicators.find((i) => i.id === "faith");
+    expect(faith?.options?.map((o) => o.id)).toEqual(["hindu", "sikh"]);
+    for (const option of faith?.options ?? []) {
+      expect(bundle.columns[option.column]).toHaveLength(bundle.cells.length);
+    }
+    expect(bundle.columns[faith?.column ?? "faith"]).toBeUndefined();
+  });
+
   it("holds the cells as H3 indexes, sorted", async () => {
     const { cells } = await loadBundle("/bundles", "london", fixtureFetch);
     expect(cells.every((cell) => /^[0-9a-f]{15}$/.test(cell))).toBe(true);

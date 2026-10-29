@@ -22,4 +22,9 @@ def test_the_fixture_bundle_is_valid_under_the_current_manifest_model():
     table = pq.read_table(BUNDLES / version / "cells.parquet")
     assert manifest.version == version
     assert manifest.cell_count == table.num_rows
-    assert table.column_names == ["cell", *[i.column for i in manifest.indicators]]
+    expected = [
+        column
+        for i in manifest.indicators
+        for column in ([o.column for o in i.options] if i.options else [i.column])
+    ]
+    assert table.column_names == ["cell", *expected]

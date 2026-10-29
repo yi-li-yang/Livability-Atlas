@@ -86,6 +86,9 @@ OSM = """<?xml version='1.0' encoding='UTF-8'?>
   <node id="8" lat="51.5400" lon="-0.1600">
     <tag k="amenity" v="restaurant"/><tag k="cuisine" v="thai;noodle"/>
   </node>
+  <node id="9" lat="51.5100" lon="-0.1200">
+    <tag k="amenity" v="place_of_worship"/><tag k="religion" v="hindu"/><tag k="name" v="Mandir"/>
+  </node>
   <way id="10">
     <nd ref="4"/><nd ref="5"/><nd ref="6"/><nd ref="7"/><nd ref="4"/>
     <tag k="leisure" v="fitness_centre"/><tag k="name" v="The Gym"/>
@@ -99,7 +102,7 @@ class TestOpenStreetMapPlaces:
         path = tmp_path / "small.osm"
         path.write_text(OSM, encoding="utf-8")
         places = openstreetmap.read_places(path)
-        assert len(places) == 4  # the bench is not a place of a kind we count
+        assert len(places) == 5  # the bench is not a place of a kind we count
         by_name = places.set_index(places["name"].fillna(places["brand"]))
         assert by_name.loc["Soho Cafe", "amenity"] == "cafe"
         assert by_name.loc["Tesco", "shop"] == "supermarket"
@@ -109,6 +112,8 @@ class TestOpenStreetMapPlaces:
         thai = places[places["amenity"] == "restaurant"].iloc[0]
         assert thai["cuisine"] == "thai;noodle"
         assert isinstance(places, pd.DataFrame)
+        mandir = by_name.loc["Mandir"]
+        assert mandir["amenity"] == "place_of_worship" and mandir["religion"] == "hindu"
 
 
 class TestKeptPlaces:
@@ -129,4 +134,4 @@ class TestKeptPlaces:
         first = openstreetmap.places(tmp_path, "london")
         second = openstreetmap.places(tmp_path, "london")
         assert len(reads) == 1 and first.equals(second)
-        assert (extract.parent / "places-london-abcdef012345.parquet").exists()
+        assert (extract.parent / "places-v2-london-abcdef012345.parquet").exists()

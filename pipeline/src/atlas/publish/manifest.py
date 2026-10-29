@@ -31,15 +31,27 @@ class ManifestDataset(_Model):
     date: str
 
 
+class ManifestOption(_Model):
+    """One of the options a user can pick on a choice indicator, such as a faith."""
+
+    id: str
+    name: str
+    group: str | None = None  # the title of the picker's section
+    column: str  # the column of cells.parquet that holds this option's raw value
+
+
 class ManifestIndicator(_Model):
     id: str
     name: str
-    column: str  # the column of cells.parquet that holds its raw value
+    # The column of cells.parquet that holds its raw value. A choice indicator has `options`, each
+    # with a column of its own, and this is the prefix of their names.
+    column: str
     unit: str
     evidence_type: EvidenceType
     preference_type: PreferenceType
     curve: Curve | None = None
     datasets: list[str]
+    options: list[ManifestOption] | None = None
 
 
 class ManifestFactor(_Model):

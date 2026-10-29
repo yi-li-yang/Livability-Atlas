@@ -18,6 +18,7 @@ from atlas.catalogue.load import Catalogue, load_catalogue
 from atlas.datasets.cities.london import laei, ptal, tfl_lines
 from atlas.datasets.countries.gb import (
     census_ethnic_group,
+    census_religion,
     census_residents,
     code_point,
     defra_noise,
@@ -45,6 +46,7 @@ from atlas.indicators import (
     crime,
     education,
     environment,
+    faith,
     flood,
     health,
     housing,
@@ -54,7 +56,7 @@ from atlas.indicators import (
 from atlas.indicators import places as place_pool
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
-from atlas.publish.bundle import write_bundle
+from atlas.publish.bundle import Choice, write_bundle
 from atlas.spatial import walking
 from atlas.spatial.grid import boundary_from_geojson, bounds_bng, lonlat_box, region_cells
 
@@ -115,11 +117,13 @@ def build_region(
         for indicator in needs_commercial_licence(catalogue, list(columns)):
             del columns[indicator]
 
+    choices = _choices(region_id, network, cells, data_dir)
     return write_bundle(
         catalogue,
         region_id=region_id,
         cells=cells,
         columns=columns,
+        choices=choices,
         out_dir=data_dir / "published",
     )
 
@@ -195,6 +199,40 @@ def _connectivity_columns(
         "gigabit-broadband": [None if pd.isna(v) else float(v) for v in gigabit],
         "5g-coverage": [None if pd.isna(v) else float(v) for v in five_g],
     }
+
+
+def _choices(
+    region_id: str, network: walking.Network, cells: list[str], data_dir: Path
+) -> dict[str, list[Choice]]:
+    """The user-choice indicators, with a column for each option (specs/2026-10-29-user-choice):
+    Your community, the share of residents in each ethnic group and religion (Census 2021), and
+    Faith, the minutes on foot to the nearest place of worship of each religion."""
+    areas = output_areas.read_boundaries(
+        output_areas.fetch(data_dir, bounds_bng(cells, margin=2000))
+    )
+    ethnic = community.shares(
+        areas, census_ethnic_group.read_groups(census_ethnic_group.fetch(data_dir)), cells
+    )
+    religion = community.shares(
+        areas, census_religion.read_groups(census_religion.fetch(data_dir)), cells
+    )
+    your_community = [
+        Choice(id=i, name=n, group=g, values=_floats(v))
+        for i, n, g, v in community.community_options(ethnic, religion)
+    ]
+    worship = faith.places_of_worship(openstreetmap.places(data_dir, region_id))
+    minutes = faith.faith_minutes(network, worship, cells)
+    return {
+        "your-community": your_community,
+        "faith": [
+            Choice(id=r, name=faith.name_of(r), group="Religion", values=_floats(m))
+            for r, m in minutes.items()
+        ],
+    }
+
+
+def _floats(values: pd.Series) -> list[float | None]:
+    return [None if pd.isna(v) else float(v) for v in values]
 
 
 def _community_columns(cells: list[str], data_dir: Path) -> dict[str, Sequence[Any]]:

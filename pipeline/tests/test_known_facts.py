@@ -204,3 +204,18 @@ def test_lines_and_routes_are_many_in_the_centre_and_none_in_the_park(bundle):
     richmond_park = cell_at(51.4440, -0.2750)
     assert rail[richmond_park] == 0 and bus[richmond_park] == 0
     assert rail.median() < 2 and 2 <= bus.median() <= 5
+
+
+def test_faith_and_community_options_follow_where_people_and_places_are(bundle):
+    southall, soho = cell_at(51.5113, -0.3784), SOHO
+    east_ham = cell_at(51.5390, 0.0550)
+    assert bundle["faith__sikh"][southall] < 10  # Southall's gurdwaras
+    assert bundle["faith__sikh"][soho] > 30
+    assert bundle["faith__hindu"][east_ham] < bundle["faith__hindu"].median()
+    assert bundle["your_community__ethnic_indian"][southall] > 40  # % of residents
+    assert bundle["your_community__ethnic_indian"][soho] < 5
+    assert bundle["your_community__religion_muslim"][east_ham] > 30
+    options = [c for c in bundle.columns if c.startswith("your_community__")]
+    assert len(options) == 26 and "faith__multifaith" not in bundle.columns
+    shares = bundle[[c for c in options if c.startswith("your_community__ethnic_")]].sum(axis=1)
+    assert shares.between(99.9, 100.1).all()  # the 19 groups cover everyone
