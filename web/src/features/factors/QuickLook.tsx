@@ -1,4 +1,5 @@
 import type { Explanation } from "../../scoring/explain";
+import { OnTheMap } from "../map/OnTheMap";
 
 const wholeNumber = new Intl.NumberFormat("en-GB");
 
@@ -7,10 +8,13 @@ export function QuickLook({
   explanation,
   rank,
   total,
+  onMap,
 }: {
   explanation: Explanation;
   rank: number | null;
   total: number;
+  /** What the map shows in place of the livability score, and the cell's score on it. */
+  onMap?: { name: string; score: number | null } | null;
 }) {
   const { score, strengths, weakness, neighbourhood } = explanation;
   return (
@@ -25,10 +29,14 @@ export function QuickLook({
           )}
         </p>
       )}
+      {onMap && <OnTheMap {...onMap} />}
       {score === null ? (
         <p className="font-medium">No score here: there is no data for it.</p>
       ) : (
         <>
+          {onMap && (
+            <p className="mt-1 text-xs text-neutral-600">Livability score</p>
+          )}
           <p>
             <span className="text-2xl font-semibold tabular-nums">
               {Math.round(score)}

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import type { Explanation, FactorLine } from "../../scoring/explain";
 import { describeLimit } from "../limits/limits";
+import { OnTheMap } from "../map/OnTheMap";
 import { factorColour } from "./colours";
 import { EvidenceDetails } from "./EvidenceDetails";
 
@@ -107,11 +108,14 @@ export function WhyPanel({
   explanation,
   rank,
   total,
+  onMap,
   onClose,
 }: {
   explanation: Explanation;
   rank: number | null;
   total: number;
+  /** What the map shows in place of the livability score, and the cell's score on it. */
+  onMap?: { name: string; score: number | null } | null;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -146,20 +150,30 @@ export function WhyPanel({
           Close
         </button>
       </div>
+      {onMap && (
+        <div className="mt-1">
+          <OnTheMap {...onMap} />
+        </div>
+      )}
       {explanation.score === null ? (
         <p className="mt-2">There is no data here for the factors you count.</p>
       ) : (
-        <p className="mt-1">
-          <span className="text-2xl font-semibold tabular-nums">
-            {Math.round(explanation.score)}
-          </span>{" "}
-          out of 100
-          {rank !== null && (
-            <span className="text-neutral-600">
-              , rank {wholeNumber.format(rank)} of {wholeNumber.format(total)}
-            </span>
+        <>
+          {onMap && (
+            <p className="mt-2 text-xs text-neutral-600">Livability score</p>
           )}
-        </p>
+          <p className="mt-1">
+            <span className="text-2xl font-semibold tabular-nums">
+              {Math.round(explanation.score)}
+            </span>{" "}
+            out of 100
+            {rank !== null && (
+              <span className="text-neutral-600">
+                , rank {wholeNumber.format(rank)} of {wholeNumber.format(total)}
+              </span>
+            )}
+          </p>
+        </>
       )}
       {explanation.excluded && (
         <p role="note" className="mt-2 rounded bg-neutral-200 p-2 text-xs">
