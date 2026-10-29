@@ -2,7 +2,13 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { type Bundle, loadBundle } from "../data/bundle";
-import { explainCell, type FactorLine, rankOf, sortedScores } from "./explain";
+import {
+  explainCell,
+  type FactorLine,
+  rankableScores,
+  rankOf,
+  sortedScores,
+} from "./explain";
 import { allLeafScores, scoreRegion } from "./region";
 
 const FIXTURES = fileURLToPath(
@@ -144,5 +150,47 @@ describe("the evidence of a measured indicator", () => {
       expect(evidence?.option).toBe(hindu <= sikh ? "Hindu" : "Sikh");
       expect(evidence?.value).toBe(Math.min(hindu, sikh));
     }
+  });
+});
+
+describe("the limits in an explanation", () => {
+  it("lists each limit with its result in the cell, and says whether the cell is left out", async () => {
+    const bundle = await load();
+    const profile = {
+      weights: {},
+      limits: [
+        { indicator: "station-proximity", max: 4 },
+        { indicator: "gp-walk", min: 0 },
+      ],
+    };
+    for (const index of [0, 40, 90]) {
+      const explanation = explainCell(bundle, profile, index);
+      expect(explanation.limits.map((l) => l.indicator?.id)).toEqual([
+        "station-proximity",
+        "gp-walk",
+      ]);
+      const walk = Number(bundle.columns.station_proximity[index]);
+      expect(explanation.limits[0].result).toBe(walk <= 4 ? "pass" : "fail");
+      expect(explanation.limits[1].result).toBe("pass");
+      expect(explanation.excluded).toBe(walk > 4);
+    }
+  });
+
+  it("is not excluded, and lists nothing, without limits", async () => {
+    const bundle = await load();
+    const explanation = explainCell(bundle, { weights: {} }, 5);
+    expect(explanation.limits).toEqual([]);
+    expect(explanation.excluded).toBe(false);
+  });
+});
+
+describe("rankableScores", () => {
+  it("leaves out the cells that limits exclude, so they are not ranked", () => {
+    const scores = Float64Array.from([10, 90, 50]);
+    const ranked = sortedScores(
+      rankableScores(scores, Uint8Array.from([0, 1, 0])),
+    );
+    expect(Array.from(ranked)).toEqual([10, 50]);
+    expect(rankOf(ranked, 50)).toBe(1);
   });
 });

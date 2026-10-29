@@ -40,7 +40,7 @@ The preferences panel draws the factor tree, and each factor's area is its share
 | "More ↔ less" switch | Measured indicators of preference type "user direction" | Rain, nightlife nearby |
 | Ideal-range slider | Preference type "user range" | Summer temperature |
 | Picker | Preference type "user choice" | Industry, cuisines, community group, faith |
-| Hard limit | Any measured indicator with a must-have threshold | Rent no higher than a cap |
+| Hard limit | Any measured indicator with a must-have threshold. They are set in their own "Hard limits" section under the factor tree: choose a measure, then at most or at least a number, or the categories allowed. A hex cell that fails one is greyed out and not ranked | Rent no higher than a cap |
 
 ## Plain and accessible
 

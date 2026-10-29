@@ -1,10 +1,37 @@
-import type { Profile } from "../scoring/region";
+import type { Limit, Profile } from "../scoring/region";
 
 /** Where the browser keeps the profile between visits. */
 export const STORAGE_KEY = "atlas.profile.v1";
 
 const ID = /^[a-z0-9][a-z0-9-]*$/;
+const NUMBER = /^\d+(\.\d+)?$/;
+const CATEGORY = /^[a-z0-9]+$/i;
 const MAX_WEIGHT = 5;
+
+/** A limit as `indicator:kind:value`, a list of categories joined by dots. */
+function encodeLimit(limit: Limit): string {
+  if ("max" in limit) return `${limit.indicator}:max:${limit.max}`;
+  if ("min" in limit) return `${limit.indicator}:min:${limit.min}`;
+  return `${limit.indicator}:in:${limit.in.join(".")}`;
+}
+
+/** The limit that a piece of text holds, or null where it is not well formed. */
+function decodeLimit(text: string): Limit | null {
+  const [indicator, kind, value, ...rest] = text.split(":");
+  if (rest.length > 0 || !ID.test(indicator ?? "") || value === undefined) {
+    return null;
+  }
+  if ((kind === "max" || kind === "min") && NUMBER.test(value)) {
+    return kind === "max"
+      ? { indicator, max: Number(value) }
+      : { indicator, min: Number(value) };
+  }
+  const categories = value.split(".");
+  if (kind === "in" && categories.every((c) => CATEGORY.test(c))) {
+    return { indicator, in: categories };
+  }
+  return null;
+}
 
 /** The profile as text for the URL's fragment: `w=transport:0,safety:5&f=crime`. */
 export function encodeProfile(profile: Profile): string {
@@ -15,6 +42,9 @@ export function encodeProfile(profile: Profile): string {
   if (weights.length > 0) parts.push(`w=${weights.join(",")}`);
   if (profile.flipped && profile.flipped.length > 0) {
     parts.push(`f=${profile.flipped.join(",")}`);
+  }
+  if (profile.limits && profile.limits.length > 0) {
+    parts.push(`l=${profile.limits.map(encodeLimit).join(",")}`);
   }
   return parts.join("&");
 }
@@ -72,10 +102,15 @@ export function decodeProfile(text: string): Profile {
       choices[id] = options;
     }
   }
+  const limits = (params.get("l") ?? "")
+    .split(",")
+    .map(decodeLimit)
+    .filter((limit): limit is Limit => limit !== null);
   return {
     weights,
     ...(flipped.length > 0 ? { flipped } : {}),
     ...(Object.keys(choices).length > 0 ? { choices } : {}),
+    ...(limits.length > 0 ? { limits } : {}),
   };
 }
 
@@ -100,10 +135,14 @@ export function pruneProfile(
       ])
       .filter(([, options]) => options.length > 0),
   );
+  const limits = (profile.limits ?? []).filter((limit) =>
+    known.has(limit.indicator),
+  );
   return {
     weights,
     ...(flipped.length > 0 ? { flipped } : {}),
     ...(Object.keys(choices).length > 0 ? { choices } : {}),
+    ...(limits.length > 0 ? { limits } : {}),
   };
 }
 

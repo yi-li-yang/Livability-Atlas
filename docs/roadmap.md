@@ -86,7 +86,7 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [x] the station matrix, from the Journey Planner API: 863 stations to the four default places, at 08:30 on a weekday (D10, [S4](spikes/S4-routing.md)). r5py with timetables stays the better engine, once the owner has registered for the three sources and installed a JDK
   - [x] travel times to the default places, as an estimate from the station times (the evidence type says so)
   - [ ] the in-browser estimate for a user's places, with its error checked on a larger sample and several departure times
-  - [ ] hard limits, reproducing the `hard-limit-*` golden cases
+  - [x] hard limits, reproducing the `hard-limit-*` golden cases: the region's limits agree with the one-cell engine in a test, and the "Hard limits" section sets them
 - [ ] **Layers of detail.** Quick look, why this score, inside a factor and the evidence layer; the ranked neighbourhoods; a single-factor view (e.g. crime only).
   - [x] The evidence layer shows each measured indicator's raw value, scoring curve, dataset, date, licence and evidence type.
   - [ ] Neighbourhood names come from the House of Commons Library's MSOA names.

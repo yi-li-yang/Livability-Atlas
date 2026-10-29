@@ -8,6 +8,9 @@ import { scoreCell } from "./engine";
 import {
   bestPickedOption,
   effectiveWeight,
+  type Limit,
+  type LimitResult,
+  limitResultsFor,
   type Profile,
   scoreCaseFor,
 } from "./region";
@@ -39,6 +42,14 @@ export interface FactorLine {
   evidence: Evidence | null;
 }
 
+/** A hard limit and how this hex cell stands against it. */
+export interface LimitLine {
+  limit: Limit;
+  /** The indicator the limit is on, or undefined where the bundle no longer has it. */
+  indicator: ManifestIndicator | undefined;
+  result: LimitResult;
+}
+
 export interface Explanation {
   /** The livability score from 0 to 100, or null where no factor has data. */
   score: number | null;
@@ -46,6 +57,10 @@ export interface Explanation {
   lowCoverage: boolean;
   /** The top-level factors that count, in the catalogue's order. */
   factors: FactorLine[];
+  /** The user's hard limits and the cell's result on each, in order. */
+  limits: LimitLine[];
+  /** Whether a failed hard limit leaves the cell out: greyed on the map and not ranked. */
+  excluded: boolean;
   /** The two best-scoring top-level factors, where they score above the middle. */
   strengths: FactorLine[];
   /** The worst-scoring top-level factor, where it scores below the middle. */
@@ -112,9 +127,20 @@ export function explainCell(
   const scored = factors
     .filter((f): f is FactorLine & { score: number } => f.score !== null)
     .sort((a, b) => b.score - a.score);
+  const limits = limitResultsFor(bundle, profile.limits ?? [], cellIndex).map(
+    ({ limit, result }) => ({
+      limit,
+      result,
+      indicator: bundle.manifest.indicators.find(
+        (i) => i.id === limit.indicator,
+      ),
+    }),
+  );
   return {
     score: result.score,
     lowCoverage: result.low_coverage,
+    limits,
+    excluded: limits.some((l) => l.result === "fail"),
     factors,
     strengths: scored.filter((f) => f.score > MIDDLE).slice(0, 2),
     weakness:
@@ -137,6 +163,17 @@ export function rankOf(ascending: Float64Array, score: number): number {
     else hi = mid;
   }
   return ascending.length - lo + 1;
+}
+
+/**
+ * The scores that count for ranking: those of the cells that no hard limit leaves out. A cell that
+ * is left out is not ranked, so it is NaN here.
+ */
+export function rankableScores(
+  scores: Float64Array,
+  excluded: Uint8Array,
+): Float64Array {
+  return scores.map((score, i) => (excluded[i] ? Number.NaN : score));
 }
 
 /** The finite scores of a region, sorted from lowest to highest, for `rankOf`. */
