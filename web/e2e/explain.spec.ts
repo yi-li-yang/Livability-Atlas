@@ -23,6 +23,7 @@ test("hovering over a hex cell shows its score, rank, strengths and weakness", a
   }).toPass({ timeout: 10_000 });
   const card = page.getByTestId("quick-look");
   await expect(card).toContainText("out of 100");
+  await expect(card.locator("p").first()).toContainText(/\w, \w/); // the neighbourhood and its borough
   await expect(card).toContainText(/Rank [\d,]+ of [\d,]+/);
   await expect(card).toContainText("Click for the reasons");
 });

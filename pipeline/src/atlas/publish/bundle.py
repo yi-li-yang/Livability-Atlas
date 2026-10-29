@@ -23,6 +23,7 @@ from atlas.publish.manifest import (
     ManifestDataset,
     ManifestFactor,
     ManifestIndicator,
+    ManifestNeighbourhood,
     ManifestOption,
     ManifestRegion,
 )
@@ -37,6 +38,16 @@ class Choice:
     name: str
     group: str | None
     values: Sequence[Any]
+
+
+@dataclass(frozen=True)
+class Neighbourhoods:
+    """The named areas that cells belong to: the list, for each cell the position of its area in the
+    list (None where it has none), and the datasets to credit for the names and the boundaries."""
+
+    listing: Sequence[tuple[str, str]]  # (name, local authority)
+    of_cell: Sequence[int | None]
+    datasets: Sequence[str]
 
 
 def _column(indicator_id: str) -> str:
@@ -79,6 +90,7 @@ def _manifest(
     cell_count: int,
     indicator_ids: list[str],
     choices: dict[str, list[Choice]],
+    neighbourhoods: Neighbourhoods | None = None,
 ) -> Manifest:
     region = catalogue.regions[region_id]
     leaves = {}
@@ -107,6 +119,8 @@ def _manifest(
         for i, leaf in leaves.items()
     ]
     used = {d for leaf in leaves.values() for d in leaf.datasets or []} | {region.boundary.dataset}
+    if neighbourhoods is not None:
+        used |= set(neighbourhoods.datasets)
     datasets = [
         ManifestDataset(
             id=d.id,
@@ -130,6 +144,9 @@ def _manifest(
         factors=factors,
         indicators=indicators,
         datasets=datasets,
+        neighbourhoods=[ManifestNeighbourhood(name=n, area=a) for n, a in neighbourhoods.listing]
+        if neighbourhoods is not None
+        else None,
     )
 
 
@@ -149,11 +166,22 @@ def write_bundle(
     cells: Sequence[str],
     columns: dict[str, Sequence[Any]],
     choices: dict[str, list[Choice]] | None = None,
+    neighbourhoods: Neighbourhoods | None = None,
     out_dir: Path,
 ) -> Path:
     """Writes the bundle and returns its folder. `columns` maps indicator ids to raw values, and
     `choices` maps the ids of choice indicators to their options, each with raw values."""
     choices = choices or {}
+    if neighbourhoods is not None:
+        if len(neighbourhoods.of_cell) != len(cells):
+            raise ValueError(
+                f"neighbourhoods has {len(neighbourhoods.of_cell)} entries for {len(cells)} cells"
+            )
+        if any(
+            i is not None and not 0 <= i < len(neighbourhoods.listing)
+            for i in neighbourhoods.of_cell
+        ):
+            raise ValueError("a cell's neighbourhood is not in the neighbourhood list")
     for indicator_id, options in choices.items():
         if indicator_id in columns:
             raise ValueError(f"{indicator_id} is a choice, so it cannot also have a plain column")
@@ -168,11 +196,18 @@ def write_bundle(
     for indicator_id, values in columns.items():
         if len(values) != len(cells):
             raise ValueError(f"{indicator_id} has {len(values)} values for {len(cells)} cells")
-    manifest = _manifest(catalogue, region_id, len(cells), [*columns, *choices], choices)
+    manifest = _manifest(
+        catalogue, region_id, len(cells), [*columns, *choices], choices, neighbourhoods
+    )
 
     table = pa.table(
         {
             "cell": pa.array(list(cells), pa.string()),
+            **(
+                {"neighbourhood": pa.array(list(neighbourhoods.of_cell), pa.int32())}
+                if neighbourhoods is not None
+                else {}
+            ),
             **{_column(i): pa.array(list(v)) for i, v in columns.items()},
             **{
                 _option_column(i, o.id): pa.array(list(o.values), pa.float64())

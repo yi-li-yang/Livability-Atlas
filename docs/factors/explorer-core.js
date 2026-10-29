@@ -47,10 +47,11 @@
   // Licences that allow redistribution and commercial use, by SPDX id (D07).
   // Only datasets under one of them may go into commercial builds. A licence that
   // SPDX does not list takes a LicenseRef- id: TfL's open data licence is
-  // version 2.0 of the Open Government Licence with TfL's amendments.
+  // version 2.0 of the Open Government Licence with TfL's amendments, and the Open Parliament
+  // Licence v3.0 is the Parliament's equivalent of the Open Government Licence.
   const OPEN_LICENCES = ["OGL-UK-1.0", "OGL-UK-2.0", "OGL-UK-3.0", "CC-BY-3.0", "CC-BY-4.0", "CC-BY-SA-3.0",
     "CC-BY-SA-4.0", "CC0-1.0", "ODbL-1.0", "CDLA-Permissive-1.0", "CDLA-Permissive-2.0", "Apache-2.0",
-    "LicenseRef-TfL-Open-Data"];
+    "LicenseRef-TfL-Open-Data", "LicenseRef-OPL-3.0"];
 
   const isMapping = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
   const isText = (value) => typeof value === "string" && value.trim() !== "";

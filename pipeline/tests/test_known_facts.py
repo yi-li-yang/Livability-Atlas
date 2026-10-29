@@ -274,3 +274,22 @@ def test_travel_time_is_short_in_the_centre_and_long_at_the_edge(bundle):
     assert minutes[cell_at(51.5054, -0.0235)] < 35  # Canary Wharf
     assert minutes[cell_at(51.6330, -0.0100)] > 55  # Chingford
     assert minutes[cell_at(51.5390, 0.0550)] < minutes[cell_at(51.6330, -0.0100)]  # East Ham
+
+
+def test_every_cell_is_in_a_named_neighbourhood(bundle):
+    import json
+
+    version = json.loads((LONDON / "latest.json").read_text(encoding="utf-8"))["version"]
+    manifest = json.loads((LONDON / version / "manifest.json").read_text(encoding="utf-8"))
+    names = manifest["neighbourhoods"]
+    assert 950 < len(names) < 1100  # London has about a thousand MSOAs
+    assert bundle["neighbourhood"].notna().all()  # the river's cells take the nearest MSOA
+    assert bundle["neighbourhood"].between(0, len(names) - 1).all()
+
+    def name_at(lat: float, lng: float) -> str:
+        return names[int(bundle["neighbourhood"][cell_at(lat, lng)])]["name"]
+
+    assert "Soho" in name_at(51.5136, -0.1337)
+    assert name_at(51.5560, -0.1780) == "Hampstead Town"
+    assert name_at(51.5054, -0.0235) == "Canary Wharf"
+    assert names[int(bundle["neighbourhood"][cell_at(51.4613, -0.1156)])]["area"] == "Lambeth"

@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { loadBundle } from "./bundle";
+import { loadBundle, neighbourhoodAt } from "./bundle";
 
 const FIXTURES = fileURLToPath(
   new URL("../../e2e/fixtures/bundles/", import.meta.url),
@@ -52,6 +52,21 @@ describe("loadBundle", () => {
     );
     expect(kinds).not.toContain("bigint");
     expect(kinds).toContain("number");
+  });
+
+  it("says which named neighbourhood each cell is in", async () => {
+    const bundle = await loadBundle("/bundles", "london", fixtureFetch);
+    const names = bundle.manifest.neighbourhoods ?? [];
+    expect(names.length).toBeGreaterThan(0);
+    expect(bundle.neighbourhoodOf).toHaveLength(bundle.cells.length);
+    const first = neighbourhoodAt(bundle, 0);
+    expect(first?.name).toBeTruthy();
+    expect(first?.area).toBeTruthy();
+    expect(neighbourhoodAt(bundle, bundle.cells.length)).toBeNull(); // no such cell
+    const positions = new Set(bundle.neighbourhoodOf);
+    expect(
+      [...positions].every((p) => p === null || (p >= 0 && p < names.length)),
+    ).toBe(true);
   });
 
   it("holds the cells as H3 indexes, sorted", async () => {

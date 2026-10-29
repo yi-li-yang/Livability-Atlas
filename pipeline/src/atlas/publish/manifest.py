@@ -40,6 +40,13 @@ class ManifestOption(_Model):
     column: str  # the column of cells.parquet that holds this option's raw value
 
 
+class ManifestNeighbourhood(_Model):
+    """A named area that hex cells belong to, such as an MSOA: "Soho", in Westminster."""
+
+    name: str
+    area: str  # the local authority it is in
+
+
 class ManifestIndicator(_Model):
     id: str
     name: str
@@ -73,3 +80,6 @@ class Manifest(_Model):
     factors: list[ManifestFactor]
     indicators: list[ManifestIndicator]
     datasets: list[ManifestDataset]
+    # The neighbourhoods that cells belong to. The `neighbourhood` column of cells.parquet holds,
+    # for each cell, the position of its neighbourhood in this list (empty where it has none).
+    neighbourhoods: list[ManifestNeighbourhood] | None = None

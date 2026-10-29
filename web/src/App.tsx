@@ -1,3 +1,4 @@
+import { cellToLatLng } from "h3-js";
 import { useEffect, useMemo, useState } from "react";
 import { type Bundle, loadBundle } from "./data/bundle";
 import { FactorTree } from "./features/factors/FactorTree";
@@ -8,6 +9,8 @@ import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
+import { TopNeighbourhoods } from "./features/neighbourhoods/TopNeighbourhoods";
+import { topNeighbourhoods } from "./features/neighbourhoods/top";
 import type { Manifest, ManifestFactor } from "./generated/manifest.schema";
 import {
   encodeProfile,
@@ -71,6 +74,11 @@ export function App() {
   const [hover, setHover] = useState<Hover | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [opacity, setOpacity] = useState(CELL_OPACITY);
+  const [focus, setFocus] = useState<{
+    lng: number;
+    lat: number;
+    request: number;
+  } | null>(null);
 
   useEffect(() => {
     loadBundle(BUNDLES_URL, REGION).then(
@@ -141,6 +149,14 @@ export function App() {
     [scores, excluded],
   );
 
+  const top = useMemo(
+    () =>
+      bundle && scores && excluded
+        ? topNeighbourhoods(bundle, scores, excluded, { count: 10 })
+        : [],
+    [bundle, scores, excluded],
+  );
+
   /** What one cell scores and why, for the quick look and the panel of reasons. */
   const explained = (index: number | null) => {
     if (index === null || !bundle || !scores || !ranked) return null;
@@ -172,6 +188,7 @@ export function App() {
           colours={colours}
           opacity={opacity}
           selected={selected}
+          focus={focus}
           onHover={setHover}
           onSelect={setSelected}
         />
@@ -188,6 +205,20 @@ export function App() {
             aria-label="Your preferences"
             className="absolute left-4 top-4 z-10 max-h-[calc(100%-12rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
           >
+            <TopNeighbourhoods
+              top={top}
+              onChoose={(neighbourhood) => {
+                const [lat, lng] = cellToLatLng(
+                  state.bundle.cells[neighbourhood.bestCell],
+                );
+                setSelected(neighbourhood.bestCell);
+                setFocus((now) => ({
+                  lng,
+                  lat,
+                  request: (now?.request ?? 0) + 1,
+                }));
+              }}
+            />
             <FactorTree
               factors={state.bundle.manifest.factors}
               indicators={state.bundle.manifest.indicators}

@@ -153,6 +153,17 @@ describe("the evidence of a measured indicator", () => {
   });
 });
 
+describe("the neighbourhood in an explanation", () => {
+  it("names the neighbourhood that the cell is in", async () => {
+    const bundle = await load();
+    const explanation = explainCell(bundle, { weights: {} }, 3);
+    const position = bundle.neighbourhoodOf?.[3] ?? -1;
+    expect(explanation.neighbourhood).toEqual(
+      bundle.manifest.neighbourhoods?.[position],
+    );
+  });
+});
+
 describe("the limits in an explanation", () => {
   it("lists each limit with its result in the cell, and says whether the cell is left out", async () => {
     const bundle = await load();

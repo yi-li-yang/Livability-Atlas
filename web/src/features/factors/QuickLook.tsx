@@ -12,9 +12,19 @@ export function QuickLook({
   rank: number | null;
   total: number;
 }) {
-  const { score, strengths, weakness } = explanation;
+  const { score, strengths, weakness, neighbourhood } = explanation;
   return (
     <div role="status" aria-label="Quick look" className="text-sm">
+      {neighbourhood && (
+        <p className="font-medium">
+          {neighbourhood.name}
+          {neighbourhood.area && (
+            <span className="font-normal text-neutral-600">
+              , {neighbourhood.area}
+            </span>
+          )}
+        </p>
+      )}
       {score === null ? (
         <p className="font-medium">No score here: there is no data for it.</p>
       ) : (

@@ -1,4 +1,9 @@
-import type { Bundle, Value } from "../data/bundle";
+import {
+  type Bundle,
+  type Neighbourhood,
+  neighbourhoodAt,
+  type Value,
+} from "../data/bundle";
 import type {
   ManifestDataset,
   ManifestFactor,
@@ -51,6 +56,8 @@ export interface LimitLine {
 }
 
 export interface Explanation {
+  /** The named neighbourhood the cell is in, or null where the bundle names none. */
+  neighbourhood: Neighbourhood | null;
   /** The livability score from 0 to 100, or null where no factor has data. */
   score: number | null;
   /** Whether the score rests on thin data: under 70% of the weight has data. */
@@ -137,6 +144,7 @@ export function explainCell(
     }),
   );
   return {
+    neighbourhood: neighbourhoodAt(bundle, cellIndex),
     score: result.score,
     lowCoverage: result.low_coverage,
     limits,

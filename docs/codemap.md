@@ -28,9 +28,9 @@ Livability-Atlas/
 │   │   ├── scoring/       # engine.py: the reference scorer, which reproduces the golden test cases
 │   │   ├── build.py       # builds a region's data bundle from raw downloads
 │   │   ├── fetch.py       # downloads with a cache and a checksum
-│   │   ├── spatial/       # grid.py: a region's hex cells
+│   │   ├── spatial/       # grid.py: a region's hex cells, walking.py: street walks, neighbourhoods.py: which named MSOA each cell is in
 │   │   ├── indicators/    # one module per indicator family: crime.py (rates per 1,000 residents, pooled over two steps with a floor), flood.py (the share of a cell at risk of flooding), transport.py (minutes on foot to a station, lines or routes within a walk, the fare zone, the travel time to the default places), education.py (to a school, the share of nearby schools that meet Ofsted's standard), health.py (to a GP practice, patients per GP within a walk, the straight line to an A&E department), environment.py (to a park), air_quality.py (the mean concentration over a cell), noise.py (the mean level at a cell's addresses), housing.py (a borough's value for each of its cells), connectivity.py (the gigabit share of a cell's homes), prices.py (the price per square metre of the homes sold nearby), community.py (Simpson's diversity index and group shares of a cell's residents), faith.py (to the nearest place of worship of each religion), places.py (Overture's and OpenStreetMap's places pooled), amenities.py (to the nearest of a kind, counts and cuisines within a walk, the share of good hygiene ratings)
-│   │   ├── datasets/      # one module per dataset, by tier: cities/london/{ptal,laei,tfl_api,tfl_lines,tfl_journeys}.py, countries/gb/{ons_regions,census_residents,census_ethnic_group,census_religion,ofsted,census_country_of_birth,census_age,nhs_ae,nhs_gp,epc,hm_land_registry,addresses,output_areas,police_uk,ea_flood_risk,naptan,gias,nhs_ods,code_point,os_open_greenspace,defra_noise,fsa,ons_local_authorities,ons_rents,mhclg_council_tax,ofcom}.py, world/{openstreetmap,overture}.py
+│   │   ├── datasets/      # one module per dataset, by tier: cities/london/{ptal,laei,tfl_api,tfl_lines,tfl_journeys}.py, countries/gb/{ons_regions,census_residents,census_ethnic_group,census_religion,ofsted,arcgis,ons_msoa,hoc_msoa_names,census_country_of_birth,census_age,nhs_ae,nhs_gp,epc,hm_land_registry,addresses,output_areas,police_uk,ea_flood_risk,naptan,gias,nhs_ods,code_point,os_open_greenspace,defra_noise,fsa,ons_local_authorities,ons_rents,mhclg_council_tax,ofcom}.py, world/{openstreetmap,overture}.py
 │   │   ├── publish/       # manifest.py (the contract with the web app) and bundle.py (writes the bundle)
 │   │   └── catalogue/     # models.py (the one definition of the catalogue files), checks.py, load.py, schema.py
 │   ├── tests/
@@ -43,6 +43,8 @@ Livability-Atlas/
 │   │   ├── profile/       # storage.ts: the preference profile in the browser's storage and the link
 │   │   ├── features/factors/  # FactorTree (the treemap with sliders), treemap (the layout), level (what each level shows), colours, QuickLook (the hover card), WhyPanel (the reasons for a hex cell's score), EvidenceDetails and evidence (the value, curve, evidence type and sources behind a measure)
 │   │   ├── features/map/  # HexMap (the basemap with the hex cells over it), hexcells (shapes and colours), colour, Legend
+│   │   ├── features/limits/  # LimitsPanel (the hard limits form) and limits (what a limit says, which measures take one)
+│   │   ├── features/neighbourhoods/  # TopNeighbourhoods (the best neighbourhoods by name and score) and top (how they are ranked)
 │   │   └── generated/     # TypeScript types from shared/schemas (generated)
 │   ├── serve-bundles.ts   # serves data/published/ at /bundles/ in dev and preview
 │   └── e2e/               # the Playwright tests, and a small data bundle (fixtures/) to load

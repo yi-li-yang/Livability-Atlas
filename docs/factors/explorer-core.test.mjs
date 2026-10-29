@@ -407,6 +407,10 @@ test("TfL's open data licence is on D07's list, by its LicenseRef id", () => {
   assert.deepEqual(core.validateDatasets(openDataset({ licence: "LicenseRef-TfL-Open-Data" })), []);
 });
 
+test("the Open Parliament Licence is on D07's list, by its LicenseRef id", () => {
+  assert.deepEqual(core.validateDatasets(openDataset({ licence: "LicenseRef-OPL-3.0" })), []);
+});
+
 test("a dataset kept out of commercial builds says why", () => {
   const doc = datasetsDoc();
   delete doc.datasets[0].licence_note;

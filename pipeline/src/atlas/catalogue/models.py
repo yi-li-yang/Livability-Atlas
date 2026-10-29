@@ -54,6 +54,7 @@ OPEN_LICENCES: tuple[str, ...] = (
     "CDLA-Permissive-2.0",
     "Apache-2.0",
     "LicenseRef-TfL-Open-Data",
+    "LicenseRef-OPL-3.0",
 )
 
 

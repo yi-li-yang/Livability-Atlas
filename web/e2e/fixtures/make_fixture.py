@@ -1,7 +1,7 @@
 """Writes the small data bundle that the web app's tests load: the cells within 8 steps of Soho.
 
 The service level, the walk to the nearest station, the five crime rates and the options of the
-two choice indicators come from a real
+two choice indicators, and the neighbourhoods, come from a real
 London bundle, so run `just data london` first. The other two indicators are FABRICATED, only so
 that the tests have several factors to weigh: see README.md beside this file. From the repo root:
 
@@ -10,7 +10,6 @@ that the tests have several factors to weigh: see README.md beside this file. Fr
 
 import json
 import shutil
-from pathlib import Path
 
 import h3
 import pyarrow.parquet as pq
@@ -18,7 +17,7 @@ import pyarrow.parquet as pq
 from atlas.catalogue.load import load_catalogue
 from atlas.indicators import crime
 from atlas.paths import REPO_ROOT, data_dir
-from atlas.publish.bundle import Choice, write_bundle
+from atlas.publish.bundle import Choice, Neighbourhoods, write_bundle
 
 OUT = REPO_ROOT / "web" / "e2e" / "fixtures" / "bundles"
 SOHO = h3.latlng_to_cell(51.5136, -0.1337, 9)
@@ -58,6 +57,18 @@ def main() -> None:
             for option in indicator["options"]
             if option["id"] in wanted
         ]
+    # The neighbourhoods the cells are in, renumbered for the cells that the fixture keeps.
+    old = [table["neighbourhood"][row[c]] for c in cells]
+    kept = sorted({i for i in old if i is not None})
+    renumbered = {i: n for n, i in enumerate(kept)}
+    neighbourhoods = Neighbourhoods(
+        listing=[
+            (manifest["neighbourhoods"][i]["name"], manifest["neighbourhoods"][i]["area"])
+            for i in kept
+        ],
+        of_cell=[None if i is None else renumbered[i] for i in old],
+        datasets=["hoc-msoa-names", "ons-msoa-boundaries"],
+    )
     fabricated = {
         # A pattern that varies from cell to cell.
         "walk-to-green-space": [4 + (i * 7) % 12 for i in range(len(cells))],
@@ -70,6 +81,7 @@ def main() -> None:
         cells=cells,
         columns={**real, **fabricated},
         choices=choices,
+        neighbourhoods=neighbourhoods,
         out_dir=OUT,
     )
     print(f"{len(cells)} cells in {bundle}")

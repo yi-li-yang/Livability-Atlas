@@ -5,7 +5,7 @@ import pytest
 
 from atlas.catalogue.load import load_catalogue
 from atlas.paths import CATALOGUE_DIR
-from atlas.publish.bundle import Choice, write_bundle
+from atlas.publish.bundle import Choice, Neighbourhoods, write_bundle
 from atlas.publish.manifest import Manifest
 
 CELLS = ["891fa5a0003ffff", "891fa5a0007ffff", "891fa5a000bffff"]
@@ -208,5 +208,71 @@ def test_an_option_needs_a_value_for_every_cell(catalogue, tmp_path):
             cells=CELLS,
             columns={},
             choices={"faith": [Choice("hindu", "Hindu", "Religion", [1.0])]},
+            out_dir=tmp_path,
+        )
+
+
+def neighbourhoods():
+    return Neighbourhoods(
+        listing=[("Soho", "Westminster"), ("Fitzrovia", "Camden")],
+        of_cell=[0, None, 1],
+        datasets=["hoc-msoa-names", "ons-msoa-boundaries"],
+    )
+
+
+def test_the_neighbourhood_of_each_cell_is_a_column_that_points_into_the_manifests_list(
+    catalogue, tmp_path
+):
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"service-level": ["6b", "2", None]},
+        neighbourhoods=neighbourhoods(),
+        out_dir=tmp_path,
+    )
+    table = pq.read_table(bundle / "cells.parquet")
+    assert table.column_names == ["cell", "neighbourhood", "service_level"]
+    assert table["neighbourhood"].to_pylist() == [0, None, 1]
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest.neighbourhoods is not None
+    assert [(n.name, n.area) for n in manifest.neighbourhoods] == [
+        ("Soho", "Westminster"),
+        ("Fitzrovia", "Camden"),
+    ]
+
+
+def test_the_datasets_of_the_names_are_credited(catalogue, tmp_path):
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"service-level": ["6b", "2", None]},
+        neighbourhoods=neighbourhoods(),
+        out_dir=tmp_path,
+    )
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    credited = {d.id for d in manifest.datasets}
+    assert {"hoc-msoa-names", "ons-msoa-boundaries", "tfl-ptal"} <= credited
+
+
+def test_a_bundle_without_neighbourhoods_has_no_such_column_or_list(catalogue, tmp_path):
+    bundle = build(catalogue, tmp_path)
+    assert "neighbourhood" not in pq.read_table(bundle / "cells.parquet").column_names
+    assert "neighbourhoods" not in json.loads(
+        (bundle / "manifest.json").read_text(encoding="utf-8")
+    )
+
+
+def test_every_cell_needs_a_neighbourhood_entry(catalogue, tmp_path):
+    with pytest.raises(ValueError, match="neighbourhood"):
+        write_bundle(
+            catalogue,
+            region_id="london",
+            cells=CELLS,
+            columns={"service-level": ["6b", "2", None]},
+            neighbourhoods=Neighbourhoods(
+                listing=[("Soho", "Westminster")], of_cell=[0], datasets=[]
+            ),
             out_dir=tmp_path,
         )

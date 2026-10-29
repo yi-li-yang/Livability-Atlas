@@ -11,6 +11,27 @@ export interface Bundle {
   cells: Cell[];
   /** Each indicator's raw values, keyed by the manifest's column name, in the order of `cells`. */
   columns: Record<string, Value[]>;
+  /**
+   * For each cell, the position of its neighbourhood in the manifest's `neighbourhoods`, or null
+   * where it has none (or the bundle names none).
+   */
+  neighbourhoodOf?: (number | null)[];
+}
+
+/** A named area that cells belong to, such as "Soho" in Westminster. */
+export interface Neighbourhood {
+  name: string;
+  area: string;
+}
+
+/** The neighbourhood a cell is in, or null. */
+export function neighbourhoodAt(
+  bundle: Bundle,
+  cellIndex: number,
+): Neighbourhood | null {
+  const position = bundle.neighbourhoodOf?.[cellIndex];
+  if (position === null || position === undefined) return null;
+  return bundle.manifest.neighbourhoods?.[position] ?? null;
 }
 
 type Fetcher = (url: string) => Promise<Response>;
@@ -61,5 +82,11 @@ export async function loadBundle(
       });
     }
   }
-  return { manifest, cells, columns };
+  const named = rows.map((row) => {
+    const position = row.neighbourhood;
+    return position === null || position === undefined
+      ? null
+      : Number(position);
+  });
+  return { manifest, cells, columns, neighbourhoodOf: named };
 }
