@@ -1406,7 +1406,31 @@ factors:
               and public acceptance belong to the across-cities scale.
             datasets: [overture-places]
           - {id: election-turnout, name: "Local election turnout", default_weight: 3}
-          - {id: residents-stay, name: "How long residents stay", default_weight: 3}
+          - id: residents-stay
+            name: How long residents stay
+            description: The share of residents who lived at the same address a year before the census.
+            default_weight: 3
+            status: built
+            unit: "% of residents"
+            preference_type: user-direction
+            curve: {shape: percentile, better: higher}
+            curve_reason: >-
+              No standard sets how often people should move, and some users want
+              a settled neighbourhood while others want one with newcomers, so a
+              hex cell scores by its rank within the region and the user can flip
+              the direction. It starts with more settled as better.
+            evidence_type: indirect
+            comparable_across_regions: false
+            method: >-
+              The share of usual residents in and around the hex cell who lived at
+              the same address as at the 2021 census one year before (Census 2021,
+              Migrant indicator, by output area, shared between hex cells by area
+              as the residents are). It is a one-year snapshot, so it is an
+              indirect sign of how long people stay. Census day was 21 March
+              2021, in the pandemic, when fewer people moved than usual, so the
+              shares are higher than in other years, and students who lived at a
+              term-time address a year before are not counted as staying.
+            datasets: [ons-census-2021-topic-summaries, ons-output-area-boundaries]
       - {id: english-proficiency, name: "English proficiency", default_weight: 3, scales: [across-cities]}
       - {id: expat-communities, name: "Expat communities", default_weight: 3, scales: [across-cities]}
       - {id: religious-freedom, name: "Religious freedom", default_weight: 3, scales: [across-cities]}

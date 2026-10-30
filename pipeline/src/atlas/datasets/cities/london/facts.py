@@ -535,6 +535,20 @@ def community_and_work_places(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Most residents stayed put in the year before the census, most of all in the suburbs",
+    needs=("residents_stay",),
+)
+def residents_stay(cells: Cells) -> str:
+    column = "residents_stay"
+    everywhere(cells, column)
+    middle = median(cells, column)
+    expect(85 < middle < 96, f"the median is {middle:.0f}%")
+    suburb, centre = cells.at("Chingford", column), cells.at("Stratford", column)
+    expect(suburb > centre + 15, f"Chingford {suburb:.0f}% and Stratford {centre:.0f}%")
+    return f"median {middle:.0f}%, Chingford {suburb:.0f}%, Stratford {centre:.0f}%"
+
+
+@FACTS.add(
     "Brixton and Barking are crowded, a business district has few residents, and the park none",
     needs=("density",),
 )
