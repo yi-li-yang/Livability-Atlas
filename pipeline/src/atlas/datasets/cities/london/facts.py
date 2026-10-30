@@ -516,6 +516,21 @@ def culture(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Protected nature fills Richmond Park and reaches Chingford, and the centre has none",
+    needs=("nature_sites",),
+)
+def nature_sites(cells: Cells) -> str:
+    column = "nature_sites"
+    everywhere(cells, column)
+    park, forest = cells.at("Richmond Park", column), cells.at("Chingford", column)
+    centre = cells.at("Soho", column)
+    expect(park > 90 and forest > 10 and centre == 0, f"{park:.0f}%, {forest:.0f}%, {centre:.0f}%")
+    middle = median(cells, column)
+    expect(middle < 5, f"the median cell has {middle:.1f}% of nature sites in reach")
+    return f"Richmond Park {park:.0f}%, Chingford {forest:.0f}%, Soho {centre:.0f}%"
+
+
+@FACTS.add(
     "Soho and Hampstead are full of listed buildings and conservation areas, Canary Wharf is not",
     needs=("local_character", "conservation_areas"),
 )

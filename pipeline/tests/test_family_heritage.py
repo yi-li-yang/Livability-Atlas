@@ -1,3 +1,5 @@
+import math
+
 import h3
 import numpy as np
 import pandas as pd
@@ -9,6 +11,7 @@ from atlas.catalogue.load import load_catalogue
 from atlas.datasets.countries.gb import planning_data
 from atlas.families import Context, discover
 from atlas.families import heritage as family
+from atlas.indicators.coverage import share_inside
 from atlas.paths import CATALOGUE_DIR
 
 CELL = h3.latlng_to_cell(51.5136, -0.1337, 9)
@@ -56,8 +59,19 @@ class TestConservationAreas:
             f"conservation-area,,,POINT ({LNG} {LAT})\n",
             encoding="utf-8",
         )
-        areas = planning_data.read_conservation_areas(path, BOX)
+        areas = planning_data.read_areas(path, BOX)
         assert len(areas) == 1 and areas.crs == "EPSG:4326"
+
+
+def test_an_outline_of_several_megabytes_is_read(tmp_path):
+    turn = [2 * math.pi * i / 90000 for i in range(90000)]
+    points = [f"{LNG + 0.001 * math.cos(t):.9f} {LAT + 0.001 * math.sin(t):.9f}" for t in turn]
+    wkt = f"MULTIPOLYGON ((({','.join(points)},{points[0]})))"
+    assert len(wkt) > 2_000_000
+    path = tmp_path / "ancient-woodland.csv"
+    row = f'ancient-woodland,,"{wkt}",POINT ({LNG} {LAT})'
+    path.write_text("dataset,end-date,geometry,point\n" + row + "\n" + row + "\n", encoding="utf-8")
+    assert len(planning_data.read_areas(path, BOX)) == 2
 
 
 def test_the_files_are_fetched_once_to_the_planning_folder(tmp_path, monkeypatch):
@@ -78,15 +92,15 @@ class TestShareInside:
         outline = self.cell_outline()
         x0, y0, x1, y1 = outline.bounds
         half = box(x0 - 10, y0 - 10, (x0 + x1) / 2, y1 + 10)
-        share = family.share_inside([half], [CELL])
+        share = share_inside([half], [CELL])
         assert 35 < share[CELL] < 65
 
     def test_a_cell_outside_every_polygon_has_0(self):
         far = box(0, 0, 10, 10)
-        assert family.share_inside([far], [CELL])[CELL] == 0.0
+        assert share_inside([far], [CELL])[CELL] == 0.0
 
     def test_no_polygons_gives_0(self):
-        assert family.share_inside([], [CELL])[CELL] == 0.0
+        assert share_inside([], [CELL])[CELL] == 0.0
 
 
 def test_the_family_counts_listed_buildings_within_a_walk_and_the_conservation_share(
@@ -107,7 +121,7 @@ def test_the_family_counts_listed_buildings_within_a_walk_and_the_conservation_s
         "read_listed_buildings",
         lambda path, box: pd.DataFrame({"lng": [LNG] * 3, "lat": [LAT] * 3}),
     )
-    monkeypatch.setattr(planning_data, "read_conservation_areas", lambda path, box: _empty())
+    monkeypatch.setattr(planning_data, "read_areas", lambda path, box: _empty())
     out = family.columns(ctx)
     assert out["local-character"] == [3] and out["conservation-areas"] == [0.0]
     assert network.minutes == family.WALK_MINUTES  # type: ignore[attr-defined]

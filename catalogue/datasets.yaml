@@ -761,6 +761,78 @@ datasets:
     tells:
       - Where each listed building stands, and its grade
 
+  - id: local-nature-reserves
+    name: Local nature reserves (Natural England, through planning.data.gov.uk)
+    publisher: Natural England
+    url: https://www.planning.data.gov.uk/dataset/local-nature-reserve
+    tier: country
+    area: England
+    resolution: one outline for each local nature reserve
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Natural England's open data, published under the Open Government
+      Licence v3.0 and passed on by the planning data platform.
+    attribution: Contains Natural England data © Natural England copyright, licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each local nature reserve declared by a local authority
+
+  - id: national-nature-reserves
+    name: National nature reserves (Natural England, through planning.data.gov.uk)
+    publisher: Natural England
+    url: https://www.planning.data.gov.uk/dataset/national-nature-reserve
+    tier: country
+    area: England
+    resolution: one outline for each national nature reserve
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Natural England's open data, published under the Open Government
+      Licence v3.0 and passed on by the planning data platform.
+    attribution: Contains Natural England data © Natural England copyright, licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each national nature reserve
+
+  - id: sites-of-special-scientific-interest
+    name: Sites of special scientific interest (Natural England, through planning.data.gov.uk)
+    publisher: Natural England
+    url: https://www.planning.data.gov.uk/dataset/site-of-special-scientific-interest
+    tier: country
+    area: England
+    resolution: one outline for each site
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Natural England's open data, published under the Open Government
+      Licence v3.0 and passed on by the planning data platform.
+    attribution: Contains Natural England data © Natural England copyright, licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each site of special scientific interest
+
+  - id: ancient-woodland
+    name: Ancient woodland (Natural England, through planning.data.gov.uk)
+    publisher: Natural England
+    url: https://www.planning.data.gov.uk/dataset/ancient-woodland
+    tier: country
+    area: England
+    resolution: one outline for each area of ancient woodland
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Natural England's open data, published under the Open Government
+      Licence v3.0 and passed on by the planning data platform.
+    attribution: Contains Natural England data © Natural England copyright, licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each area of ancient woodland
+
   - id: conservation-areas
     name: Conservation areas (local authorities, through planning.data.gov.uk)
     publisher: Local planning authorities of England

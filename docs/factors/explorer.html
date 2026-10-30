@@ -1878,7 +1878,31 @@ factors:
         name: Wildlife
         default_weight: 3
         children:
-          - {id: nature-sites, name: "Nature sites", default_weight: 3, scales: [within-city]}
+          - id: nature-sites
+            name: Nature sites
+            description: The share of the land within a 10-minute walk that is a nature reserve, a protected site or ancient woodland.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: "% of the land within 800 m"
+            preference_type: fixed
+            curve: {shape: percentile, better: higher}
+            curve_reason: >-
+              No standard says how much nature should be near a home, so a hex
+              cell scores by its rank within the region: the share of hex cells
+              with less. Most cells have none, so many cells tie at zero.
+            evidence_type: indirect
+            comparable_across_regions: false
+            method: >-
+              The percentage of the land within 800 m of the hex cell (a 10-minute
+              walk at 4.8 km/h, in a straight line) that lies inside a local
+              nature reserve, a national nature reserve, a site of special
+              scientific interest or an area of ancient woodland, from the outlines
+              on the planning data platform. A protected site is not always open to
+              the public, and it is not a count of species, so this is an indirect
+              sign of wildlife near a home. Parks and gardens that are not
+              protected as nature are not counted.
+            datasets: [local-nature-reserves, national-nature-reserves, sites-of-special-scientific-interest, ancient-woodland]
           - {id: biodiversity, name: "Biodiversity", default_weight: 3}
       - {id: animal-protection-laws, name: "Animal-protection laws", default_weight: 3, scales: [across-cities]}
 
@@ -2894,6 +2918,78 @@ datasets:
       the Open Government Licence v3.0.
     tells:
       - Where each listed building stands, and its grade
+
+  - id: local-nature-reserves
+    name: Local nature reserves (Natural England, through planning.data.gov.uk)
+    publisher: Natural England
+    url: https://www.planning.data.gov.uk/dataset/local-nature-reserve
+    tier: country
+    area: England
+    resolution: one outline for each local nature reserve
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Natural England's open data, published under the Open Government
+      Licence v3.0 and passed on by the planning data platform.
+    attribution: Contains Natural England data © Natural England copyright, licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each local nature reserve declared by a local authority
+
+  - id: national-nature-reserves
+    name: National nature reserves (Natural England, through planning.data.gov.uk)
+    publisher: Natural England
+    url: https://www.planning.data.gov.uk/dataset/national-nature-reserve
+    tier: country
+    area: England
+    resolution: one outline for each national nature reserve
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Natural England's open data, published under the Open Government
+      Licence v3.0 and passed on by the planning data platform.
+    attribution: Contains Natural England data © Natural England copyright, licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each national nature reserve
+
+  - id: sites-of-special-scientific-interest
+    name: Sites of special scientific interest (Natural England, through planning.data.gov.uk)
+    publisher: Natural England
+    url: https://www.planning.data.gov.uk/dataset/site-of-special-scientific-interest
+    tier: country
+    area: England
+    resolution: one outline for each site
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Natural England's open data, published under the Open Government
+      Licence v3.0 and passed on by the planning data platform.
+    attribution: Contains Natural England data © Natural England copyright, licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each site of special scientific interest
+
+  - id: ancient-woodland
+    name: Ancient woodland (Natural England, through planning.data.gov.uk)
+    publisher: Natural England
+    url: https://www.planning.data.gov.uk/dataset/ancient-woodland
+    tier: country
+    area: England
+    resolution: one outline for each area of ancient woodland
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Natural England's open data, published under the Open Government
+      Licence v3.0 and passed on by the planning data platform.
+    attribution: Contains Natural England data © Natural England copyright, licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each area of ancient woodland
 
   - id: conservation-areas
     name: Conservation areas (local authorities, through planning.data.gov.uk)
