@@ -47,28 +47,50 @@ def fetch(data_dir: Path, years: list[int]) -> list[Path]:
     return paths
 
 
-def read_sales(paths: list[Path], months: int = 24) -> pd.DataFrame:
-    """The standard sales of homes in the last `months` months of the data, with `price`, `date`,
-    `postcode`, `type`, `paon`, `saon` and `street`."""
-    sales = pd.concat(
-        [
-            pd.read_csv(
-                path,
-                header=None,
-                names=COLUMNS,
-                usecols=["price", "date", "postcode", "type", "paon", "saon", "street", "category"],
-                dtype={"paon": str, "saon": str, "street": str},
-                keep_default_na=False,
-            )
-            for path in paths
-        ],
-        ignore_index=True,
-    )
-    sales["date"] = pd.to_datetime(sales["date"].str[:10])
-    cutoff = sales["date"].max() - pd.DateOffset(months=months)
-    kept = sales.loc[
-        (sales["category"] == STANDARD)
-        & sales["type"].isin(sorted(HOMES))
-        & (sales["date"] > cutoff)
+def years_of(ending: pd.Timestamp, months: int = 24) -> list[int]:
+    """The years whose files hold the `months` months that end at `ending`."""
+    start = ending - pd.DateOffset(months=months)
+    return list(range(start.year, ending.year + 1))
+
+
+def latest_date(paths: list[Path]) -> pd.Timestamp:
+    """The date of the latest sale in the files."""
+    latest = [
+        pd.to_datetime(
+            pd.read_csv(path, header=None, names=COLUMNS, usecols=["date"])["date"].str[:10]
+        ).max()
+        for path in paths
     ]
-    return kept.drop(columns="category").reset_index(drop=True)
+    return max(latest)
+
+
+def read_window(paths: list[Path], ending: pd.Timestamp, months: int = 24) -> pd.DataFrame:
+    """The standard sales of homes in the `months` months that end at `ending` (the last day
+    counts), with `price`, `date`, `postcode`, `type`, `paon`, `saon` and `street`. Each file is
+    cut to the window as it is read, because a year of sales is a million rows."""
+    cutoff = ending - pd.DateOffset(months=months)
+    kept = []
+    for path in paths:
+        sales = pd.read_csv(
+            path,
+            header=None,
+            names=COLUMNS,
+            usecols=["price", "date", "postcode", "type", "paon", "saon", "street", "category"],
+            dtype={"paon": str, "saon": str, "street": str},
+            keep_default_na=False,
+        )
+        sales["date"] = pd.to_datetime(sales["date"].str[:10])
+        kept.append(
+            sales.loc[
+                (sales["category"] == STANDARD)
+                & sales["type"].isin(sorted(HOMES))
+                & (sales["date"] > cutoff)
+                & (sales["date"] <= ending)
+            ]
+        )
+    return pd.concat(kept, ignore_index=True).drop(columns="category")
+
+
+def read_sales(paths: list[Path], months: int = 24) -> pd.DataFrame:
+    """The standard sales of homes in the last `months` months of the data."""
+    return read_window(paths, latest_date(paths), months)

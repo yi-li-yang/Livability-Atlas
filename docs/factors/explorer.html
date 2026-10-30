@@ -407,6 +407,62 @@ factors:
           2008, so it leans towards homes that changed hands. No address is
           kept: the build holds a postcode and the points of each home.
         datasets: [epc-domestic, os-code-point-open]
+      - id: price-trend
+        name: Price trend
+        description: How much the price of a home nearby has risen over the last five years.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: "% change over five years"
+        preference_type: user-direction
+        curve: {shape: percentile, better: lower}
+        curve_reason: >-
+          No standard sets a fair rise in prices, and the same rise is good news
+          for an owner and bad news for a buyer, so a hex cell scores by its
+          rank within the region and the user can flip the direction. It starts
+          with the buyer's and the renter's view, that a place whose prices rose
+          less is still within reach.
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The change in the median price per square metre of the homes sold in
+          and around the hex cell, from the 24 months that ended five years
+          before the latest sale in HM Land Registry's Price Paid Data to the
+          latest 24 months. Both are found as the buying cost is (the same
+          floor areas, the same pooling over the cells within two steps, 20 or
+          more sales), so a mix of larger homes in one window does not move
+          the trend much. A cell with fewer than 20 sales around it in either
+          window has no value. It is a rise in the price of what sold, not
+          of a fixed set of homes, and the two windows include the period when
+          stamp duty was cut (2020 to 2021).
+        datasets: [hm-land-registry-price-paid, epc-domestic, os-code-point-open]
+      - id: sales-volume
+        name: Sales volume
+        description: How many homes change hands nearby each year, against the number of residents.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: sales a year per 1,000 residents
+        preference_type: user-direction
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          No standard sets how many homes should sell, so a hex cell scores by
+          its rank within the region. It starts with a busy market scoring
+          higher, because a home there is easier to buy and to sell, and the
+          user can flip the direction to prefer places where people stay.
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The standard sales of homes in HM Land Registry's Price Paid Data over
+          the latest 24 months, as a number a year, in and around the hex cell
+          (the cells within two steps) against the usual residents of the same
+          cells (Census 2021, shared from the output areas by area). Like the
+          crime rates, the figure adds a floor of 3,000 residents at the
+          region's overall rate, so that a cell with few residents has no wild
+          value. A sale sits in the cell of its postcode's centre
+          (Code-Point Open). A block of new flats that sells all at once in one
+          year raises its cell, and a home that sells twice counts twice.
+        datasets: [hm-land-registry-price-paid, os-code-point-open, ons-census-2021-residents]
       - {id: rent-and-price-levels, name: "Rent and price levels", default_weight: 3, scales: [across-cities]}
       - {id: purchasing-power, name: "Purchasing power", default_weight: 3, scales: [across-cities]}
       - {id: tax-burden, name: "Tax burden", default_weight: 3, scales: [across-cities]}
