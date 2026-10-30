@@ -151,6 +151,20 @@ def city_of_london_people(cells: Cells) -> str:
     return "Bank " + ", ".join(out)
 
 
+@FACTS.add(
+    "Every cell has a road collision rate, and a busy town centre has twice the median",
+    needs=("road_collisions",),
+)
+def road_collisions(cells: Cells) -> str:
+    everywhere(cells, "road_collisions")
+    middle = median(cells, "road_collisions")
+    expect(0.1 < middle < 0.6, f"the median is {middle:.2f} a year per 1,000 people")
+    croydon = cells.at("Croydon", "road_collisions")
+    expect(croydon > 1.8 * middle, f"Croydon {croydon:.2f} against a median of {middle:.2f}")
+    expect(cells.at("Canary Wharf", "road_collisions") < middle, "Canary Wharf is above the median")
+    return f"median {middle:.2f}, Croydon {croydon:.2f}"
+
+
 # --- Natural hazards ---
 
 
@@ -492,6 +506,19 @@ def accident_and_emergency(cells: Cells) -> str:
     )  # the green edge
     soho, edge = cells.at("Soho", column), cells.at("Biggin Hill", column)
     return f"median {middle:.1f} km, Soho {soho:.1f}, Biggin Hill {edge:.1f}"
+
+
+@FACTS.add(
+    "Every cell has a walk to a dentist, short in the centre and long in the parks",
+    needs=("dentists",),
+)
+def dentists(cells: Cells) -> str:
+    everywhere(cells, "dentists")
+    middle = median(cells, "dentists")
+    expect(4 < middle < 20, f"the median is {middle:.1f} minutes")
+    soho, park = cells.at("Soho", "dentists"), cells.at("Richmond Park", "dentists")
+    expect(soho < 6 and park > 12, f"Soho {soho:.1f} and Richmond Park {park:.1f} minutes")
+    return f"median {middle:.1f}, Soho {soho:.1f}, Richmond Park {park:.1f} minutes"
 
 
 # --- Education ---

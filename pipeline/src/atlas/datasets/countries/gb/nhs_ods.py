@@ -58,3 +58,19 @@ def read_gp_sites(practices: Path, branches: Path) -> pd.DataFrame:
     ]
     sites = pd.concat([main[["Postcode"]], extra[["Postcode"]]], ignore_index=True)
     return sites.loc[sites["Postcode"] != ""].reset_index(drop=True)
+
+
+def fetch_dental(data_dir: Path) -> Path:
+    """Downloads the register of general dental practices to `data/raw/ods/` once, and returns it.
+    It has the same columns as the GP practices' file."""
+    path = data_dir / "raw" / "ods" / "egdpprac.csv"
+    download(URL.format(report=path.stem), path)
+    return path
+
+
+def read_dental_sites(path: Path) -> pd.DataFrame:
+    """The active dental practices, with their `Postcode`. The register does not say whether a
+    practice takes NHS patients, or new ones."""
+    frame = _read(path)
+    sites = frame.loc[frame["status"] == "ACTIVE", ["Postcode"]]
+    return sites.loc[sites["Postcode"] != ""].reset_index(drop=True)

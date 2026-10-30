@@ -603,6 +603,26 @@ datasets:
       - The number of jobs (employees and working owners) at workplaces in each LSOA, in total and by industry, rounded to the nearest 25
       - Employment by broad industry group, for the share of jobs in each sector
 
+  - id: dft-stats19
+    name: Road Safety Data (STATS19), collisions
+    publisher: Department for Transport (DfT)
+    url: https://www.gov.uk/government/collections/road-accidents-and-safety-statistics
+    tier: country
+    area: Great Britain
+    resolution: points, one for each collision reported to the police
+    date: 2022 to 2024
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      data.gov.uk lists the Road Safety Data under the UK Open Government
+      Licence, and the gov.uk site says its content is under the Open
+      Government Licence v3.0.
+    attribution: "Contains public sector information licensed under the Open Government Licence v3.0. Source: Department for Transport road safety data."
+    tells:
+      - Each road collision reported to the police that injured someone, with its place, date, severity, road and conditions
+      - The vehicles and casualties of each collision, in two companion files
+
   - id: hoc-msoa-names
     name: MSOA Names (House of Commons Library)
     publisher: House of Commons Library

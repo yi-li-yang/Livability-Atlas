@@ -89,3 +89,30 @@ def test_the_datasets_an_indicator_is_built_from_are_gathered(tmp_path):
 
 def test_the_package_has_a_docstring_that_says_how_to_add_a_family():
     assert families.__doc__ and "FAMILY" in families.__doc__
+
+
+def test_the_context_gives_each_cells_residents_workers_and_people_present(tmp_path, monkeypatch):
+    import geopandas as gpd
+    import h3
+    from pyproj import Transformer
+    from shapely.geometry import Polygon
+    from shapely.ops import transform
+
+    from atlas.datasets.countries.gb import bres, census_residents, ons_lsoa, output_areas
+
+    cell = h3.latlng_to_cell(51.5136, -0.1337, 9)
+    to_bng = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True).transform
+    outline = transform(to_bng, Polygon([(lng, lat) for lat, lng in h3.cell_to_boundary(cell)]))
+    areas = gpd.GeoDataFrame({"OA21CD": ["o1"]}, geometry=[outline], crs="EPSG:27700")
+    lsoas = gpd.GeoDataFrame({"LSOA11CD": ["l1"]}, geometry=[outline], crs="EPSG:27700")
+    monkeypatch.setattr(output_areas, "fetch", lambda data_dir, bounds: tmp_path / "oa")
+    monkeypatch.setattr(output_areas, "read_boundaries", lambda path: areas)
+    monkeypatch.setattr(census_residents, "fetch", lambda data_dir: tmp_path / "ts001")
+    monkeypatch.setattr(census_residents, "read_residents", lambda path: pd.Series({"o1": 100.0}))
+    monkeypatch.setattr(ons_lsoa, "fetch", lambda data_dir, bounds: tmp_path / "lsoa")
+    monkeypatch.setattr(ons_lsoa, "read_boundaries", lambda path: lsoas)
+    monkeypatch.setattr(bres, "fetch", lambda data_dir: [tmp_path / "jobs"])
+    monkeypatch.setattr(bres, "read_jobs", lambda paths: pd.Series({"l1": 900.0}))
+    ctx = Context("london", None, [cell], tmp_path, pd.DataFrame(), None)  # type: ignore[arg-type]
+    assert ctx.residents[cell] == 100.0 and ctx.workers[cell] == 900.0
+    assert ctx.people[cell] == 1000.0

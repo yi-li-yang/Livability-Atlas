@@ -20,6 +20,9 @@ from atlas.build import build_region
 from atlas.cli import app
 from atlas.datasets.cities.london import ptal
 from atlas.datasets.countries.gb import (
+    bres,
+    census_residents,
+    ons_lsoa,
     ons_regions,
 )
 from atlas.datasets.countries.gb.addresses import address_key
@@ -565,12 +568,12 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.ons_regions, "fetch", lambda name, data_dir: boundary)
     monkeypatch.setattr(build_module.ptal, "fetch", lambda data_dir: grid)
     monkeypatch.setattr(build_module.output_areas, "fetch", lambda data_dir, bounds: areas)
-    monkeypatch.setattr(build_module.census_residents, "fetch", lambda data_dir: people)
+    monkeypatch.setattr(census_residents, "fetch", lambda data_dir: people)
     monkeypatch.setattr(build_module.police_uk, "fetch", lambda data_dir: crimes)
     lsoas = synthetic_lsoas(tmp_path)
-    monkeypatch.setattr(build_module.ons_lsoa, "fetch", lambda data_dir, bounds: lsoas)
-    monkeypatch.setattr(build_module.bres, "fetch", lambda data_dir: [tmp_path / "jobs"])
-    monkeypatch.setattr(build_module.bres, "read_jobs", lambda paths: synthetic_jobs())
+    monkeypatch.setattr(ons_lsoa, "fetch", lambda data_dir, bounds: lsoas)
+    monkeypatch.setattr(bres, "fetch", lambda data_dir: [tmp_path / "jobs"])
+    monkeypatch.setattr(bres, "read_jobs", lambda paths: synthetic_jobs())
     streets, stations = synthetic_streets(tmp_path), synthetic_stations(tmp_path)
     monkeypatch.setattr(build_module.openstreetmap, "fetch", lambda data_dir, region: streets)
     monkeypatch.setattr(build_module.naptan, "fetch", lambda data_dir: stations)

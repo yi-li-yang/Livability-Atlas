@@ -1187,7 +1187,36 @@ factors:
               and Police.uk notes that some forces may count some incidents
               twice.
             datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries, ons-bres, ons-lsoa-boundaries]
-      - {id: road-collisions, name: "Road collisions", default_weight: 3, scales: [within-city]}
+      - id: road-collisions
+        name: Road collisions
+        description: Fatal and serious road collisions near the hex cell.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: fatal or serious collisions a year per 1,000 residents and workers
+        preference_type: fixed
+        curve: {shape: percentile, better: lower}
+        curve_reason: >-
+          No standard sets a safe number of collisions, and countries record
+          them differently, so a hex cell scores by its rank within the region:
+          the share of hex cells with a higher rate.
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The collisions that killed or seriously injured someone in the
+          Department for Transport's road safety data (STATS19) over the latest
+          three full years (2022 to 2024), at the place the police recorded
+          each, averaged to a year, per 1,000 residents and workers together
+          (Census 2021 residents and the Business Register and Employment
+          Survey's jobs, shared between hex cells by area, as for crime). A
+          cell's rate pools the collisions and the people of the cell and its
+          neighbours within two steps and adds 3,000 people at the London-wide
+          rate, as the crime rates do. Only fatal and serious collisions are
+          counted, because the police record slight injuries less reliably. A
+          collision is recorded only when it is reported to the police. The
+          rate is per person, not per mile travelled, so a main road through a
+          quiet area adds to its neighbours' rates.
+        datasets: [dft-stats19, ons-census-2021-residents, ons-output-area-boundaries, ons-bres, ons-lsoa-boundaries]
       - {id: homicide-rate, name: "Homicide rate", default_weight: 3, scales: [across-cities]}
       - {id: political-stability, name: "Political stability", default_weight: 3, scales: [across-cities]}
 
@@ -1299,7 +1328,33 @@ factors:
           cell at the edge measures to the nearest one across the boundary.
         datasets: [nhs-find-an-ae, os-code-point-open]
       # Dentists stay an idea: where practices are is open, but whether they take new NHS patients is not.
-      - {id: dentists, name: "Dentists", default_weight: 3, scales: [within-city]}
+      - id: dentists
+        name: Dentists
+        description: Walking minutes to the nearest dental practice.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: minutes on foot
+        preference_type: fixed
+        curve: {shape: percentile, better: lower}
+        curve_reason: >-
+          No source says how far from a dentist is too far, and people travel
+          further to a dentist than to a GP, so the 15-minute ramp of the walk
+          to a GP does not carry over. A hex cell scores by its rank within the
+          region: the share of cells that are further from a practice.
+        evidence_type: indirect
+        comparable_across_regions: false
+        method: >-
+          The walking time along streets and paths from the hex cell's centre
+          to the nearest active dental practice in NHS England's Organisation
+          Data Service, at 4.8 km/h, with each practice placed at the middle of
+          its postcode (Code-Point Open). The register lists a practice whether
+          it takes NHS patients or only private ones, and whether it is taking
+          new patients: the NHS Business Services Authority records neither as
+          open data. A practice nearby is therefore no promise of an
+          appointment, which is why the evidence is indirect, and the measure
+          shows where dentists are, not where a place is available.
+        datasets: [nhs-ods, os-code-point-open, openstreetmap]
       - {id: health-care-quality, name: "Health-care quality and cost", default_weight: 3, scales: [across-cities]}
 
   - id: education
@@ -2305,6 +2360,26 @@ datasets:
     tells:
       - The number of jobs (employees and working owners) at workplaces in each LSOA, in total and by industry, rounded to the nearest 25
       - Employment by broad industry group, for the share of jobs in each sector
+
+  - id: dft-stats19
+    name: Road Safety Data (STATS19), collisions
+    publisher: Department for Transport (DfT)
+    url: https://www.gov.uk/government/collections/road-accidents-and-safety-statistics
+    tier: country
+    area: Great Britain
+    resolution: points, one for each collision reported to the police
+    date: 2022 to 2024
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      data.gov.uk lists the Road Safety Data under the UK Open Government
+      Licence, and the gov.uk site says its content is under the Open
+      Government Licence v3.0.
+    attribution: "Contains public sector information licensed under the Open Government Licence v3.0. Source: Department for Transport road safety data."
+    tells:
+      - Each road collision reported to the police that injured someone, with its place, date, severity, road and conditions
+      - The vehicles and casualties of each collision, in two companion files
 
   - id: hoc-msoa-names
     name: MSOA Names (House of Commons Library)
