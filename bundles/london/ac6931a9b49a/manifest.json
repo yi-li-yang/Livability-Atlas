@@ -1,0 +1,5770 @@
+{
+  "format_version": 1,
+  "version": "ac6931a9b49a",
+  "region": {
+    "id": "london",
+    "name": "London"
+  },
+  "grid": {
+    "system": "h3",
+    "resolution": 9
+  },
+  "cell_count": 16668,
+  "factors": [
+    {
+      "id": "housing-and-cost",
+      "name": "Housing and cost",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "buying-cost",
+          "name": "Buying cost",
+          "default_weight": 3,
+          "indicator": "buying-cost"
+        },
+        {
+          "id": "renting-cost",
+          "name": "Renting cost",
+          "default_weight": 3,
+          "indicator": "renting-cost"
+        },
+        {
+          "id": "council-tax",
+          "name": "Council tax",
+          "default_weight": 3,
+          "indicator": "council-tax"
+        }
+      ]
+    },
+    {
+      "id": "transport",
+      "name": "Transport",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "getting-around",
+          "name": "Getting around in general",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "station-proximity",
+              "name": "Walk to the nearest station",
+              "default_weight": 3,
+              "indicator": "station-proximity"
+            },
+            {
+              "id": "line-choice",
+              "name": "Line choice",
+              "default_weight": 3,
+              "children": [
+                {
+                  "id": "rail-lines-nearby",
+                  "name": "Rail and Tube lines nearby",
+                  "default_weight": 3,
+                  "indicator": "rail-lines-nearby"
+                },
+                {
+                  "id": "bus-routes-nearby",
+                  "name": "Bus routes nearby",
+                  "default_weight": 3,
+                  "indicator": "bus-routes-nearby"
+                }
+              ]
+            },
+            {
+              "id": "service-level",
+              "name": "Service level",
+              "default_weight": 3,
+              "indicator": "service-level"
+            },
+            {
+              "id": "travel-cost",
+              "name": "Travel cost",
+              "default_weight": 3,
+              "indicator": "travel-cost"
+            }
+          ]
+        },
+        {
+          "id": "travel-time-to-places",
+          "name": "Travel time to places",
+          "default_weight": 3,
+          "indicator": "travel-time-to-places"
+        }
+      ]
+    },
+    {
+      "id": "daily-amenities",
+      "name": "Daily amenities",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "everyday-amenities",
+          "name": "Everyday amenities",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "groceries",
+              "name": "Groceries",
+              "default_weight": 3,
+              "indicator": "groceries"
+            },
+            {
+              "id": "pharmacies",
+              "name": "Pharmacies",
+              "default_weight": 3,
+              "indicator": "pharmacies"
+            },
+            {
+              "id": "cafes",
+              "name": "Cafés",
+              "default_weight": 3,
+              "indicator": "cafes"
+            },
+            {
+              "id": "gyms",
+              "name": "Gyms",
+              "default_weight": 3,
+              "indicator": "gyms"
+            },
+            {
+              "id": "libraries",
+              "name": "Libraries",
+              "default_weight": 3,
+              "indicator": "libraries"
+            }
+          ]
+        },
+        {
+          "id": "food-and-drink",
+          "name": "Food and drink",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "restaurant-choice",
+              "name": "Restaurant choice",
+              "default_weight": 3,
+              "indicator": "restaurant-choice"
+            },
+            {
+              "id": "cuisine-variety",
+              "name": "Cuisine variety",
+              "default_weight": 3,
+              "indicator": "cuisine-variety"
+            },
+            {
+              "id": "food-hygiene",
+              "name": "Food hygiene",
+              "default_weight": 3,
+              "indicator": "food-hygiene"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "environment",
+      "name": "Environment",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "air-quality",
+          "name": "Air quality",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "no2",
+              "name": "NO₂, annual mean",
+              "default_weight": 3,
+              "indicator": "no2"
+            },
+            {
+              "id": "pm25",
+              "name": "PM2.5, annual mean",
+              "default_weight": 3,
+              "indicator": "pm25"
+            }
+          ]
+        },
+        {
+          "id": "noise",
+          "name": "Noise",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "road-noise",
+              "name": "Road traffic noise",
+              "default_weight": 3,
+              "indicator": "road-noise"
+            },
+            {
+              "id": "rail-noise",
+              "name": "Rail noise",
+              "default_weight": 3,
+              "indicator": "rail-noise"
+            },
+            {
+              "id": "aircraft-noise",
+              "name": "Aircraft noise",
+              "default_weight": 3,
+              "indicator": "aircraft-noise"
+            }
+          ]
+        },
+        {
+          "id": "green-space",
+          "name": "Green space",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "walk-to-green-space",
+              "name": "Walk to a green space",
+              "default_weight": 3,
+              "indicator": "walk-to-green-space"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "natural-hazards",
+      "name": "Natural hazards",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "flood-risk",
+          "name": "Flood risk",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "river-and-sea-flooding",
+              "name": "Rivers and sea",
+              "default_weight": 3,
+              "indicator": "river-and-sea-flooding"
+            },
+            {
+              "id": "surface-water-flooding",
+              "name": "Surface water",
+              "default_weight": 3,
+              "indicator": "surface-water-flooding"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "safety",
+      "name": "Safety",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "crime",
+          "name": "Crime",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "burglary",
+              "name": "Burglary",
+              "default_weight": 3,
+              "indicator": "burglary"
+            },
+            {
+              "id": "violence-and-sexual-offences",
+              "name": "Violence and sexual offences",
+              "default_weight": 3,
+              "indicator": "violence-and-sexual-offences"
+            },
+            {
+              "id": "robbery-and-theft-from-the-person",
+              "name": "Robbery and theft from the person",
+              "default_weight": 3,
+              "indicator": "robbery-and-theft-from-the-person"
+            },
+            {
+              "id": "vehicle-crime",
+              "name": "Vehicle crime",
+              "default_weight": 3,
+              "indicator": "vehicle-crime"
+            },
+            {
+              "id": "anti-social-behaviour",
+              "name": "Anti-social behaviour",
+              "default_weight": 3,
+              "indicator": "anti-social-behaviour"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "health-care",
+      "name": "Health care",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "gp-access",
+          "name": "GP access",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "gp-walk",
+              "name": "Walk to a GP practice",
+              "default_weight": 3,
+              "indicator": "gp-walk"
+            },
+            {
+              "id": "gp-list-size",
+              "name": "Patients per GP",
+              "default_weight": 3,
+              "indicator": "gp-list-size"
+            }
+          ]
+        },
+        {
+          "id": "ae-distance",
+          "name": "Distance to A&E",
+          "default_weight": 3,
+          "indicator": "ae-distance"
+        }
+      ]
+    },
+    {
+      "id": "education",
+      "name": "Education",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "schools",
+          "name": "Schools",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "primary-schools",
+              "name": "Primary schools",
+              "default_weight": 3,
+              "indicator": "primary-schools"
+            },
+            {
+              "id": "secondary-schools",
+              "name": "Secondary schools",
+              "default_weight": 3,
+              "indicator": "secondary-schools"
+            },
+            {
+              "id": "school-inspections",
+              "name": "School inspection results",
+              "default_weight": 3,
+              "indicator": "school-inspections"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "community-and-people",
+      "name": "Community and people",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "community-composition",
+          "name": "Community composition",
+          "default_weight": 3,
+          "children": [
+            {
+              "id": "your-community",
+              "name": "Your community",
+              "default_weight": 0,
+              "indicator": "your-community"
+            },
+            {
+              "id": "diversity",
+              "name": "Diversity",
+              "default_weight": 3,
+              "indicator": "diversity"
+            }
+          ]
+        },
+        {
+          "id": "faith",
+          "name": "Faith",
+          "default_weight": 0,
+          "indicator": "faith"
+        }
+      ]
+    },
+    {
+      "id": "digital-connectivity",
+      "name": "Digital connectivity",
+      "default_weight": 3,
+      "children": [
+        {
+          "id": "gigabit-broadband",
+          "name": "Gigabit broadband",
+          "default_weight": 3,
+          "indicator": "gigabit-broadband"
+        },
+        {
+          "id": "5g-coverage",
+          "name": "5G coverage",
+          "default_weight": 3,
+          "indicator": "5g-coverage"
+        }
+      ]
+    }
+  ],
+  "indicators": [
+    {
+      "id": "service-level",
+      "name": "Service level",
+      "column": "service_level",
+      "unit": "PTAL band",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "lookup",
+        "scores": {
+          "0": 0.0,
+          "1a": 0.125,
+          "1b": 0.25,
+          "2": 0.375,
+          "3": 0.5,
+          "4": 0.625,
+          "5": 0.75,
+          "6a": 0.875,
+          "6b": 1.0
+        }
+      },
+      "datasets": [
+        "tfl-ptal"
+      ]
+    },
+    {
+      "id": "burglary",
+      "name": "Burglary",
+      "column": "burglary",
+      "unit": "crimes a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "violence-and-sexual-offences",
+      "name": "Violence and sexual offences",
+      "column": "violence_and_sexual_offences",
+      "unit": "crimes a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "robbery-and-theft-from-the-person",
+      "name": "Robbery and theft from the person",
+      "column": "robbery_and_theft_from_the_person",
+      "unit": "crimes a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "vehicle-crime",
+      "name": "Vehicle crime",
+      "column": "vehicle_crime",
+      "unit": "crimes a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "anti-social-behaviour",
+      "name": "Anti-social behaviour",
+      "column": "anti_social_behaviour",
+      "unit": "incidents a year per 1,000 residents",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "police-uk",
+        "ons-census-2021-residents",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "river-and-sea-flooding",
+      "name": "Rivers and sea",
+      "column": "river_and_sea_flooding",
+      "unit": "% of the area",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 100.0,
+        "t1": 0.0
+      },
+      "datasets": [
+        "ea-flood-risk-rivers-sea"
+      ]
+    },
+    {
+      "id": "surface-water-flooding",
+      "name": "Surface water",
+      "column": "surface_water_flooding",
+      "unit": "% of the area",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 100.0,
+        "t1": 0.0
+      },
+      "datasets": [
+        "ea-flood-risk-surface-water"
+      ]
+    },
+    {
+      "id": "station-proximity",
+      "name": "Walk to the nearest station",
+      "column": "station_proximity",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 25.0,
+        "t1": 6.0
+      },
+      "datasets": [
+        "tfl-unified-api",
+        "naptan",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "primary-schools",
+      "name": "Primary schools",
+      "column": "primary_schools",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 25.0,
+        "t1": 6.0
+      },
+      "datasets": [
+        "dfe-gias",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "secondary-schools",
+      "name": "Secondary schools",
+      "column": "secondary_schools",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 25.0,
+        "t1": 6.0
+      },
+      "datasets": [
+        "dfe-gias",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "school-inspections",
+      "name": "School inspection results",
+      "column": "school_inspections",
+      "unit": "% of nearby schools",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "higher"
+      },
+      "datasets": [
+        "ofsted-school-inspections",
+        "dfe-gias"
+      ]
+    },
+    {
+      "id": "gp-walk",
+      "name": "Walk to a GP practice",
+      "column": "gp_walk",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 5.0
+      },
+      "datasets": [
+        "nhs-ods",
+        "os-code-point-open",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "gp-list-size",
+      "name": "Patients per GP",
+      "column": "gp_list_size",
+      "unit": "patients per full-time GP",
+      "evidence_type": "indirect",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 5559.0,
+        "t1": 1800.0
+      },
+      "datasets": [
+        "nhs-gp-registered-patients",
+        "nhs-gp-workforce",
+        "os-code-point-open"
+      ]
+    },
+    {
+      "id": "rail-lines-nearby",
+      "name": "Rail and Tube lines nearby",
+      "column": "rail_lines_nearby",
+      "unit": "lines",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "higher"
+      },
+      "datasets": [
+        "tfl-unified-api",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "bus-routes-nearby",
+      "name": "Bus routes nearby",
+      "column": "bus_routes_nearby",
+      "unit": "routes",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "higher"
+      },
+      "datasets": [
+        "tfl-unified-api",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "travel-cost",
+      "name": "Travel cost",
+      "column": "travel_cost",
+      "unit": "fare zone",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "lookup",
+        "scores": {
+          "1": 1.0,
+          "2": 1.0,
+          "3": 0.89,
+          "4": 0.73,
+          "5": 0.56,
+          "6": 0.49,
+          "7": 0.38,
+          "8": 0.16,
+          "9": 0.0
+        }
+      },
+      "datasets": [
+        "tfl-unified-api"
+      ]
+    },
+    {
+      "id": "walk-to-green-space",
+      "name": "Walk to a green space",
+      "column": "walk_to_green_space",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 4.0
+      },
+      "datasets": [
+        "os-open-greenspace",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "groceries",
+      "name": "Groceries",
+      "column": "groceries",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 5.0
+      },
+      "datasets": [
+        "overture-places",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "pharmacies",
+      "name": "Pharmacies",
+      "column": "pharmacies",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 5.0
+      },
+      "datasets": [
+        "overture-places",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "gyms",
+      "name": "Gyms",
+      "column": "gyms",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 5.0
+      },
+      "datasets": [
+        "overture-places",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "libraries",
+      "name": "Libraries",
+      "column": "libraries",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 5.0
+      },
+      "datasets": [
+        "overture-places",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "cafes",
+      "name": "Cafés",
+      "column": "cafes",
+      "unit": "cafés",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "higher"
+      },
+      "datasets": [
+        "overture-places",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "restaurant-choice",
+      "name": "Restaurant choice",
+      "column": "restaurant_choice",
+      "unit": "restaurants",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "higher"
+      },
+      "datasets": [
+        "overture-places",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "cuisine-variety",
+      "name": "Cuisine variety",
+      "column": "cuisine_variety",
+      "unit": "cuisines",
+      "evidence_type": "indirect",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "higher"
+      },
+      "datasets": [
+        "overture-places",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "food-hygiene",
+      "name": "Food hygiene",
+      "column": "food_hygiene",
+      "unit": "% of food businesses",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 0.0,
+        "t1": 100.0
+      },
+      "datasets": [
+        "fsa-food-hygiene-ratings"
+      ]
+    },
+    {
+      "id": "travel-time-to-places",
+      "name": "Travel time to places",
+      "column": "travel_time_to_places",
+      "unit": "minutes",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 90.0,
+        "t1": 15.0
+      },
+      "datasets": [
+        "tfl-unified-api",
+        "openstreetmap"
+      ]
+    },
+    {
+      "id": "road-noise",
+      "name": "Road traffic noise",
+      "column": "road_noise",
+      "unit": "dB (daytime)",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 70.0,
+        "t1": 50.0
+      },
+      "datasets": [
+        "defra-road-noise"
+      ]
+    },
+    {
+      "id": "rail-noise",
+      "name": "Rail noise",
+      "column": "rail_noise",
+      "unit": "dB (daytime)",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 70.0,
+        "t1": 50.0
+      },
+      "datasets": [
+        "defra-rail-noise"
+      ]
+    },
+    {
+      "id": "aircraft-noise",
+      "name": "Aircraft noise",
+      "column": "aircraft_noise",
+      "unit": "dB (daytime)",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 63.0,
+        "t1": 51.0
+      },
+      "datasets": [
+        "defra-airport-noise"
+      ]
+    },
+    {
+      "id": "renting-cost",
+      "name": "Renting cost",
+      "column": "renting_cost",
+      "unit": "£ a month",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "ons-private-rents",
+        "ons-london-rents-by-district"
+      ]
+    },
+    {
+      "id": "council-tax",
+      "name": "Council tax",
+      "column": "council_tax",
+      "unit": "£ a year (Band D)",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "mhclg-council-tax"
+      ]
+    },
+    {
+      "id": "buying-cost",
+      "name": "Buying cost",
+      "column": "buying_cost",
+      "unit": "£ per m²",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "hm-land-registry-price-paid",
+        "epc-domestic",
+        "os-code-point-open"
+      ]
+    },
+    {
+      "id": "gigabit-broadband",
+      "name": "Gigabit broadband",
+      "column": "gigabit_broadband",
+      "unit": "% of homes",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 0.0,
+        "t1": 100.0
+      },
+      "datasets": [
+        "ofcom-fixed-coverage",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "5g-coverage",
+      "name": "5G coverage",
+      "column": "5g_coverage",
+      "unit": "% of premises",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 0.0,
+        "t1": 100.0
+      },
+      "datasets": [
+        "ofcom-mobile-coverage"
+      ]
+    },
+    {
+      "id": "diversity",
+      "name": "Diversity",
+      "column": "diversity",
+      "unit": "diversity index, from 0 to 1",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "higher"
+      },
+      "datasets": [
+        "ons-census-2021-topic-summaries",
+        "ons-output-area-boundaries"
+      ]
+    },
+    {
+      "id": "ae-distance",
+      "name": "Distance to A&E",
+      "column": "ae_distance",
+      "unit": "km in a straight line",
+      "evidence_type": "direct",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "percentile",
+        "better": "lower"
+      },
+      "datasets": [
+        "nhs-find-an-ae",
+        "os-code-point-open"
+      ]
+    },
+    {
+      "id": "no2",
+      "name": "NO₂, annual mean",
+      "column": "no2",
+      "unit": "µg/m³",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 40.0,
+        "t1": 10.0
+      },
+      "datasets": [
+        "laei",
+        "defra-background-maps"
+      ]
+    },
+    {
+      "id": "pm25",
+      "name": "PM2.5, annual mean",
+      "column": "pm25",
+      "unit": "µg/m³",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 25.0,
+        "t1": 5.0
+      },
+      "datasets": [
+        "laei",
+        "defra-background-maps"
+      ]
+    },
+    {
+      "id": "your-community",
+      "name": "Your community",
+      "column": "your_community",
+      "unit": "% of residents",
+      "evidence_type": "direct",
+      "preference_type": "user-choice",
+      "curve": {
+        "shape": "percentile",
+        "better": "higher"
+      },
+      "datasets": [
+        "ons-census-2021-topic-summaries",
+        "ons-output-area-boundaries"
+      ],
+      "options": [
+        {
+          "id": "ethnic-bangladeshi",
+          "name": "Bangladeshi",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_bangladeshi"
+        },
+        {
+          "id": "ethnic-chinese",
+          "name": "Chinese",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_chinese"
+        },
+        {
+          "id": "ethnic-indian",
+          "name": "Indian",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_indian"
+        },
+        {
+          "id": "ethnic-pakistani",
+          "name": "Pakistani",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_pakistani"
+        },
+        {
+          "id": "ethnic-other-asian",
+          "name": "Other Asian",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_other_asian"
+        },
+        {
+          "id": "ethnic-african",
+          "name": "African",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_african"
+        },
+        {
+          "id": "ethnic-caribbean",
+          "name": "Caribbean",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_caribbean"
+        },
+        {
+          "id": "ethnic-other-black",
+          "name": "Other Black",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_other_black"
+        },
+        {
+          "id": "ethnic-white-and-asian",
+          "name": "White and Asian",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_white_and_asian"
+        },
+        {
+          "id": "ethnic-white-and-black-african",
+          "name": "White and Black African",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_white_and_black_african"
+        },
+        {
+          "id": "ethnic-white-and-black-caribbean",
+          "name": "White and Black Caribbean",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_white_and_black_caribbean"
+        },
+        {
+          "id": "ethnic-other-mixed-or-multiple-ethnic-groups",
+          "name": "Other Mixed or Multiple ethnic groups",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_other_mixed_or_multiple_ethnic_groups"
+        },
+        {
+          "id": "ethnic-english-welsh-scottish-northern-irish-or-british",
+          "name": "English, Welsh, Scottish, Northern Irish or British",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_english_welsh_scottish_northern_irish_or_british"
+        },
+        {
+          "id": "ethnic-irish",
+          "name": "Irish",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_irish"
+        },
+        {
+          "id": "ethnic-gypsy-or-irish-traveller",
+          "name": "Gypsy or Irish Traveller",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_gypsy_or_irish_traveller"
+        },
+        {
+          "id": "ethnic-roma",
+          "name": "Roma",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_roma"
+        },
+        {
+          "id": "ethnic-other-white",
+          "name": "Other White",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_other_white"
+        },
+        {
+          "id": "ethnic-arab",
+          "name": "Arab",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_arab"
+        },
+        {
+          "id": "ethnic-any-other-ethnic-group",
+          "name": "Any other ethnic group",
+          "group": "Ethnic group",
+          "column": "your_community__ethnic_any_other_ethnic_group"
+        },
+        {
+          "id": "religion-no-religion",
+          "name": "No religion",
+          "group": "Religion",
+          "column": "your_community__religion_no_religion"
+        },
+        {
+          "id": "religion-christian",
+          "name": "Christian",
+          "group": "Religion",
+          "column": "your_community__religion_christian"
+        },
+        {
+          "id": "religion-buddhist",
+          "name": "Buddhist",
+          "group": "Religion",
+          "column": "your_community__religion_buddhist"
+        },
+        {
+          "id": "religion-hindu",
+          "name": "Hindu",
+          "group": "Religion",
+          "column": "your_community__religion_hindu"
+        },
+        {
+          "id": "religion-jewish",
+          "name": "Jewish",
+          "group": "Religion",
+          "column": "your_community__religion_jewish"
+        },
+        {
+          "id": "religion-muslim",
+          "name": "Muslim",
+          "group": "Religion",
+          "column": "your_community__religion_muslim"
+        },
+        {
+          "id": "religion-sikh",
+          "name": "Sikh",
+          "group": "Religion",
+          "column": "your_community__religion_sikh"
+        },
+        {
+          "id": "born-united-kingdom",
+          "name": "Born in the United Kingdom",
+          "group": "Country of birth",
+          "column": "your_community__born_united_kingdom"
+        },
+        {
+          "id": "born-european-union-eu14",
+          "name": "Born in the older EU countries (such as France or Spain)",
+          "group": "Country of birth",
+          "column": "your_community__born_european_union_eu14"
+        },
+        {
+          "id": "born-european-union-eu8",
+          "name": "Born in the eastern EU (such as Poland)",
+          "group": "Country of birth",
+          "column": "your_community__born_european_union_eu8"
+        },
+        {
+          "id": "born-european-union-eu2",
+          "name": "Born in Romania or Bulgaria",
+          "group": "Country of birth",
+          "column": "your_community__born_european_union_eu2"
+        },
+        {
+          "id": "born-all-other-eu-countries",
+          "name": "Born in another EU country",
+          "group": "Country of birth",
+          "column": "your_community__born_all_other_eu_countries"
+        },
+        {
+          "id": "born-all-other-non-eu-countries",
+          "name": "Born in another European country",
+          "group": "Country of birth",
+          "column": "your_community__born_all_other_non_eu_countries"
+        },
+        {
+          "id": "born-africa",
+          "name": "Born in Africa",
+          "group": "Country of birth",
+          "column": "your_community__born_africa"
+        },
+        {
+          "id": "born-middle-east-and-asia",
+          "name": "Born in the Middle East or Asia",
+          "group": "Country of birth",
+          "column": "your_community__born_middle_east_and_asia"
+        },
+        {
+          "id": "born-the-americas-and-the-caribbean",
+          "name": "Born in the Americas or the Caribbean",
+          "group": "Country of birth",
+          "column": "your_community__born_the_americas_and_the_caribbean"
+        },
+        {
+          "id": "born-antarctica-and-oceania-including-australasia-and-other",
+          "name": "Born in Oceania or elsewhere",
+          "group": "Country of birth",
+          "column": "your_community__born_antarctica_and_oceania_including_australasia_and_other"
+        },
+        {
+          "id": "age-children-under-15",
+          "name": "Children under 15",
+          "group": "Age",
+          "column": "your_community__age_children_under_15"
+        },
+        {
+          "id": "age-aged-15-to-24",
+          "name": "Aged 15 to 24",
+          "group": "Age",
+          "column": "your_community__age_aged_15_to_24"
+        },
+        {
+          "id": "age-aged-25-to-34",
+          "name": "Aged 25 to 34",
+          "group": "Age",
+          "column": "your_community__age_aged_25_to_34"
+        },
+        {
+          "id": "age-aged-35-to-49",
+          "name": "Aged 35 to 49",
+          "group": "Age",
+          "column": "your_community__age_aged_35_to_49"
+        },
+        {
+          "id": "age-aged-50-to-64",
+          "name": "Aged 50 to 64",
+          "group": "Age",
+          "column": "your_community__age_aged_50_to_64"
+        },
+        {
+          "id": "age-aged-65-and-over",
+          "name": "Aged 65 and over",
+          "group": "Age",
+          "column": "your_community__age_aged_65_and_over"
+        }
+      ]
+    },
+    {
+      "id": "faith",
+      "name": "Faith",
+      "column": "faith",
+      "unit": "minutes on foot",
+      "evidence_type": "direct",
+      "preference_type": "user-choice",
+      "curve": {
+        "shape": "ramp",
+        "t0": 15.0,
+        "t1": 5.0
+      },
+      "datasets": [
+        "openstreetmap"
+      ],
+      "options": [
+        {
+          "id": "buddhist",
+          "name": "Buddhist",
+          "group": "Religion",
+          "column": "faith__buddhist"
+        },
+        {
+          "id": "christian",
+          "name": "Christian",
+          "group": "Religion",
+          "column": "faith__christian"
+        },
+        {
+          "id": "hindu",
+          "name": "Hindu",
+          "group": "Religion",
+          "column": "faith__hindu"
+        },
+        {
+          "id": "jewish",
+          "name": "Jewish",
+          "group": "Religion",
+          "column": "faith__jewish"
+        },
+        {
+          "id": "muslim",
+          "name": "Muslim",
+          "group": "Religion",
+          "column": "faith__muslim"
+        },
+        {
+          "id": "sikh",
+          "name": "Sikh",
+          "group": "Religion",
+          "column": "faith__sikh"
+        },
+        {
+          "id": "spiritualist",
+          "name": "Spiritualist",
+          "group": "Religion",
+          "column": "faith__spiritualist"
+        }
+      ]
+    }
+  ],
+  "datasets": [
+    {
+      "id": "defra-airport-noise",
+      "name": "Strategic noise maps of airports, England (Round 4)",
+      "publisher": "Department for Environment, Food and Rural Affairs (Defra)",
+      "url": "https://environment.data.gov.uk/explore/dac9cba4-abe7-43bd-b8e9-8a83da52edd8",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Strategic noise mapping, Round 4, Defra. Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "2022"
+    },
+    {
+      "id": "defra-background-maps",
+      "name": "Background maps for local air quality management",
+      "publisher": "Defra and the devolved administrations",
+      "url": "https://uk-air.defra.gov.uk/data/laqm-background-home",
+      "licence": "unknown",
+      "attribution": "© Crown copyright, Defra, via uk-air.defra.gov.uk.",
+      "date": "2021 reference year, projected to 2040"
+    },
+    {
+      "id": "defra-rail-noise",
+      "name": "Strategic noise maps of railways, England (Round 4)",
+      "publisher": "Department for Environment, Food and Rural Affairs (Defra)",
+      "url": "https://environment.data.gov.uk/explore/3fb3c2d7-292c-4e0a-bd5b-d8e4e1fe2947",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Strategic noise mapping, Round 4, Defra. Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "2022"
+    },
+    {
+      "id": "defra-road-noise",
+      "name": "Strategic noise maps of roads, England (Round 4)",
+      "publisher": "Department for Environment, Food and Rural Affairs (Defra)",
+      "url": "https://environment.data.gov.uk/explore/562c9d56-7c2d-4d42-83bb-578d6e97a517",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Strategic noise mapping, Round 4, Defra. Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "2022"
+    },
+    {
+      "id": "dfe-gias",
+      "name": "Get Information About Schools (DfE)",
+      "publisher": "Department for Education (DfE)",
+      "url": "https://get-information-schools.service.gov.uk/Downloads",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "updated daily"
+    },
+    {
+      "id": "ea-flood-risk-rivers-sea",
+      "name": "Risk of Flooding from Rivers and Sea (Environment Agency)",
+      "publisher": "Environment Agency",
+      "url": "https://environment.data.gov.uk/explore/96ab4342-82c1-4095-87f1-0082e8d84ef1",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Risk of Flooding from Rivers and Sea, Environment Agency. Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "National Flood Risk Assessment (NaFRA2), last updated in July 2026"
+    },
+    {
+      "id": "ea-flood-risk-surface-water",
+      "name": "Risk of Flooding from Surface Water (Environment Agency)",
+      "publisher": "Environment Agency",
+      "url": "https://environment.data.gov.uk/explore/b5aaa28d-6eb9-460e-8d6f-43caa71fbe0e",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Risk of Flooding from Surface Water, Environment Agency. Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "National Flood Risk Assessment (NaFRA2), last updated in July 2026"
+    },
+    {
+      "id": "epc-domestic",
+      "name": "Energy performance certificates for homes, England and Wales",
+      "publisher": "Ministry of Housing, Communities and Local Government (MHCLG)",
+      "url": "https://get-energy-performance-data.communities.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0. Address data © Ordnance Survey and Royal Mail, used only to match certificates to sales.",
+      "date": "certificates lodged since 2008"
+    },
+    {
+      "id": "fsa-food-hygiene-ratings",
+      "name": "Food Hygiene Rating Scheme ratings (Food Standards Agency)",
+      "publisher": "Food Standards Agency, with local authorities",
+      "url": "https://ratings.food.gov.uk/open-data",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Food hygiene ratings from the Food Standards Agency. Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "updated daily"
+    },
+    {
+      "id": "hm-land-registry-price-paid",
+      "name": "Price Paid Data (HM Land Registry)",
+      "publisher": "HM Land Registry",
+      "url": "https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains HM Land Registry data © Crown copyright and database right 2021. This data is licensed under the Open Government Licence v3.0.",
+      "date": "monthly, with sales since 1995"
+    },
+    {
+      "id": "hoc-msoa-names",
+      "name": "MSOA Names (House of Commons Library)",
+      "publisher": "House of Commons Library",
+      "url": "https://houseofcommonslibrary.github.io/msoanames/",
+      "licence": "LicenseRef-OPL-3.0",
+      "attribution": "Contains Parliamentary information licensed under the Open Parliament Licence v3.0. MSOA names: House of Commons Library.",
+      "date": "version 2.3, 13 February 2026"
+    },
+    {
+      "id": "laei",
+      "name": "London Atmospheric Emissions Inventory (LAEI)",
+      "publisher": "Greater London Authority and Transport for London",
+      "url": "https://data.london.gov.uk/dataset/london-atmospheric-emissions-inventory--laei--2022",
+      "licence": "unknown",
+      "attribution": "London Atmospheric Emissions Inventory 2022, Greater London Authority and Transport for London. The Greater London Authority cannot warrant the quality or accuracy of the data.",
+      "date": "2022"
+    },
+    {
+      "id": "mhclg-council-tax",
+      "name": "Council Tax levels set by local authorities in England",
+      "publisher": "Ministry of Housing, Communities and Local Government (MHCLG)",
+      "url": "https://www.gov.uk/government/statistics/council-tax-levels-set-by-local-authorities-in-england-2026-to-2027",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "2026-27, published each March"
+    },
+    {
+      "id": "naptan",
+      "name": "National Public Transport Access Nodes (NaPTAN)",
+      "publisher": "Department for Transport",
+      "url": "https://beta-naptan.dft.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "updated daily"
+    },
+    {
+      "id": "nhs-find-an-ae",
+      "name": "Find your nearest A&E (NHS website)",
+      "publisher": "NHS England, on the NHS website",
+      "url": "https://www.nhs.uk/service-search/find-an-accident-and-emergency-service",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "live, read on 2026-10-29"
+    },
+    {
+      "id": "nhs-gp-registered-patients",
+      "name": "Patients Registered at a GP Practice",
+      "publisher": "NHS England",
+      "url": "https://digital.nhs.uk/data-and-information/publications/statistical/patients-registered-at-a-gp-practice",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains information from NHS England, licenced under the current version of the Open Government Licence.",
+      "date": "monthly"
+    },
+    {
+      "id": "nhs-gp-workforce",
+      "name": "General Practice Workforce",
+      "publisher": "NHS England",
+      "url": "https://digital.nhs.uk/data-and-information/publications/statistical/general-and-personal-medical-services",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains information from NHS England, licenced under the current version of the Open Government Licence.",
+      "date": "monthly"
+    },
+    {
+      "id": "nhs-ods",
+      "name": "NHS England Organisation Data Service (ODS)",
+      "publisher": "NHS England",
+      "url": "https://digital.nhs.uk/services/organisation-data-service",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains information from NHS England, licenced under the current version of the Open Government Licence.",
+      "date": "updated nightly"
+    },
+    {
+      "id": "ofcom-fixed-coverage",
+      "name": "Connected Nations 2025: fixed broadband coverage (Ofcom)",
+      "publisher": "Ofcom",
+      "url": "https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/connected-nations-2025/data-downloads-2025",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Ofcom, Connected Nations 2025. Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "July 2025"
+    },
+    {
+      "id": "ofcom-mobile-coverage",
+      "name": "Connected Nations 2025: mobile coverage (Ofcom)",
+      "publisher": "Ofcom",
+      "url": "https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/connected-nations-2025/data-downloads-2025",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Ofcom, Connected Nations 2025. Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "July 2025"
+    },
+    {
+      "id": "ofsted-school-inspections",
+      "name": "State-funded school inspections and outcomes: management information (Ofsted)",
+      "publisher": "Ofsted",
+      "url": "https://www.gov.uk/government/statistical-data-sets/monthly-management-information-ofsteds-school-inspections-outcomes",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0.",
+      "date": "monthly"
+    },
+    {
+      "id": "ons-census-2021-residents",
+      "name": "Census 2021, usual residents by output area (table TS001)",
+      "publisher": "Office for National Statistics (ONS), through Nomis",
+      "url": "https://www.nomisweb.co.uk/sources/census_2021_bulk",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics, licensed under the Open Government Licence v3.0.",
+      "date": "2021"
+    },
+    {
+      "id": "ons-census-2021-topic-summaries",
+      "name": "Census 2021 topic summaries by output area (ONS)",
+      "publisher": "Office for National Statistics (ONS), through Nomis",
+      "url": "https://www.nomisweb.co.uk/sources/census_2021_bulk",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics, licensed under the Open Government Licence v3.0.",
+      "date": "2021"
+    },
+    {
+      "id": "ons-london-rents-by-district",
+      "name": "Private rental market in London: monthly rents by postcode district",
+      "publisher": "Office for National Statistics (ONS), from the Valuation Office Agency's rent data",
+      "url": "https://www.ons.gov.uk/economy/inflationandpriceindices/adhocs/3389privaterentalmarketinlondonapril2025tomarch2026",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics, licensed under the Open Government Licence v3.0.",
+      "date": "April 2025 to March 2026, as rolling 12-month releases"
+    },
+    {
+      "id": "ons-msoa-boundaries",
+      "name": "Middle layer Super Output Areas (December 2021) Boundaries EW BGC",
+      "publisher": "Office for National Statistics (ONS)",
+      "url": "https://geoportal.statistics.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. Contains OS data © Crown copyright and database right 2026.",
+      "date": "2021"
+    },
+    {
+      "id": "ons-output-area-boundaries",
+      "name": "Output Areas (December 2021) Boundaries EW BGC",
+      "publisher": "Office for National Statistics (ONS)",
+      "url": "https://www.data.gov.uk/dataset/4d4e021d-fe98-4a0e-88e2-3ead84538537/output-areas-december-2021-boundaries-ew-bgc-v21",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. Contains OS data © Crown copyright and database right 2026.",
+      "date": "2021"
+    },
+    {
+      "id": "ons-private-rents",
+      "name": "Price Index of Private Rents, UK: monthly price statistics",
+      "publisher": "Office for National Statistics (ONS)",
+      "url": "https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/priceindexofprivaterentsukmonthlypricestatistics",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics, licensed under the Open Government Licence v3.0.",
+      "date": "monthly"
+    },
+    {
+      "id": "ons-region-boundaries",
+      "name": "Regions (December 2025) Boundaries EN BGC",
+      "publisher": "Office for National Statistics (ONS)",
+      "url": "https://geoportal.statistics.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. Contains OS data © Crown copyright and database right 2026.",
+      "date": "December 2025"
+    },
+    {
+      "id": "openstreetmap",
+      "name": "OpenStreetMap",
+      "publisher": "OpenStreetMap contributors",
+      "url": "https://www.openstreetmap.org/",
+      "licence": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors, available under the Open Database License.",
+      "date": "updated continually"
+    },
+    {
+      "id": "os-code-point-open",
+      "name": "OS Code-Point Open",
+      "publisher": "Ordnance Survey",
+      "url": "https://www.ordnancesurvey.co.uk/products/code-point-open",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains OS data © Crown copyright and database right 2026. Contains Royal Mail data © Royal Mail copyright and database right 2026. Contains National Statistics data © Crown copyright and database right 2026.",
+      "date": "quarterly"
+    },
+    {
+      "id": "os-open-greenspace",
+      "name": "OS Open Greenspace",
+      "publisher": "Ordnance Survey",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-greenspace",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains OS data © Crown copyright and database right 2026.",
+      "date": "updated every six months"
+    },
+    {
+      "id": "overture-places",
+      "name": "Overture Maps Places",
+      "publisher": "Overture Maps Foundation",
+      "url": "https://docs.overturemaps.org/guides/places/",
+      "licence": "CDLA-Permissive-2.0 AND Apache-2.0 AND CC0-1.0",
+      "attribution": "Overture Maps Foundation, with places from Meta, Microsoft, Foursquare and others. Copyright 2024 Foursquare Labs, Inc. All rights reserved.",
+      "date": "monthly releases"
+    },
+    {
+      "id": "police-uk",
+      "name": "Police recorded crime and anti-social behaviour (data.police.uk)",
+      "publisher": "The police forces of England, Wales and Northern Ireland, through data.police.uk",
+      "url": "https://data.police.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0. Source: data.police.uk.",
+      "date": "monthly, for the latest three years"
+    },
+    {
+      "id": "tfl-ptal",
+      "name": "Public Transport Accessibility Levels (PTAL)",
+      "publisher": "Transport for London, on the London Datastore",
+      "url": "https://data.london.gov.uk/dataset/public-transport-accessibility-levels",
+      "licence": "OGL-UK-2.0",
+      "attribution": "Public Transport Accessibility Levels, Transport for London. Contains public sector information licensed under the Open Government Licence v2.0. The Greater London Authority cannot warrant the quality or accuracy of the data.",
+      "date": "2015"
+    },
+    {
+      "id": "tfl-unified-api",
+      "name": "TfL Unified API",
+      "publisher": "Transport for London",
+      "url": "https://api-portal.tfl.gov.uk/",
+      "licence": "LicenseRef-TfL-Open-Data",
+      "attribution": "Powered by TfL Open Data. Contains OS data © Crown copyright and database rights 2016 and Geomni UK Map data © and database rights [2019].",
+      "date": "live, updated continually"
+    }
+  ],
+  "neighbourhoods": [
+    {
+      "name": "City of London",
+      "area": "City of London"
+    },
+    {
+      "name": "Marks Gate",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Chadwell Heath East",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Eastbrookend",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Becontree Heath",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Central Park & Frizlands Lane",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Becontree East",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Becontree West",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Dagenham North",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Dagenham Eastbrook",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Longbridge & Barking Park",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Becontree South",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Dagenham Central",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Old Dagenham Park & Village",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Barking Central",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Barking East",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Mayesbrook Park & Rippleside",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Goresbrook & Scrattons Farm",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Creekmouth & Barking Riverside",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Rylands Estate & Dagenham Dock",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Gascoigne Estate & Roding Riverside",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Thames View",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "High Barnet & Hadley",
+      "area": "Barnet"
+    },
+    {
+      "name": "Hadley Wood",
+      "area": "Barnet"
+    },
+    {
+      "name": "Oak Hill",
+      "area": "Barnet"
+    },
+    {
+      "name": "Ducks Island & Underhill",
+      "area": "Barnet"
+    },
+    {
+      "name": "New Barnet West",
+      "area": "Barnet"
+    },
+    {
+      "name": "New Barnet Town & East Barnet",
+      "area": "Barnet"
+    },
+    {
+      "name": "Totteridge & Barnet Gate",
+      "area": "Barnet"
+    },
+    {
+      "name": "Oakleigh Park",
+      "area": "Barnet"
+    },
+    {
+      "name": "Osidge",
+      "area": "Barnet"
+    },
+    {
+      "name": "Brunswick Park Road",
+      "area": "Barnet"
+    },
+    {
+      "name": "Whetstone East",
+      "area": "Barnet"
+    },
+    {
+      "name": "Woodside Park",
+      "area": "Barnet"
+    },
+    {
+      "name": "Edgware East",
+      "area": "Barnet"
+    },
+    {
+      "name": "Edgware Park",
+      "area": "Barnet"
+    },
+    {
+      "name": "Friern Barnet",
+      "area": "Barnet"
+    },
+    {
+      "name": "Mill Hill Park",
+      "area": "Barnet"
+    },
+    {
+      "name": "Mill Hill East",
+      "area": "Barnet"
+    },
+    {
+      "name": "Edgware Central",
+      "area": "Barnet"
+    },
+    {
+      "name": "North Finchley",
+      "area": "Barnet"
+    },
+    {
+      "name": "West Finchley",
+      "area": "Barnet"
+    },
+    {
+      "name": "Mill Hill Broadway",
+      "area": "Barnet"
+    },
+    {
+      "name": "Colney Hatch",
+      "area": "Barnet"
+    },
+    {
+      "name": "Church End",
+      "area": "Barnet"
+    },
+    {
+      "name": "Burnt Oak & Watling Park",
+      "area": "Barnet"
+    },
+    {
+      "name": "Copthall & Downage",
+      "area": "Barnet"
+    },
+    {
+      "name": "Grahame Park",
+      "area": "Barnet"
+    },
+    {
+      "name": "Fallow Corner",
+      "area": "Barnet"
+    },
+    {
+      "name": "Finchley Central",
+      "area": "Barnet"
+    },
+    {
+      "name": "East Finchley",
+      "area": "Barnet"
+    },
+    {
+      "name": "North Hendon & Sunny Hill",
+      "area": "Barnet"
+    },
+    {
+      "name": "Hendon Central",
+      "area": "Barnet"
+    },
+    {
+      "name": "Hampstead Garden Suburb",
+      "area": "Barnet"
+    },
+    {
+      "name": "Hendon Park",
+      "area": "Barnet"
+    },
+    {
+      "name": "Temple Fortune",
+      "area": "Barnet"
+    },
+    {
+      "name": "West Hendon",
+      "area": "Barnet"
+    },
+    {
+      "name": "Golders Green North",
+      "area": "Barnet"
+    },
+    {
+      "name": "Golders Green South",
+      "area": "Barnet"
+    },
+    {
+      "name": "Brent Cross & Staples Corner",
+      "area": "Barnet"
+    },
+    {
+      "name": "North Cricklewood",
+      "area": "Barnet"
+    },
+    {
+      "name": "Childs Hill",
+      "area": "Barnet"
+    },
+    {
+      "name": "Crossway Park",
+      "area": "Bexley"
+    },
+    {
+      "name": "South Thamesmead",
+      "area": "Bexley"
+    },
+    {
+      "name": "Belvedere & Lessness Heath",
+      "area": "Bexley"
+    },
+    {
+      "name": "Erith East",
+      "area": "Bexley"
+    },
+    {
+      "name": "Erith West",
+      "area": "Bexley"
+    },
+    {
+      "name": "Lesnes Abbey",
+      "area": "Bexley"
+    },
+    {
+      "name": "Northumberland Heath",
+      "area": "Bexley"
+    },
+    {
+      "name": "Slade Green & Crayford Marshes",
+      "area": "Bexley"
+    },
+    {
+      "name": "Bostall",
+      "area": "Bexley"
+    },
+    {
+      "name": "Lesney Farm & Colyers East",
+      "area": "Bexley"
+    },
+    {
+      "name": "Bursted Wood",
+      "area": "Bexley"
+    },
+    {
+      "name": "St Michael's",
+      "area": "Bexley"
+    },
+    {
+      "name": "Barnehurst North",
+      "area": "Bexley"
+    },
+    {
+      "name": "Bexleyheath Broadway",
+      "area": "Bexley"
+    },
+    {
+      "name": "Welling",
+      "area": "Bexley"
+    },
+    {
+      "name": "Barnehurst South",
+      "area": "Bexley"
+    },
+    {
+      "name": "Falconwood",
+      "area": "Bexley"
+    },
+    {
+      "name": "Crayford",
+      "area": "Bexley"
+    },
+    {
+      "name": "Danson Park",
+      "area": "Bexley"
+    },
+    {
+      "name": "Blackfen",
+      "area": "Bexley"
+    },
+    {
+      "name": "Lamorbey",
+      "area": "Bexley"
+    },
+    {
+      "name": "Bexley Village",
+      "area": "Bexley"
+    },
+    {
+      "name": "Albany Park",
+      "area": "Bexley"
+    },
+    {
+      "name": "Longlands & Halfway",
+      "area": "Bexley"
+    },
+    {
+      "name": "Sidcup West",
+      "area": "Bexley"
+    },
+    {
+      "name": "Sidcup East",
+      "area": "Bexley"
+    },
+    {
+      "name": "Foots Cray Meadows",
+      "area": "Bexley"
+    },
+    {
+      "name": "Queensbury South",
+      "area": "Brent"
+    },
+    {
+      "name": "Kingsbury East",
+      "area": "Brent"
+    },
+    {
+      "name": "Kingsbury West",
+      "area": "Brent"
+    },
+    {
+      "name": "Kenton Woodcock Park",
+      "area": "Brent"
+    },
+    {
+      "name": "Kingsbury South",
+      "area": "Brent"
+    },
+    {
+      "name": "Barnhill The Avenue",
+      "area": "Brent"
+    },
+    {
+      "name": "Preston Park & East Lane",
+      "area": "Brent"
+    },
+    {
+      "name": "Northwick Park",
+      "area": "Brent"
+    },
+    {
+      "name": "Forty Lane",
+      "area": "Brent"
+    },
+    {
+      "name": "Welsh Harp",
+      "area": "Brent"
+    },
+    {
+      "name": "Dollis Hill",
+      "area": "Brent"
+    },
+    {
+      "name": "Wembley North",
+      "area": "Brent"
+    },
+    {
+      "name": "Sudbury East",
+      "area": "Brent"
+    },
+    {
+      "name": "Neasden",
+      "area": "Brent"
+    },
+    {
+      "name": "Cricklewood Anson Road",
+      "area": "Brent"
+    },
+    {
+      "name": "Sudbury West",
+      "area": "Brent"
+    },
+    {
+      "name": "Dudden Hill",
+      "area": "Brent"
+    },
+    {
+      "name": "Wembley West",
+      "area": "Brent"
+    },
+    {
+      "name": "Wembley East",
+      "area": "Brent"
+    },
+    {
+      "name": "St Raphaels",
+      "area": "Brent"
+    },
+    {
+      "name": "Willesden Green",
+      "area": "Brent"
+    },
+    {
+      "name": "Brondesbury",
+      "area": "Brent"
+    },
+    {
+      "name": "Roundwood Park",
+      "area": "Brent"
+    },
+    {
+      "name": "Church End",
+      "area": "Brent"
+    },
+    {
+      "name": "Alperton East",
+      "area": "Brent"
+    },
+    {
+      "name": "Stonebridge",
+      "area": "Brent"
+    },
+    {
+      "name": "Kilburn West",
+      "area": "Brent"
+    },
+    {
+      "name": "Alperton West",
+      "area": "Brent"
+    },
+    {
+      "name": "Brondesbury Park",
+      "area": "Brent"
+    },
+    {
+      "name": "Harlesden",
+      "area": "Brent"
+    },
+    {
+      "name": "Queens Park",
+      "area": "Brent"
+    },
+    {
+      "name": "Kensal Green",
+      "area": "Brent"
+    },
+    {
+      "name": "Kilburn Park",
+      "area": "Brent"
+    },
+    {
+      "name": "Mottingham",
+      "area": "Bromley"
+    },
+    {
+      "name": "Chislehurst North",
+      "area": "Bromley"
+    },
+    {
+      "name": "Penge East",
+      "area": "Bromley"
+    },
+    {
+      "name": "Crystal Palace Park",
+      "area": "Bromley"
+    },
+    {
+      "name": "New Beckenham",
+      "area": "Bromley"
+    },
+    {
+      "name": "Chislehurst West & Elmstead",
+      "area": "Bromley"
+    },
+    {
+      "name": "Bromley North & Sundridge",
+      "area": "Bromley"
+    },
+    {
+      "name": "Anerley North & Penge West",
+      "area": "Bromley"
+    },
+    {
+      "name": "Chislehurst East & Hoblingwell Wood",
+      "area": "Bromley"
+    },
+    {
+      "name": "Shortlands Bromley Road",
+      "area": "Bromley"
+    },
+    {
+      "name": "Beckenham East & Kelsey Park",
+      "area": "Bromley"
+    },
+    {
+      "name": "Clock House & Cator Park",
+      "area": "Bromley"
+    },
+    {
+      "name": "St Mary Cray North",
+      "area": "Bromley"
+    },
+    {
+      "name": "Anerley South",
+      "area": "Bromley"
+    },
+    {
+      "name": "Widmore",
+      "area": "Bromley"
+    },
+    {
+      "name": "Bromley South",
+      "area": "Bromley"
+    },
+    {
+      "name": "St Mary Cray East",
+      "area": "Bromley"
+    },
+    {
+      "name": "Bickley West",
+      "area": "Bromley"
+    },
+    {
+      "name": "Langley Park",
+      "area": "Bromley"
+    },
+    {
+      "name": "Bickley East",
+      "area": "Bromley"
+    },
+    {
+      "name": "St Mary Cray South",
+      "area": "Bromley"
+    },
+    {
+      "name": "Eden Park & Bethlem",
+      "area": "Bromley"
+    },
+    {
+      "name": "Petts Wood",
+      "area": "Bromley"
+    },
+    {
+      "name": "Bromley Common",
+      "area": "Bromley"
+    },
+    {
+      "name": "Hayes North",
+      "area": "Bromley"
+    },
+    {
+      "name": "Orpington West",
+      "area": "Bromley"
+    },
+    {
+      "name": "Orpington East",
+      "area": "Bromley"
+    },
+    {
+      "name": "West Wickham",
+      "area": "Bromley"
+    },
+    {
+      "name": "Crofton",
+      "area": "Bromley"
+    },
+    {
+      "name": "Goddington",
+      "area": "Bromley"
+    },
+    {
+      "name": "Keston",
+      "area": "Bromley"
+    },
+    {
+      "name": "Hayes South & Coney Hall",
+      "area": "Bromley"
+    },
+    {
+      "name": "Orpington South",
+      "area": "Bromley"
+    },
+    {
+      "name": "Farnborough",
+      "area": "Bromley"
+    },
+    {
+      "name": "Chelsfield & Green Street Green",
+      "area": "Bromley"
+    },
+    {
+      "name": "Biggin Hill West",
+      "area": "Bromley"
+    },
+    {
+      "name": "Highgate West",
+      "area": "Camden"
+    },
+    {
+      "name": "Hampstead Town",
+      "area": "Camden"
+    },
+    {
+      "name": "Tufnell Park West",
+      "area": "Camden"
+    },
+    {
+      "name": "Frognal",
+      "area": "Camden"
+    },
+    {
+      "name": "Fortune Green",
+      "area": "Camden"
+    },
+    {
+      "name": "Mansfield Road & Park Hill Road",
+      "area": "Camden"
+    },
+    {
+      "name": "Kentish Town West",
+      "area": "Camden"
+    },
+    {
+      "name": "Fitzjohns & Royal Free",
+      "area": "Camden"
+    },
+    {
+      "name": "Kentish Town East",
+      "area": "Camden"
+    },
+    {
+      "name": "West Hampstead",
+      "area": "Camden"
+    },
+    {
+      "name": "Belsize Park",
+      "area": "Camden"
+    },
+    {
+      "name": "Chalk Farm",
+      "area": "Camden"
+    },
+    {
+      "name": "Kilburn Grange",
+      "area": "Camden"
+    },
+    {
+      "name": "Adelaide Road",
+      "area": "Camden"
+    },
+    {
+      "name": "Camden Road South",
+      "area": "Camden"
+    },
+    {
+      "name": "South Hampstead",
+      "area": "Camden"
+    },
+    {
+      "name": "Swiss Cottage",
+      "area": "Camden"
+    },
+    {
+      "name": "Primrose Hill",
+      "area": "Camden"
+    },
+    {
+      "name": "Camden Street & Elm Village",
+      "area": "Camden"
+    },
+    {
+      "name": "Kilburn East",
+      "area": "Camden"
+    },
+    {
+      "name": "Camden Town & Mornington Crescent",
+      "area": "Camden"
+    },
+    {
+      "name": "Somers Town",
+      "area": "Camden"
+    },
+    {
+      "name": "Euston",
+      "area": "Camden"
+    },
+    {
+      "name": "Fitzrovia East & Bloomsbury West",
+      "area": "Camden"
+    },
+    {
+      "name": "Hatton Garden & Theobalds Road",
+      "area": "Camden"
+    },
+    {
+      "name": "Holborn, St Giles & Bloomsbury South",
+      "area": "Camden"
+    },
+    {
+      "name": "Crystal Palace Triangle",
+      "area": "Croydon"
+    },
+    {
+      "name": "Upper Norwood",
+      "area": "Croydon"
+    },
+    {
+      "name": "Norbury East",
+      "area": "Croydon"
+    },
+    {
+      "name": "Norbury West",
+      "area": "Croydon"
+    },
+    {
+      "name": "Thornton Heath North West",
+      "area": "Croydon"
+    },
+    {
+      "name": "Thornton Heath North East",
+      "area": "Croydon"
+    },
+    {
+      "name": "South Norwood Hill",
+      "area": "Croydon"
+    },
+    {
+      "name": "South Norwood Central",
+      "area": "Croydon"
+    },
+    {
+      "name": "Thornton Heath West",
+      "area": "Croydon"
+    },
+    {
+      "name": "Thornton Heath Central",
+      "area": "Croydon"
+    },
+    {
+      "name": "West Thornton North",
+      "area": "Croydon"
+    },
+    {
+      "name": "Selhurst North",
+      "area": "Croydon"
+    },
+    {
+      "name": "Woodside & Ashburton",
+      "area": "Croydon"
+    },
+    {
+      "name": "University Hospital & Queen's Road",
+      "area": "Croydon"
+    },
+    {
+      "name": "West Thornton South & Ampere Way",
+      "area": "Croydon"
+    },
+    {
+      "name": "Addiscombe North",
+      "area": "Croydon"
+    },
+    {
+      "name": "Monks Orchard",
+      "area": "Croydon"
+    },
+    {
+      "name": "Broad Green & Waddon Marsh",
+      "area": "Croydon"
+    },
+    {
+      "name": "Selhurst South & West Croydon",
+      "area": "Croydon"
+    },
+    {
+      "name": "Addiscombe East",
+      "area": "Croydon"
+    },
+    {
+      "name": "Addiscombe West",
+      "area": "Croydon"
+    },
+    {
+      "name": "Park Hill & Lloyd Park",
+      "area": "Croydon"
+    },
+    {
+      "name": "Croydon Minster & Waddon North",
+      "area": "Croydon"
+    },
+    {
+      "name": "Shirley East",
+      "area": "Croydon"
+    },
+    {
+      "name": "Shirley West",
+      "area": "Croydon"
+    },
+    {
+      "name": "Waddon South",
+      "area": "Croydon"
+    },
+    {
+      "name": "Croham",
+      "area": "Croydon"
+    },
+    {
+      "name": "New Addington North",
+      "area": "Croydon"
+    },
+    {
+      "name": "Purley North",
+      "area": "Croydon"
+    },
+    {
+      "name": "New Addington Central",
+      "area": "Croydon"
+    },
+    {
+      "name": "Selsdon",
+      "area": "Croydon"
+    },
+    {
+      "name": "Forestdale",
+      "area": "Croydon"
+    },
+    {
+      "name": "Sanderstead",
+      "area": "Croydon"
+    },
+    {
+      "name": "New Addington South",
+      "area": "Croydon"
+    },
+    {
+      "name": "Purley Central",
+      "area": "Croydon"
+    },
+    {
+      "name": "Woodcote",
+      "area": "Croydon"
+    },
+    {
+      "name": "Selsdon Park & Hamsey Green",
+      "area": "Croydon"
+    },
+    {
+      "name": "Kenley North",
+      "area": "Croydon"
+    },
+    {
+      "name": "Coulsdon",
+      "area": "Croydon"
+    },
+    {
+      "name": "Kenley South",
+      "area": "Croydon"
+    },
+    {
+      "name": "Woodmansterne",
+      "area": "Croydon"
+    },
+    {
+      "name": "Old Coulsdon",
+      "area": "Croydon"
+    },
+    {
+      "name": "Whitton Avenue West",
+      "area": "Ealing"
+    },
+    {
+      "name": "Horsenden",
+      "area": "Ealing"
+    },
+    {
+      "name": "Northolt West",
+      "area": "Ealing"
+    },
+    {
+      "name": "Northolt East",
+      "area": "Ealing"
+    },
+    {
+      "name": "Bilton Road",
+      "area": "Ealing"
+    },
+    {
+      "name": "Greenford North",
+      "area": "Ealing"
+    },
+    {
+      "name": "Perivale",
+      "area": "Ealing"
+    },
+    {
+      "name": "Northolt South",
+      "area": "Ealing"
+    },
+    {
+      "name": "Kingshill Avenue",
+      "area": "Ealing"
+    },
+    {
+      "name": "Greenford West",
+      "area": "Ealing"
+    },
+    {
+      "name": "Hanger Hill East",
+      "area": "Ealing"
+    },
+    {
+      "name": "Greenford South",
+      "area": "Ealing"
+    },
+    {
+      "name": "Pitshanger",
+      "area": "Ealing"
+    },
+    {
+      "name": "Greenford Ravenor Park",
+      "area": "Ealing"
+    },
+    {
+      "name": "North Acton",
+      "area": "Ealing"
+    },
+    {
+      "name": "Cuckoo Park",
+      "area": "Ealing"
+    },
+    {
+      "name": "Southall North",
+      "area": "Ealing"
+    },
+    {
+      "name": "Drayton Green & Cleveland",
+      "area": "Ealing"
+    },
+    {
+      "name": "Ealing Broadway West",
+      "area": "Ealing"
+    },
+    {
+      "name": "Acton Noel Road & Lynton Road",
+      "area": "Ealing"
+    },
+    {
+      "name": "Brent Valley",
+      "area": "Ealing"
+    },
+    {
+      "name": "Southall Park",
+      "area": "Ealing"
+    },
+    {
+      "name": "East Acton",
+      "area": "Ealing"
+    },
+    {
+      "name": "Acton Central",
+      "area": "Ealing"
+    },
+    {
+      "name": "Southall West",
+      "area": "Ealing"
+    },
+    {
+      "name": "Ealing Common & Twyford Ave",
+      "area": "Ealing"
+    },
+    {
+      "name": "West Ealing",
+      "area": "Ealing"
+    },
+    {
+      "name": "Norwood Green North & Windmill Park",
+      "area": "Ealing"
+    },
+    {
+      "name": "Hanwell",
+      "area": "Ealing"
+    },
+    {
+      "name": "St Mary's",
+      "area": "Ealing"
+    },
+    {
+      "name": "Northfields",
+      "area": "Ealing"
+    },
+    {
+      "name": "South Acton",
+      "area": "Ealing"
+    },
+    {
+      "name": "Bedford Park",
+      "area": "Ealing"
+    },
+    {
+      "name": "Elthorne Park",
+      "area": "Ealing"
+    },
+    {
+      "name": "Norwood Green South",
+      "area": "Ealing"
+    },
+    {
+      "name": "South Ealing",
+      "area": "Ealing"
+    },
+    {
+      "name": "Bullsmoor & Freezywater",
+      "area": "Enfield"
+    },
+    {
+      "name": "Turkey Street",
+      "area": "Enfield"
+    },
+    {
+      "name": "Enfield Lock",
+      "area": "Enfield"
+    },
+    {
+      "name": "Chase & Crews Hill",
+      "area": "Enfield"
+    },
+    {
+      "name": "Carterhatch & Forty Hall",
+      "area": "Enfield"
+    },
+    {
+      "name": "Enfield Wash",
+      "area": "Enfield"
+    },
+    {
+      "name": "Brimsdown Avenue",
+      "area": "Enfield"
+    },
+    {
+      "name": "Chase Side",
+      "area": "Enfield"
+    },
+    {
+      "name": "Enfield Town North",
+      "area": "Enfield"
+    },
+    {
+      "name": "Chase Farm & The Ridgeway",
+      "area": "Enfield"
+    },
+    {
+      "name": "Cockfosters & Hadley Wood",
+      "area": "Enfield"
+    },
+    {
+      "name": "Southbury East",
+      "area": "Enfield"
+    },
+    {
+      "name": "World's End",
+      "area": "Enfield"
+    },
+    {
+      "name": "Brimsdown & Ponders End",
+      "area": "Enfield"
+    },
+    {
+      "name": "Enfield Town South & Bush Hill Park",
+      "area": "Enfield"
+    },
+    {
+      "name": "Southbury West",
+      "area": "Enfield"
+    },
+    {
+      "name": "Grange Park",
+      "area": "Enfield"
+    },
+    {
+      "name": "Ponders End South",
+      "area": "Enfield"
+    },
+    {
+      "name": "Oakwood Park & Highlands",
+      "area": "Enfield"
+    },
+    {
+      "name": "Southgate",
+      "area": "Enfield"
+    },
+    {
+      "name": "Bury Street West & Village Road",
+      "area": "Enfield"
+    },
+    {
+      "name": "Winchmore Hill",
+      "area": "Enfield"
+    },
+    {
+      "name": "Lower Edmonton North",
+      "area": "Enfield"
+    },
+    {
+      "name": "Haslebury North",
+      "area": "Enfield"
+    },
+    {
+      "name": "Lower Edmonton South",
+      "area": "Enfield"
+    },
+    {
+      "name": "Palmers Green East",
+      "area": "Enfield"
+    },
+    {
+      "name": "Haslebury South",
+      "area": "Enfield"
+    },
+    {
+      "name": "Southgate Green",
+      "area": "Enfield"
+    },
+    {
+      "name": "Palmers Green West",
+      "area": "Enfield"
+    },
+    {
+      "name": "Edmonton Green",
+      "area": "Enfield"
+    },
+    {
+      "name": "Tatem Park",
+      "area": "Enfield"
+    },
+    {
+      "name": "New Southgate & Arnos Grove",
+      "area": "Enfield"
+    },
+    {
+      "name": "Upper Edmonton East & Meridian Water",
+      "area": "Enfield"
+    },
+    {
+      "name": "Bowes",
+      "area": "Enfield"
+    },
+    {
+      "name": "Broomfield Park",
+      "area": "Enfield"
+    },
+    {
+      "name": "Thamesmead Birchmere Park",
+      "area": "Greenwich"
+    },
+    {
+      "name": "West Thamesmead",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Abbey Wood North",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Woolwich West",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Plumstead High Street",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Plumstead Common & Riverside",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Abbey Wood South",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Woolwich Glyndon",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Woolwich South",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Charlton Village",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Charlton Slopes",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Woolwich Common",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Westcombe Park & Maze Hill",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Plumstead South",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Hornfair Park",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Shooters Hill",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Blackheath Standard & Village",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Kidbrooke North",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Eltham North",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Eltham West",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Eltham Park",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Eltham South",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Middlepark & Horn Park",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Avery Hill",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Mottingham East",
+      "area": "Greenwich"
+    },
+    {
+      "name": "New Eltham",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Stamford Hill North",
+      "area": "Hackney"
+    },
+    {
+      "name": "Woodberry Down & Manor House",
+      "area": "Hackney"
+    },
+    {
+      "name": "Stamford Hill West",
+      "area": "Hackney"
+    },
+    {
+      "name": "Stamford Hill South",
+      "area": "Hackney"
+    },
+    {
+      "name": "Stoke Newington East & Cazenove",
+      "area": "Hackney"
+    },
+    {
+      "name": "Brownswood",
+      "area": "Hackney"
+    },
+    {
+      "name": "Clissold North",
+      "area": "Hackney"
+    },
+    {
+      "name": "Stoke Newington North",
+      "area": "Hackney"
+    },
+    {
+      "name": "Hackney Downs",
+      "area": "Hackney"
+    },
+    {
+      "name": "Lower Clapton",
+      "area": "Hackney"
+    },
+    {
+      "name": "Clissold South",
+      "area": "Hackney"
+    },
+    {
+      "name": "Hackney Marshes",
+      "area": "Hackney"
+    },
+    {
+      "name": "Stoke Newington South",
+      "area": "Hackney"
+    },
+    {
+      "name": "Homerton North",
+      "area": "Hackney"
+    },
+    {
+      "name": "Amhurst Road & Pembury Estate",
+      "area": "Hackney"
+    },
+    {
+      "name": "Hackney Central",
+      "area": "Hackney"
+    },
+    {
+      "name": "Hackney Wick",
+      "area": "Hackney"
+    },
+    {
+      "name": "Homerton South",
+      "area": "Hackney"
+    },
+    {
+      "name": "Dalston East",
+      "area": "Hackney"
+    },
+    {
+      "name": "South Hackney",
+      "area": "Hackney"
+    },
+    {
+      "name": "London Fields & Mare Street",
+      "area": "Hackney"
+    },
+    {
+      "name": "Haggerston East",
+      "area": "Hackney"
+    },
+    {
+      "name": "Haggerston West & Kingsland Basin",
+      "area": "Hackney"
+    },
+    {
+      "name": "Hoxton North & West",
+      "area": "Hackney"
+    },
+    {
+      "name": "Old Oak & Wormwood",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "White City",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Wormholt Road",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Shepherd's Bush North",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Shepherd's Bush West",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Askew",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Shepherd's Bush South",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Ravenscourt Park North",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Brackenbury",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Brook Green",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Ravenscourt Park South",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "West Kensington",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Hammersmith Broadway",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Barons Court",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "North End",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Lillie Road & Greyhound Road",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Fulham Broadway",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Fulham Reach",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Fulham Aintree",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Parsons Green East & Eel Brook Common",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Parsons Green West",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Munster",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Sands End & Chelsea Harbour",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Fulham Palace & Hurlingham Park",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "South Park",
+      "area": "Hammersmith and Fulham"
+    },
+    {
+      "name": "Bowes Park",
+      "area": "Haringey"
+    },
+    {
+      "name": "Northumberland Park",
+      "area": "Haringey"
+    },
+    {
+      "name": "Bounds Green",
+      "area": "Haringey"
+    },
+    {
+      "name": "Roundway",
+      "area": "Haringey"
+    },
+    {
+      "name": "Tottenham Bruce Castle Park",
+      "area": "Haringey"
+    },
+    {
+      "name": "Wood Green North",
+      "area": "Haringey"
+    },
+    {
+      "name": "Scotch Estate",
+      "area": "Haringey"
+    },
+    {
+      "name": "Alexandra Park",
+      "area": "Haringey"
+    },
+    {
+      "name": "Noel Park",
+      "area": "Haringey"
+    },
+    {
+      "name": "Bruce Grove North",
+      "area": "Haringey"
+    },
+    {
+      "name": "Tottenham North West",
+      "area": "Haringey"
+    },
+    {
+      "name": "Lordship Lane & Broadwater Farm",
+      "area": "Haringey"
+    },
+    {
+      "name": "Muswell Hill North",
+      "area": "Haringey"
+    },
+    {
+      "name": "Tottenham Lea Valley",
+      "area": "Haringey"
+    },
+    {
+      "name": "Wood Green South",
+      "area": "Haringey"
+    },
+    {
+      "name": "Fortis Green & Coldfall",
+      "area": "Haringey"
+    },
+    {
+      "name": "Bruce Grove South",
+      "area": "Haringey"
+    },
+    {
+      "name": "Downhills Park",
+      "area": "Haringey"
+    },
+    {
+      "name": "Hornsey East",
+      "area": "Haringey"
+    },
+    {
+      "name": "Muswell Hill South",
+      "area": "Haringey"
+    },
+    {
+      "name": "Hornsey West",
+      "area": "Haringey"
+    },
+    {
+      "name": "Harringay Ladder North",
+      "area": "Haringey"
+    },
+    {
+      "name": "Tottenham Green West",
+      "area": "Haringey"
+    },
+    {
+      "name": "Tottenham Green East",
+      "area": "Haringey"
+    },
+    {
+      "name": "West Green & St Ann's",
+      "area": "Haringey"
+    },
+    {
+      "name": "Harringay East",
+      "area": "Haringey"
+    },
+    {
+      "name": "Hornsey Vale",
+      "area": "Haringey"
+    },
+    {
+      "name": "South Tottenham",
+      "area": "Haringey"
+    },
+    {
+      "name": "Highgate Wood",
+      "area": "Haringey"
+    },
+    {
+      "name": "Harringay Ladder South",
+      "area": "Haringey"
+    },
+    {
+      "name": "Harringay Warehouse District & Vartry",
+      "area": "Haringey"
+    },
+    {
+      "name": "Crouch End West",
+      "area": "Haringey"
+    },
+    {
+      "name": "Crouch End East",
+      "area": "Haringey"
+    },
+    {
+      "name": "Highgate East",
+      "area": "Haringey"
+    },
+    {
+      "name": "Stroud Green",
+      "area": "Haringey"
+    },
+    {
+      "name": "Stanmore Park",
+      "area": "Harrow"
+    },
+    {
+      "name": "Canons Park",
+      "area": "Harrow"
+    },
+    {
+      "name": "Stanmore Uxbridge Road",
+      "area": "Harrow"
+    },
+    {
+      "name": "Hatch End North",
+      "area": "Harrow"
+    },
+    {
+      "name": "Harrow Weald",
+      "area": "Harrow"
+    },
+    {
+      "name": "Hatch End South",
+      "area": "Harrow"
+    },
+    {
+      "name": "Edgware West",
+      "area": "Harrow"
+    },
+    {
+      "name": "Belmont",
+      "area": "Harrow"
+    },
+    {
+      "name": "Pinner Green",
+      "area": "Harrow"
+    },
+    {
+      "name": "Queensbury East",
+      "area": "Harrow"
+    },
+    {
+      "name": "Wealdstone North",
+      "area": "Harrow"
+    },
+    {
+      "name": "Queensbury West",
+      "area": "Harrow"
+    },
+    {
+      "name": "Wealdstone South",
+      "area": "Harrow"
+    },
+    {
+      "name": "Headstone Lane",
+      "area": "Harrow"
+    },
+    {
+      "name": "Pinner Central",
+      "area": "Harrow"
+    },
+    {
+      "name": "Kenton East",
+      "area": "Harrow"
+    },
+    {
+      "name": "North Harrow",
+      "area": "Harrow"
+    },
+    {
+      "name": "Greenhill North",
+      "area": "Harrow"
+    },
+    {
+      "name": "Pinner Road",
+      "area": "Harrow"
+    },
+    {
+      "name": "Pinner South",
+      "area": "Harrow"
+    },
+    {
+      "name": "Greenhill South",
+      "area": "Harrow"
+    },
+    {
+      "name": "West Harrow",
+      "area": "Harrow"
+    },
+    {
+      "name": "Rayners Lane North",
+      "area": "Harrow"
+    },
+    {
+      "name": "South Harrow",
+      "area": "Harrow"
+    },
+    {
+      "name": "Newton Farm",
+      "area": "Harrow"
+    },
+    {
+      "name": "Harrow-on-the-Hill",
+      "area": "Harrow"
+    },
+    {
+      "name": "Alexandra Park",
+      "area": "Harrow"
+    },
+    {
+      "name": "Earlsmead",
+      "area": "Harrow"
+    },
+    {
+      "name": "Dagnam Park & Noak Hill",
+      "area": "Havering"
+    },
+    {
+      "name": "Petersfield Avenue & Duck Wood",
+      "area": "Havering"
+    },
+    {
+      "name": "Havering-atte-Bower & Chase Cross",
+      "area": "Havering"
+    },
+    {
+      "name": "Harold Hill East",
+      "area": "Havering"
+    },
+    {
+      "name": "Collier Row & Park Farm",
+      "area": "Havering"
+    },
+    {
+      "name": "Harold Hill West",
+      "area": "Havering"
+    },
+    {
+      "name": "Harold Park & Harold Wood",
+      "area": "Havering"
+    },
+    {
+      "name": "Rise Park",
+      "area": "Havering"
+    },
+    {
+      "name": "Romford North",
+      "area": "Havering"
+    },
+    {
+      "name": "Ardleigh Green",
+      "area": "Havering"
+    },
+    {
+      "name": "Romford North West",
+      "area": "Havering"
+    },
+    {
+      "name": "Gidea Park",
+      "area": "Havering"
+    },
+    {
+      "name": "Central Romford",
+      "area": "Havering"
+    },
+    {
+      "name": "Romford East",
+      "area": "Havering"
+    },
+    {
+      "name": "Emerson Park",
+      "area": "Havering"
+    },
+    {
+      "name": "Romford South",
+      "area": "Havering"
+    },
+    {
+      "name": "Rush Green",
+      "area": "Havering"
+    },
+    {
+      "name": "Cranham East",
+      "area": "Havering"
+    },
+    {
+      "name": "Upminster North & Cranham West",
+      "area": "Havering"
+    },
+    {
+      "name": "Hornchurch",
+      "area": "Havering"
+    },
+    {
+      "name": "Hylands",
+      "area": "Havering"
+    },
+    {
+      "name": "Upminster Bridge",
+      "area": "Havering"
+    },
+    {
+      "name": "Elm Park East",
+      "area": "Havering"
+    },
+    {
+      "name": "Upminster South & Corbets Tey",
+      "area": "Havering"
+    },
+    {
+      "name": "Hacton",
+      "area": "Havering"
+    },
+    {
+      "name": "Elm Park West",
+      "area": "Havering"
+    },
+    {
+      "name": "South Hornchurch",
+      "area": "Havering"
+    },
+    {
+      "name": "Hornchurch Marshes",
+      "area": "Havering"
+    },
+    {
+      "name": "Rainham East & Wennington",
+      "area": "Havering"
+    },
+    {
+      "name": "Rainham West",
+      "area": "Havering"
+    },
+    {
+      "name": "Ducks Hill",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Northwood",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Harefield",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Northwood Hills",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "West Ruislip North",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Eastcote",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Ruislip",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Ruislip Manor",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "West Ruislip South",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Ruislip Gardens",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Ickenham",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Uxbridge Common & Swakeleys",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Hillingdon North East",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Uxbridge Central & Brunel",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Uxbridge West",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Hillingdon South",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Charville",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Hillingdon Heath",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Yeading North",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Yeading West",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Yiewsley West",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Yeading Brookside",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Hayes End",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Yiewsley East",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Hayes Town North",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Hayes Town & Lake Farm",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "West Drayton East",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "West Drayton West",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Hayes South",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Heathrow, Hardmonsworth & Sipson",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Harlington & Cranford Cross",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "Chiswick North East",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Heston North",
+      "area": "Hounslow"
+    },
+    {
+      "name": "North Hyde & North Cranford",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Brentford Central",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Chiswick South East",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Chiswick South West",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Brentford West & Osterley Park",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Heston West",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Heston Central & Lampton West",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Osterley & Lampton East",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Cranford",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Syon Green",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Spring Grove",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Hounslow Meadows",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Hounslow West",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Hounslow High Street",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Hounslow East",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Isleworth & Ivybridge",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Hounslow Heath",
+      "area": "Hounslow"
+    },
+    {
+      "name": "North Feltham & Hatton",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Bedfont",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Feltham East",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Feltham Central",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Hanworth North",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Lower Feltham",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Hanworth South",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Highcroft & Holly Park",
+      "area": "Islington"
+    },
+    {
+      "name": "Archway East",
+      "area": "Islington"
+    },
+    {
+      "name": "Tollington",
+      "area": "Islington"
+    },
+    {
+      "name": "Archway West",
+      "area": "Islington"
+    },
+    {
+      "name": "Finsbury Park West",
+      "area": "Islington"
+    },
+    {
+      "name": "Gillespie Road",
+      "area": "Islington"
+    },
+    {
+      "name": "Holloway Nag's Head",
+      "area": "Islington"
+    },
+    {
+      "name": "Tufnell Park East",
+      "area": "Islington"
+    },
+    {
+      "name": "Highbury",
+      "area": "Islington"
+    },
+    {
+      "name": "Hilldrop",
+      "area": "Islington"
+    },
+    {
+      "name": "Lower Holloway",
+      "area": "Islington"
+    },
+    {
+      "name": "Newington Green",
+      "area": "Islington"
+    },
+    {
+      "name": "Highbury Fields",
+      "area": "Islington"
+    },
+    {
+      "name": "Canonbury East & Mildmay Park",
+      "area": "Islington"
+    },
+    {
+      "name": "Caledonian Road",
+      "area": "Islington"
+    },
+    {
+      "name": "Islington North & Canonbury West",
+      "area": "Islington"
+    },
+    {
+      "name": "Barnsbury East",
+      "area": "Islington"
+    },
+    {
+      "name": "Islington East & Arlington",
+      "area": "Islington"
+    },
+    {
+      "name": "Barnsbury West",
+      "area": "Islington"
+    },
+    {
+      "name": "Angel",
+      "area": "Islington"
+    },
+    {
+      "name": "Pentonville",
+      "area": "Islington"
+    },
+    {
+      "name": "Clerkenwell",
+      "area": "Islington"
+    },
+    {
+      "name": "Old Street & St Luke's",
+      "area": "Islington"
+    },
+    {
+      "name": "Golborne & Swinbrook",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Ladbroke Grove",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "North Kensington",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Portobello",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Notting Dale",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Notting Hill Gate",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Notting Hill West",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Notting Hill South",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Holland Park",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Queen's Gate",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Kensington Abingdon",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Hans Town",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Kensington Gardens",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Brompton",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Earl's Court",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "South Kensington",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "West Brompton",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Chelsea Manor & Royal Hospital",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Chelsea Riverside East",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Fulham Road",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Chelsea Riverside West",
+      "area": "Kensington and Chelsea"
+    },
+    {
+      "name": "Tudor Drive",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Kingston Vale & Coombe Hill",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Kingston Hill",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Kingston North",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Kingston East & Norbiton West",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Norbiton East",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "New Malden East",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "New Malden West",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Kingston Riverside",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Berrylands North",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Surbiton North",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Malden Manor",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Surbiton South",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Berrylands South",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Motspur Park",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Southborough",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Tolworth",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Hook",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Chessington North",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Chessington South & Malden Rushett",
+      "area": "Kingston upon Thames"
+    },
+    {
+      "name": "Lambeth Walk & North Kennington",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Kennington West & Vauxhall North",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Vauxhall South",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Oval",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Stockwell North",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Stockwell East",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Stockwell West",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Loughborough Road",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Stockwell South",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Brixton North",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Clapham North",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Clapham Old Town",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Herne Hill East",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Acre Lane",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Brixton Central",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Clapham Common North",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Poets' Corner & Brockwell Park",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Clapham South",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Brixton Hill East",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Brixton Hill West",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Clapham Park East & Streatham Hill North",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Clapham Park West",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Tulse Hill",
+      "area": "Lambeth"
+    },
+    {
+      "name": "West Dulwich",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Streatham Hill",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Leigham Vale & Royal Circus",
+      "area": "Lambeth"
+    },
+    {
+      "name": "West Norwood East",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Streatham Central",
+      "area": "Lambeth"
+    },
+    {
+      "name": "West Norwood West & Streatham East",
+      "area": "Lambeth"
+    },
+    {
+      "name": "West Norwood South",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Streatham Green",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Gipsy Hill",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Streatham Common",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Streatham Vale",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Silwood & Pepys",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Deptford North",
+      "area": "Lewisham"
+    },
+    {
+      "name": "New Cross Gate",
+      "area": "Lewisham"
+    },
+    {
+      "name": "New Cross South",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Telegraph Hill",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Blackheath West",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Brockley East & St Johns",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Blackheath Village",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Brockley West",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Loampit & Hilly Fields",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Manor House",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Ladywell",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Crofton Park",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Lee",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Hither Green",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Catford East & Mountsfield Park",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Honor Oak",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Catford Bridge",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Forest Hill West",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Corbett Estate",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Grove Park & Lee South",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Forest Hill East",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Culverley Green",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Further Green",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Perry Vale",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Upper Sydenham",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Bellingham & Perry Hill",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Forster Park & Southend",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Chinbrook",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Sydenham Wells",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Beckenham Hill",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Lower Sydenham",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Wimbledon Park & Durnsford Road",
+      "area": "Merton"
+    },
+    {
+      "name": "Wimbledon Common",
+      "area": "Merton"
+    },
+    {
+      "name": "Wimbledon Broadway North",
+      "area": "Merton"
+    },
+    {
+      "name": "Wimbledon Hill",
+      "area": "Merton"
+    },
+    {
+      "name": "Colliers Wood",
+      "area": "Merton"
+    },
+    {
+      "name": "South Wimbledon",
+      "area": "Merton"
+    },
+    {
+      "name": "Graveney",
+      "area": "Merton"
+    },
+    {
+      "name": "Lavender Park",
+      "area": "Merton"
+    },
+    {
+      "name": "Wimbledon Broadway South",
+      "area": "Merton"
+    },
+    {
+      "name": "Cottenham Park",
+      "area": "Merton"
+    },
+    {
+      "name": "Wimbledon Chase",
+      "area": "Merton"
+    },
+    {
+      "name": "Merton Church Road & Phipps Bridge",
+      "area": "Merton"
+    },
+    {
+      "name": "Mitcham East",
+      "area": "Merton"
+    },
+    {
+      "name": "Lonesome",
+      "area": "Merton"
+    },
+    {
+      "name": "Merton Park",
+      "area": "Merton"
+    },
+    {
+      "name": "Raynes Park",
+      "area": "Merton"
+    },
+    {
+      "name": "Rowan Road",
+      "area": "Merton"
+    },
+    {
+      "name": "Mitcham West",
+      "area": "Merton"
+    },
+    {
+      "name": "Pollards Hill",
+      "area": "Merton"
+    },
+    {
+      "name": "West Barnes",
+      "area": "Merton"
+    },
+    {
+      "name": "Cannon Hill",
+      "area": "Merton"
+    },
+    {
+      "name": "Mitcham South",
+      "area": "Merton"
+    },
+    {
+      "name": "Morden Central",
+      "area": "Merton"
+    },
+    {
+      "name": "St Helier North",
+      "area": "Merton"
+    },
+    {
+      "name": "Lower Morden",
+      "area": "Merton"
+    },
+    {
+      "name": "Forest Gate North",
+      "area": "Newham"
+    },
+    {
+      "name": "Little Ilford West",
+      "area": "Newham"
+    },
+    {
+      "name": "Manor Park North",
+      "area": "Newham"
+    },
+    {
+      "name": "Manor Park South",
+      "area": "Newham"
+    },
+    {
+      "name": "Little Ilford East",
+      "area": "Newham"
+    },
+    {
+      "name": "Forest Gate West",
+      "area": "Newham"
+    },
+    {
+      "name": "Forest Gate East",
+      "area": "Newham"
+    },
+    {
+      "name": "Forest Gate South",
+      "area": "Newham"
+    },
+    {
+      "name": "Stratford East",
+      "area": "Newham"
+    },
+    {
+      "name": "East Ham North",
+      "area": "Newham"
+    },
+    {
+      "name": "Plashet East",
+      "area": "Newham"
+    },
+    {
+      "name": "Stratford Central",
+      "area": "Newham"
+    },
+    {
+      "name": "Plashet West",
+      "area": "Newham"
+    },
+    {
+      "name": "Wallend North",
+      "area": "Newham"
+    },
+    {
+      "name": "West Ham Park",
+      "area": "Newham"
+    },
+    {
+      "name": "Upton Park",
+      "area": "Newham"
+    },
+    {
+      "name": "East Ham Central",
+      "area": "Newham"
+    },
+    {
+      "name": "East Ham West",
+      "area": "Newham"
+    },
+    {
+      "name": "West Ham & Stratford Park",
+      "area": "Newham"
+    },
+    {
+      "name": "Plaistow North",
+      "area": "Newham"
+    },
+    {
+      "name": "Plaistow North East",
+      "area": "Newham"
+    },
+    {
+      "name": "Wallend South",
+      "area": "Newham"
+    },
+    {
+      "name": "East Ham South",
+      "area": "Newham"
+    },
+    {
+      "name": "East Ham South West",
+      "area": "Newham"
+    },
+    {
+      "name": "Plaistow Park",
+      "area": "Newham"
+    },
+    {
+      "name": "Canning Town North",
+      "area": "Newham"
+    },
+    {
+      "name": "Plaistow South",
+      "area": "Newham"
+    },
+    {
+      "name": "Lonsdale Avenue",
+      "area": "Newham"
+    },
+    {
+      "name": "Canning Town Central",
+      "area": "Newham"
+    },
+    {
+      "name": "Canning Town East",
+      "area": "Newham"
+    },
+    {
+      "name": "Beckton North",
+      "area": "Newham"
+    },
+    {
+      "name": "Beckton",
+      "area": "Newham"
+    },
+    {
+      "name": "Canning Town South & Bow Creek",
+      "area": "Newham"
+    },
+    {
+      "name": "Beckton Park",
+      "area": "Newham"
+    },
+    {
+      "name": "Custom House",
+      "area": "Newham"
+    },
+    {
+      "name": "Woodford Wells",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Hainault East",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Hainault West",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Woodford Green",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Woodford Bridge",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Fairlop",
+      "area": "Redbridge"
+    },
+    {
+      "name": "South Woodford High Road",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Clayhall North",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Roding",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Barkingside North",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Barkingside West",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Aldborough Hatch",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Snaresbrook",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Barkingside East",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Newbury Park",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Wanstead",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Seven Kings Park",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Goodmayes North",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Ley Street",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Seven Kings Meads Lane",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Ilford North East",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Wanstead Flats",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Ilford North West",
+      "area": "Redbridge"
+    },
+    {
+      "name": "South Park",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Ilford South West",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Loxford Park",
+      "area": "Redbridge"
+    },
+    {
+      "name": "North Barnes",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Kew Gardens",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Mortlake & South Barnes",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "North Sheen",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "East Sheen North",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Queen's Road",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "St Margarets",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Richmond Central",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Twickenham Marble Hill",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Whitton",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Twickenham North",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Richmond Park, Sheen Gate & Petersham",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Heathfield",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Twickenham Town",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Twickenham West",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Strawberry Hill",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Ham",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Teddington North",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Hampton Hill",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Nursery Lands & Hampton North",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Teddington Central",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Hampton Wick & Teddington East",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Hampton Village",
+      "area": "Richmond upon Thames"
+    },
+    {
+      "name": "Rotherhithe",
+      "area": "Southwark"
+    },
+    {
+      "name": "Borough & Southwark Street",
+      "area": "Southwark"
+    },
+    {
+      "name": "Bermondsey East",
+      "area": "Southwark"
+    },
+    {
+      "name": "London Bridge & Bermondsey West",
+      "area": "Southwark"
+    },
+    {
+      "name": "Canada Water",
+      "area": "Southwark"
+    },
+    {
+      "name": "Surrey Quays",
+      "area": "Southwark"
+    },
+    {
+      "name": "Elephant & Castle",
+      "area": "Southwark"
+    },
+    {
+      "name": "South Bermondsey Central",
+      "area": "Southwark"
+    },
+    {
+      "name": "South Bermondsey East",
+      "area": "Southwark"
+    },
+    {
+      "name": "Walworth North",
+      "area": "Southwark"
+    },
+    {
+      "name": "South Bermondsey West",
+      "area": "Southwark"
+    },
+    {
+      "name": "Newington, Kennington East & Walworth West",
+      "area": "Southwark"
+    },
+    {
+      "name": "Burgess Park",
+      "area": "Southwark"
+    },
+    {
+      "name": "Walworth South",
+      "area": "Southwark"
+    },
+    {
+      "name": "Burgess Park West & John Ruskin Street",
+      "area": "Southwark"
+    },
+    {
+      "name": "Peckham Park Road",
+      "area": "Southwark"
+    },
+    {
+      "name": "Peckham North West",
+      "area": "Southwark"
+    },
+    {
+      "name": "Camberwell North",
+      "area": "Southwark"
+    },
+    {
+      "name": "Camberwell Green",
+      "area": "Southwark"
+    },
+    {
+      "name": "Peckham North",
+      "area": "Southwark"
+    },
+    {
+      "name": "Queens Road Peckham",
+      "area": "Southwark"
+    },
+    {
+      "name": "Camberwell South",
+      "area": "Southwark"
+    },
+    {
+      "name": "Peckham Rye",
+      "area": "Southwark"
+    },
+    {
+      "name": "Nunhead North",
+      "area": "Southwark"
+    },
+    {
+      "name": "North Dulwich",
+      "area": "Southwark"
+    },
+    {
+      "name": "Peckham Rye Common",
+      "area": "Southwark"
+    },
+    {
+      "name": "Nunhead South & Newlands",
+      "area": "Southwark"
+    },
+    {
+      "name": "East Dulwich",
+      "area": "Southwark"
+    },
+    {
+      "name": "Herne Hill & Dulwich Park",
+      "area": "Southwark"
+    },
+    {
+      "name": "Dulwich Hill",
+      "area": "Southwark"
+    },
+    {
+      "name": "Sydenham Hill",
+      "area": "Southwark"
+    },
+    {
+      "name": "Middleton Circle",
+      "area": "Sutton"
+    },
+    {
+      "name": "St Helier South",
+      "area": "Sutton"
+    },
+    {
+      "name": "Stonecot",
+      "area": "Sutton"
+    },
+    {
+      "name": "Hackbridge",
+      "area": "Sutton"
+    },
+    {
+      "name": "The Wrythe",
+      "area": "Sutton"
+    },
+    {
+      "name": "Worcester Park East",
+      "area": "Sutton"
+    },
+    {
+      "name": "Sutton North",
+      "area": "Sutton"
+    },
+    {
+      "name": "North Cheam West",
+      "area": "Sutton"
+    },
+    {
+      "name": "North Cheam East",
+      "area": "Sutton"
+    },
+    {
+      "name": "Wallington North",
+      "area": "Sutton"
+    },
+    {
+      "name": "Beddington",
+      "area": "Sutton"
+    },
+    {
+      "name": "Sutton Central",
+      "area": "Sutton"
+    },
+    {
+      "name": "Sutton East",
+      "area": "Sutton"
+    },
+    {
+      "name": "Sutton West",
+      "area": "Sutton"
+    },
+    {
+      "name": "Carshalton Village",
+      "area": "Sutton"
+    },
+    {
+      "name": "Cheam High Street",
+      "area": "Sutton"
+    },
+    {
+      "name": "Wallington South",
+      "area": "Sutton"
+    },
+    {
+      "name": "Sutton South West",
+      "area": "Sutton"
+    },
+    {
+      "name": "Roundshaw",
+      "area": "Sutton"
+    },
+    {
+      "name": "Carshalton on the Hill",
+      "area": "Sutton"
+    },
+    {
+      "name": "Sutton South & Shanklin",
+      "area": "Sutton"
+    },
+    {
+      "name": "Carshalton Beeches & Banstead Road",
+      "area": "Sutton"
+    },
+    {
+      "name": "Orchard Hill, Woodcote Green & Clockhouse",
+      "area": "Sutton"
+    },
+    {
+      "name": "Bow North & Fish Island",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Bethnal Green North East",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Bow West",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Bow South",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Bethnal Green North West",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Columbia Road",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Bethnal Green East",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Bromley-by-Bow East",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Brick Lane North",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Mile End West",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Bethnal Green Central",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Bromley-by-Bow West",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Bethnal Green South",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Mile End East & Burdett Estate",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Spitalfields",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Stepney Green",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Whitechapel",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Poplar Leaside",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Limehouse North & Stepney East",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Poplar Central",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Aldgate",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Shadwell North",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Limehouse East",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Poplar West",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Shadwell Basin & Ratcliffe",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "St George in the East & Wapping North",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Tower Hill & Wapping South",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Mudchute",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Millwall South",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Chingford Green West",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Chingford Green East",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Friday Hill",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Larkswood",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Chingford Mount",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "South Chingford",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Highams Park East",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Highams Park West",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Higham Hill",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Fulbourne Road & Walthamstow Forest",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Lloyd Park",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "William Morris",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Wood Street",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Blackhorse Road",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Upper Walthamstow",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Walthamstow Central",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Walthamstow Market & South Grove",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Markhouse & St James Park",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Whipps Cross",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Baker's Arms",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Leytonstone North",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Lea Bridge",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Leyton North",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Leytonstone East",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Leyton East",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Leyton South",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Leytonstone South West",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Leytonstone South East",
+      "area": "Waltham Forest"
+    },
+    {
+      "name": "Battersea Park",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Battersea Latchmere",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "St Mary's & Cotton Row",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Lavender Hill East",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Putney Embankment & Lower Common",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "York Gardens",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Lavender Hill West & Little India",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Clapham Common West",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Putney Town & Wandsworth Park",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Putney West",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Clapham Junction & East Hill",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Roehampton North West",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "East Putney",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Wandsworth Common",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Roehampton North East",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Nightingale Lane",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Wandsworth South",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Earlsfield North",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Southfields North",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Balham",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "West Hill North",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Roehampton South & Putney Vale",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Earlsfield South",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Merton Road",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Tooting Bec Common",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Springfield",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "West Hill South",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Tooting Bec West",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Tooting Bec East",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Summerstown",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Upper Tooting",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Tooting North",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Tooting West",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Tooting East",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Furzedown West",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Furzedown East",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "St John's Wood North",
+      "area": "Westminster"
+    },
+    {
+      "name": "Abbey Road",
+      "area": "Westminster"
+    },
+    {
+      "name": "St John's Wood South",
+      "area": "Westminster"
+    },
+    {
+      "name": "Queen's Park Gardens",
+      "area": "Westminster"
+    },
+    {
+      "name": "Maida Hill",
+      "area": "Westminster"
+    },
+    {
+      "name": "Maida Vale",
+      "area": "Westminster"
+    },
+    {
+      "name": "Little Venice",
+      "area": "Westminster"
+    },
+    {
+      "name": "Regent's Park",
+      "area": "Westminster"
+    },
+    {
+      "name": "Church Street",
+      "area": "Westminster"
+    },
+    {
+      "name": "Westbourne",
+      "area": "Westminster"
+    },
+    {
+      "name": "Marylebone & Park Lane",
+      "area": "Westminster"
+    },
+    {
+      "name": "Bryanston & Dorset Square",
+      "area": "Westminster"
+    },
+    {
+      "name": "Fitzrovia West & Soho",
+      "area": "Westminster"
+    },
+    {
+      "name": "Westbourne Grove",
+      "area": "Westminster"
+    },
+    {
+      "name": "Paddington & St George's Fields",
+      "area": "Westminster"
+    },
+    {
+      "name": "Bayswater East",
+      "area": "Westminster"
+    },
+    {
+      "name": "Queensway",
+      "area": "Westminster"
+    },
+    {
+      "name": "Strand, St James & Mayfair",
+      "area": "Westminster"
+    },
+    {
+      "name": "Knightsbridge, Belgravia & Hyde Park",
+      "area": "Westminster"
+    },
+    {
+      "name": "Central Westminster",
+      "area": "Westminster"
+    },
+    {
+      "name": "Millbank",
+      "area": "Westminster"
+    },
+    {
+      "name": "Pimlico North",
+      "area": "Westminster"
+    },
+    {
+      "name": "Victoria",
+      "area": "Westminster"
+    },
+    {
+      "name": "Pimlico South",
+      "area": "Westminster"
+    },
+    {
+      "name": "Colnbrook & Poyle",
+      "area": "Slough"
+    },
+    {
+      "name": "Fyfield, High Ongar & Stapleford Abbotts",
+      "area": "Epping Forest"
+    },
+    {
+      "name": "Borehamwood Hillside",
+      "area": "Hertsmere"
+    },
+    {
+      "name": "Mill End, Heronsgate & Maple Cross",
+      "area": "Three Rivers"
+    },
+    {
+      "name": "Knockholt, Shoreham & Dunton Green",
+      "area": "Sevenoaks"
+    },
+    {
+      "name": "Worcester Park West",
+      "area": "Epsom and Ewell"
+    },
+    {
+      "name": "Ashtead West",
+      "area": "Mole Valley"
+    },
+    {
+      "name": "Ashford East",
+      "area": "Spelthorne"
+    },
+    {
+      "name": "Plaistow (Bromley)",
+      "area": "Bromley"
+    },
+    {
+      "name": "Downham East",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Downham West",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Wickham Street & East Wickham",
+      "area": "Bexley"
+    },
+    {
+      "name": "Wickham Lane & Winns Common",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Elmers End",
+      "area": "Bromley"
+    },
+    {
+      "name": "South Norwood Park",
+      "area": "Croydon"
+    },
+    {
+      "name": "Biggin Hill East & Cudham",
+      "area": "Bromley"
+    },
+    {
+      "name": "Chiswick North West",
+      "area": "Ealing"
+    },
+    {
+      "name": "Chiswick Park",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Upper Edmonton West",
+      "area": "Enfield"
+    },
+    {
+      "name": "White Hart Lane",
+      "area": "Haringey"
+    },
+    {
+      "name": "Rayners Lane South",
+      "area": "Harrow"
+    },
+    {
+      "name": "South Ruislip",
+      "area": "Hillingdon"
+    },
+    {
+      "name": "New Cross & Deptford South",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Becontree North",
+      "area": "Barking and Dagenham"
+    },
+    {
+      "name": "Goodmayes South",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Lambeth North, Waterloo & South Bank",
+      "area": "Lambeth"
+    },
+    {
+      "name": "Southwark St George's",
+      "area": "Southwark"
+    },
+    {
+      "name": "Belmont & South Cheam",
+      "area": "Sutton"
+    },
+    {
+      "name": "Millwall North",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Canary Wharf",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Kenton West",
+      "area": "Harrow"
+    },
+    {
+      "name": "Clapton Leaside",
+      "area": "Hackney"
+    },
+    {
+      "name": "Upper Clapton",
+      "area": "Hackney"
+    },
+    {
+      "name": "Valentines Park & Cranbrook",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Clayhall South",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Kidbrooke South",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Greenwich & Deptford Creekside",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Greenwich East",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Greenwich Town & Park",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Butler's Wharf and Queen's Walk",
+      "area": "Southwark"
+    },
+    {
+      "name": "Bermondsey North",
+      "area": "Southwark"
+    },
+    {
+      "name": "Colindale East",
+      "area": "Barnet"
+    },
+    {
+      "name": "Colindale West & South",
+      "area": "Barnet"
+    },
+    {
+      "name": "Wembley Park",
+      "area": "Brent"
+    },
+    {
+      "name": "Tokyngton",
+      "area": "Brent"
+    },
+    {
+      "name": "North Ealing",
+      "area": "Ealing"
+    },
+    {
+      "name": "Ealing Broadway East",
+      "area": "Ealing"
+    },
+    {
+      "name": "Southall Green East",
+      "area": "Ealing"
+    },
+    {
+      "name": "Southall Green West",
+      "area": "Ealing"
+    },
+    {
+      "name": "Kew Bridge & Gunnersbury Park",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Brentford East",
+      "area": "Hounslow"
+    },
+    {
+      "name": "Central Croydon",
+      "area": "Croydon"
+    },
+    {
+      "name": "South End & St Peter's Road",
+      "area": "Croydon"
+    },
+    {
+      "name": "Woolwich Arsenal",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Greenwich Peninsula West",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Greenwich Peninsula East",
+      "area": "Greenwich"
+    },
+    {
+      "name": "Charlton Riverside & Woolwich Dockyard",
+      "area": "Greenwich"
+    },
+    {
+      "name": "East Village",
+      "area": "Newham"
+    },
+    {
+      "name": "Carpenters Estate & Stratford New Town",
+      "area": "Newham"
+    },
+    {
+      "name": "Mill Meads",
+      "area": "Newham"
+    },
+    {
+      "name": "North Woolwich",
+      "area": "Newham"
+    },
+    {
+      "name": "Silvertown & Royal Wharf",
+      "area": "Newham"
+    },
+    {
+      "name": "Central Lewisham North",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Central Lewisham South",
+      "area": "Lewisham"
+    },
+    {
+      "name": "Chadwell Heath North West",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Chadwell Heath South West",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Ilford Central & East",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Ilford South East",
+      "area": "Redbridge"
+    },
+    {
+      "name": "Nine Elms",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Queenstown Road & Patmore",
+      "area": "Wandsworth"
+    },
+    {
+      "name": "Dalston Kingsland",
+      "area": "Hackney"
+    },
+    {
+      "name": "De Beauvoir",
+      "area": "Hackney"
+    },
+    {
+      "name": "Hoxton South & East",
+      "area": "Hackney"
+    },
+    {
+      "name": "Shoreditch",
+      "area": "Hackney"
+    },
+    {
+      "name": "Leamouth",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Blackwall",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "Cubitt Town",
+      "area": "Tower Hamlets"
+    },
+    {
+      "name": "King's Cross & Bloomsbury North",
+      "area": "Camden"
+    }
+  ]
+}
