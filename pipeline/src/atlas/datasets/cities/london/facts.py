@@ -516,6 +516,25 @@ def culture(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Soho and Hampstead are full of listed buildings and conservation areas, Canary Wharf is not",
+    needs=("local_character", "conservation_areas"),
+)
+def heritage(cells: Cells) -> str:
+    for column in ("local_character", "conservation_areas"):
+        everywhere(cells, column)
+    soho, hampstead = cells.at("Soho", "local_character"), cells.at("Hampstead", "local_character")
+    far = cells.at("Chingford", "local_character")
+    expect(soho > 100 and hampstead > 100 and far < 20, f"{soho:.0f}, {hampstead:.0f}, {far:.0f}")
+    old, new = (
+        cells.at("Hampstead", "conservation_areas"),
+        cells.at("Canary Wharf", "conservation_areas"),
+    )
+    expect(old > 80 and new < 10, f"Hampstead {old:.0f}% and Canary Wharf {new:.0f}% in an area")
+    expect(median(cells, "local_character") < 10, "most cells have few listed buildings in reach")
+    return f"listed: Soho {soho:.0f}, Hampstead {hampstead:.0f}; conservation: Hampstead {old:.0f}%"
+
+
+@FACTS.add(
     "LGBTQ+ venues and coworking spaces gather in the centre, and most cells have none",
     needs=("lgbtq_friendly_venues", "coworking", "community_spaces"),
 )

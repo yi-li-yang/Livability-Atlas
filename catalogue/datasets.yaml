@@ -740,6 +740,45 @@ datasets:
     tells:
       - Where nurseries, pre-schools and out-of-school clubs are, and the outcome of each one's latest inspection
 
+  - id: historic-england-listed-buildings
+    name: Listed buildings (Historic England, through planning.data.gov.uk)
+    publisher: Historic England
+    url: https://www.planning.data.gov.uk/dataset/listed-building
+    tier: country
+    area: England
+    resolution: one point for each listed building
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      The National Heritage List for England is published under the Open
+      Government Licence v3.0 and passed on by the planning data platform.
+    attribution: >-
+      © Historic England 2026. Contains Ordnance Survey data © Crown copyright
+      and database right 2026. The Historic England GIS Data is licensed under
+      the Open Government Licence v3.0.
+    tells:
+      - Where each listed building stands, and its grade
+
+  - id: conservation-areas
+    name: Conservation areas (local authorities, through planning.data.gov.uk)
+    publisher: Local planning authorities of England
+    url: https://www.planning.data.gov.uk/dataset/conservation-area
+    tier: country
+    area: England
+    resolution: one outline for each conservation area
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Published on the planning data platform under the Open Government
+      Licence v3.0.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each conservation area, as the local authority drew it
+
   - id: ons-census-2021-topic-summaries
     name: Census 2021 topic summaries by output area (ONS)
     publisher: Office for National Statistics (ONS), through Nomis

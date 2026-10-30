@@ -1743,7 +1743,53 @@ factors:
               large it is.
             datasets: [overture-places]
           - {id: cultural-venues-in-reach, name: "Cultural venues within 30 minutes by public transport", default_weight: 3, scales: [within-city]}
-          - {id: local-character, name: "Local character", default_weight: 3, scales: [within-city], description: "Listed buildings and conservation areas."}
+          - id: local-character
+            name: Listed buildings
+            description: The number of listed buildings within a 10-minute walk.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: listed buildings
+            preference_type: fixed
+            curve: {shape: percentile, better: higher}
+            curve_reason: >-
+              No standard says how many listed buildings are enough, so a hex
+              cell scores by its rank within the region: the share of hex cells
+              with fewer. The counts are too skewed for a ramp.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              The number of buildings on Historic England's National Heritage
+              List (grades I, II* and II, those still listed) within a 10-minute
+              walk along streets and paths: 800 m at 4.8 km/h, the walking
+              distance the CIHT calls acceptable for trips other than commuting.
+              A building is placed at its listed point, and a terrace listed
+              house by house counts house by house, so a street of Georgian
+              houses scores high. The list shows what is protected, not what is
+              beautiful or well kept.
+            datasets: [historic-england-listed-buildings]
+          - id: conservation-areas
+            name: Conservation areas
+            description: The share of the area that is inside a conservation area.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: "% of the area"
+            preference_type: user-direction
+            curve: {shape: percentile, better: higher}
+            curve_reason: >-
+              No standard says how much conservation area is right. Some users
+              want the protected character of one, and others the freedom to
+              change a home, so a hex cell scores by its rank within the region
+              and the user can flip the direction. It starts with more as better.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              The percentage of the hex cell's area that lies inside a
+              conservation area, from the outlines that each local authority
+              publishes on the planning data platform. Councils set the outlines
+              and update them at different times, so an area may be missing or old.
+            datasets: [conservation-areas]
           - {id: cultural-activity, name: "Cultural activity", default_weight: 3, scales: [within-city], description: "Events, and well-known places on Wikipedia."}
       - id: nightlife
         name: Nightlife
@@ -2827,6 +2873,45 @@ datasets:
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - Where nurseries, pre-schools and out-of-school clubs are, and the outcome of each one's latest inspection
+
+  - id: historic-england-listed-buildings
+    name: Listed buildings (Historic England, through planning.data.gov.uk)
+    publisher: Historic England
+    url: https://www.planning.data.gov.uk/dataset/listed-building
+    tier: country
+    area: England
+    resolution: one point for each listed building
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      The National Heritage List for England is published under the Open
+      Government Licence v3.0 and passed on by the planning data platform.
+    attribution: >-
+      © Historic England 2026. Contains Ordnance Survey data © Crown copyright
+      and database right 2026. The Historic England GIS Data is licensed under
+      the Open Government Licence v3.0.
+    tells:
+      - Where each listed building stands, and its grade
+
+  - id: conservation-areas
+    name: Conservation areas (local authorities, through planning.data.gov.uk)
+    publisher: Local planning authorities of England
+    url: https://www.planning.data.gov.uk/dataset/conservation-area
+    tier: country
+    area: England
+    resolution: one outline for each conservation area
+    date: daily
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Published on the planning data platform under the Open Government
+      Licence v3.0.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The outline of each conservation area, as the local authority drew it
 
   - id: ons-census-2021-topic-summaries
     name: Census 2021 topic summaries by output area (ONS)
