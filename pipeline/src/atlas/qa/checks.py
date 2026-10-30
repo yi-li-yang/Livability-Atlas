@@ -112,6 +112,8 @@ def dataset_checks(cells: Cells) -> list[Result]:
 
 def allowed(unit: str) -> tuple[float, float | None]:
     """The lowest and the highest value that a unit allows (None where there is no highest)."""
+    if unit.startswith("% change"):
+        return -100.0, None  # a fall cannot pass all of it, and a rise has no end
     if unit.startswith("%"):
         return 0.0, 100.0
     if "from 0 to 1" in unit:

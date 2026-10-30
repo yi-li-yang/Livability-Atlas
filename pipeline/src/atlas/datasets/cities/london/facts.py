@@ -38,6 +38,8 @@ PLACES = {
     "Canary Wharf": (51.5054, -0.0235),
     "Hampstead": (51.5560, -0.1780),
     "Brixton": (51.4613, -0.1156),
+    "Richmond": (51.4613, -0.3037),
+    "Stratford": (51.5416, -0.0034),
 }
 
 FACTS = Facts()
@@ -446,6 +448,35 @@ def energy_efficiency(cells: Cells) -> str:
     expect(new > old + 8, f"Canary Wharf {new:.0f} points against Hampstead {old:.0f}")
     expect(bool(np.isnan(cells.at("Richmond Park (west)", column))), "the park has homes")
     return f"median {middle:.0f}, Canary Wharf {new:.0f}, Hampstead {old:.0f} points"
+
+
+@FACTS.add(
+    "Prices per square metre rose in outer London in five years, and fell in the central flats",
+    needs=("price_trend",),
+)
+def price_trend(cells: Cells) -> str:
+    column = "price_trend"
+    reach = covered(cells, column)
+    expect(0.70 < reach < 0.95, f"{share(reach)} of cells have a trend")
+    middle = median(cells, column)
+    expect(0 < middle < 20, f"the median is {middle:.1f}%")
+    outer, central = cells.at("Barking", column), cells.at("Soho", column)
+    expect(outer > 5 and central < 0, f"Barking {outer:.1f}% and Soho {central:.1f}%")
+    return f"median {middle:.1f}%, Barking {outer:.1f}%, Soho {central:.1f}%"
+
+
+@FACTS.add(
+    "Every cell has a sales rate, and a town like Richmond sells more than Stratford",
+    needs=("sales_volume",),
+)
+def sales_volume(cells: Cells) -> str:
+    column = "sales_volume"
+    everywhere(cells, column)
+    middle = median(cells, column)
+    expect(5 < middle < 12, f"the median is {middle:.1f} sales a year per 1,000 residents")
+    richmond, stratford = cells.at("Richmond", column), cells.at("Stratford", column)
+    expect(richmond > stratford + 3, f"Richmond {richmond:.1f} and Stratford {stratford:.1f}")
+    return f"median {middle:.1f}, Richmond {richmond:.1f}, Stratford {stratford:.1f}"
 
 
 # --- Digital connectivity ---

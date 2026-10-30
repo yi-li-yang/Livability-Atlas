@@ -219,13 +219,20 @@ def test_every_unit_of_the_catalogue_gets_the_range_it_names():
     assert len(indicators) > 30
     for node in indicators:
         unit = node.unit or ""
-        if "%" in unit or "percent" in unit.lower():
+        if unit.startswith("% change"):
+            assert allowed(unit) == (-100.0, None), unit
+        elif "%" in unit or "percent" in unit.lower():
             assert allowed(unit) == (0.0, 100.0), unit
         elif "0 to 1" in unit:
             assert allowed(unit) == (0.0, 1.0), unit
         else:
             assert allowed(unit) == (0.0, None), unit
             assert "index" not in unit.lower() and "share" not in unit.lower(), unit
+
+
+def test_a_percent_change_can_fall_and_can_pass_100():
+    """A price can fall, but not by more than all of it, and it can more than double."""
+    assert allowed("% change over five years") == (-100.0, None)
 
 
 def built(nodes):
