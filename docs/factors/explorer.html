@@ -375,7 +375,38 @@ factors:
           cell in a borough shares one value. A home's own band sets its real
           bill, so Band D serves only to compare places.
         datasets: [mhclg-council-tax]
-      - {id: home-energy-efficiency, name: "Home energy efficiency", default_weight: 3, scales: [within-city]}
+      - id: energy-efficiency
+        name: Home energy efficiency
+        description: How well the homes nearby keep heat in, on the energy certificate's scale.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: SAP points
+        preference_type: fixed
+        curve: {shape: ramp, t0: 38, t1: 81}
+        curve_reason: >-
+          The energy certificate's bands run from G to A on a scale of 1 to 100
+          points: band B starts at 81 and band F ends at 38. A cell scores 0 at
+          38 points (the top of band F, a home that loses heat and costs the
+          most to warm) and 1 at 81 (the start of band B), so that a cell whose
+          typical home is in band C (69 to 80) scores about three quarters. The
+          government's aim is band C for as many homes as possible, which this
+          curve scores well and does not treat as the end.
+        evidence_type: estimate
+        comparable_across_regions: false
+        method: >-
+          The median energy efficiency, in the certificate's SAP points, of the
+          homes with an energy certificate in and around the hex cell: each
+          home counts once, by its latest certificate (a home is told apart by
+          its UPRN, or by its address where the certificate has none), and a
+          certificate sits at the centre of its postcode (Code-Point Open). The
+          cells within one step are pooled, and a cell with fewer than 30 homes
+          around it has no value. The score is a model of the home's fabric and
+          heating, from an assessor's survey (RdSAP), not a meter reading, and
+          the register holds only homes that were sold, let or improved since
+          2008, so it leans towards homes that changed hands. No address is
+          kept: the build holds a postcode and the points of each home.
+        datasets: [epc-domestic, os-code-point-open]
       - {id: rent-and-price-levels, name: "Rent and price levels", default_weight: 3, scales: [across-cities]}
       - {id: purchasing-power, name: "Purchasing power", default_weight: 3, scales: [across-cities]}
       - {id: tax-burden, name: "Tax burden", default_weight: 3, scales: [across-cities]}
@@ -1072,37 +1103,56 @@ factors:
               an 8-minute walk), and adds 3,000 residents at the London-wide
               rate, so that a cell with few residents around it does not top
               the ranking on a handful of crimes. Spike S2 chose these by how
-              well two halves of the year agree. The rate per resident
-              overstates crime where few people live and many work or visit,
-              as in the City of London, and spike S2 left that open. Not every
-              crime is reported, and recording varies between police forces.
+              well two halves of the year agree. Burglary and vehicle crime are
+              counted per resident, since a home is burgled and a car is
+              stolen where people live, and the other three kinds per resident
+              and worker (see violence and sexual offences). Not every crime is
+              reported, and recording varies between police forces.
             datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries]
           - id: violence-and-sexual-offences
             name: Violence and sexual offences
-            description: Recorded violent and sexual crimes, as a rate per resident.
+            description: Recorded violent and sexual crimes, as a rate per resident and worker.
             default_weight: 3
             status: built
-            unit: crimes a year per 1,000 residents
+            unit: crimes a year per 1,000 residents and workers
             preference_type: fixed
             curve: {shape: percentile, better: lower}
             curve_reason: *crime-curve-reason
             evidence_type: direct
             comparable_across_regions: false
-            method: *crime-method
-            datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries]
+            method: &crime-people-method >-
+              Police.uk's recorded crimes of this kind over the last 12 months,
+              counted at their anonymised map points, per 1,000 residents and
+              workers together. A person is assaulted, robbed or hounded where
+              people are, and in a centre such as the City of London most of
+              them work or visit: counted per resident alone, the City topped
+              every rate (spike S2). Residents come from Census 2021's output
+              areas and workers from the Business Register and Employment
+              Survey's jobs (2024, rounded to the nearest 25, by 2011 LSOA),
+              each shared between the hex cells it overlaps in proportion to
+              the overlap, then added. A cell's rate pools the crimes and the
+              people of the cell and its neighbours within two steps (about an
+              8-minute walk) and adds 3,000 people at the London-wide rate, as
+              for the other crime rates. A worker who lives in London counts
+              twice, once at home and once at work, and visitors and people out
+              at night are not counted at all, so the rate is still highest in
+              the busiest centres, but no longer by the arithmetic of a few
+              residents. Not every crime is reported, and recording varies
+              between police forces.
+            datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries, ons-bres, ons-lsoa-boundaries]
           - id: robbery-and-theft-from-the-person
             name: Robbery and theft from the person
-            description: Robbery, and theft such as pickpocketing and bag snatching, as a rate per resident.
+            description: Robbery, and theft such as pickpocketing and bag snatching, as a rate per resident and worker.
             default_weight: 3
             status: built
-            unit: crimes a year per 1,000 residents
+            unit: crimes a year per 1,000 residents and workers
             preference_type: fixed
             curve: {shape: percentile, better: lower}
             curve_reason: *crime-curve-reason
             evidence_type: direct
             comparable_across_regions: false
-            method: *crime-method
-            datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries]
+            method: *crime-people-method
+            datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries, ons-bres, ons-lsoa-boundaries]
           - id: vehicle-crime
             name: Vehicle crime
             description: Theft of and from vehicles, as a rate per resident.
@@ -1118,10 +1168,10 @@ factors:
             datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries]
           - id: anti-social-behaviour
             name: Anti-social behaviour
-            description: Incidents of anti-social behaviour reported to the police, as a rate per resident.
+            description: Incidents of anti-social behaviour reported to the police, as a rate per resident and worker.
             default_weight: 3
             status: built
-            unit: incidents a year per 1,000 residents
+            unit: incidents a year per 1,000 residents and workers
             preference_type: fixed
             curve: {shape: percentile, better: lower}
             curve_reason: *crime-curve-reason
@@ -1130,10 +1180,13 @@ factors:
             method: >-
               Police.uk's incidents of anti-social behaviour over the last 12
               months, counted at their anonymised map points, per 1,000
-              residents from Census 2021, smoothed over neighbouring hex cells
-              as for crime (spike S2). Not every incident is reported, and
-              Police.uk notes that some forces may count some incidents twice.
-            datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries]
+              residents and workers (Census 2021 residents and the Business
+              Register and Employment Survey's jobs), smoothed over
+              neighbouring hex cells as for crime (spike S2, and the method of
+              violence and sexual offences). Not every incident is reported,
+              and Police.uk notes that some forces may count some incidents
+              twice.
+            datasets: [police-uk, ons-census-2021-residents, ons-output-area-boundaries, ons-bres, ons-lsoa-boundaries]
       - {id: road-collisions, name: "Road collisions", default_weight: 3, scales: [within-city]}
       - {id: homicide-rate, name: "Homicide rate", default_weight: 3, scales: [across-cities]}
       - {id: political-stability, name: "Political stability", default_weight: 3, scales: [across-cities]}
@@ -2207,6 +2260,51 @@ datasets:
       Licence v.3.0. Contains OS data © Crown copyright and database right 2026.
     tells:
       - The boundary of each MSOA, an area of 7,000 to 10,000 residents, clipped to the coastline
+
+  - id: ons-lsoa-boundaries
+    name: Lower layer Super Output Areas (December 2011) Boundaries EW BGC
+    publisher: Office for National Statistics (ONS)
+    url: https://geoportal.statistics.gov.uk/
+    tier: country
+    area: England and Wales
+    resolution: census lower layer super output areas (LSOAs) of 2011, generalised to 20 m
+    date: 2011
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      The ONS supplies its digital boundary products under the Open Government
+      Licence v3.0, with credits to the ONS and to Ordnance Survey. The
+      Business Register and Employment Survey is published for these 2011
+      areas, not for the 2021 ones.
+    attribution: >-
+      Source: Office for National Statistics licensed under the Open Government
+      Licence v.3.0. Contains OS data © Crown copyright and database right 2026.
+    tells:
+      - The boundary of each 2011 LSOA, an area of about 1,500 residents, clipped to the coastline
+
+  - id: ons-bres
+    name: Business Register and Employment Survey, open access (jobs by LSOA)
+    publisher: Office for National Statistics (ONS), through Nomis
+    url: https://www.nomisweb.co.uk/sources/bres
+    tier: country
+    area: Great Britain
+    resolution: 2011 lower layer super output areas, counts rounded to the nearest 25
+    date: 2024
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Nomis's copyright page says that ONS and Nomis material is Crown copyright,
+      re-used under the Open Government Licence, with the credit "Source: Office
+      for National Statistics". It also says that the survey's confidential
+      figures must not be passed to a third party. This build uses only the
+      open-access table (NM_189_1), whose figures the ONS has rounded and
+      suppressed for release.
+    attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
+    tells:
+      - The number of jobs (employees and working owners) at workplaces in each LSOA, in total and by industry, rounded to the nearest 25
+      - Employment by broad industry group, for the share of jobs in each sector
 
   - id: hoc-msoa-names
     name: MSOA Names (House of Commons Library)

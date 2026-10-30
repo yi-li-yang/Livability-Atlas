@@ -1,4 +1,5 @@
-"""The crime indicators of Safety: recorded crimes per 1,000 residents, for each hex cell.
+"""The crime indicators of Safety: recorded crimes per 1,000 residents, or per 1,000 residents and
+workers, for each hex cell.
 
 Spike S2 (docs/spikes/S2-crime.md) chose the method. Each output area's residents are shared
 between the hex cells it overlaps by the area of overlap, since placing them at centroids left 38%
@@ -23,6 +24,17 @@ CATEGORIES: dict[str, list[str]] = {
     "vehicle-crime": ["Vehicle crime"],
     "anti-social-behaviour": ["Anti-social behaviour"],
 }
+# What each indicator is counted against. A home is burgled and a car stolen where residents live,
+# so those two are per resident. A person is assaulted, robbed or hounded where people are, and
+# in a centre like the City of London most of them work or visit rather than live: those are per
+# resident and worker together (see `people_present`).
+DENOMINATOR = {
+    "burglary": "residents",
+    "violence-and-sexual-offences": "people",
+    "robbery-and-theft-from-the-person": "people",
+    "vehicle-crime": "residents",
+    "anti-social-behaviour": "people",
+}
 STEPS = 2  # each cell pools the cells within this many steps of it
 FLOOR = 3000  # residents added at the overall rate
 
@@ -38,14 +50,27 @@ def residents_by_cell(areas: gpd.GeoDataFrame, residents: pd.Series, cells: list
     return cast(pd.Series, shared["residents"])
 
 
+def workers_by_cell(areas: gpd.GeoDataFrame, jobs: pd.Series, cells: list[str]) -> pd.Series:
+    """Each cell's jobs: every area's count shared by the area of overlap, as the residents are.
+    `areas` holds the 2011 LSOAs in a column `LSOA11CD`, which the survey's jobs are counted in."""
+    shared = counts_shared_by_cell(areas, jobs.to_frame("jobs"), cells, code="LSOA11CD")
+    return cast(pd.Series, shared["jobs"])
+
+
+def people_present(residents: pd.Series, workers: pd.Series) -> pd.Series:
+    """Residents and workers together, in every cell that has either."""
+    return residents.add(workers, fill_value=0.0)
+
+
 def counts_shared_by_cell(
-    areas: gpd.GeoDataFrame, counts: pd.DataFrame, cells: list[str]
+    areas: gpd.GeoDataFrame, counts: pd.DataFrame, cells: list[str], code: str = "OA21CD"
 ) -> pd.DataFrame:
     """The same sharing for several counts at once, one column each, overlaying the areas with the
-    cells only once. A cell that no area overlaps is missing from the result."""
-    areas = cast(gpd.GeoDataFrame, areas[["OA21CD", "geometry"]].copy())
+    cells only once. A cell that no area overlaps is missing from the result. `code` is the column
+    of `areas` that names each area, as `counts` is indexed."""
+    areas = cast(gpd.GeoDataFrame, areas[[code, "geometry"]].copy())
     names = [str(name) for name in counts.columns]
-    known = counts.reindex(areas["OA21CD"]).fillna(0.0).to_numpy(dtype=float)
+    known = counts.reindex(areas[code]).fillna(0.0).to_numpy(dtype=float)
     for position, name in enumerate(names):
         areas[name] = known[:, position]
     areas["area"] = areas.geometry.area

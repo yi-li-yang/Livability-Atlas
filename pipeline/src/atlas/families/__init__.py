@@ -51,6 +51,13 @@ class Context:
     def resolution(self) -> int:
         return self.region.grid.resolution
 
+    def postcodes_inside(self, margin: float = 2000) -> pd.DataFrame:
+        """The postcodes (`Easting` and `Northing`, indexed by the normalised postcode) within
+        `margin` metres of the cells' bounding box."""
+        x0, y0, x1, y1 = bounds_bng(self.cells, margin=margin)
+        east, north = self.postcodes["Easting"], self.postcodes["Northing"]
+        return self.postcodes.loc[(east >= x0) & (east <= x1) & (north >= y0) & (north <= y1)]
+
     @cached_property
     def areas(self) -> gpd.GeoDataFrame:
         """The census output areas that cover the cells, with a 2 km margin."""

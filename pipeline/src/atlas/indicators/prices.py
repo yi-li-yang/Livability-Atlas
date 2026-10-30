@@ -6,11 +6,11 @@ square metre of a cell is the median over the sales in the cell and the cells wi
 over 24 months (spike S3: that gives 20 or more sales in 99% of London's cells).
 """
 
-import h3
 import numpy as np
 import pandas as pd
 
 from atlas.datasets.countries.gb.addresses import address_key
+from atlas.indicators import pooling
 
 MIN_AREA, MAX_AREA = 10.0, 500.0  # m²: a floor area outside these is a typing error
 STEPS = 2
@@ -46,14 +46,4 @@ def pooled_median(
     """The median `per_metre` over the sales in each cell and the cells within `steps` of it.
     `sold` has a `cell` and a `per_metre` for each sale. A cell with fewer than `minimum` sales
     around it has no value."""
-    by_cell = {
-        str(cell): group.to_numpy(dtype=float) for cell, group in sold.groupby("cell")["per_metre"]
-    }
-    out = np.full(len(cells), np.nan)
-    for position, cell in enumerate(cells):
-        around = [by_cell[c] for c in h3.grid_disk(cell, steps) if c in by_cell]
-        if around:
-            values = np.concatenate(around)
-            if len(values) >= minimum:
-                out[position] = float(np.median(values))
-    return pd.Series(out, index=cells)
+    return pooling.pooled_median(sold, "per_metre", cells, steps, minimum)

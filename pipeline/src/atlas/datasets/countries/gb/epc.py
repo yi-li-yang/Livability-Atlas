@@ -143,3 +143,113 @@ def certificates(data_dir: Path, region_id: str, postcodes: set[str]) -> pd.Data
     table = read_certificates(archive, postcodes)
     table.to_parquet(kept)
     return table
+
+
+STOCK_COLUMNS = [
+    "address1",
+    "address2",
+    "address3",
+    "postcode",
+    "current_energy_efficiency",
+    "construction_age_band",
+    "tenure",
+    "property_type",
+    "lodgement_date",
+    "uprn",
+]
+
+
+def built_year(text: object) -> float:
+    """The year a construction age band stands for: the middle of a band of years, 1880 for
+    "before 1900", 2010 for "2007 onwards", and the year itself where the certificate gives one.
+    NaN where there is no date ("NO DATA!", "INVALID!")."""
+    words = str(text).split(": ")[-1].strip().lower()
+    if words.isdigit() and len(words) == 4:
+        return float(words)
+    if words.startswith("before "):
+        return float(words.split()[-1]) - 20
+    if words.endswith(" onwards"):
+        return float(words.split()[0]) + 3
+    if "-" in words:
+        first, _, last = words.partition("-")
+        if first.isdigit() and last.isdigit():
+            return (float(first) + float(last)) / 2
+    return float("nan")
+
+
+TENURES = {"owner-occupied": "owner", "rented (social)": "social", "rented (private)": "private"}
+
+
+def tenure_of(text: object) -> str | None:
+    """Owner-occupied, rented from a social landlord or rented privately, or None where the
+    certificate does not say."""
+    return TENURES.get(str(text).strip().lower())
+
+
+def read_stock(path: Path, postcodes: set[str]) -> pd.DataFrame:
+    """The homes at the given postcodes (written without spaces, in capitals), one row for each,
+    from the latest certificate of the home: its `postcode`, `efficiency` (the SAP points, 1 to
+    100 and above), `built` (see `built_year`), `tenure` and `property_type`. A home is told
+    apart by its UPRN, or by the fingerprint of its address where it has none. No address is
+    kept, so a row holds what its postcode holds already: how a home of that postcode is built."""
+    frames = []
+    with zipfile.ZipFile(path) as archive:
+        for name in sorted(n for n in archive.namelist() if n.startswith("certificates-")):
+            with archive.open(name) as file:
+                for block in _blocks(file):
+                    table = pacsv.read_csv(
+                        io.BytesIO(block),
+                        convert_options=pacsv.ConvertOptions(
+                            include_columns=STOCK_COLUMNS,
+                            column_types={c: pa.string() for c in STOCK_COLUMNS},
+                        ),
+                    )
+                    frame = table.to_pandas()
+                    frame["postcode"] = frame["postcode"].fillna("").map(normalise)
+                    frame = frame.loc[frame["postcode"].isin(postcodes)]
+                    if not frame.empty:
+                        frames.append(frame)
+    if not frames:
+        return pd.DataFrame(
+            {"postcode": [], "efficiency": [], "built": [], "tenure": [], "property_type": []}
+        )
+    every = pd.concat(frames, ignore_index=True)
+    without = every["uprn"].isna() | (every["uprn"].str.strip() == "")
+    key = every["uprn"].where(~without)
+    key.loc[without] = [
+        address_key(p, one, two, three)
+        for p, one, two, three in zip(
+            every.loc[without, "postcode"],
+            every.loc[without, "address1"],
+            every.loc[without, "address2"],
+            every.loc[without, "address3"],
+            strict=True,
+        )
+    ]
+    every["home"] = key
+    latest = every.sort_values("lodgement_date", kind="stable").drop_duplicates("home", keep="last")
+    efficiency = np.asarray(
+        pd.to_numeric(latest["current_energy_efficiency"], errors="coerce"), dtype=float
+    )
+    return pd.DataFrame(
+        {
+            "postcode": latest["postcode"].to_numpy(),
+            "efficiency": efficiency,
+            "built": [built_year(t) for t in latest["construction_age_band"]],
+            "tenure": [tenure_of(t) for t in latest["tenure"]],
+            "property_type": latest["property_type"].to_numpy(),
+        }
+    )
+
+
+def stock(data_dir: Path, region_id: str, postcodes: set[str]) -> pd.DataFrame:
+    """The region's homes (see `read_stock`), read from the zip once and kept beside it, named by
+    the first characters of the zip's checksum."""
+    archive = fetch(data_dir)
+    checksum = archive.with_name(archive.name + ".sha256").read_text(encoding="utf-8").strip()
+    kept = archive.with_name(f"stock-{region_id}-{checksum[:12]}.parquet")
+    if kept.exists():
+        return pd.read_parquet(kept)
+    table = read_stock(archive, postcodes)
+    table.to_parquet(kept)
+    return table
