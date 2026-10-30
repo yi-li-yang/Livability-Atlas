@@ -47,7 +47,7 @@ Steps 1 to 3 are the research. In Claude Code, `/research-factor <id>` runs them
 2. Measured indicators, each with its unit, preference type, a scoring curve with its justification, an evidence type, a method, and whether it is comparable across regions. The fields are listed in [catalogue/README.md](catalogue/README.md#measured-indicators).
 3. A dataset entry in `catalogue/datasets.yaml`, with its tier and licence checked.
 4. Fetching is idempotent and cached, and the checksum is recorded.
-5. A documented method aggregates the data to hex cells.
+5. A documented method aggregates the data to hex cells. A new family of indicators is one module in `pipeline/src/atlas/families/` that names a `FAMILY` (the package's docstring says how), so that parallel work never meets in `build.py`.
 6. QA checks run: the QA report checks the range, nulls and coverage of every column on its own. Add at least one known fact for the indicator to the region's `facts.py` (`pipeline/src/atlas/datasets/cities/<region>/facts.py`), and a relation to another indicator wherever an independent dataset exists.
 7. A test runs on a small fixture.
 8. The factor appears in the web app through the manifest alone, with no change to UI code: in the factor tree, in its dropdown and in the evidence layer.

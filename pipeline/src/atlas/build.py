@@ -8,13 +8,14 @@ hygiene near each cell. Each indicator that arrives later adds its columns here,
 factor recipe.
 """
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
+from atlas import families
 from atlas.catalogue.load import Catalogue, load_catalogue
 from atlas.catalogue.models import Region
 from atlas.datasets.cities.london import laei, ptal, tfl_journeys, tfl_lines
@@ -87,11 +88,16 @@ BUILT_FROM = {
 }
 
 
-def needs_commercial_licence(catalogue: Catalogue, indicators: Sequence[str]) -> list[str]:
+def needs_commercial_licence(
+    catalogue: Catalogue,
+    indicators: Sequence[str],
+    built_from: Mapping[str, tuple[str, ...]] = BUILT_FROM,
+) -> list[str]:
     """The indicators among `indicators` that are built from a dataset without a licence for
-    commercial use."""
+    commercial use. `built_from` names the datasets of each indicator: this module's, and the
+    families' (see `atlas.families`)."""
     allowed = {d.id for d in catalogue.datasets.datasets if d.commercial_use}
-    return [i for i in indicators if i in BUILT_FROM and not set(BUILT_FROM[i]) <= allowed]
+    return [i for i in indicators if i in built_from and not set(built_from[i]) <= allowed]
 
 
 def build_region(
@@ -140,11 +146,23 @@ def build_region(
     columns.update(_community_columns(cells, data_dir))
     columns.update(_ae_columns(region_id, cells, data_dir, postcodes))
     columns.update(_air_columns(cells, region.grid.resolution, data_dir))
-    if commercial:
-        for indicator in needs_commercial_licence(catalogue, list(columns)):
-            del columns[indicator]
-
     choices = _choices(region_id, network, cells, data_dir)
+
+    found = families.discover()
+    more_columns, more_choices = families.run(
+        found, families.Context(region_id, region, cells, data_dir, postcodes, network)
+    )
+    again = (set(more_columns) | set(more_choices)) & (set(columns) | set(choices))
+    if again:
+        raise ValueError(f"{', '.join(sorted(again))} is built twice: here and by a family")
+    columns.update(more_columns)
+    choices.update(more_choices)
+    if commercial:
+        built_from = {**BUILT_FROM, **families.built_from(found)}
+        for indicator in needs_commercial_licence(catalogue, [*columns, *choices], built_from):
+            columns.pop(indicator, None)
+            choices.pop(indicator, None)
+
     return write_bundle(
         catalogue,
         region_id=region_id,

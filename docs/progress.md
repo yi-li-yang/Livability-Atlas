@@ -26,12 +26,13 @@
 
 ## Work queue
 
-The tracker for the push to finish the factors and the backend functions. The main session keeps this table and reconciles it after each merge; a session working on a row sets it to "in progress" with its branch and adds a log line in its pull request. Every row follows the task loop in [CLAUDE.md](../CLAUDE.md#task-loop) and the factor recipe in [CONTRIBUTING.md](../CONTRIBUTING.md#recipes). The user interface is out of scope for these rows: the app picks up new factors from the manifest alone.
+The tracker for the push to finish the factors and the backend functions. The main session keeps this table and reconciles it after each merge; a session working on a row sets it to "in progress" with its branch and adds a log line in its pull request. Every row follows the task loop in [CLAUDE.md](../CLAUDE.md#task-loop) and the factor recipe in [CONTRIBUTING.md](../CONTRIBUTING.md#recipes). **To take a row:** put your branch in its row, build the indicators as families (T0.0) with their own tests, and leave `build.py`, `progress.md` and the roadmap to the main session. The user interface is out of scope for these rows: the app picks up new factors from the manifest alone.
 
 Status: `todo`, `in progress`, `PR open`, `merged`, `deferred`. **Order of work (the owner, 2026-10-30): finish London first, polish the frontend and make it really good, and only then move to another city.** Rows 4.1, 4.2 and 5 wait for that.
 
 | ID | Task | Status | Branch |
 | --- | --- | --- | --- |
+| T0.0 | Indicator families: a new indicator is one module in `pipeline/src/atlas/families/`, so parallel sessions never meet in `build.py` ([package docstring](../pipeline/src/atlas/families/__init__.py)) | PR open | feat/indicator-families |
 | T0.1 | Station-to-station matrix for every pair, for the user's own places (see T3.1 for the design change: the timetable graph, not 745,000 Journey Planner calls) | todo | |
 | T0.2 | Fetch the open downloads that Tranches 1 and 2 need, kept in `data/raw/` with a checksum | todo | |
 | 1.1 | Housing and cost: home energy efficiency, price trend and sales volume, purchasing power | todo | |
