@@ -479,6 +479,77 @@ def sales_volume(cells: Cells) -> str:
     return f"median {middle:.1f}, Richmond {richmond:.1f}, Stratford {stratford:.1f}"
 
 
+# --- Animal friendliness, Culture and leisure, Community and people, Work and economy ---
+
+
+@FACTS.add(
+    "A vet and a pet shop are a short walk in the centre, and a long one in the parks",
+    needs=("vets", "pet_shops"),
+)
+def pets(cells: Cells) -> str:
+    for column in ("vets", "pet_shops"):
+        everywhere(cells, column)
+    shop, park = cells.at("Soho", "pet_shops"), cells.at("Richmond Park", "pet_shops")
+    expect(shop < 6 and park > 15, f"pet shops: Soho {shop:.1f} and Richmond Park {park:.1f}")
+    vet, middle = cells.at("Hampstead", "vets"), median(cells, "vets")
+    expect(vet < 6 and 8 < middle < 25, f"vets: Hampstead {vet:.1f}, median {middle:.1f}")
+    return f"pet shops Soho {shop:.1f}, Richmond Park {park:.1f}; vets Hampstead {vet:.1f} minutes"
+
+
+@FACTS.add(
+    "Soho has hundreds of cultural venues and bars in reach, and Chingford almost none",
+    needs=("cultural_venues_nearby", "nightlife"),
+)
+def culture(cells: Cells) -> str:
+    soho_culture = cells.at("Soho", "cultural_venues_nearby")
+    soho_night = cells.at("Soho", "nightlife")
+    far_culture = cells.at("Chingford", "cultural_venues_nearby")
+    far_night = cells.at("Chingford", "nightlife")
+    expect(soho_culture > 200 and soho_night > 200, f"Soho {soho_culture:.0f} and {soho_night:.0f}")
+    expect(far_culture < 5 and far_night < 10, f"Chingford {far_culture:.0f} and {far_night:.0f}")
+    middle = median(cells, "cultural_venues_nearby")
+    expect(middle < 10, f"the median cell has {middle:.0f} venues in reach")
+    return (
+        f"Soho {soho_culture:.0f} venues and {soho_night:.0f} bars; "
+        f"Chingford {far_culture:.0f} and {far_night:.0f}"
+    )
+
+
+@FACTS.add(
+    "LGBTQ+ venues and coworking spaces gather in the centre, and most cells have none",
+    needs=("lgbtq_friendly_venues", "coworking", "community_spaces"),
+)
+def community_and_work_places(cells: Cells) -> str:
+    gay, cowork = cells.at("Soho", "lgbtq_friendly_venues"), cells.at("Soho", "coworking")
+    expect(gay >= 10 and cowork >= 10, f"Soho has {gay:.0f} LGBTQ+ venues and {cowork:.0f} spaces")
+    expect(median(cells, "lgbtq_friendly_venues") <= 1, "most cells have no LGBTQ+ venue in reach")
+    expect(median(cells, "coworking") <= 1, "most cells have no coworking space in reach")
+    centre, park = (
+        cells.at("Brixton", "community_spaces"),
+        cells.at("Richmond Park", "community_spaces"),
+    )
+    expect(centre < 8 and park > 15, f"community spaces: Brixton {centre:.1f}, park {park:.1f}")
+    return (
+        f"Soho {gay:.0f} LGBTQ+ venues and {cowork:.0f} coworking spaces; Brixton {centre:.1f} min"
+    )
+
+
+@FACTS.add(
+    "Jobs crowd the City and are sparse in the parks and the suburbs",
+    needs=("job_density",),
+)
+def job_density(cells: Cells) -> str:
+    column = "job_density"
+    everywhere(cells, column)
+    bank, barking = cells.at("Bank", column), cells.at("Barking", column)
+    park = cells.at("Richmond Park", column)
+    expect(bank > 20 * barking, f"Bank {bank:.0f} and Barking {barking:.0f} jobs a km²")
+    expect(park < 1000, f"Richmond Park has {park:.0f} jobs a km²")
+    middle = median(cells, column)
+    expect(500 < middle < 5000, f"the median is {middle:.0f} jobs a km²")
+    return f"median {middle:.0f}, Bank {bank:.0f}, Barking {barking:.0f}, Richmond Park {park:.0f}"
+
+
 # --- Digital connectivity ---
 
 

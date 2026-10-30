@@ -1336,8 +1336,53 @@ factors:
         default_weight: 3
         scales: [within-city]
         children:
-          - {id: community-spaces, name: "Community spaces", default_weight: 3}
-          - {id: lgbtq-friendly-venues, name: "LGBTQ+-friendly venues", default_weight: 3}
+          - id: community-spaces
+            name: Community spaces
+            description: Walking minutes to the nearest community centre.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 15, t1: 5}
+            curve_reason: *walk-to-amenity-reason
+            evidence_type: indirect
+            comparable_across_regions: true
+            method: >-
+              The walking time along streets and paths from the hex cell's centre to
+              the nearest community centre (Overture's category community center),
+              at 4.8 km/h, from the category of Overture's places (leaving out those
+              it marks permanently closed). The category holds community and village
+              halls, centres run by councils and by faith groups, and some venues
+              for hire. It does not say what goes on inside or who is welcome, so it
+              shows where a place for neighbours to meet exists, not how much it is
+              used.
+            datasets: [overture-places]
+          - id: lgbtq-friendly-venues
+            name: LGBTQ+ venues
+            description: The number of LGBTQ+ bars and LGBTQ+ organisations within a 30-minute walk.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: venues
+            preference_type: fixed
+            curve: {shape: percentile, better: higher}
+            curve_reason: >-
+              No standard says how many are enough, so a hex cell scores by its rank
+              within the region. These venues are few and cluster, so the walk is 30
+              minutes (2.4 km at 4.8 km/h), the distance people go for a particular
+              place, not the everyday one. Only presence scores, and the absence of
+              a venue does not lower the score of any group (D08).
+            evidence_type: indirect
+            comparable_across_regions: true
+            method: >-
+              The number of places within a 30-minute walk along streets and paths
+              whose Overture category is a gay bar or a gay and lesbian services
+              organisation. This finds the venues that say they are LGBTQ+ and
+              misses welcoming places that are not labelled so, so it is a lower
+              bound and an indirect sign of how welcoming an area is. Legal rights
+              and public acceptance belong to the across-cities scale.
+            datasets: [overture-places]
           - {id: election-turnout, name: "Local election turnout", default_weight: 3}
           - {id: residents-stay, name: "How long residents stay", default_weight: 3}
       - {id: english-proficiency, name: "English proficiency", default_weight: 3, scales: [across-cities]}
@@ -1356,11 +1401,63 @@ factors:
         name: Culture
         default_weight: 3
         children:
-          - {id: cultural-venues-nearby, name: "Cultural venues within a 15-minute walk", default_weight: 3, scales: [within-city]}
+          - id: cultural-venues-nearby
+            name: Cultural venues nearby
+            description: The number of galleries, museums, theatres, music venues and cinemas within a 15-minute walk.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: venues
+            preference_type: fixed
+            curve: {shape: percentile, better: higher}
+            curve_reason: >-
+              No standard says how many are enough, so a hex cell scores by its rank
+              within the region: the share of hex cells with fewer. The counts are
+              too skewed for a ramp.
+            evidence_type: direct
+            comparable_across_regions: true
+            method: >-
+              The number of cultural venues within a 15-minute walk along streets
+              and paths: 1,200 m at 4.8 km/h, the preferred maximum walking distance
+              for trips other than commuting in Table 3.2 of the CIHT's Guidelines
+              for Providing for Journeys on Foot (2000). A venue is a place whose
+              Overture category is an art gallery, a museum of any kind, a theatre,
+              a performing arts venue, a music venue, a jazz or blues venue, a
+              comedy club, an opera or ballet house, a cinema, a planetarium or a
+              cultural centre (leaving out those Overture marks permanently closed).
+              Historic sites are left out, since they belong to local character.
+              Overture is a lower bound, and it counts every venue once, however
+              large it is.
+            datasets: [overture-places]
           - {id: cultural-venues-in-reach, name: "Cultural venues within 30 minutes by public transport", default_weight: 3, scales: [within-city]}
           - {id: local-character, name: "Local character", default_weight: 3, scales: [within-city], description: "Listed buildings and conservation areas."}
           - {id: cultural-activity, name: "Cultural activity", default_weight: 3, scales: [within-city], description: "Events, and well-known places on Wikipedia."}
-      - {id: nightlife, name: "Nightlife", default_weight: 3, description: "Some users want it nearby and others want quiet, so the user sets the direction."}
+      - id: nightlife
+        name: Nightlife
+        description: The number of pubs, bars and clubs within a 10-minute walk.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: venues
+        preference_type: user-direction
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          No standard says how much nightlife is right, and some users want it
+          close while others want quiet, so a hex cell scores by its rank within
+          the region and the user can flip the direction. It starts with more as
+          better.
+        evidence_type: direct
+        comparable_across_regions: true
+        method: >-
+          The number of pubs, bars and clubs within a 10-minute walk along
+          streets and paths: 800 m at 4.8 km/h, the walking distance the CIHT
+          calls acceptable for trips other than commuting. A place is one whose
+          Overture category is a pub, a bar of any kind, a lounge, a dance club,
+          a karaoke venue, a beer garden or a nightlife venue (leaving out those
+          Overture marks permanently closed). Restaurants, cafés and breweries
+          are not counted. Overture gives no opening hours, so a daytime pub
+          counts the same as a late bar.
+        datasets: [overture-places]
       - {id: outdoor-access, name: "Outdoor access", default_weight: 3, scales: [across-cities]}
 
   - id: animal-friendliness
@@ -1374,8 +1471,46 @@ factors:
         name: Pets
         default_weight: 3
         children:
-          - {id: vets, name: "Vets", default_weight: 3, scales: [within-city]}
-          - {id: pet-shops, name: "Pet shops", default_weight: 3, scales: [within-city]}
+          - id: vets
+            name: Vets
+            description: Walking minutes to the nearest vet.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 15, t1: 5}
+            curve_reason: *walk-to-amenity-reason
+            evidence_type: direct
+            comparable_across_regions: true
+            method: >-
+              The walking time along streets and paths from the hex cell's centre to
+              the nearest vet (Overture's categories veterinarian and veterinary
+              care), at 4.8 km/h, from the category of Overture's places (leaving
+              out those it marks permanently closed). Overture lists the practice,
+              not whether it takes new patients or treats the user's kind of animal,
+              and many owners drive to a vet, so a long walk matters less here than
+              to a shop.
+            datasets: [overture-places]
+          - id: pet-shops
+            name: Pet shops
+            description: Walking minutes to the nearest pet shop.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 15, t1: 5}
+            curve_reason: *walk-to-amenity-reason
+            evidence_type: direct
+            comparable_across_regions: true
+            method: >-
+              The walking time along streets and paths from the hex cell's centre to
+              the nearest pet shop (Overture's categories pet store and aquatic pet
+              store), at 4.8 km/h, from the category of Overture's places (leaving
+              out those it marks permanently closed). Groomers, boarding and
+              training are not counted.
+            datasets: [overture-places]
           - {id: dog-friendly-parks, name: "Dog-friendly parks and off-lead areas", default_weight: 3, scales: [within-city]}
           - {id: pet-friendly-venues, name: "Pet-friendly cafés and pubs", default_weight: 3, scales: [within-city]}
           - {id: pet-friendly-rentals, name: "Pet-friendly rentals", default_weight: 3, scales: [within-city], description: "No open data yet."}
@@ -1396,9 +1531,54 @@ factors:
     scales: [within-city, across-cities]
     children:
       # Jobs within reach sits here, not under Transport.
-      - {id: job-density, name: "Job density", default_weight: 3, scales: [within-city]}
+      - id: job-density
+        name: Job density
+        description: How many jobs there are nearby, for each square kilometre.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: jobs per km²
+        preference_type: user-direction
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          No standard says how many jobs a place should have, and some users
+          want work close while others want a quiet residential street, so a hex
+          cell scores by its rank within the region and the user can flip the
+          direction. It starts with more as better.
+        evidence_type: direct
+        comparable_across_regions: true
+        method: >-
+          The jobs in and around the hex cell for each square kilometre: the
+          Business Register and Employment Survey's jobs by 2011 LSOA (2024,
+          rounded to 25), shared between hex cells by area, then taken as the
+          mean over the cell and the cells within two steps that the region has.
+          The register counts a job where the employer's site is, so a large
+          employer's head office can raise the count of its area.
+        datasets: [ons-bres, ons-lsoa-boundaries]
       - {id: jobs-within-reach, name: "Jobs within reach", default_weight: 3, scales: [within-city], description: "Jobs reachable within 45 minutes by public transport."}
-      - {id: coworking, name: "Coworking", default_weight: 3, scales: [within-city]}
+      - id: coworking
+        name: Coworking
+        description: The number of coworking and shared office spaces within a 15-minute walk.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: spaces
+        preference_type: fixed
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          No standard says how many are enough, so a hex cell scores by its rank
+          within the region: the share of hex cells with fewer. The counts are
+          too skewed for a ramp.
+        evidence_type: direct
+        comparable_across_regions: true
+        method: >-
+          The number of coworking and shared office spaces within a 15-minute
+          walk along streets and paths (1,200 m at 4.8 km/h, the CIHT's
+          preferred maximum for trips other than commuting): the places whose
+          Overture category is coworking space or shared office space (leaving
+          out those it marks permanently closed). Overture is a lower bound, and
+          most cells have none.
+        datasets: [overture-places]
       - {id: your-industry, name: "Your industry", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks an industry (D18).", description: "Jobs in a chosen industry within reach, or how strong that industry is in a city."}
       - {id: salaries, name: "Salaries", default_weight: 3, scales: [across-cities]}
       - {id: unemployment, name: "Unemployment", default_weight: 3, scales: [across-cities]}

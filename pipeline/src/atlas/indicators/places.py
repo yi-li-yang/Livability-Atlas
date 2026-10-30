@@ -8,6 +8,7 @@ name's words. Places are placed in metres of British National Grid.
 """
 
 import re
+from collections.abc import Iterable
 
 import numpy as np
 import pandas as pd
@@ -93,6 +94,23 @@ def same_name(a: frozenset[str], b: frozenset[str]) -> bool:
 def _metres(lng: np.ndarray, lat: np.ndarray) -> np.ndarray:
     x, y = _TO_BNG.transform(lng, lat)
     return np.column_stack([x, y])
+
+
+def located(
+    frame: pd.DataFrame, categories: Iterable[str] = (), suffixes: Iterable[str] = ()
+) -> pd.DataFrame:
+    """The places of Overture's `frame` (`lng`, `lat`, `name` and `category`) whose category is
+    one of `categories`, or ends with one of `suffixes` (such as `_museum`), with their `Easting`
+    and `Northing` in metres and their `name`."""
+    wanted = set(categories)
+    ending = tuple(suffixes)
+    kept = frame.loc[
+        [isinstance(c, str) and (c in wanted or c.endswith(ending)) for c in frame["category"]]
+    ]
+    xy = _metres(kept["lng"].to_numpy(dtype=float), kept["lat"].to_numpy(dtype=float))
+    return pd.DataFrame(
+        {"Easting": xy[:, 0], "Northing": xy[:, 1], "name": kept["name"].to_numpy()}
+    )
 
 
 def pool(overture: pd.DataFrame, osm: pd.DataFrame) -> dict[str, pd.DataFrame]:
