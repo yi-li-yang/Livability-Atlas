@@ -6,6 +6,7 @@ import pytest
 from atlas.catalogue.load import load_catalogue
 from atlas.families import Context, community_life, culture, discover, pets, work
 from atlas.indicators import places
+from atlas.indicators.pooling import per_km2
 from atlas.paths import CATALOGUE_DIR
 
 CENTRE = h3.latlng_to_cell(51.5136, -0.1337, 9)
@@ -112,20 +113,20 @@ class TestTheFamilies:
         assert work.columns(ctx)["coworking"] == [2, 2]
 
 
-class TestJobDensity:
+class TestPerKm2:
     def test_it_is_the_jobs_a_square_kilometre_over_a_cell_and_the_cells_around_it(self):
         ring = h3.grid_disk(CENTRE, 2)
         workers = pd.Series(100.0, index=ring)
-        density = work.jobs_per_km2(workers, [CENTRE], steps=2)
+        density = per_km2(workers, [CENTRE], steps=2)
         assert density[CENTRE] == pytest.approx(100.0 / h3.cell_area(CENTRE, "km^2"), rel=0.01)
 
     def test_a_cell_at_the_edge_counts_only_the_cells_the_region_has(self):
         workers = pd.Series({CENTRE: 100.0, NEIGHBOUR: 300.0})
-        density = work.jobs_per_km2(workers, [CENTRE, NEIGHBOUR], steps=2)
+        density = per_km2(workers, [CENTRE, NEIGHBOUR], steps=2)
         assert density[CENTRE] == pytest.approx(200.0 / h3.cell_area(CENTRE, "km^2"), rel=0.01)
 
     def test_a_cell_with_no_jobs_around_has_a_density_of_0(self):
-        density = work.jobs_per_km2(pd.Series({CENTRE: 0.0}), [CENTRE], steps=2)
+        density = per_km2(pd.Series({CENTRE: 0.0}), [CENTRE], steps=2)
         assert density[CENTRE] == 0.0
 
 

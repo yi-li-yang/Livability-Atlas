@@ -535,6 +535,38 @@ def community_and_work_places(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Brixton and Barking are crowded, a business district has few residents, and the park none",
+    needs=("density",),
+)
+def density(cells: Cells) -> str:
+    column = "density"
+    everywhere(cells, column)
+    brixton, bank = cells.at("Brixton", column), cells.at("Bank", column)
+    barking, park = cells.at("Barking", column), cells.at("Richmond Park", column)
+    expect(brixton > 10000 and barking > 8000, f"Brixton {brixton:.0f}, Barking {barking:.0f}")
+    expect(bank < brixton / 4, f"Bank {bank:.0f} residents a km² (jobs are not counted)")
+    expect(park < 500, f"Richmond Park {park:.0f} residents a km²")
+    middle = median(cells, column)
+    expect(3000 < middle < 8000, f"the median is {middle:.0f} residents a km²")
+    return f"median {middle:.0f}, Brixton {brixton:.0f}, Bank {bank:.0f}, Park {park:.0f}"
+
+
+@FACTS.add(
+    "Hampstead's homes are Edwardian and Canary Wharf's are new",
+    needs=("building_age",),
+)
+def building_age(cells: Cells) -> str:
+    column = "building_age"
+    reach = covered(cells, column)
+    expect(0.75 < reach < 0.97, f"{share(reach)} of cells have 30 or more dated homes around them")
+    old, new = cells.at("Hampstead", column), cells.at("Canary Wharf", column)
+    expect(old < 1930 and new > 2000, f"Hampstead {old:.0f} and Canary Wharf {new:.0f}")
+    middle = median(cells, column)
+    expect(1930 < middle < 1990, f"the median home was built around {middle:.0f}")
+    return f"median {middle:.0f}, Hampstead {old:.0f}, Canary Wharf {new:.0f}"
+
+
+@FACTS.add(
     "Jobs crowd the City and are sparse in the parks and the suburbs",
     needs=("job_density",),
 )
