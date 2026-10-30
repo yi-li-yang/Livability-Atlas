@@ -19,21 +19,24 @@ synthetic context, and the full synthetic build in `test_build.py` runs no famil
 
 import importlib
 import pkgutil
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 from typing import Any
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 
 from atlas.catalogue.models import Region
 from atlas.datasets.countries.gb import bres, census_residents, ons_lsoa, output_areas
+from atlas.datasets.world import overture
 from atlas.indicators import crime
+from atlas.indicators import places as place_pool
 from atlas.publish.bundle import Choice
 from atlas.spatial import walking
-from atlas.spatial.grid import bounds_bng
+from atlas.spatial.grid import bounds_bng, cell_centres_bng, lonlat_box
 
 
 @dataclass
@@ -79,6 +82,37 @@ class Context:
         """Residents and workers together: the people a rate of a harm to people is counted
         against."""
         return crime.people_present(self.residents, self.workers)
+
+    @cached_property
+    def overture(self) -> pd.DataFrame:
+        """Every place Overture lists in the region (`lng`, `lat`, `name`, `category`)."""
+        box = lonlat_box(self.cells, margin=0.05)
+        return overture.read_places(overture.fetch(self.data_dir, self.region_id, box))
+
+    def places_of(
+        self, categories: Iterable[str] = (), suffixes: Iterable[str] = ()
+    ) -> pd.DataFrame:
+        """The places of Overture's categories (or categories that end as `suffixes` do), as a
+        table with `Easting`, `Northing` and `name`."""
+        return place_pool.located(self.overture, categories, suffixes)
+
+    def walk_to_nearest(self, places: pd.DataFrame) -> list[float | None]:
+        """The minutes on foot from each cell's centre to the nearest of `places`, along streets
+        and paths. No value where there is no place, or no way to one."""
+        if places.empty:
+            return [None] * len(self.cells)
+        found = np.column_stack([places["Easting"].to_numpy(), places["Northing"].to_numpy()])
+        origins = cell_centres_bng(self.cells)
+        minutes = self.network.minutes_to_nearest(places=found, origins=origins)
+        return [None if np.isnan(m) else float(m) for m in minutes]
+
+    def count_within(self, places: pd.DataFrame, minutes: float) -> list[int]:
+        """The number of `places` within a walk of `minutes` of each cell's centre."""
+        if places.empty:
+            return [0] * len(self.cells)
+        found = np.column_stack([places["Easting"].to_numpy(), places["Northing"].to_numpy()])
+        reach = self.network.groups_within([found], cell_centres_bng(self.cells), minutes)[0]
+        return [len(r) for r in reach]
 
     @cached_property
     def areas(self) -> gpd.GeoDataFrame:
