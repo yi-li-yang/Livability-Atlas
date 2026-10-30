@@ -1,6 +1,6 @@
 # Default weights and build order
 
-Status: built. The D14 and build-order item of Phase 0, step 0.2 ([roadmap](../roadmap.md)).
+Status: built, then set aside on 2026-10-30: the owner chose equal defaults (every top-level factor at 3, see D14). The table below is the evidence-based weighting that was replaced, kept for its reasoning. The D14 and build-order item of Phase 0, step 0.2 ([roadmap](../roadmap.md)).
 
 ## Scope
 

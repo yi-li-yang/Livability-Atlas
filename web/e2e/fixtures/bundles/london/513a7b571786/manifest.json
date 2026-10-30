@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": "8d484498e409",
+  "version": "513a7b571786",
   "region": {
     "id": "london",
     "name": "London"
@@ -40,7 +40,7 @@
     {
       "id": "environment",
       "name": "Environment",
-      "default_weight": 4,
+      "default_weight": 3,
       "children": [
         {
           "id": "green-space",
@@ -60,7 +60,7 @@
     {
       "id": "safety",
       "name": "Safety",
-      "default_weight": 4,
+      "default_weight": 3,
       "children": [
         {
           "id": "crime",
@@ -104,7 +104,7 @@
     {
       "id": "health-care",
       "name": "Health care",
-      "default_weight": 4,
+      "default_weight": 3,
       "children": [
         {
           "id": "gp-access",
@@ -124,12 +124,12 @@
     {
       "id": "community-and-people",
       "name": "Community and people",
-      "default_weight": 2,
+      "default_weight": 3,
       "children": [
         {
           "id": "community-composition",
           "name": "Community composition",
-          "default_weight": 0,
+          "default_weight": 3,
           "children": [
             {
               "id": "your-community",

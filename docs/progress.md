@@ -10,7 +10,7 @@
 
 ## Next
 
-1. **The owner's go-ahead to release** the London map as a public static site (outward-facing, so not mine to do): what it needs from them is in the log below (2026-10-29), among it the default weights to review and the datasets whose licence is unconfirmed (the LAEI and Defra's background maps).
+1. **Release.** The owner has decided to publish to GitHub Pages (`just site`). Still open, for the owner: the LAEI's and Defra's background maps' licences are unconfirmed, and the site includes NO₂ and PM2.5 built from them.
 2. The in-browser estimate for a user's own places, once the owner has registered for the timetable sources (item 4) or chosen to wait for the Journey Planner's all-pairs matrix (about 21 hours of calls).
 3. The cuisine choice (D19) on the user-choice mechanism, and main language as an option of Your community if a table at the smallest areas turns up (the census gives the detailed languages only down to boroughs). Optional polish: a fuller page for the dataset credits (backlog).
 4. Close Phase 0: its one open exit criterion is that a fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and this file alone. Only a fresh session can show that, so it waits for the next one to try.
@@ -25,6 +25,10 @@
 - Nothing.
 
 ## Log
+
+### 2026-10-30
+
+- **Equal default weights, and the site's publishing script.** The owner chose equal defaults: every top-level factor starts at 3, the middle of the 0 to 5 scale, so each of the ten counted factors has a tenth (D14 has the history; the evidence-based weights stay in the default-weights spec as the reasoning set aside). The two supporting factors, not built, stay at 1. Community composition now starts at 3, so that diversity counts (Your community, a choice, stays at 0 until picked, D08 and D18). The bundle was rebuilt (`ac6931a9b49a`, QA 51 passed and the same one warning) and the end-to-end expectations moved from the old shares to equal ones. **For GitHub Pages**, the web app takes its base path from `VITE_BASE` and loads the bundle relative to it, and `just site` (`web/scripts/publish-site.mjs`) builds the app for the repository's address, adds the newest checked bundle (manifest and cells only, no QA report) and pushes the result to the `gh-pages` branch, which holds only the site. A site assembled that way was served under `/Livability-Atlas/` and loaded all 16,668 cells with no failed request. The owner decided to publish, and to include the NO₂ and PM2.5 measures although the LAEI's and Defra's licences are unconfirmed (the QA warning stays).
 
 ### 2026-10-29
 

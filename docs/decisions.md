@@ -238,6 +238,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **History:**
   - 2026-10-23: first proposed as importance ratings by the first user. In review it changed to evidence-based defaults that users adjust in the app.
   - 2026-10-28: accepted. The 18 top-level factors' weights are set by how many of the five sources weigh each one, with the mapping and the build order in the [spec](specs/2026-10-28-default-weights.md). Matching a source's own category to one of ours took judgement, which the spec flags; sub-factor weights stay at the engineering default of 3 until their own evidence arrives.
+  - 2026-10-30: the owner chose equal defaults: every top-level factor starts at 3, the middle of the 0 to 5 scale, except the two supporting factors (published rankings, resident wellbeing, not built), which stay at 1. The evidence-based weights are kept in the [spec](specs/2026-10-28-default-weights.md) as the reasoning that was set aside. Community composition also starts at 3, so that diversity counts; Your community, a choice, stays at 0 until the user picks a group (D08, D18). Why the owner chose it: the earlier defaults put inner and east London on top, because five of the ten factors measure access and Housing and cost marks the dear boroughs down, and an equal start makes no claim about what matters.
 
 ## D15 LLM use
 

@@ -41,11 +41,11 @@ test("the factors are drawn as boxes first, and a switch draws them as rings", a
   await rings(page).click();
   await expect(rings(page)).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("factor-rings")).toBeVisible();
-  // Default weights: Transport 3, Environment 4, Safety 4, Health care 4.
+  // Every factor starts at weight 3, so the four that count have a quarter each.
   await expect(page.getByTestId("factor-tile")).toHaveCount(4);
-  // An arc with room for it says its share, which is a fifth for Transport.
+  // An arc with room for it says its share, which is a quarter.
   await expect(
-    page.getByTestId("factor-rings").getByText("20%", { exact: true }),
+    page.getByTestId("factor-rings").getByText("25%", { exact: true }).first(),
   ).toBeVisible();
   expect([
     await share(page, "transport"),
@@ -54,7 +54,7 @@ test("the factors are drawn as boxes first, and a switch draws them as rings", a
 
   await boxes(page).click();
   await expect(page.getByTestId("factor-rings")).toHaveCount(0);
-  expect(await share(page, "transport")).toBeCloseTo(3 / 15, 3);
+  expect(await share(page, "transport")).toBeCloseTo(1 / 4, 3);
 });
 
 test("a slider resizes an arc at once, and a factor at weight 0 leaves the rings", async ({
@@ -65,9 +65,9 @@ test("a slider resizes an arc at once, and a factor at weight 0 leaves the rings
   await page.getByRole("slider", { name: "Weight of Transport" }).fill("5");
   await expect
     .poll(() => share(page, "transport"))
-    .toBeGreaterThan(3 / 15 + 0.01);
-  expect(await share(page, "transport")).toBeCloseTo(5 / 17, 3);
-  expect(await share(page, "environment")).toBeCloseTo(4 / 17, 3);
+    .toBeGreaterThan(1 / 4 + 0.01);
+  expect(await share(page, "transport")).toBeCloseTo(5 / 14, 3);
+  expect(await share(page, "environment")).toBeCloseTo(3 / 14, 3);
 
   await page.getByRole("slider", { name: "Weight of Transport" }).fill("0");
   await expect(tile(page, "transport")).toHaveCount(0);
@@ -185,7 +185,7 @@ test("pointing at an arc names it below the rings", async ({ page }) => {
   await rings(page).click();
   await tile(page, "transport").dispatchEvent("mouseover");
   await expect(page.getByTestId("factor-rings").locator("..")).toContainText(
-    "Transport: 20%",
+    "Transport: 25%",
   );
 });
 
@@ -196,10 +196,10 @@ test("what the pointer named is forgotten when the level changes", async ({
   await rings(page).click();
   const caption = page.getByTestId("factor-rings").locator("..");
   await tile(page, "transport").dispatchEvent("mouseover");
-  await expect(caption).toContainText("Transport: 20%");
+  await expect(caption).toContainText("Transport: 25%");
   await click(tile(page, "transport"));
   await expect(tile(page, "getting-around")).toHaveCount(1);
-  await expect(caption).not.toContainText("Transport: 20%");
+  await expect(caption).not.toContainText("Transport: 25%");
 });
 
 test("the layout is remembered for the next visit, and no link carries it", async ({
