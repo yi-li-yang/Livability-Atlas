@@ -59,6 +59,10 @@ build:
 e2e: build
     cd web; npm run e2e
 
+# Publish the site and London's newest checked bundle to the gh-pages branch (GitHub Pages); `--dry-run` only assembles it
+site *options:
+    cd web; node scripts/publish-site.mjs {{options}}
+
 # Start the web app
 dev:
     cd web; npm run dev

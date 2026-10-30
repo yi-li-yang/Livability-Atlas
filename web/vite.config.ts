@@ -15,6 +15,8 @@ const bundles =
 
 // https://vite.dev/config/
 export default defineConfig({
+  // The site is served from a folder on GitHub Pages, which `just site` sets with VITE_BASE.
+  base: process.env.VITE_BASE ?? "/",
   plugins: [react(), tailwindcss(), serveBundles(bundles)],
   // Playwright's tests live in e2e/ and run with `just e2e`, not under Vitest.
   test: { include: ["src/**/*.test.{ts,tsx}"] },

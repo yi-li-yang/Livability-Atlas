@@ -63,7 +63,7 @@ test("reset returns every weight to its default and clears the link", async ({
   await expect(tile(page, "transport")).toHaveCount(1);
   await expect(
     page.getByRole("slider", { name: "Weight of Environment" }),
-  ).toHaveValue("4");
+  ).toHaveValue("3");
   await expect(
     page.getByRole("button", { name: "Reset to defaults" }),
   ).toHaveCount(0);

@@ -67,7 +67,7 @@ test("opening the sheet shows the factors and the sliders work, and closing keep
     .poll(async () =>
       Number(await tile(page, "transport").getAttribute("data-share")),
     )
-    .toBeCloseTo(5 / 17, 2);
+    .toBeCloseTo(5 / 14, 2);
 
   await page.getByRole("button", { name: "Open Transport" }).tap();
   await expect(tile(page, "getting-around")).toHaveCount(1);

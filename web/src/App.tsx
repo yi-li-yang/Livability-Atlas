@@ -35,7 +35,8 @@ import {
 } from "./scoring/region";
 import { useIsPhone } from "./useIsPhone";
 
-const BUNDLES_URL = import.meta.env.VITE_BUNDLES_URL ?? "/bundles";
+const BUNDLES_URL =
+  import.meta.env.VITE_BUNDLES_URL ?? `${import.meta.env.BASE_URL}bundles`;
 const REGION = "london";
 
 type State =
