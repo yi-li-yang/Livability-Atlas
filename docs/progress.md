@@ -24,9 +24,49 @@
 
 - Nothing.
 
+## Work queue
+
+The tracker for the push to finish the factors and the backend functions. The main session keeps this table and reconciles it after each merge; a session working on a row sets it to "in progress" with its branch and adds a log line in its pull request. Every row follows the task loop in [CLAUDE.md](../CLAUDE.md#task-loop) and the factor recipe in [CONTRIBUTING.md](../CONTRIBUTING.md#recipes). The user interface is out of scope for these rows: the app picks up new factors from the manifest alone.
+
+Status: `todo`, `in progress`, `PR open`, `merged`.
+
+| ID | Task | Status | Branch |
+| --- | --- | --- | --- |
+| T0.1 | Station-to-station matrix for every pair, for the user's own places (see T3.1 for the design change: the timetable graph, not 745,000 Journey Planner calls) | todo | |
+| T0.2 | Fetch the open downloads that Tranches 1 and 2 need, kept in `data/raw/` with a checksum | todo | |
+| 1.1 | Housing and cost: home energy efficiency, price trend and sales volume, purchasing power | todo | |
+| 1.2 | Safety: crime per resident and worker; road collisions (STATS19) | todo | |
+| 1.3 | Community and people: community spaces, LGBTQ+ venues, residential turnover, English proficiency, election turnout | todo | |
+| 1.4 | Daily amenities: shopping and brand presence, independents, guide recognition, the cuisine choice (D19) | todo | |
+| 1.5 | Health care: dentists, GP Patient Survey, A&E waits | todo | |
+| 1.6 | Education: nurseries, league tables, universities, international schools | todo | |
+| 1.7 | Environment: water nearby, tree canopy, light pollution, urban heat | todo | |
+| 1.8 | Transport: night services, step-free access, cycling, airport connectivity | todo | |
+| 1.9 | Natural hazards: subsidence (open proxy), sea-level rise | todo | |
+| 1.10 | Digital connectivity: broadband speed | todo | |
+| 2.1 | Culture and leisure: culture, nightlife, outdoor access | todo | |
+| 2.2 | Work and economy: job density, jobs within reach, coworking, salaries, unemployment, Your industry | todo | |
+| 2.3 | Urban form and change: density, building age, regeneration, urban growth | todo | |
+| 2.4 | Animal friendliness: pet services, wildlife | todo | |
+| 2.5 | Climate: temperature, sunshine, rain, wind, future climate | todo | |
+| 2.6 | Resident wellbeing: life satisfaction, happiness, life expectancy | todo | |
+| 2.7 | Published rankings: cited ranks only | todo | |
+| 3.1 | Travel for the user's own places: `cell-stations.parquet`, `station-matrix.parquet`, a TypeScript estimator with Python parity, a larger error check | todo | |
+| 3.2 | `atlas refresh`: one-command data refresh with anomaly checks | todo | |
+| 3.3 | Scoring-engine functions: "No weak spots" mode, the sensitivity computation | todo | |
+| 3.4 | Presets (`catalogue/presets/`) | todo | |
+| 3.5 | ML-derived indicators, each labelled `modelled`: area types, areas like X, price and rent models | todo | |
+| 3.6 | Bundle exports for "About the data"; bundle size check | todo | |
+| 4.1 | Generalise the pipeline for a second region | todo | |
+| 4.2 | Second region: Greater Manchester | todo | |
+| 5 | Across-cities scale: global-tier baseline, Governance and rights, country adapters | todo | |
+
 ## Log
 
 ### 2026-10-30
+
+- **A work queue for finishing the factors and the backend functions.** The owner asked for everything planned at the start to be built, backend first (the interface later), with this session as the tracker and other sessions on their own branches. The "Work queue" above lists it in six tranches: long jobs first (T0), the gaps inside the ten built factors (1.x), the six other factors' within-city parts (2.x), the backend functions (3.x: the travel estimate, the data refresh, scoring modes, presets, ML indicators), a second region (4.x, Greater Manchester proposed) and the across-cities scale (5). **A correction to the first plan:** the all-pairs station matrix cannot come from the Journey Planner alone. The earlier fetch ran at about one call a second without a key, so 745,000 pairs would take about 200 hours, not 21 (21 needs a TfL key's 500 calls a minute). The matrix is built instead from TfL's own line timetables (stop sequences and the times between stops, free and anonymous) with a shortest-path search over them, and the Journey Planner checks a sample, as spike S4 did.
+- **Human-only items, after looking for workarounds:** none blocks the plan. A TfL API key (a free account) would speed the Journey Planner checks; the timetable registrations (r5py) would add buses; the release of the site and the choice of the second region stay the owner's.
 
 - **The site is live** at <https://yi-li-yang.github.io/Livability-Atlas/>: `just site` pushed the app and London bundle `ac6931a9b49a` to the `gh-pages` branch, GitHub Pages was enabled on it, and the live address loaded all 16,668 cells in Chromium with no failed request. To update it after a rebuild, run `just site` again (it replaces the branch). The data bundle is on `gh-pages` only, never in the source branches.
 - **Equal default weights, and the site's publishing script.** The owner chose equal defaults: every top-level factor starts at 3, the middle of the 0 to 5 scale, so each of the ten counted factors has a tenth (D14 has the history; the evidence-based weights stay in the default-weights spec as the reasoning set aside). The two supporting factors, not built, stay at 1. Community composition now starts at 3, so that diversity counts (Your community, a choice, stays at 0 until picked, D08 and D18). The bundle was rebuilt (`ac6931a9b49a`, QA 51 passed and the same one warning) and the end-to-end expectations moved from the old shares to equal ones. **For GitHub Pages**, the web app takes its base path from `VITE_BASE` and loads the bundle relative to it, and `just site` (`web/scripts/publish-site.mjs`) builds the app for the repository's address, adds the newest checked bundle (manifest and cells only, no QA report) and pushes the result to the `gh-pages` branch, which holds only the site. A site assembled that way was served under `/Livability-Atlas/` and loaded all 16,668 cells with no failed request. The owner decided to publish, and to include the NO₂ and PM2.5 measures although the LAEI's and Defra's licences are unconfirmed (the QA warning stays).
