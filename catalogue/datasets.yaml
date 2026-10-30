@@ -721,6 +721,25 @@ datasets:
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
 
+  - id: ofsted-childcare
+    name: "Childcare providers and inspections: management information (Ofsted)"
+    publisher: Ofsted
+    url: https://www.gov.uk/government/statistical-data-sets/childcare-providers-and-inspections-management-information
+    tier: country
+    area: England
+    resolution: one record for each registered childcare provider, with a postcode for childcare on non-domestic premises
+    date: twice a year (the file used is as at 31 December 2025)
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Published on GOV.UK, whose content is available under the Open
+      Government Licence v3.0 unless it says otherwise. Ofsted hides the name
+      and the address of childminders and home childcarers.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - Where nurseries, pre-schools and out-of-school clubs are, and the outcome of each one's latest inspection
+
   - id: ons-census-2021-topic-summaries
     name: Census 2021 topic summaries by output area (ONS)
     publisher: Office for National Statistics (ONS), through Nomis

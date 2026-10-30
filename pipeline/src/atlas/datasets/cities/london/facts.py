@@ -582,6 +582,19 @@ def job_density(cells: Cells) -> str:
     return f"median {middle:.0f}, Bank {bank:.0f}, Barking {barking:.0f}, Richmond Park {park:.0f}"
 
 
+@FACTS.add(
+    "A nursery is a short walk in most of London, and a long one in the parks",
+    needs=("nurseries",),
+)
+def nurseries(cells: Cells) -> str:
+    everywhere(cells, "nurseries")
+    middle = median(cells, "nurseries")
+    expect(4 < middle < 14, f"the median is {middle:.1f} minutes")
+    town, park = cells.at("Hampstead", "nurseries"), cells.at("Richmond Park", "nurseries")
+    expect(town < 8 and park > 15, f"Hampstead {town:.1f} and Richmond Park {park:.1f} minutes")
+    return f"median {middle:.1f}, Hampstead {town:.1f}, Richmond Park {park:.1f} minutes"
+
+
 # --- Digital connectivity ---
 
 

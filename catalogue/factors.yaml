@@ -1233,7 +1233,29 @@ factors:
               scores lower for that reason. Ofsted inspects schools in England
               only, so the share does not compare across regions.
             datasets: [ofsted-school-inspections, dfe-gias]
-      - {id: nurseries, name: "Nurseries", default_weight: 3, scales: [within-city]}
+      - id: nurseries
+        name: Nurseries
+        description: Walking minutes to the nearest nursery or pre-school.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: minutes on foot
+        preference_type: fixed
+        curve: {shape: ramp, t0: 15, t1: 5}
+        curve_reason: *walk-to-amenity-reason
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The walking time along streets and paths from the hex cell's centre to
+          the nearest nursery or pre-school on Ofsted's register of childcare
+          providers (full day care and sessional day care on non-domestic
+          premises, as at 31 December 2025), at 4.8 km/h, placed at its postcode
+          in Code-Point Open. Out-of-school clubs are left out. Ofsted hides the
+          address of childminders and home childcarers, so they are not counted,
+          and the walk is longer than a family with a childminder nearby has. The
+          register says nothing about free places or fees, and inspection
+          outcomes are not used.
+        datasets: [ofsted-childcare, os-code-point-open]
       - {id: school-league-tables, name: "School league tables", default_weight: 3, scales: [within-city]}
       - {id: school-quality, name: "School quality", default_weight: 3, scales: [across-cities]}
       - {id: international-schools, name: "International schools", default_weight: 3, scales: [across-cities]}
