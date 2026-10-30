@@ -91,7 +91,7 @@ def same_name(a: frozenset[str], b: frozenset[str]) -> bool:
     return bool(a and b) and len(a & b) / min(len(a), len(b)) >= 0.5
 
 
-def _metres(lng: np.ndarray, lat: np.ndarray) -> np.ndarray:
+def to_metres(lng: np.ndarray, lat: np.ndarray) -> np.ndarray:
     x, y = _TO_BNG.transform(lng, lat)
     return np.column_stack([x, y])
 
@@ -107,7 +107,7 @@ def located(
     kept = frame.loc[
         [isinstance(c, str) and (c in wanted or c.endswith(ending)) for c in frame["category"]]
     ]
-    xy = _metres(kept["lng"].to_numpy(dtype=float), kept["lat"].to_numpy(dtype=float))
+    xy = to_metres(kept["lng"].to_numpy(dtype=float), kept["lat"].to_numpy(dtype=float))
     return pd.DataFrame(
         {"Easting": xy[:, 0], "Northing": xy[:, 1], "name": kept["name"].to_numpy()}
     )
@@ -132,7 +132,7 @@ def pool(overture: pd.DataFrame, osm: pd.DataFrame) -> dict[str, pd.DataFrame]:
                 kinds = kinds.mask(frame[key] == value, kind)
             cuisine = [_osm_cuisine(c) for c in frame["cuisine"]]
             name = frame["name"].where(frame["name"].notna(), frame["brand"])
-        xy = _metres(frame["lng"].to_numpy(dtype=float), frame["lat"].to_numpy(dtype=float))
+        xy = to_metres(frame["lng"].to_numpy(dtype=float), frame["lat"].to_numpy(dtype=float))
         rows.append(
             pd.DataFrame(
                 {

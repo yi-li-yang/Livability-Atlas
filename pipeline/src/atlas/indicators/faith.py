@@ -8,7 +8,7 @@ that records none counts for none. A region offers the religions that have enoug
 import numpy as np
 import pandas as pd
 
-from atlas.indicators.places import _metres
+from atlas.indicators.places import to_metres
 from atlas.spatial.grid import cell_centres_bng
 from atlas.spatial.walking import Network
 
@@ -26,7 +26,7 @@ def places_of_worship(osm: pd.DataFrame, minimum: int = MIN_PLACES) -> dict[str,
     """The easting and northing of the places of each religion that has at least `minimum`
     places, keyed by the religion as OpenStreetMap writes it."""
     worship = osm.loc[(osm["amenity"] == "place_of_worship") & osm["religion"].notna()]
-    xy = _metres(worship["lng"].to_numpy(dtype=float), worship["lat"].to_numpy(dtype=float))
+    xy = to_metres(worship["lng"].to_numpy(dtype=float), worship["lat"].to_numpy(dtype=float))
     by_religion: dict[str, list[int]] = {}
     for position, tag in enumerate(worship["religion"]):
         for religion in str(tag).split(";"):
