@@ -1886,4 +1886,29 @@ factors:
     children:
       - {id: life-satisfaction, name: "Life satisfaction", default_weight: 3, scales: [within-city]}
       - {id: happiness, name: "Happiness", default_weight: 3, scales: [across-cities]}
-      - {id: life-expectancy, name: "Life expectancy", default_weight: 3}
+      - id: life-expectancy
+        name: Years of good health
+        description: How many years of good health a baby born in the neighbourhood can expect.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: years
+        preference_type: fixed
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          No standard sets how many years of good health an area should give,
+          so a hex cell scores by its rank within the region: the share of hex
+          cells with fewer.
+        evidence_type: estimate
+        comparable_across_regions: false
+        method: >-
+          The ONS's healthy life expectancy at birth for the neighbourhood (the
+          2021 MSOA that holds the hex cell's centre), 2019 to 2023: the years a
+          newborn can expect to live in good health, if the area's death rates
+          and its residents' answers on health at the 2021 census stay as they
+          are. The estimate for men and the estimate for women are averaged. It
+          describes the people who live in a neighbourhood, who are not all
+          there because of it (poorer or older people may move to or stay in
+          some areas), so it is an area-level estimate and not a promise to a
+          newcomer. The ONS gives intervals, which are wide for a small area.
+        datasets: [ons-health-state-life-expectancy, ons-msoa-boundaries]

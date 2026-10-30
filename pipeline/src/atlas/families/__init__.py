@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 
 from atlas.catalogue.models import Region
-from atlas.datasets.countries.gb import bres, census_residents, ons_lsoa, output_areas
+from atlas.datasets.countries.gb import bres, census_residents, ons_lsoa, ons_msoa, output_areas
 from atlas.datasets.world import overture
 from atlas.indicators import crime
 from atlas.indicators import places as place_pool
@@ -113,6 +113,12 @@ class Context:
         found = np.column_stack([places["Easting"].to_numpy(), places["Northing"].to_numpy()])
         reach = self.network.groups_within([found], cell_centres_bng(self.cells), minutes)[0]
         return [len(r) for r in reach]
+
+    @cached_property
+    def msoas(self) -> gpd.GeoDataFrame:
+        """The neighbourhoods (2021 MSOAs) that cover the cells, with a 2 km margin."""
+        path = ons_msoa.fetch(self.data_dir, bounds_bng(self.cells, margin=2000))
+        return ons_msoa.read_boundaries(path)
 
     @cached_property
     def areas(self) -> gpd.GeoDataFrame:
