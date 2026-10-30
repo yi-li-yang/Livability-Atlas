@@ -1,5 +1,5 @@
 """The planning data of the Department for Levelling Up's platform, planning.data.gov.uk
-(datasets `historic-england-listed-buildings` and `conservation-areas`).
+(datasets `historic-england-listed-buildings`, `conservation-areas` and the nature sites).
 
 One CSV for each dataset, for all of England, rebuilt every day. The listed buildings are
 Historic England's National Heritage List, and the conservation areas are the local authorities'.
@@ -19,6 +19,7 @@ import shapely
 from atlas.fetch import download
 
 URL = "https://files.planning.data.gov.uk/dataset/{dataset}.csv"
+BLOCK = 1 << 28  # an outline can be several megabytes of text, more than a default block
 POINT = re.compile(r"POINT \(\s*(-?[\d.]+)\s+(-?[\d.]+)\s*\)")
 
 
@@ -33,6 +34,7 @@ def fetch(data_dir: Path, dataset: str) -> Path:
 def _read(path: Path, columns: list[str]) -> dict[str, np.ndarray]:
     table = pacsv.read_csv(
         path,
+        read_options=pacsv.ReadOptions(block_size=BLOCK),
         convert_options=pacsv.ConvertOptions(
             include_columns=columns, column_types={c: pa.string() for c in columns}
         ),
@@ -69,9 +71,9 @@ def read_listed_buildings(path: Path, box: tuple[float, float, float, float]) ->
     return pd.DataFrame({"lng": lng[keep], "lat": lat[keep]})
 
 
-def read_conservation_areas(path: Path, box: tuple[float, float, float, float]) -> gpd.GeoDataFrame:
-    """The conservation areas whose point is in `box`, as polygons in degrees (EPSG:4326). An
-    area with no outline is left out."""
+def read_areas(path: Path, box: tuple[float, float, float, float]) -> gpd.GeoDataFrame:
+    """The areas of an outline dataset (conservation areas, nature reserves) whose point is in
+    `box`, as polygons in degrees (EPSG:4326). An area with no outline is left out."""
     table = _read(path, ["end-date", "geometry", "point"])
     lng, lat = _points(table["point"])
     drawn = np.array([isinstance(g, str) and g.strip() != "" for g in table["geometry"]])
