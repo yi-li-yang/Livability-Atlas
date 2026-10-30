@@ -28,7 +28,7 @@
 
 The tracker for the push to finish the factors and the backend functions. The main session keeps this table and reconciles it after each merge; a session working on a row sets it to "in progress" with its branch and adds a log line in its pull request. Every row follows the task loop in [CLAUDE.md](../CLAUDE.md#task-loop) and the factor recipe in [CONTRIBUTING.md](../CONTRIBUTING.md#recipes). The user interface is out of scope for these rows: the app picks up new factors from the manifest alone.
 
-Status: `todo`, `in progress`, `PR open`, `merged`.
+Status: `todo`, `in progress`, `PR open`, `merged`, `deferred`. **Order of work (the owner, 2026-10-30): finish London first, polish the frontend and make it really good, and only then move to another city.** Rows 4.1, 4.2 and 5 wait for that.
 
 | ID | Task | Status | Branch |
 | --- | --- | --- | --- |
@@ -57,15 +57,15 @@ Status: `todo`, `in progress`, `PR open`, `merged`.
 | 3.4 | Presets (`catalogue/presets/`) | todo | |
 | 3.5 | ML-derived indicators, each labelled `modelled`: area types, areas like X, price and rent models | todo | |
 | 3.6 | Bundle exports for "About the data"; bundle size check | todo | |
-| 4.1 | Generalise the pipeline for a second region | todo | |
-| 4.2 | Second region: Greater Manchester | todo | |
-| 5 | Across-cities scale: global-tier baseline, Governance and rights, country adapters | todo | |
+| 4.1 | Generalise the pipeline for a second region | deferred (the owner: finish London and polish the frontend first) | |
+| 4.2 | Second region (Greater Manchester was proposed) | deferred (as 4.1) | |
+| 5 | Across-cities scale: global-tier baseline, Governance and rights, country adapters | deferred (as 4.1) | |
 
 ## Log
 
 ### 2026-10-30
 
-- **A work queue for finishing the factors and the backend functions.** The owner asked for everything planned at the start to be built, backend first (the interface later), with this session as the tracker and other sessions on their own branches. The "Work queue" above lists it in six tranches: long jobs first (T0), the gaps inside the ten built factors (1.x), the six other factors' within-city parts (2.x), the backend functions (3.x: the travel estimate, the data refresh, scoring modes, presets, ML indicators), a second region (4.x, Greater Manchester proposed) and the across-cities scale (5). **A correction to the first plan:** the all-pairs station matrix cannot come from the Journey Planner alone. The earlier fetch ran at about one call a second without a key, so 745,000 pairs would take about 200 hours, not 21 (21 needs a TfL key's 500 calls a minute). The matrix is built instead from TfL's own line timetables (stop sequences and the times between stops, free and anonymous) with a shortest-path search over them, and the Journey Planner checks a sample, as spike S4 did.
+- **A work queue for finishing the factors and the backend functions.** The owner asked for everything planned at the start to be built, backend first (the interface later), with this session as the tracker and other sessions on their own branches. The "Work queue" above lists it in six tranches: long jobs first (T0), the gaps inside the ten built factors (1.x), the six other factors' within-city parts (2.x), the backend functions (3.x: the travel estimate, the data refresh, scoring modes, presets, ML indicators), a second region (4.x) and the across-cities scale (5). **The owner then deferred the last two: London is finished, and the frontend polished, before any other city.** **A correction to the first plan:** the all-pairs station matrix cannot come from the Journey Planner alone. The earlier fetch ran at about one call a second without a key, so 745,000 pairs would take about 200 hours, not 21 (21 needs a TfL key's 500 calls a minute). The matrix is built instead from TfL's own line timetables (stop sequences and the times between stops, free and anonymous) with a shortest-path search over them, and the Journey Planner checks a sample, as spike S4 did.
 - **Human-only items, after looking for workarounds:** none blocks the plan. A TfL API key (a free account) would speed the Journey Planner checks; the timetable registrations (r5py) would add buses; the release of the site and the choice of the second region stay the owner's.
 
 - **The site is live** at <https://yi-li-yang.github.io/Livability-Atlas/>: `just site` pushed the app and London bundle `ac6931a9b49a` to the `gh-pages` branch, GitHub Pages was enabled on it, and the live address loaded all 16,668 cells in Chromium with no failed request. To update it after a rebuild, run `just site` again (it replaces the branch). The data bundle is on `gh-pages` only, never in the source branches.
