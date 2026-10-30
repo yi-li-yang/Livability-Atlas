@@ -20,6 +20,7 @@ from atlas.catalogue.load import Catalogue, load_catalogue
 from atlas.catalogue.models import Region
 from atlas.datasets.cities.london import laei, ptal, tfl_journeys, tfl_lines
 from atlas.datasets.countries.gb import (
+    bres,
     census_age,
     census_country_of_birth,
     census_ethnic_group,
@@ -41,6 +42,7 @@ from atlas.datasets.countries.gb import (
     ofcom,
     ofsted,
     ons_local_authorities,
+    ons_lsoa,
     ons_msoa,
     ons_regions,
     ons_rents,
@@ -176,18 +178,26 @@ def build_region(
 
 
 def _crime_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[str, list]:
-    """Crimes per 1,000 residents for each of Safety's five crime indicators (spike S2)."""
+    """Crimes per 1,000 residents, or per 1,000 residents and workers, for each of Safety's five
+    crime indicators (spike S2, and `crime.DENOMINATOR`)."""
     areas = output_areas.read_boundaries(
         output_areas.fetch(data_dir, bounds_bng(cells, margin=2000))
     )
     residents = crime.residents_by_cell(
         areas, census_residents.read_residents(census_residents.fetch(data_dir)), cells
     )
+    lsoas = ons_lsoa.read_boundaries(ons_lsoa.fetch(data_dir, bounds_bng(cells, margin=2000)))
+    workers = crime.workers_by_cell(lsoas, bres.read_jobs(bres.fetch(data_dir)), cells)
+    people = {
+        "residents": residents,
+        "people": crime.people_present(residents, workers),
+    }
     archive, months = police_uk.fetch(data_dir)
     counts = crime.counts_by_cell(police_uk.read_crimes(archive, months), cells, resolution)
     return {
         indicator: [
-            None if pd.isna(rate) else float(rate) for rate in crime.rates(n, residents, cells)
+            None if pd.isna(rate) else float(rate)
+            for rate in crime.rates(n, people[crime.DENOMINATOR[indicator]], cells)
         ]
         for indicator, n in counts.items()
     }

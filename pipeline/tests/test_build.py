@@ -98,6 +98,22 @@ def synthetic_output_areas(tmp_path: Path) -> Path:
     return path
 
 
+def synthetic_lsoas(tmp_path: Path) -> Path:
+    """The same two halves of AREA as 2011 lower layer super output areas."""
+    path = synthetic_output_areas(tmp_path)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    for feature in data["features"]:
+        feature["properties"] = {"LSOA11CD": feature["properties"]["OA21CD"]}
+    out = tmp_path / "lsoa.geojson"
+    out.write_text(json.dumps(data), encoding="utf-8")
+    return out
+
+
+def synthetic_jobs() -> pd.Series:
+    """Jobs: none in the west half, 100,000 in the east."""
+    return pd.Series({"W1": 0.0, "E1": 100000.0}, name="jobs")
+
+
 def synthetic_residents(tmp_path: Path) -> Path:
     path = tmp_path / "ts001.csv"
     lines = [
@@ -110,8 +126,16 @@ def synthetic_residents(tmp_path: Path) -> Path:
 
 
 def synthetic_crimes(tmp_path: Path) -> tuple[Path, list[str]]:
-    """Burglaries: 600 in the west half and 20 in the east, with equal residents. Nothing else."""
+    """Burglaries: 600 in the west half and 20 in the east, with equal residents. Violent crimes:
+    300 in each half, where the east has many jobs and the west has none. Nothing else."""
     rows = ["Crime ID,Month,Longitude,Latitude,Crime type"]
+    for i in range(300):
+        rows.append(
+            f",2026-07,{-0.149 + 0.0000002 * i},{51.506 + 0.00002 * i},Violence and sexual offences"
+        )
+        rows.append(
+            f",2026-07,{-0.126 - 0.0000002 * i},{51.506 + 0.00002 * i},Violence and sexual offences"
+        )
     for i in range(600):
         rows.append(f",2026-07,{-0.149 + 0.0000002 * i},{51.506 + 0.00002 * i},Burglary")
     for i in range(20):
@@ -543,6 +567,10 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.output_areas, "fetch", lambda data_dir, bounds: areas)
     monkeypatch.setattr(build_module.census_residents, "fetch", lambda data_dir: people)
     monkeypatch.setattr(build_module.police_uk, "fetch", lambda data_dir: crimes)
+    lsoas = synthetic_lsoas(tmp_path)
+    monkeypatch.setattr(build_module.ons_lsoa, "fetch", lambda data_dir, bounds: lsoas)
+    monkeypatch.setattr(build_module.bres, "fetch", lambda data_dir: [tmp_path / "jobs"])
+    monkeypatch.setattr(build_module.bres, "read_jobs", lambda paths: synthetic_jobs())
     streets, stations = synthetic_streets(tmp_path), synthetic_stations(tmp_path)
     monkeypatch.setattr(build_module.openstreetmap, "fetch", lambda data_dir, region: streets)
     monkeypatch.setattr(build_module.naptan, "fetch", lambda data_dir: stations)
@@ -753,6 +781,20 @@ def test_the_ptal_release_is_unzipped_after_it_is_fetched(monkeypatch, tmp_path)
     monkeypatch.setattr(ptal, "download", fake_download)
     path = ptal.fetch(tmp_path)
     assert path.name == "2015  PTALs Grid Values 280515.xlsx" and path.read_bytes() == b"workbook"
+
+
+def test_the_crimes_that_follow_people_are_per_resident_and_worker(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    cells = table.assign(lng=[h3.cell_to_latlng(c)[1] for c in table["cell"]])
+    west, east = cells[cells["lng"] < MIDDLE], cells[cells["lng"] >= MIDDLE]
+    # The same number of violent crimes in each half and the same residents, but the east also has
+    # 100,000 jobs: counted against the people present, its rate is a fraction of the west's.
+    violence = "violence_and_sexual_offences"
+    assert west[violence].mean() > 2 * east[violence].mean()
+    # Burglary stays per resident, so the jobs do not touch it: compare with a build without any.
+    assert west["burglary"].mean() > 2 * east["burglary"].mean()
 
 
 def test_the_bundle_holds_each_crime_rate_per_1000_residents(monkeypatch, tmp_path):

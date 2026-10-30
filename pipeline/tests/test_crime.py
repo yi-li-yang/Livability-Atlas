@@ -129,3 +129,36 @@ def test_the_five_indicators_are_those_of_the_catalogue():
         "vehicle-crime",
         "anti-social-behaviour",
     ]
+
+
+class TestWorkers:
+    def test_the_jobs_of_an_area_are_shared_by_the_area_of_overlap_like_residents(self):
+        import geopandas as gpd
+
+        whole = polygon(A).union(polygon(B))
+        lsoa = gpd.GeoDataFrame({"LSOA11CD": ["l1"]}, geometry=[whole], crs="EPSG:27700")
+        result = crime.workers_by_cell(lsoa, pd.Series({"l1": 800.0}), [A, B])
+        assert result[A] == pytest.approx(400, rel=1e-3)
+        assert result[B] == pytest.approx(400, rel=1e-3)
+
+    def test_people_present_are_residents_and_workers_together(self):
+        residents = pd.Series({A: 100.0, B: 50.0})
+        workers = pd.Series({A: 900.0, C: 30.0})
+        people = crime.people_present(residents, workers)
+        assert people[A] == 1000 and people[B] == 50 and people[C] == 30
+
+    def test_a_cell_with_workers_and_no_residents_is_not_left_out(self):
+        assert crime.people_present(pd.Series(dtype=float), pd.Series({A: 5.0}))[A] == 5.0
+
+
+def test_a_crime_is_counted_per_residents_or_per_people_present_by_what_it_follows():
+    # A home is burgled and a car stolen where residents live; a person is robbed, assaulted or
+    # annoyed where people are, and in the City that is mostly workers and visitors.
+    assert crime.DENOMINATOR == {
+        "burglary": "residents",
+        "vehicle-crime": "residents",
+        "violence-and-sexual-offences": "people",
+        "robbery-and-theft-from-the-person": "people",
+        "anti-social-behaviour": "people",
+    }
+    assert set(crime.DENOMINATOR) == set(crime.CATEGORIES)

@@ -84,13 +84,17 @@ def everywhere(cells: Cells, *columns: str) -> None:
 
 
 @FACTS.add(
-    "Soho has more than three times Wimbledon village's rate of each of four crimes", needs=CRIMES
+    "Soho has more than three times Wimbledon village's rate of burglary and of robbery and "
+    "theft, and more than 1.5 times its rate of violence and of anti-social behaviour",
+    needs=ALL_CRIMES,
 )
 def soho_crime(cells: Cells) -> str:
-    ratios = {c: cells.at("Soho", c) / cells.at("Wimbledon village", c) for c in CRIMES}
-    lowest = min(ratios, key=lambda c: ratios[c])
-    expect(ratios[lowest] > 3, f"{lowest}: Soho's rate is only {ratios[lowest]:.1f} times")
-    return f"Soho's rates are {min(ratios.values()):.1f} to {max(ratios.values()):.1f} times"
+    ratios = {c: cells.at("Soho", c) / cells.at("Wimbledon village", c) for c in ALL_CRIMES}
+    for column in ("burglary", "robbery_and_theft_from_the_person"):
+        expect(ratios[column] > 3, f"{column}: Soho's rate is only {ratios[column]:.1f} times")
+    for column in ("violence_and_sexual_offences", "anti_social_behaviour"):
+        expect(ratios[column] > 1.5, f"{column}: Soho's rate is only {ratios[column]:.1f} times")
+    return ", ".join(f"{c.split('_')[0]} {r:.1f}" for c, r in ratios.items()) + " times"
 
 
 @FACTS.add("Every cell has a rate for each of the five crimes", needs=ALL_CRIMES)
@@ -122,6 +126,29 @@ def city_of_london_crime(cells: Cells) -> str:
     top = float(np.quantile(present(cells, "burglary"), 0.99))
     expect(bank > top, f"Bank {bank:.1f} against {top:.1f} at the 99th percentile")
     return f"Bank {bank:.1f}, above the 99th percentile {top:.1f}"
+
+
+@FACTS.add(
+    "Counted per resident and worker, the City of London is below the median for violence, theft "
+    "and anti-social behaviour, which a count per resident put at the top",
+    needs=(
+        "violence_and_sexual_offences",
+        "robbery_and_theft_from_the_person",
+        "anti_social_behaviour",
+    ),
+)
+def city_of_london_people(cells: Cells) -> str:
+    """Spike S2's known limit, lifted for the three crimes that follow people."""
+    out = []
+    for column in (
+        "violence_and_sexual_offences",
+        "robbery_and_theft_from_the_person",
+        "anti_social_behaviour",
+    ):
+        bank, middle = cells.at("Bank", column), median(cells, column)
+        expect(bank < middle, f"Bank {bank:.1f} against a median of {middle:.1f} for {column}")
+        out.append(f"{bank:.1f} against {middle:.1f}")
+    return "Bank " + ", ".join(out)
 
 
 # --- Natural hazards ---
@@ -389,6 +416,22 @@ def price_per_square_metre(cells: Cells) -> str:
     expect(price["Barking"] < 6000 and price["Croydon"] < 6000, f"outer east {price}")
     expect(bool(np.isnan(cells.at("Richmond Park (west)", column))), "the park has sales")
     return ", ".join(f"{p} £{v:,.0f}" for p, v in price.items()) + " a m²"
+
+
+@FACTS.add(
+    "A typical home keeps heat in at band D or C, and new buildings beat Victorian streets",
+    needs=("energy_efficiency",),
+)
+def energy_efficiency(cells: Cells) -> str:
+    column = "energy_efficiency"
+    reach = covered(cells, column)
+    expect(0.75 < reach < 0.97, f"{share(reach)} of cells have 30 or more homes around them")
+    middle = median(cells, column)
+    expect(60 < middle < 75, f"the median is {middle:.0f} points")  # bands D to C
+    new, old = cells.at("Canary Wharf", column), cells.at("Hampstead", column)
+    expect(new > old + 8, f"Canary Wharf {new:.0f} points against Hampstead {old:.0f}")
+    expect(bool(np.isnan(cells.at("Richmond Park (west)", column))), "the park has homes")
+    return f"median {middle:.0f}, Canary Wharf {new:.0f}, Hampstead {old:.0f} points"
 
 
 # --- Digital connectivity ---

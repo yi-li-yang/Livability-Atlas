@@ -558,6 +558,51 @@ datasets:
     tells:
       - The boundary of each MSOA, an area of 7,000 to 10,000 residents, clipped to the coastline
 
+  - id: ons-lsoa-boundaries
+    name: Lower layer Super Output Areas (December 2011) Boundaries EW BGC
+    publisher: Office for National Statistics (ONS)
+    url: https://geoportal.statistics.gov.uk/
+    tier: country
+    area: England and Wales
+    resolution: census lower layer super output areas (LSOAs) of 2011, generalised to 20 m
+    date: 2011
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      The ONS supplies its digital boundary products under the Open Government
+      Licence v3.0, with credits to the ONS and to Ordnance Survey. The
+      Business Register and Employment Survey is published for these 2011
+      areas, not for the 2021 ones.
+    attribution: >-
+      Source: Office for National Statistics licensed under the Open Government
+      Licence v.3.0. Contains OS data © Crown copyright and database right 2026.
+    tells:
+      - The boundary of each 2011 LSOA, an area of about 1,500 residents, clipped to the coastline
+
+  - id: ons-bres
+    name: Business Register and Employment Survey, open access (jobs by LSOA)
+    publisher: Office for National Statistics (ONS), through Nomis
+    url: https://www.nomisweb.co.uk/sources/bres
+    tier: country
+    area: Great Britain
+    resolution: 2011 lower layer super output areas, counts rounded to the nearest 25
+    date: 2024
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Nomis's copyright page says that ONS and Nomis material is Crown copyright,
+      re-used under the Open Government Licence, with the credit "Source: Office
+      for National Statistics". It also says that the survey's confidential
+      figures must not be passed to a third party. This build uses only the
+      open-access table (NM_189_1), whose figures the ONS has rounded and
+      suppressed for release.
+    attribution: "Source: Office for National Statistics, licensed under the Open Government Licence v3.0."
+    tells:
+      - The number of jobs (employees and working owners) at workplaces in each LSOA, in total and by industry, rounded to the nearest 25
+      - Employment by broad industry group, for the share of jobs in each sector
+
   - id: hoc-msoa-names
     name: MSOA Names (House of Commons Library)
     publisher: House of Commons Library

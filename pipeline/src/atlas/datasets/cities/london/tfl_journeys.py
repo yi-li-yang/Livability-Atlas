@@ -80,7 +80,7 @@ def fetch(
                 writer.writerow([stop, name, "" if minutes is None else minutes])
                 file.flush()
         except BaseException:
-            pool.shutdown(wait=False, cancel_futures=True)
+            pool.shutdown(wait=True, cancel_futures=True)  # no request still flying once we stop
             raise
         pool.shutdown()
     return target
