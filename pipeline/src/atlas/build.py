@@ -20,12 +20,10 @@ from atlas.catalogue.load import Catalogue, load_catalogue
 from atlas.catalogue.models import Region
 from atlas.datasets.cities.london import laei, ptal, tfl_journeys, tfl_lines
 from atlas.datasets.countries.gb import (
-    bres,
     census_age,
     census_country_of_birth,
     census_ethnic_group,
     census_religion,
-    census_residents,
     code_point,
     defra_noise,
     ea_flood_risk,
@@ -42,7 +40,6 @@ from atlas.datasets.countries.gb import (
     ofcom,
     ofsted,
     ons_local_authorities,
-    ons_lsoa,
     ons_msoa,
     ons_regions,
     ons_rents,
@@ -133,11 +130,13 @@ def build_region(
     ).reindex(cells)
     service_level = [None if pd.isna(band) else str(band) for band in bands]
 
-    columns: dict[str, Sequence[Any]] = {"service-level": service_level}
-    columns.update(_crime_columns(cells, region.grid.resolution, data_dir))
-    columns.update(_flood_columns(cells, region.grid.resolution, data_dir))
     postcodes = code_point.read_postcodes(code_point.fetch(data_dir))
     network = walking.Network.from_ways(walking.read_ways(openstreetmap.fetch(data_dir, region_id)))
+    ctx = families.Context(region_id, region, cells, data_dir, postcodes, network)
+
+    columns: dict[str, Sequence[Any]] = {"service-level": service_level}
+    columns.update(_crime_columns(ctx))
+    columns.update(_flood_columns(cells, region.grid.resolution, data_dir))
     columns.update(_walking_columns(network, cells, data_dir, postcodes))
     columns.update(_amenity_columns(region_id, network, cells, data_dir))
     columns.update(_travel_columns(region, network, cells, data_dir))
@@ -151,9 +150,7 @@ def build_region(
     choices = _choices(region_id, network, cells, data_dir)
 
     found = families.discover()
-    more_columns, more_choices = families.run(
-        found, families.Context(region_id, region, cells, data_dir, postcodes, network)
-    )
+    more_columns, more_choices = families.run(found, ctx)
     again = (set(more_columns) | set(more_choices)) & (set(columns) | set(choices))
     if again:
         raise ValueError(f"{', '.join(sorted(again))} is built twice: here and by a family")
@@ -177,27 +174,16 @@ def build_region(
     )
 
 
-def _crime_columns(cells: list[str], resolution: int, data_dir: Path) -> dict[str, list]:
+def _crime_columns(ctx: families.Context) -> dict[str, list]:
     """Crimes per 1,000 residents, or per 1,000 residents and workers, for each of Safety's five
     crime indicators (spike S2, and `crime.DENOMINATOR`)."""
-    areas = output_areas.read_boundaries(
-        output_areas.fetch(data_dir, bounds_bng(cells, margin=2000))
-    )
-    residents = crime.residents_by_cell(
-        areas, census_residents.read_residents(census_residents.fetch(data_dir)), cells
-    )
-    lsoas = ons_lsoa.read_boundaries(ons_lsoa.fetch(data_dir, bounds_bng(cells, margin=2000)))
-    workers = crime.workers_by_cell(lsoas, bres.read_jobs(bres.fetch(data_dir)), cells)
-    people = {
-        "residents": residents,
-        "people": crime.people_present(residents, workers),
-    }
-    archive, months = police_uk.fetch(data_dir)
-    counts = crime.counts_by_cell(police_uk.read_crimes(archive, months), cells, resolution)
+    people = {"residents": ctx.residents, "people": ctx.people}
+    archive, months = police_uk.fetch(ctx.data_dir)
+    counts = crime.counts_by_cell(police_uk.read_crimes(archive, months), ctx.cells, ctx.resolution)
     return {
         indicator: [
             None if pd.isna(rate) else float(rate)
-            for rate in crime.rates(n, people[crime.DENOMINATOR[indicator]], cells)
+            for rate in crime.rates(n, people[crime.DENOMINATOR[indicator]], ctx.cells)
         ]
         for indicator, n in counts.items()
     }

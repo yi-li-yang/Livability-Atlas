@@ -29,7 +29,8 @@ import geopandas as gpd
 import pandas as pd
 
 from atlas.catalogue.models import Region
-from atlas.datasets.countries.gb import output_areas
+from atlas.datasets.countries.gb import bres, census_residents, ons_lsoa, output_areas
+from atlas.indicators import crime
 from atlas.publish.bundle import Choice
 from atlas.spatial import walking
 from atlas.spatial.grid import bounds_bng
@@ -57,6 +58,27 @@ class Context:
         x0, y0, x1, y1 = bounds_bng(self.cells, margin=margin)
         east, north = self.postcodes["Easting"], self.postcodes["Northing"]
         return self.postcodes.loc[(east >= x0) & (east <= x1) & (north >= y0) & (north <= y1)]
+
+    @cached_property
+    def residents(self) -> pd.Series:
+        """Each cell's usual residents (Census 2021), shared from the output areas by area."""
+        counts = census_residents.read_residents(census_residents.fetch(self.data_dir))
+        return crime.residents_by_cell(self.areas, counts, self.cells)
+
+    @cached_property
+    def workers(self) -> pd.Series:
+        """Each cell's jobs (the Business Register and Employment Survey), shared from the 2011
+        LSOAs by area."""
+        lsoas = ons_lsoa.read_boundaries(
+            ons_lsoa.fetch(self.data_dir, bounds_bng(self.cells, margin=2000))
+        )
+        return crime.workers_by_cell(lsoas, bres.read_jobs(bres.fetch(self.data_dir)), self.cells)
+
+    @cached_property
+    def people(self) -> pd.Series:
+        """Residents and workers together: the people a rate of a harm to people is counted
+        against."""
+        return crime.people_present(self.residents, self.workers)
 
     @cached_property
     def areas(self) -> gpd.GeoDataFrame:
