@@ -721,6 +721,23 @@ datasets:
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
 
+  - id: ons-health-state-life-expectancy
+    name: Health state life expectancy for MSOAs, England and Wales (ONS)
+    publisher: Office for National Statistics (ONS)
+    url: https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandlifeexpectancies/datasets/healthstatelifeexpectancyestimatesformiddlelayersuperoutputareasenglandandwales
+    tier: country
+    area: England and Wales
+    resolution: one estimate for men and one for women in each MSOA
+    date: 2019 to 2023 (released 30 July 2026)
+    licence: OGL-UK-3.0
+    licence_checked: 2026-10-30
+    commercial_use: true
+    licence_note: >-
+      Published on the ONS website under the Open Government Licence v3.0.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - Years of life, and of life in good health, expected at birth in each MSOA
+
   - id: ofsted-childcare
     name: "Childcare providers and inspections: management information (Ofsted)"
     publisher: Ofsted

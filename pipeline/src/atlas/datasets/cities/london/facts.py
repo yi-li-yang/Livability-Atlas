@@ -516,6 +516,21 @@ def culture(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "A baby in Hampstead or Richmond can expect over ten more years of good health than in Barking",
+    needs=("life_expectancy",),
+)
+def life_expectancy(cells: Cells) -> str:
+    column = "life_expectancy"
+    everywhere(cells, column)
+    rich, poor = cells.at("Hampstead", column), cells.at("Barking", column)
+    other = cells.at("Richmond", column)
+    expect(rich > poor + 10 and other > poor + 10, f"{rich:.0f}, {other:.0f} and {poor:.0f} years")
+    middle = median(cells, column)
+    expect(62 < middle < 72, f"the median is {middle:.1f} years")
+    return f"median {middle:.1f}, Hampstead {rich:.1f}, Richmond {other:.1f}, Barking {poor:.1f}"
+
+
+@FACTS.add(
     "Protected nature fills Richmond Park and reaches Chingford, and the centre has none",
     needs=("nature_sites",),
 )
