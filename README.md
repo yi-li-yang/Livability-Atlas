@@ -6,7 +6,7 @@ Livability Atlas gathers evidence about places, such as cost, transport, safety,
 
 One scoring engine serves two scales: neighbourhoods within a city, and cities across countries. The first region is London.
 
-> **Status: Phase 1, the London MVP.** The data pipeline builds London's data bundle (41 measured indicators across ten factors, each build checked by a QA report), and the web app scores its 16,668 hex cells in the browser by the user's own weights and limits, on a desktop or a phone. It is not public yet. [docs/progress.md](docs/progress.md) shows the current state, and [docs/roadmap.md](docs/roadmap.md) shows what comes next.
+> **Status: Phase 1, the London MVP.** The data pipeline builds London's data bundle (41 measured indicators across ten factors, each build checked by a QA report), and the web app scores its 16,668 hex cells in the browser by the user's own weights and limits, on a desktop or a phone. **It is live at <https://yi-li-yang.github.io/Livability-Atlas/>.** [docs/progress.md](docs/progress.md) shows the current state, and [docs/roadmap.md](docs/roadmap.md) shows what comes next.
 
 ## New here?
 
