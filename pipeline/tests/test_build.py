@@ -24,6 +24,7 @@ from atlas.datasets.countries.gb import (
 )
 from atlas.datasets.countries.gb.addresses import address_key
 from atlas.datasets.countries.gb.ea_flood_risk import LOW, MEDIUM, VERY_LOW, Mosaic
+from atlas.families import Family
 from atlas.indicators import crime
 from atlas.indicators import education as education_module
 from atlas.qa.facts import Facts, expect
@@ -532,6 +533,8 @@ def synthetic_ages() -> pd.DataFrame:
 def use_synthetic_data(monkeypatch, tmp_path):
     # London's facts are about London, which this synthetic data is not: the QA report has none.
     monkeypatch.setattr("atlas.qa.report.regional_of", lambda region: Regional({}, [], []))
+    # The families are tested on their own: this synthetic build must not fetch their datasets.
+    monkeypatch.setattr(build_module.families, "discover", lambda: [])
     boundary, grid = synthetic_boundary(tmp_path), synthetic_grid(tmp_path)
     areas, people = synthetic_output_areas(tmp_path), synthetic_residents(tmp_path)
     crimes = synthetic_crimes(tmp_path)
@@ -1102,3 +1105,43 @@ def test_the_bundle_names_the_neighbourhood_of_each_cell(monkeypatch, tmp_path):
     assert set(table[lng > -0.130]["neighbourhood"]) == {1}
     credited = {d["id"] for d in manifest["datasets"]}
     assert {"hoc-msoa-names", "ons-msoa-boundaries"} <= credited
+
+
+def listing_family(built_from: dict[str, tuple[str, ...]] | None = None) -> Family:
+    """A family that builds the Sunday Times listing in every cell, standing in for any new one."""
+    return Family(
+        "listing",
+        lambda ctx: {"sunday-times-best-places": ["listed"] * len(ctx.cells)},
+        built_from=built_from or {},
+    )
+
+
+def test_a_family_adds_its_columns_to_the_bundle(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    monkeypatch.setattr(build_module.families, "discover", lambda: [listing_family()])
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet")
+    assert set(table["sunday_times_best_places"].to_pylist()) == {"listed"}
+    assert "gp_walk" in table.column_names  # the built-in indicators are all still there
+
+
+def test_a_family_cannot_build_an_indicator_that_the_build_already_has(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    clash = Family("clash", lambda ctx: {"gp-walk": [1.0] * len(ctx.cells)})
+    monkeypatch.setattr(build_module.families, "discover", lambda: [clash])
+    with pytest.raises(ValueError, match="gp-walk"):
+        build_region("london", data_dir=tmp_path / "data")
+
+
+def test_a_commercial_build_leaves_out_a_familys_indicator_whose_dataset_is_not_cleared(
+    monkeypatch, tmp_path
+):
+    use_synthetic_data(monkeypatch, tmp_path)
+    family = listing_family({"sunday-times-best-places": ("sunday-times-best-places-to-live",)})
+    monkeypatch.setattr(build_module.families, "discover", lambda: [family])
+    local = build_region("london", data_dir=tmp_path / "local")
+    commercial = build_region("london", data_dir=tmp_path / "commercial", commercial=True)
+    assert "sunday_times_best_places" in pq.read_table(local / "cells.parquet").column_names
+    assert (
+        "sunday_times_best_places" not in pq.read_table(commercial / "cells.parquet").column_names
+    )
