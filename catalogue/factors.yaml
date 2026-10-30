@@ -1647,8 +1647,56 @@ factors:
     weight_reason: "Every factor starts equal, at the middle of the scale (the owner's choice, 2026-10-30). The evidence behind D14 is in the default-weights spec."
     scales: [within-city, across-cities]
     children:
-      - {id: density, name: "Density", default_weight: 3, scales: [within-city], description: "Some users want a busy area and others a quiet one, so the user sets the direction."}
-      - {id: building-age, name: "Building age", default_weight: 3, scales: [within-city], description: "The user sets an ideal range."}
+      - id: density
+        name: Density
+        description: How many people live in the area for each square kilometre.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: residents per km²
+        preference_type: user-direction
+        curve: {shape: percentile, better: lower}
+        curve_reason: >-
+          No standard sets the right density, and some users want a busy area
+          while others want space and quiet, so a hex cell scores by its rank
+          within the region and the user can flip the direction. It starts with
+          fewer people as better, because the measures of nightlife and job
+          density already reward a busy area.
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The usual residents (Census 2021) in and around the hex cell for each
+          square kilometre: the output areas' counts shared between hex cells by
+          area, then the mean over the cell and the cells within two steps that
+          the region has. It counts residents only, so a business district has a
+          low density even when it is crowded by day.
+        datasets: [ons-census-2021-residents, ons-output-area-boundaries]
+      - id: building-age
+        name: Building age
+        description: The year in which the homes nearby were built, in the middle.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: year built
+        preference_type: user-range
+        curve: {shape: ideal-range, l0: 1800, l1: 1850, u1: 2020, u0: 2030}
+        curve_reason: >-
+          No age of building is better for everyone: some users want Victorian
+          terraces and others a new block. The band that the user drags sets
+          the ages that score in full, and until the user drags it, it covers
+          every age that London's homes have, so that every cell scores the same.
+        evidence_type: estimate
+        comparable_across_regions: false
+        method: >-
+          The median year in which the homes with an energy certificate in and
+          around the hex cell were built, within one step, with at least 30
+          dated homes. A certificate gives the age as a band of years, such as
+          1930 to 1949, and the year is the middle of its band (1880 for homes
+          built before 1900, 2010 for 2007 onwards). A home counts once, by its
+          latest certificate, and the register holds only homes that were sold,
+          let or improved since 2008, so it leans towards homes that changed
+          hands. No address is kept.
+        datasets: [epc-domestic, os-code-point-open]
       - {id: regeneration, name: "Regeneration and planning", default_weight: 3, scales: [within-city]}
       - {id: urban-growth, name: "Urban growth", default_weight: 3, scales: [across-cities]}
 
