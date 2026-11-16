@@ -721,6 +721,24 @@ datasets:
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
 
+  - id: nhs-england-ae-waiting-times
+    name: A&E attendances and emergency admissions, by provider (NHS England)
+    publisher: NHS England
+    url: https://www.england.nhs.uk/statistics/statistical-work-areas/ae-waiting-times-and-activity/
+    tier: country
+    area: England
+    resolution: one row for each provider (NHS trust or other provider), each month
+    date: monthly (April to October 2026 used, published 12 November 2026)
+    licence: OGL-UK-3.0
+    licence_checked: 2026-11-16
+    commercial_use: true
+    licence_note: >-
+      NHS England's statistics are published under the Open Government
+      Licence v3.0.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - How many people attended each trust's emergency departments, and how many of them took over four hours
+
   - id: ons-health-state-life-expectancy
     name: Health state life expectancy for MSOAs, England and Wales (ONS)
     publisher: Office for National Statistics (ONS)

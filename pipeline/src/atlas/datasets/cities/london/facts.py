@@ -516,6 +516,22 @@ def culture(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "No London A&E meets the 95% standard, and the trusts differ by 20 points or more",
+    needs=("ae_waiting",),
+)
+def ae_waiting(cells: Cells) -> str:
+    column = "ae_waiting"
+    everywhere(cells, column)
+    values = present(cells, column)
+    low, high = float(values.min()), float(values.max())
+    expect(high < 95, f"the best nearest A&E has {high:.0f}% within four hours")
+    expect(high - low > 20, f"the trusts differ by {high - low:.0f} points")
+    middle = median(cells, column)
+    expect(50 < middle < 75, f"the median is {middle:.0f}%")
+    return f"median {middle:.0f}%, lowest {low:.0f}%, highest {high:.0f}%"
+
+
+@FACTS.add(
     "Night buses and the night Tube crowd into Soho and the City, and most of London has none near",
     needs=("night_services",),
 )
