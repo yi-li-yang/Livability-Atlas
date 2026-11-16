@@ -133,6 +133,7 @@ class Family:
     columns: Callable[[Context], Mapping[str, Sequence[Any]]]
     choices: Callable[[Context], Mapping[str, list[Choice]]] | None = None
     built_from: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    regions: tuple[str, ...] | None = None  # the regions it is for; None means every region
 
 
 def discover(package: str = "atlas.families") -> list[Family]:
@@ -155,6 +156,8 @@ def run(
     choices: dict[str, list[Choice]] = {}
     made_by: dict[str, str] = {}
     for family in found:
+        if family.regions is not None and ctx.region_id not in family.regions:
+            continue
         for indicator, values in family.columns(ctx).items():
             if indicator in made_by:
                 raise ValueError(
