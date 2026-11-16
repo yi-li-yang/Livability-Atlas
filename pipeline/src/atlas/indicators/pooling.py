@@ -41,3 +41,15 @@ def per_km2(counts: pd.Series, cells: list[str], steps: int) -> pd.Series:
             area = sum(h3.cell_area(c, "km^2") for c in near)
             out[i] = float(counts.reindex(near).sum()) / area
     return pd.Series(out, index=cells)
+
+
+def mean_over_disk(values: pd.Series, cells: list[str], steps: int) -> pd.Series:
+    """The mean of `values` (indexed by cell) over each cell and the cells within `steps` of it
+    that `values` has, not counting a missing value. A cell with none has no value."""
+    out = np.full(len(cells), np.nan)
+    for i, cell in enumerate(cells):
+        near = [c for c in h3.grid_disk(cell, steps) if c in values.index]
+        found = values.reindex(near).dropna()
+        if len(found):
+            out[i] = float(found.mean())
+    return pd.Series(out, index=cells)

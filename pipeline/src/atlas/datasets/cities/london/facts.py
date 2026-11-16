@@ -38,6 +38,8 @@ PLACES = {
     "Canary Wharf": (51.5054, -0.0235),
     "Hampstead": (51.5560, -0.1780),
     "Brixton": (51.4613, -0.1156),
+    "Hampstead Heath": (51.5608, -0.1650),
+    "Walthamstow reservoirs": (51.5870, -0.0400),
     "Richmond": (51.4613, -0.3037),
     "Stratford": (51.5416, -0.0034),
 }
@@ -513,6 +515,24 @@ def culture(cells: Cells) -> str:
         f"Soho {soho_culture:.0f} venues and {soho_night:.0f} bars; "
         f"Chingford {far_culture:.0f} and {far_night:.0f}"
     )
+
+
+@FACTS.add(
+    "Hampstead Heath is mostly trees, the City has almost none, and the reservoirs show as water",
+    needs=("tree_canopy", "water_nearby"),
+)
+def land_cover(cells: Cells) -> str:
+    for column in ("tree_canopy", "water_nearby"):
+        everywhere(cells, column)
+    heath, city = cells.at("Hampstead Heath", "tree_canopy"), cells.at("Bank", "tree_canopy")
+    expect(heath > 50 and city < 5, f"Hampstead Heath {heath:.0f}% and Bank {city:.0f}% trees")
+    reservoirs = cells.at("Walthamstow reservoirs", "water_nearby")
+    inland = cells.at("Brixton", "water_nearby")
+    expect(
+        reservoirs > 10 and inland < 1, f"reservoirs {reservoirs:.0f}%, Brixton {inland:.1f}% water"
+    )
+    expect(10 < median(cells, "tree_canopy") < 50, "the median tree cover is out of range")
+    return f"trees: Heath {heath:.0f}%, Bank {city:.0f}%; water: reservoirs {reservoirs:.0f}%"
 
 
 @FACTS.add(

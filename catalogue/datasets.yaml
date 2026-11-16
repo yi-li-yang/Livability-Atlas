@@ -721,6 +721,24 @@ datasets:
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
 
+  - id: esa-worldcover
+    name: WorldCover 10 m land cover map, 2021 (ESA)
+    publisher: European Space Agency (ESA), with the WorldCover consortium
+    url: https://esa-worldcover.org/en
+    tier: global
+    area: the world
+    resolution: 10 m pixels
+    date: 2021 (version 2.0.0)
+    licence: CC-BY-4.0
+    licence_checked: 2026-11-16
+    commercial_use: true
+    licence_note: >-
+      Released under the Creative Commons Attribution 4.0 licence, which allows
+      any use, including commercial, with credit.
+    attribution: © ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by the ESA WorldCover consortium.
+    tells:
+      - "The land cover of each 10 m pixel of the world, such as tree cover, built-up land and water"
+
   - id: nhs-england-ae-waiting-times
     name: A&E attendances and emergency admissions, by provider (NHS England)
     publisher: NHS England
