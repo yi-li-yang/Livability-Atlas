@@ -1143,6 +1143,34 @@ factors:
           only or for adults only count, as do those outside the region, so a
           cell at the edge measures to the nearest one across the boundary.
         datasets: [nhs-find-an-ae, os-code-point-open]
+      - id: ae-waiting
+        name: A&E waiting
+        description: How many people at the nearest A&E are seen, treated or sent home within four hours.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: "% within 4 hours"
+        preference_type: fixed
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          The NHS Constitution's standard is 95% within four hours, but no
+          London trust reaches it, so a ramp from it would score every cell at
+          the bottom. A hex cell scores by its rank within the region instead:
+          the share of hex cells whose nearest A&E does worse.
+        evidence_type: indirect
+        comparable_across_regions: true
+        method: >-
+          The share of type 1 attendances (the emergency departments open 24
+          hours) that were admitted, transferred or discharged within four hours
+          of arrival, at the NHS trust that runs the hex cell's nearest such
+          department (as the distance to A&E finds it, in a straight line),
+          over seven months, April to October 2026, from NHS England's monthly
+          figures by provider. A trust's figure covers all of its hospitals, so
+          it is an indirect sign of the wait at one department, and a cell
+          takes the nearest department among those whose trust has figures.
+          Waits vary by day and by season, and a patient is taken to the
+          hospital that suits their illness, not always the nearest.
+        datasets: [nhs-england-ae-waiting-times, nhs-find-an-ae, os-code-point-open]
       # Dentists stay an idea: where practices are is open, but whether they take new NHS patients is not.
       - id: dentists
         name: Dentists
