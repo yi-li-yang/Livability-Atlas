@@ -1065,8 +1065,57 @@ factors:
               record. Spike S6 measures how far walking routes differ from
               straight lines.
             datasets: [os-open-greenspace, openstreetmap]
-          - {id: tree-canopy, name: "Tree canopy cover", default_weight: 3, scales: [within-city]}
-      - {id: water-nearby, name: "Water nearby", default_weight: 3, scales: [within-city], description: "A river, canal or lake."}
+          - id: tree-canopy
+            name: Tree canopy cover
+            description: The share of the land around the home that is covered by trees.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: "% tree cover"
+            preference_type: fixed
+            curve: {shape: ramp, t0: 0, t1: 30}
+            curve_reason: >-
+              The 3-30-300 rule (Konijnendijk, 2022) asks for 30% tree canopy
+              cover in every neighbourhood: a cell scores 0 with no trees and 1
+              at 30% or more. The rule's other two parts, three trees in sight
+              of every home and a park within 300 m, are measured elsewhere
+              (the walk to green space) or not at all.
+            evidence_type: estimate
+            comparable_across_regions: true
+            method: >-
+              The share of land covered by trees in and around the hex cell,
+              from ESA WorldCover's 2021 land cover map at 10 m (the class "tree
+              cover": any area dominated by trees with a cover of 10% or more).
+              Each pixel is placed in the nearest hex cell, every third pixel is
+              read, and the share is the mean over the cell and the cells next to
+              it (about 500 m across). A map made from satellite images misses
+              single street trees, and the 10% rule counts a leafy suburb as
+              tree cover, so the shares lean high in gardens and low along
+              streets; ESA checked the classes at 74% overall accuracy.
+            datasets: [esa-worldcover]
+      - id: water-nearby
+        name: Water nearby
+        description: How much of the land within a short walk is a river, a canal or a lake.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: "% water within 900 m"
+        preference_type: fixed
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          No standard says how much water should be near a home, so a hex cell
+          scores by its rank within the region. Most cells have none, so many
+          cells tie at zero.
+        evidence_type: estimate
+        comparable_across_regions: true
+        method: >-
+          The share of land within three cells of the hex cell (about 900 m, an
+          11-minute walk at 4.8 km/h, in a straight line) that is permanent water, from ESA
+          WorldCover's 2021 land cover map at 10 m (the class "permanent water
+          bodies"). A narrow canal or stream under about 10 m wide is missed, so
+          the figure understates water in the inner city, and a reservoir with
+          no way in counts like a lake that anyone can reach.
+        datasets: [esa-worldcover]
       - {id: urban-heat, name: "Urban heat", default_weight: 3, scales: [within-city]}
       - {id: light-pollution, name: "Light pollution", default_weight: 3, scales: [across-cities]}
 
@@ -2958,6 +3007,24 @@ datasets:
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
+
+  - id: esa-worldcover
+    name: WorldCover 10 m land cover map, 2021 (ESA)
+    publisher: European Space Agency (ESA), with the WorldCover consortium
+    url: https://esa-worldcover.org/en
+    tier: global
+    area: the world
+    resolution: 10 m pixels
+    date: 2021 (version 2.0.0)
+    licence: CC-BY-4.0
+    licence_checked: 2026-11-16
+    commercial_use: true
+    licence_note: >-
+      Released under the Creative Commons Attribution 4.0 licence, which allows
+      any use, including commercial, with credit.
+    attribution: © ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by the ESA WorldCover consortium.
+    tells:
+      - "The land cover of each 10 m pixel of the world, such as tree cover, built-up land and water"
 
   - id: nhs-england-ae-waiting-times
     name: A&E attendances and emergency admissions, by provider (NHS England)
