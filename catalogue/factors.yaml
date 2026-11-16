@@ -335,7 +335,34 @@ factors:
               data for the station's lines. A station in two zones counts as the
               lower one, and a station outside the zones is not a choice.
             datasets: [tfl-unified-api]
-          - {id: night-and-step-free, name: "Night and step-free travel", default_weight: 3}
+          - id: night-services
+            name: Night services
+            description: The number of night bus routes and night Tube lines within a walk.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: night routes and lines
+            preference_type: fixed
+            curve: {shape: percentile, better: higher}
+            curve_reason: >-
+              No standard says how many night services are enough, so a hex cell
+              scores by its rank within the region: the share of hex cells with
+              fewer. The counts are small and skewed, so many cells tie.
+            evidence_type: direct
+            comparable_across_regions: false
+            method: >-
+              The night bus routes (TfL's N routes, which run only at night) that
+              serve a stop within an 8-minute walk along streets and paths (the
+              distance the day bus count uses), added to the lines with a night
+              Tube or night Overground service (Central, Jubilee, Northern,
+              Piccadilly, Victoria and the Windrush line) that serve a station
+              within a 12-minute walk. A route or line counts once however many
+              of its stops are in reach. Many day routes also run all night under
+              their own number, and TfL's data does not say which, so the count is
+              a lower bound. The Tube's night service runs on Friday and Saturday
+              nights only.
+            datasets: [tfl-unified-api]
+          - {id: step-free-access, name: "Step-free access", default_weight: 3, scales: [within-city], description: "Stations with lifts or ramps from street to train."}
           - {id: cycling, name: "Cycling", default_weight: 3, description: "Protected lanes, cycle-hire docks and slope."}
       - id: travel-time-to-places
         name: Travel time to places

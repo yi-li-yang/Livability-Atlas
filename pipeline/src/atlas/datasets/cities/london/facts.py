@@ -516,6 +516,21 @@ def culture(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Night buses and the night Tube crowd into Soho and the City, and most of London has none near",
+    needs=("night_services",),
+)
+def night_services(cells: Cells) -> str:
+    column = "night_services"
+    everywhere(cells, column)
+    soho, bank = cells.at("Soho", column), cells.at("Bank", column)
+    park = cells.at("Richmond Park", column)
+    expect(soho >= 15 and bank >= 8 and park == 0, f"Soho {soho:.0f}, Bank {bank:.0f}, {park:.0f}")
+    middle = median(cells, column)
+    expect(middle <= 2, f"the median cell has {middle:.0f} night routes or lines in reach")
+    return f"median {middle:.0f}, Soho {soho:.0f}, Bank {bank:.0f}, Richmond Park {park:.0f}"
+
+
+@FACTS.add(
     "A baby in Hampstead or Richmond can expect over ten more years of good health than in Barking",
     needs=("life_expectancy",),
 )
