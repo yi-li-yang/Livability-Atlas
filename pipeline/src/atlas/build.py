@@ -338,7 +338,7 @@ def _choices(
     return {
         "your-community": your_community,
         "faith": [
-            Choice(id=r, name=faith.name_of(r), group="Religion", values=_floats(m))
+            Choice(id=r, name=faith.name_of(r), group="Religion", values=_floats(m.round(1)))
             for r, m in minutes.items()
         ],
     }
