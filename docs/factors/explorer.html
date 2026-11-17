@@ -831,7 +831,33 @@ factors:
               found near 1% of homes by Overture's categories, and near 18% by
               OpenStreetMap's tags.
             datasets: [overture-places, openstreetmap]
-          - {id: your-cuisines, name: "Your cuisines", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks cuisines (D18)."}
+          - id: your-cuisines
+            name: Your cuisines
+            description: Walking minutes to the nearest restaurant of the cuisines the user picks.
+            default_weight: 0
+            weight_reason: "Choice factor: weight 0 until the user picks cuisines (D18)."
+            scales: [within-city]
+            status: built
+            unit: minutes on foot
+            preference_type: user-choice
+            curve: {shape: ramp, t0: 15, t1: 5}
+            curve_reason: *walk-to-amenity-reason
+            evidence_type: indirect
+            comparable_across_regions: true
+            method: >-
+              The walking time along streets and paths from the hex cell's centre
+              to the nearest restaurant of the chosen cuisine, at 4.8 km/h, from
+              the cuisine that Overture's category (such as "indian restaurant")
+              or OpenStreetMap's cuisine tag gives each place; a place that both
+              list counts once. About 73% of London's restaurants carry a cuisine,
+              so the walks are longer than the true ones, most of all for a
+              cuisine that places seldom label. The label is the venue's own or a
+              mapper's, so a place that serves several cuisines counts for the
+              first one only, and it says nothing of how good the food is. A
+              cuisine with fewer than 100 restaurants is not offered, and neither
+              is "bar and grill", which is a kind of place. A user who picks
+              several cuisines gets the nearest restaurant of any of them.
+            datasets: [overture-places, openstreetmap]
           - id: food-hygiene
             name: Food hygiene
             description: The share of the food businesses within a 10-minute walk rated good or very good for hygiene.

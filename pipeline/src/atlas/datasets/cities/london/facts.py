@@ -536,6 +536,30 @@ def land_cover(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Cuisines follow where people are: Indian is everywhere in reach, Greek is rarer and clusters",
+    needs=("your_cuisines__indian", "your_cuisines__greek"),
+)
+def cuisines(cells: Cells) -> str:
+    options = [c for c in cells.columns if c.startswith("your_cuisines__")]
+    expect(30 <= len(options) <= 70, f"{len(options)} cuisines are offered")
+    offered = {c.partition("__")[2] for c in options}
+    expect("bar_and_grill" not in offered, "bar and grill is offered as a cuisine")
+    indian, greek = "your_cuisines__indian", "your_cuisines__greek"
+    soho, southall = cells.at("Soho", indian), cells.at("Southall", indian)
+    expect(
+        soho < 3 and southall < 4, f"Indian: Soho {soho:.1f} and Southall {southall:.1f} minutes"
+    )
+    expect(
+        median(cells, indian) < median(cells, greek),
+        "Greek restaurants are no rarer than Indian ones",
+    )
+    expect(
+        cells.at("Soho", greek) < 6, f"Soho is {cells.at('Soho', greek):.1f} minutes from a Greek"
+    )
+    return f"{len(options)} cuisines; Indian median {median(cells, indian):.1f} minutes"
+
+
+@FACTS.add(
     "Boroughs rate their lives near 7 out of 10, a point apart at most; the City has none",
     needs=("life_satisfaction",),
 )
