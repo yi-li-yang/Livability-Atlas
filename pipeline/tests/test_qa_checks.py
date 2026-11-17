@@ -223,11 +223,18 @@ def test_every_unit_of_the_catalogue_gets_the_range_it_names():
             assert allowed(unit) == (-100.0, None), unit
         elif "%" in unit or "percent" in unit.lower():
             assert allowed(unit) == (0.0, 100.0), unit
+        elif "from 0 to 10" in unit:
+            assert allowed(unit) == (0.0, 10.0), unit
         elif "0 to 1" in unit:
             assert allowed(unit) == (0.0, 1.0), unit
         else:
             assert allowed(unit) == (0.0, None), unit
             assert "index" not in unit.lower() and "share" not in unit.lower(), unit
+
+
+def test_a_score_from_0_to_10_is_not_taken_for_an_index_from_0_to_1():
+    assert allowed("score from 0 to 10") == (0.0, 10.0)
+    assert allowed("index from 0 to 1") == (0.0, 1.0)
 
 
 def test_a_percent_change_can_fall_and_can_pass_100():

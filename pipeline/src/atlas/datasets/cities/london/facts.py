@@ -536,6 +536,22 @@ def land_cover(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Boroughs rate their lives near 7 out of 10, a point apart at most; the City has none",
+    needs=("life_satisfaction",),
+)
+def life_satisfaction(cells: Cells) -> str:
+    column = "life_satisfaction"
+    reach = covered(cells, column)
+    expect(0.95 < reach < 1.0, f"{share(reach)} of cells have a borough estimate")
+    values = present(cells, column)
+    low, high = float(values.min()), float(values.max())
+    expect(low > 6.8 and high < 8.0, f"the boroughs range from {low:.2f} to {high:.2f}")
+    expect(high - low < 1.0, f"the spread is {high - low:.2f} points")
+    expect(bool(np.isnan(cells.at("Bank", column))), "the City of London has an estimate")
+    return f"boroughs from {low:.2f} to {high:.2f}"
+
+
+@FACTS.add(
     "No London A&E meets the 95% standard, and the trusts differ by 20 points or more",
     needs=("ae_waiting",),
 )
