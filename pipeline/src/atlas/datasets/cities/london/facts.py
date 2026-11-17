@@ -40,6 +40,7 @@ PLACES = {
     "Brixton": (51.4613, -0.1156),
     "Hampstead Heath": (51.5608, -0.1650),
     "Walthamstow reservoirs": (51.5870, -0.0400),
+    "Heathrow": (51.4700, -0.4543),
     "Richmond": (51.4613, -0.3037),
     "Stratford": (51.5416, -0.0034),
 }
@@ -557,6 +558,22 @@ def cuisines(cells: Cells) -> str:
         cells.at("Soho", greek) < 6, f"Soho is {cells.at('Soho', greek):.1f} minutes from a Greek"
     )
     return f"{len(options)} cuisines; Indian median {median(cells, indian):.1f} minutes"
+
+
+@FACTS.add(
+    "Finance crowds into the City and Canary Wharf, and Heathrow is where transport jobs are",
+    needs=("your_industry__k", "your_industry__h", "your_industry__j"),
+)
+def your_industry(cells: Cells) -> str:
+    options = [c for c in cells.columns if c.startswith("your_industry__")]
+    expect(10 <= len(options) <= 20, f"{len(options)} industries are offered")
+    finance, transport = "your_industry__k", "your_industry__h"
+    bank, wharf = cells.at("Bank", finance), cells.at("Canary Wharf", finance)
+    expect(bank > 30000 and wharf > 10000, f"finance: Bank {bank:.0f}, Canary Wharf {wharf:.0f}")
+    expect(bank > 100 * median(cells, finance), "finance is not much denser in the City")
+    airport, suburb = cells.at("Heathrow", transport), cells.at("Chingford", transport)
+    expect(airport > 10 * suburb, f"transport: Heathrow {airport:.0f}, Chingford {suburb:.0f}")
+    return f"finance Bank {bank:.0f}; transport Heathrow {airport:.0f} jobs a km²"
 
 
 @FACTS.add(
