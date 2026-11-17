@@ -116,6 +116,8 @@ def allowed(unit: str) -> tuple[float, float | None]:
         return -100.0, None  # a fall cannot pass all of it, and a rise has no end
     if unit.startswith("%"):
         return 0.0, 100.0
+    if "from 0 to 10" in unit:
+        return 0.0, 10.0
     if "from 0 to 1" in unit:
         return 0.0, 1.0
     return 0.0, None

@@ -2255,7 +2255,31 @@ factors:
     weight_reason: Supporting factor. It partly repeats the other factors, so it starts low (D14).
     scales: [within-city, across-cities]
     children:
-      - {id: life-satisfaction, name: "Life satisfaction", default_weight: 3, scales: [within-city]}
+      - id: life-satisfaction
+        name: Life satisfaction
+        description: How satisfied the residents of the borough say they are with their lives.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: score from 0 to 10
+        preference_type: fixed
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          No standard sets a good score for an area, and boroughs differ by tenths
+          of a point inside wide intervals, so a hex cell scores by its rank
+          within the region: the share of hex cells whose borough scores lower.
+        evidence_type: perception
+        comparable_across_regions: false
+        method: >-
+          The mean answer, from 0 to 10, to "Overall, how satisfied are you with
+          your life nowadays?" among the adults of the borough that holds the hex
+          cell's centre, from the ONS's Annual Population Survey, averaged over
+          the three latest years of the series (2020-21 to 2022-23). Every cell
+          in a borough shares one value. The ONS has paused the local release, so
+          the data end in 2022-23, and a borough's estimate comes from a few
+          hundred answers a year, so its interval is wide (about 0.4 of a point):
+          most boroughs cannot be told apart. The City of London has no estimate.
+        datasets: [ons-personal-wellbeing-local-authority]
       - {id: happiness, name: "Happiness", default_weight: 3, scales: [across-cities]}
       - id: life-expectancy
         name: Years of good health
@@ -3007,6 +3031,23 @@ datasets:
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
+
+  - id: ons-personal-wellbeing-local-authority
+    name: Personal well-being estimates by local authority (ONS)
+    publisher: Office for National Statistics (ONS)
+    url: https://www.ons.gov.uk/datasets/wellbeing-local-authority
+    tier: country
+    area: United Kingdom
+    resolution: one estimate for each local authority and year
+    date: 2011-12 to 2022-23 (version 4; the ONS has paused the local release)
+    licence: OGL-UK-3.0
+    licence_checked: 2026-11-16
+    commercial_use: true
+    licence_note: >-
+      Published on the ONS website under the Open Government Licence v3.0.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - How satisfied people in each local authority say they are with their lives, and their sense of worth, happiness and anxiety
 
   - id: esa-worldcover
     name: WorldCover 10 m land cover map, 2021 (ESA)
