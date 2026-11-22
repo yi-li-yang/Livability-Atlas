@@ -1,0 +1,22 @@
+id: family-with-children
+name: Family with children
+description: Good schools and nurseries, safe streets, clean air and green space. Nightlife and the trip to the centre count less.
+weights:
+  education: 5
+  nurseries: 5
+  primary-schools: 5
+  secondary-schools: 4
+  school-inspections: 5
+  school-league-tables: 4
+  safety: 5
+  road-collisions: 5
+  health-care: 4
+  environment: 4
+  air-quality: 5
+  green-space: 5
+  noise: 4
+  housing-and-cost: 4
+  community-and-people: 4
+  nightlife: 1
+  culture-and-leisure: 2
+  work-and-economy: 2

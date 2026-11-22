@@ -8,7 +8,7 @@ of problems, each naming the factor or dataset it concerns.
 
 from collections.abc import Sequence
 
-from atlas.catalogue.models import SCALES, DatasetsFile, Factor, FactorsFile, Region
+from atlas.catalogue.models import SCALES, DatasetsFile, Factor, FactorsFile, Preset, Region
 
 # 3 is the engineering default. A top-level factor always gives its reason (D14),
 # and any other default weight must give its reason too.
@@ -78,4 +78,48 @@ def check_factors(factors: FactorsFile, datasets: DatasetsFile) -> list[str]:
 
     for factor in factors.factors:
         walk(factor, None)
+    return problems
+
+
+def check_preset(preset: Preset, factors: FactorsFile) -> list[str]:
+    """The ids a preset names must be in the factor tree. A flipped indicator must let the user
+    choose its direction, and a limit must be on a measured indicator that is built."""
+    every: dict[str, Factor] = {}
+
+    def collect(node: Factor) -> None:
+        every[node.id] = node
+        for child in node.children or []:
+            collect(child)
+
+    for factor in factors.factors:
+        collect(factor)
+    problems: list[str] = []
+    for factor_id in preset.weights:
+        if factor_id not in every:
+            problems.append(f"{preset.id}: the weight names {factor_id}, which is not a factor.")
+    for indicator in preset.flipped:
+        node = every.get(indicator)
+        if node is None:
+            problems.append(f"{preset.id}: {indicator} is not a factor, so it cannot be flipped.")
+        elif node.preference_type != "user-direction":
+            problems.append(
+                f"{preset.id}: {indicator} is not an indicator whose direction the user chooses, "
+                "so it cannot be flipped."
+            )
+    for limit in preset.limits:
+        node = every.get(limit.indicator)
+        if node is None:
+            problems.append(
+                f"{preset.id}: the limit names {limit.indicator}, which is not a factor."
+            )
+        elif node.children is not None:
+            problems.append(
+                f"{preset.id}: the limit names {limit.indicator}, "
+                "which is not a measured indicator."
+            )
+        elif node.status != "built":
+            problems.append(
+                f"{preset.id}: the limit names {limit.indicator}, which is not built "
+                f"(its status is {node.status})."
+            )
     return problems
