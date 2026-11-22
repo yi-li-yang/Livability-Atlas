@@ -1,0 +1,59 @@
+{
+  "id": "user-range",
+  "description": "A user-range indicator whose band the user has dragged to 1890-1930. The band [lo, hi] replaces l1 and u1 of the catalogue's ideal range, and the slopes keep their widths (l1 - l0 = 50, u0 - u1 = 10), so the curve becomes l0 1840, l1 1890, u1 1930, u0 1940. 1910 is in the band (1); 1865 is half way up the rising slope ((1865 - 1840) / 50 = 0.5); 1935 is half way down the falling one ((1935 - 1940) / (1930 - 1940) = 0.5); 1960 is past the end (0). The last leaf has no band, so the catalogue's own band (1850-2020) scores 1960 in full. Mean (1 + 0.5 + 0.5 + 0 + 1) / 5 = 0.6.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "in-band",
+        "weight": 1,
+        "curve": {"shape": "ideal-range", "l0": 1800, "l1": 1850, "u1": 2020, "u0": 2030},
+        "value": 1910,
+        "band": [1890, 1930]
+      },
+      {
+        "id": "rising",
+        "weight": 1,
+        "curve": {"shape": "ideal-range", "l0": 1800, "l1": 1850, "u1": 2020, "u0": 2030},
+        "value": 1865,
+        "band": [1890, 1930]
+      },
+      {
+        "id": "falling",
+        "weight": 1,
+        "curve": {"shape": "ideal-range", "l0": 1800, "l1": 1850, "u1": 2020, "u0": 2030},
+        "value": 1935,
+        "band": [1890, 1930]
+      },
+      {
+        "id": "past-the-end",
+        "weight": 1,
+        "curve": {"shape": "ideal-range", "l0": 1800, "l1": 1850, "u1": 2020, "u0": 2030},
+        "value": 1960,
+        "band": [1890, 1930]
+      },
+      {
+        "id": "no-band",
+        "weight": 1,
+        "curve": {"shape": "ideal-range", "l0": 1800, "l1": 1850, "u1": 2020, "u0": 2030},
+        "value": 1960
+      }
+    ]
+  },
+  "expected": {
+    "score": 60,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {"score": 0.6, "share": 1, "effective_share": 1, "contribution": 60},
+      "in-band": {"score": 1, "share": 0.2, "effective_share": 0.2, "contribution": 20},
+      "rising": {"score": 0.5, "share": 0.2, "effective_share": 0.2, "contribution": 10},
+      "falling": {"score": 0.5, "share": 0.2, "effective_share": 0.2, "contribution": 10},
+      "past-the-end": {"score": 0, "share": 0.2, "effective_share": 0.2, "contribution": 0},
+      "no-band": {"score": 1, "share": 0.2, "effective_share": 0.2, "contribution": 20}
+    }
+  }
+}

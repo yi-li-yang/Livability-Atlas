@@ -6,6 +6,7 @@ import { type Layout, loadLayout, saveLayout } from "./features/factors/layout";
 import { QuickLook } from "./features/factors/QuickLook";
 import { WhyPanel } from "./features/factors/WhyPanel";
 import { LimitsPanel } from "./features/limits/LimitsPanel";
+import { rangeOf } from "./features/limits/limits";
 import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
@@ -132,13 +133,24 @@ export function App() {
 
   const flipped = profile.flipped;
   const choices = profile.choices;
+  const ranges = profile.ranges;
   const bundle = state.status === "ready" ? state.bundle : null;
   const cells = useMemo(() => (bundle ? toHexCells(bundle) : []), [bundle]);
-  // What a cell scores on each indicator depends on the data and the user's directions, not on
+  // The lowest and highest value of each user-range indicator: the ends of its band's slider.
+  const extents = useMemo(() => {
+    const out: Record<string, { min: number; max: number }> = {};
+    for (const indicator of bundle?.manifest.indicators ?? []) {
+      if (indicator.preference_type !== "user-range" || !bundle) continue;
+      const range = rangeOf(bundle.columns[indicator.column] ?? []);
+      if (range) out[indicator.id] = range;
+    }
+    return out;
+  }, [bundle]);
+  // What a cell scores on each indicator depends on the data and the user's directions and bands, not on
   // the weights, so a change of weights only repeats the cheaper weighted sum below.
   const leaves = useMemo(
-    () => (bundle ? allLeafScores(bundle, flipped, choices) : null),
-    [bundle, flipped, choices],
+    () => (bundle ? allLeafScores(bundle, flipped, choices, ranges) : null),
+    [bundle, flipped, choices, ranges],
   );
   const scores = useMemo(
     () => (bundle && leaves ? scoreRegion(bundle, profile, leaves) : null),
@@ -231,6 +243,7 @@ export function App() {
         <FactorTree
           factors={state.bundle.manifest.factors}
           indicators={state.bundle.manifest.indicators}
+          extents={extents}
           profile={profile}
           layout={layout}
           heading={!phone}

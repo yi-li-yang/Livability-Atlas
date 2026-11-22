@@ -9,6 +9,7 @@ import type {
   ManifestFactor,
   ManifestIndicator,
 } from "../generated/manifest.schema";
+import { withBand } from "./curves";
 import { type ScoringMode, scoreCell } from "./engine";
 import {
   bestPickedOption,
@@ -29,6 +30,10 @@ export interface Evidence {
   option: string | null;
   /** The datasets the indicator is built from, with their licences and credits. */
   datasets: ManifestDataset[];
+  /** The curve that scores it for this user: the catalogue's, with the user's band if any. */
+  curve: ManifestIndicator["curve"];
+  /** Whether the user has turned its direction round. */
+  flipped: boolean;
 }
 
 /** One factor's part in a hex cell's score. */
@@ -97,6 +102,16 @@ export function explainCell(
     const datasets = indicator.datasets.flatMap((id) =>
       bundle.manifest.datasets.filter((d) => d.id === id),
     );
+    const band =
+      indicator.preference_type === "user-range"
+        ? profile.ranges?.[indicator.id]
+        : undefined;
+    const how = {
+      curve: indicator.curve
+        ? withBand(indicator.curve, band)
+        : indicator.curve,
+      flipped: profile.flipped?.includes(indicator.id) ?? false,
+    };
     if (indicator.options) {
       const best = bestPickedOption(
         bundle,
@@ -109,6 +124,7 @@ export function explainCell(
         value: best ? bundle.columns[best.option.column][cellIndex] : null,
         option: best?.option.name ?? null,
         datasets,
+        ...how,
       };
     }
     return {
@@ -116,6 +132,7 @@ export function explainCell(
       value: bundle.columns[indicator.column][cellIndex],
       option: null,
       datasets,
+      ...how,
     };
   };
   const line = (factor: ManifestFactor): FactorLine => {

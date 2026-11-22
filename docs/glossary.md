@@ -48,6 +48,8 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Not counted | A factor at weight 0, or whose sub-factors are all at weight 0. The factor tree leaves it out of the drawing and lists it apart, from where the user can count it again | Climate, when its weight is 0 |
 | Scoring curve | The rule that turns a measured value into a score from 0 (worst) to 1 (best) | PM2.5: 5 µg/m³ scores 1, and 25 µg/m³ scores 0 |
 | Ideal range | A band of values the user likes best. The score falls away on both sides | Summer temperature 20–26 °C |
+| Full marks from … to … | The words over an ideal range's two sliders, "From" and "To": the values between them score in full | Building age: full marks from 1890 to 1930 |
+| More is better, Less is better | The switch on a measure where people disagree which way is better. The pressed one says which way scores higher for this user | Nightlife: "Less is better" for someone who wants quiet |
 | Hard limit | A must-have rule, like a search filter. Hex cells that fail it are greyed out and not ranked | Rent no higher than the user's cap |
 | Livability score | The 0–100 result for one hex cell, from the user's own weights | |
 | Score contribution | How many of the livability score's points one factor adds in a hex cell. The contributions add up to the score | Transport: 32 of 59 points |

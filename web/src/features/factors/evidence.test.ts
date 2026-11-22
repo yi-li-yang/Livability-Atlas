@@ -29,6 +29,10 @@ describe("formatValue", () => {
   it("works without a unit", () => {
     expect(formatValue(3, "")).toBe("3");
   });
+
+  it("writes a year as a year, without a thousands comma", () => {
+    expect(formatValue(1914, "year built")).toBe("1914 year built");
+  });
 });
 
 describe("describeCurve", () => {
@@ -46,10 +50,24 @@ describe("describeCurve", () => {
   it("describes an ideal range by its flat top and its slopes", () => {
     expect(
       describeCurve(
-        { shape: "ideal-range", l0: 30, l1: 40, u0: 55, u1: 70 },
+        { shape: "ideal-range", l0: 30, l1: 40, u1: 55, u0: 70 },
         "dB",
       ),
     ).toBe("Full marks from 40 to 55 dB, falling to none at 30 and at 70.");
+  });
+
+  it("says the user's way round where the direction is flipped", () => {
+    expect(describeCurve({ shape: "ramp", t0: 15, t1: 5 }, unit, true)).toBe(
+      "Full marks at 15 minutes on foot or more, none at 5 or less.",
+    );
+    expect(
+      describeCurve({ shape: "percentile", better: "higher" }, "venues", true),
+    ).toBe(
+      "Ranked against the region's other hex cells: the lower, the better.",
+    );
+    expect(
+      describeCurve({ shape: "lookup", scores: { a: 1 } }, "", true),
+    ).toContain("turned round");
   });
 
   it("lists what a lookup gives each value", () => {

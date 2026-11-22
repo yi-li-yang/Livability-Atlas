@@ -4,7 +4,7 @@ import type {
   ManifestIndicator,
   ManifestOption,
 } from "../generated/manifest.schema";
-import { curveScore } from "./curves";
+import { type Band, curveScore, withBand } from "./curves";
 import {
   type ScoreCase,
   type ScoreNode,
@@ -23,6 +23,11 @@ export interface Profile {
    * browser and out of shared links (D08): they can say a faith or an ethnic group.
    */
   choices?: Readonly<Record<string, readonly string[]>>;
+  /**
+   * For each user-range indicator whose band the user has set, the lowest and highest values that
+   * score in full. An indicator without one keeps the catalogue's band.
+   */
+  ranges?: Readonly<Record<string, Band>>;
   /** The must-have rules: a cell that fails one is greyed out and not ranked. */
   limits?: readonly Limit[];
   /** "balanced" is "no weak spots": the weighted geometric mean in place of the arithmetic. */
@@ -83,16 +88,19 @@ function pickedOptions(
 /**
  * The score of every cell on one measured indicator, from 0 to 1, with NaN where the cell has no
  * value or the curve cannot score it. It does not depend on the weights, so it is worked out once
- * and reused for every change of weights. A flipped direction becomes 1 - score.
+ * and reused for every change of weights. A flipped direction becomes 1 - score, and a user's
+ * band moves an ideal range.
  */
 export function leafScores(
   bundle: Bundle,
   indicator: ManifestIndicator,
   flipped = false,
   picked: readonly string[] = [],
+  band?: Band,
 ): Float64Array {
   if (!indicator.options) {
-    return columnScores(bundle, indicator.column, indicator.curve, flipped);
+    const curve = indicator.curve ? withBand(indicator.curve, band) : null;
+    return columnScores(bundle, indicator.column, curve, flipped);
   }
   // A choice indicator scores the best of the options picked, in a fixed direction. With none
   // picked it has no score.
@@ -169,17 +177,40 @@ function columnScores(
   return out;
 }
 
-/** The leaf scores of every measured indicator of a bundle, with the given directions flipped. */
+/**
+ * The user's band for an indicator, where it is a user range. A band on any other indicator (from
+ * an edited link, say) is ignored: the user would have no slider to see or undo it.
+ */
+function bandFor(
+  indicator: ManifestIndicator,
+  ranges: Profile["ranges"],
+): Band | undefined {
+  return indicator.preference_type === "user-range"
+    ? ranges?.[indicator.id]
+    : undefined;
+}
+
+/**
+ * The leaf scores of every measured indicator of a bundle, with the given directions flipped, the
+ * given options picked and the given bands set.
+ */
 export function allLeafScores(
   bundle: Bundle,
   flippedIds: readonly string[] = [],
   choices: Profile["choices"] = {},
+  ranges: Profile["ranges"] = {},
 ): Map<string, Float64Array> {
   const flipped = new Set(flippedIds);
   return new Map(
     bundle.manifest.indicators.map((i) => [
       i.id,
-      leafScores(bundle, i, flipped.has(i.id), choices?.[i.id]),
+      leafScores(
+        bundle,
+        i,
+        flipped.has(i.id),
+        choices?.[i.id],
+        bandFor(i, ranges),
+      ),
     ]),
   );
 }
@@ -331,6 +362,7 @@ export function scoreCaseFor(
           ? regionValues(bundle, indicator.column)
           : undefined,
       flipped: indicator ? flipped.has(indicator.id) : false,
+      band: indicator ? bandFor(indicator, profile.ranges) : undefined,
     };
   };
   return {
