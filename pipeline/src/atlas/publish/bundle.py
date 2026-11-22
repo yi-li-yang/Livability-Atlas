@@ -14,11 +14,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
 from atlas.catalogue.load import Catalogue
 from atlas.catalogue.models import Factor, Preset
+from atlas.indicators.station_matrix import STREET_FACTOR, UNREACHABLE, WALK_METRES_A_MINUTE
 from atlas.publish.manifest import (
     Manifest,
     ManifestDataset,
@@ -29,7 +31,84 @@ from atlas.publish.manifest import (
     ManifestOption,
     ManifestPreset,
     ManifestRegion,
+    ManifestTravel,
 )
+
+
+@dataclass(frozen=True)
+class Travel:
+    """What the travel estimate to a user's places needs: the stations (stop id, latitude,
+    longitude), each cell's stations within a walk (cell position, station position, minutes) and
+    the minutes from each station to each (a square array of unsigned 16-bit whole minutes)."""
+
+    stations: Sequence[tuple[str, float, float]]
+    cell_stations: Sequence[tuple[int, int, float]]
+    matrix: np.ndarray
+    indicator: str = "travel-time-to-places"
+    reach_minutes: float = 40.0
+    postcodes: Sequence[tuple[str, float, float]] = ()
+
+
+TRAVEL_FILES = ("stations.parquet", "cell-stations.parquet", "station-matrix.parquet")
+POSTCODES_FILE = "postcodes.parquet"
+
+
+def _parquet(table: pa.Table) -> bytes:
+    buffer = io.BytesIO()
+    pq.write_table(table, buffer, compression="snappy")
+    return buffer.getvalue()
+
+
+def _travel_files(travel: Travel, cell_count: int) -> dict[str, bytes]:
+    """The three files of the travel estimate, by name, after checking that they fit together."""
+    n = len(travel.stations)
+    if travel.matrix.shape != (n, n):
+        raise ValueError(f"the matrix must be square, {n} by {n}, for {n} stations")
+    previous = -1
+    for cell, station, _ in travel.cell_stations:
+        # The web app reads each cell's stations as one run, in the order of the cells.
+        if cell < previous:
+            raise ValueError(
+                f"the links must be in the order of the cells, and cell {cell} is after {previous}"
+            )
+        previous = cell
+        if not 0 <= cell < cell_count:
+            raise ValueError(f"cell {cell} is not one of the {cell_count} cells")
+        if not 0 <= station < n:
+            raise ValueError(f"station {station} is not one of the {n} stations")
+    stations = pa.table(
+        {
+            "stop": pa.array([s for s, _, _ in travel.stations], pa.string()),
+            "lat": pa.array([lat for _, lat, _ in travel.stations], pa.float64()),
+            "lng": pa.array([lng for _, _, lng in travel.stations], pa.float64()),
+        }
+    )
+    links = pa.table(
+        {
+            "cell": pa.array([c for c, _, _ in travel.cell_stations], pa.int32()),
+            "station": pa.array([s for _, s, _ in travel.cell_stations], pa.int32()),
+            "minutes": pa.array([m for _, _, m in travel.cell_stations], pa.float64()),
+        }
+    )
+    matrix = pa.table(
+        {"minutes": pa.array(travel.matrix.astype(np.uint16).ravel(order="C"), pa.uint16())}
+    )
+    files: dict[str, bytes] = dict(
+        zip(TRAVEL_FILES, (_parquet(stations), _parquet(links), _parquet(matrix)), strict=True)
+    )
+    if travel.postcodes:
+        ordered = sorted(travel.postcodes)
+        files[POSTCODES_FILE] = _parquet(
+            pa.table(
+                {
+                    "postcode": pa.array([p for p, _, _ in ordered], pa.string()),
+                    # A float32 holds a London latitude to about half a metre.
+                    "lat": pa.array([lat for _, lat, _ in ordered], pa.float32()),
+                    "lng": pa.array([lng for _, _, lng in ordered], pa.float32()),
+                }
+            )
+        )
+    return files
 
 
 @dataclass(frozen=True)
@@ -211,6 +290,7 @@ def write_bundle(
     columns: dict[str, Sequence[Any]],
     choices: dict[str, list[Choice]] | None = None,
     neighbourhoods: Neighbourhoods | None = None,
+    travel: Travel | None = None,
     out_dir: Path,
     publish: bool = True,
 ) -> Path:
@@ -263,15 +343,35 @@ def write_bundle(
             },
         }
     )
-    buffer = io.BytesIO()
-    pq.write_table(table, buffer, compression="snappy")
-    parquet = buffer.getvalue()
+    parquet = _parquet(table)
+    extra = _travel_files(travel, len(cells)) if travel is not None else {}
+    if travel is not None:
+        manifest = manifest.model_copy(
+            update={
+                "travel": ManifestTravel(
+                    indicator=travel.indicator,
+                    stations=TRAVEL_FILES[0],
+                    cell_stations=TRAVEL_FILES[1],
+                    matrix=TRAVEL_FILES[2],
+                    station_count=len(travel.stations),
+                    unreachable=UNREACHABLE,
+                    reach_minutes=travel.reach_minutes,
+                    walk_metres_a_minute=WALK_METRES_A_MINUTE,
+                    street_factor=STREET_FACTOR,
+                    postcodes=POSTCODES_FILE if travel.postcodes else None,
+                )
+            }
+        )
 
-    digest = hashlib.sha256(parquet + _json(manifest).encode("utf-8")).hexdigest()[:12]
+    # The version covers every file, in a fixed order, so a rebuild gives the same bytes.
+    content = parquet + b"".join(extra[name] for name in sorted(extra))
+    digest = hashlib.sha256(content + _json(manifest).encode("utf-8")).hexdigest()[:12]
     manifest = manifest.model_copy(update={"version": digest})
     bundle = out_dir / region_id / digest
     bundle.mkdir(parents=True, exist_ok=True)
     (bundle / "cells.parquet").write_bytes(parquet)
+    for name, data in extra.items():
+        (bundle / name).write_bytes(data)
     (bundle / "manifest.json").write_text(_json(manifest), encoding="utf-8", newline="\n")
     if publish:
         publish_latest(out_dir / region_id, digest)

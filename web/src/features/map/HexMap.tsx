@@ -1,4 +1,4 @@
-import { PolygonLayer } from "@deck.gl/layers";
+import { PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -37,6 +37,7 @@ export function HexMap({
   opacity,
   selected,
   focus,
+  places = [],
   onHover,
   onSelect,
 }: {
@@ -49,6 +50,8 @@ export function HexMap({
   selected: number | null;
   /** Where to take the map: a new `request` number makes it fly there, as a repeated choice must. */
   focus: { lng: number; lat: number; request: number } | null;
+  /** The user's own places, marked on the map. */
+  places?: readonly { name: string; lat: number; lng: number }[];
   onHover: (hover: Hover | null) => void;
   /** Called with the cell that was clicked, or null for a click on no cell. */
   onSelect: (index: number | null) => void;
@@ -119,9 +122,20 @@ export function HexMap({
           getLineColor: [20, 20, 20, 255],
           lineWidthMinPixels: 3,
         }),
+        new ScatterplotLayer<{ name: string; lat: number; lng: number }>({
+          id: "your-places",
+          data: places,
+          getPosition: (place) => [place.lng, place.lat],
+          getRadius: 7,
+          radiusUnits: "pixels",
+          getFillColor: [255, 255, 255, 255],
+          getLineColor: [20, 20, 20, 255],
+          lineWidthMinPixels: 3,
+          stroked: true,
+        }),
       ],
     });
-  }, [cells, colours, opacity, selected, onHover, onSelect]);
+  }, [cells, colours, opacity, selected, places, onHover, onSelect]);
 
   return (
     <div

@@ -91,7 +91,8 @@ test("opening a factor shows its sub-factors, and the trail leads back", async (
   await page.getByRole("button", { name: "Open Transport" }).click();
   await expect(tile(page, "transport")).toHaveCount(0);
   await expect(tile(page, "getting-around")).toHaveCount(1);
-  expect(await share(page, "getting-around")).toBeCloseTo(1, 3);
+  // Transport has two sub-factors in the test bundle, at the same default weight.
+  expect(await share(page, "getting-around")).toBeCloseTo(0.5, 3);
   await expect(
     page.getByRole("navigation", { name: "Where you are in the factors" }),
   ).toContainText("Transport");

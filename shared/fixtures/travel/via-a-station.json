@@ -1,0 +1,45 @@
+{
+  "id": "via-a-station",
+  "description": "All points are on longitude 0, so a straight line is the Earth's radius (6,371,008.8 m) times the difference of latitude in radians: 0.001 degrees is 111.19508 m, a walk of 111.19508 x 1.33 / 80 = 1.8486182 minutes. The cell walks 5 minutes to station 0, which takes 20 minutes to station 1; the place is 0.001 degrees from station 1 (1.8486182 minutes) and 0.041 from station 0 (75.8 minutes, beyond the 40-minute reach). The direct walk is 0.042 degrees, 77.6 minutes, also beyond reach. 5 + 20 + 1.8486182088824847 = 26.848618208882485.",
+  "constants": {
+    "reach_minutes": 40,
+    "walk_metres_a_minute": 80,
+    "street_factor": 1.33,
+    "unreachable": 65535
+  },
+  "stations": [
+    [
+      51.5,
+      0
+    ],
+    [
+      51.54,
+      0
+    ]
+  ],
+  "matrix": [
+    [
+      0,
+      20
+    ],
+    [
+      22,
+      0
+    ]
+  ],
+  "cell": {
+    "lat": 51.499,
+    "lng": 0,
+    "stations": [
+      [
+        0,
+        5.0
+      ]
+    ]
+  },
+  "place": {
+    "lat": 51.541,
+    "lng": 0
+  },
+  "expected": 26.848618208882485
+}

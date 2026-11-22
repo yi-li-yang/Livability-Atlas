@@ -69,6 +69,7 @@ describe("cellColours", () => {
     const profile = {
       weights: {
         "station-proximity": 0,
+        "travel-time-to-places": 0,
         "walk-to-green-space": 0,
         "gp-walk": 0,
         safety: 0,

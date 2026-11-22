@@ -99,6 +99,25 @@ class ManifestPreset(_Model):
     limits: list[ManifestLimit] | None = None
 
 
+class ManifestTravel(_Model):
+    """The files and constants of the travel estimate to a user's places (D10), which the web app
+    reads only when the user adds a place. Each file is beside `cells.parquet`."""
+
+    # The measured indicator whose values the estimate replaces once a user has places of their own
+    indicator: str
+    stations: str  # each station's `stop` id, `lat` and `lng`, in the matrix's order
+    cell_stations: str  # `cell` (position in cells.parquet), `station` and walking `minutes`
+    matrix: str  # `minutes` from each station to each, row by row (station_count squared)
+    station_count: int
+    unreachable: int  # the minutes that stand for "no way there"
+    reach_minutes: float  # how far a walk to a station may be
+    walk_metres_a_minute: float
+    street_factor: float  # a street walk over its straight line, for a walk from a user's place
+    # The region's postcodes (`postcode` without a space, `lat`, `lng`), sorted, so that the app
+    # finds a user's postcode without sending it anywhere.
+    postcodes: str | None = None
+
+
 class Manifest(_Model):
     format_version: Literal[1] = 1
     version: str  # a hash of the bundle's content
@@ -113,3 +132,5 @@ class Manifest(_Model):
     neighbourhoods: list[ManifestNeighbourhood] | None = None
     # Ready-made preference profiles to start from (catalogue/presets/), by name.
     presets: list[ManifestPreset] | None = None
+    # The station matrix and each cell's stations, for the travel estimate to a user's places.
+    travel: ManifestTravel | None = None

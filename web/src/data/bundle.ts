@@ -16,6 +16,8 @@ export interface Bundle {
    * where it has none (or the bundle names none).
    */
   neighbourhoodOf?: (number | null)[];
+  /** The address of the bundle's folder, from which its other files (the travel files) load. */
+  folder?: string;
 }
 
 /** A named area that cells belong to, such as "Soho" in Westminster. */
@@ -34,7 +36,7 @@ export function neighbourhoodAt(
   return bundle.manifest.neighbourhoods?.[position] ?? null;
 }
 
-type Fetcher = (url: string) => Promise<Response>;
+export type Fetcher = (url: string) => Promise<Response>;
 
 async function get(fetcher: Fetcher, url: string): Promise<Response> {
   const reply = await fetcher(url);
@@ -88,5 +90,11 @@ export async function loadBundle(
       ? null
       : Number(position);
   });
-  return { manifest, cells, columns, neighbourhoodOf: named };
+  return {
+    manifest,
+    cells,
+    columns,
+    neighbourhoodOf: named,
+    folder: `${root}/${version}`,
+  };
 }

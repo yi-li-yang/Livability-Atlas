@@ -75,7 +75,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Term | Meaning | Example |
 | --- | --- | --- |
 | Preference profile | Everything a user sets: weights, directions, ranges, choices, hard limits and places. It stays in their browser | |
-| A user's places ("my places" in the app) | Up to 3 places a user travels to often. Travel times to them are estimated in the browser | Work, family |
+| Your places | Up to 3 places a user travels to often, added by postcode or on the map. Travel times to them are estimated in the browser, and they stay there | Work, family |
 | Default places | Used until a user adds their own places: London's main job centres | Bank, Oxford Circus, Canary Wharf, King's Cross |
 | Destination | A public place or chain a user chooses, scored by distance to the nearest one. Unlike a user's places, it is not personal | Costco, IKEA, the nearest airport |
 | Preset | A ready-made preference profile to start from | Family with children |

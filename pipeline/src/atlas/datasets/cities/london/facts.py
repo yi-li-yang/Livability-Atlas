@@ -7,13 +7,18 @@ rise and fall together. Thresholds come from the sources in the comments, or are
 what the data show, so that only a broken input trips them.
 """
 
+import h3
 import numpy as np
+import pyarrow.parquet as pq
 from numpy.typing import NDArray
+from scipy.stats import rankdata
 
+from atlas.catalogue.load import load_catalogue
 from atlas.qa.cells import Cells
 from atlas.qa.facts import Facts, expect
 from atlas.qa.format import number, share
 from atlas.qa.relations import Relation
+from atlas.scoring.travel import region_minutes
 
 # Named places, as latitude and longitude. Each is the cell that contains the point.
 PLACES = {
@@ -46,6 +51,13 @@ PLACES = {
 }
 
 FACTS = Facts()
+
+# The estimate for a user's places against the Journey Planner. The London build of 2026-11-22
+# showed 92% of cells with both, a rank correlation of +0.95 and a median ratio of 0.99; these
+# are well short of that, so that only a broken matrix or a broken fetch trips them.
+MATRIX_COVERAGE = 0.85
+MATRIX_RHO = 0.85
+MATRIX_RATIO = (0.85, 1.15)
 
 CRIMES = (
     "burglary",
@@ -300,6 +312,58 @@ def travel_time(cells: Cells) -> str:
     expect(at["Chingford"] > 55, f"Chingford is {at['Chingford']:.0f} minutes")
     expect(at["East Ham"] < at["Chingford"], f"East Ham {at['East Ham']:.0f} minutes")
     return ", ".join(f"{p} {number(m)}" for p, m in at.items()) + " minutes"
+
+
+def _travel_estimates(cells: Cells) -> NDArray[np.float64]:
+    """The estimate that the web app makes for a user's places, cell by cell, made for the four
+    default places from the bundle's travel files and averaged as the indicator is."""
+    travel = cells.manifest.travel
+    expect(travel is not None, "the bundle has no travel files")
+    assert travel is not None
+    stations = pq.read_table(cells.folder / travel.stations).to_pydict()
+    links = pq.read_table(cells.folder / travel.cell_stations).to_pydict()
+    flat = pq.read_table(cells.folder / travel.matrix).column("minutes").to_numpy()
+    n = travel.station_count
+    matrix = flat.reshape(n, n)
+    centres = np.array([h3.cell_to_latlng(c) for c in cells.table["cell"].to_pylist()])
+    constants = {
+        "reach_minutes": travel.reach_minutes,
+        "walk_metres_a_minute": travel.walk_metres_a_minute,
+        "street_factor": travel.street_factor,
+        "unreachable": travel.unreachable,
+    }
+    per_place = [
+        region_minutes(
+            np.column_stack([stations["lat"], stations["lng"]]),
+            matrix,
+            np.column_stack([links["cell"], links["station"], links["minutes"]]).astype(float),
+            centres,
+            (place.lat, place.lng),
+            constants,
+        )
+        for place in load_catalogue().regions["london"].default_places
+    ]
+    return np.mean(per_place, axis=0)
+
+
+@FACTS.add(
+    "The estimate for a user's places agrees with the Journey Planner's times to the job centres",
+    needs=("travel_time_to_places",),
+)
+def station_matrix(cells: Cells) -> str:
+    journey = cells.numbers("travel_time_to_places")
+    estimate = _travel_estimates(cells)
+    both = np.isfinite(journey) & np.isfinite(estimate)
+    expect(float(both.mean()) > MATRIX_COVERAGE, f"{share(both.mean())} of cells have both")
+    rho = float(np.corrcoef(rankdata(journey[both]), rankdata(estimate[both]))[0, 1])
+    ratio = float(np.median(estimate[both] / journey[both]))
+    within = float(np.mean(np.abs(estimate[both] / journey[both] - 1) <= 0.2))
+    expect(rho > MATRIX_RHO, f"rank correlation {rho:+.2f}")
+    expect(MATRIX_RATIO[0] < ratio < MATRIX_RATIO[1], f"median ratio {ratio:.2f}")
+    return (
+        f"rank correlation {rho:+.2f} over {int(both.sum()):,} cells; the estimate is a median "
+        f"{ratio:.2f} of the Journey Planner's time, and within 20% in {share(within)} of cells"
+    )
 
 
 # --- Environment ---

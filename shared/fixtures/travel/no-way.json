@@ -1,0 +1,45 @@
+{
+  "id": "no-way",
+  "description": "All points are on longitude 0, so a straight line is the Earth's radius (6,371,008.8 m) times the difference of latitude in radians: 0.001 degrees is 111.19508 m, a walk of 111.19508 x 1.33 / 80 = 1.8486182 minutes. The matrix has no way from station 0 to station 1 (65535), and the direct walk of 0.2 degrees is far beyond reach, so there is no estimate.",
+  "constants": {
+    "reach_minutes": 40,
+    "walk_metres_a_minute": 80,
+    "street_factor": 1.33,
+    "unreachable": 65535
+  },
+  "stations": [
+    [
+      51.401,
+      0
+    ],
+    [
+      51.599,
+      0
+    ]
+  ],
+  "matrix": [
+    [
+      0,
+      65535
+    ],
+    [
+      65535,
+      0
+    ]
+  ],
+  "cell": {
+    "lat": 51.4,
+    "lng": 0,
+    "stations": [
+      [
+        0,
+        3.0
+      ]
+    ]
+  },
+  "place": {
+    "lat": 51.6,
+    "lng": 0
+  },
+  "expected": null
+}

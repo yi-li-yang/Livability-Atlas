@@ -62,6 +62,16 @@ export type Indicator1 = string;
 export type Max = number | null;
 export type Min = number | null;
 export type In = string[] | null;
+export type Indicator2 = string;
+export type Stations = string;
+export type CellStations = string;
+export type Matrix = string;
+export type StationCount = number;
+export type Unreachable = number;
+export type ReachMinutes = number;
+export type WalkMetresAMinute = number;
+export type StreetFactor = number;
+export type Postcodes = string | null;
 
 export interface Manifest {
   format_version?: FormatVersion;
@@ -74,6 +84,7 @@ export interface Manifest {
   datasets: Datasets1;
   neighbourhoods?: Neighbourhoods;
   presets?: Presets;
+  travel?: ManifestTravel | null;
 }
 export interface ManifestRegion {
   id: Id;
@@ -171,4 +182,20 @@ export interface ManifestLimit {
   max?: Max;
   min?: Min;
   in?: In;
+}
+/**
+ * The files and constants of the travel estimate to a user's places (D10), which the web app
+ * reads only when the user adds a place. Each file is beside `cells.parquet`.
+ */
+export interface ManifestTravel {
+  indicator: Indicator2;
+  stations: Stations;
+  cell_stations: CellStations;
+  matrix: Matrix;
+  station_count: StationCount;
+  unreachable: Unreachable;
+  reach_minutes: ReachMinutes;
+  walk_metres_a_minute: WalkMetresAMinute;
+  street_factor: StreetFactor;
+  postcodes?: Postcodes;
 }

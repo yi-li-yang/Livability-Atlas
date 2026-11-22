@@ -1,0 +1,36 @@
+{
+  "id": "walk-is-quicker",
+  "description": "All points are on longitude 0, so a straight line is the Earth's radius (6,371,008.8 m) times the difference of latitude in radians: 0.001 degrees is 111.19508 m, a walk of 111.19508 x 1.33 / 80 = 1.8486182 minutes. The place is 0.002 degrees from the cell's centre: a direct walk of 3.6972364 minutes. Through station 0 it is 2 + 0 + 1.8486182 = 3.8486182, so the walk wins.",
+  "constants": {
+    "reach_minutes": 40,
+    "walk_metres_a_minute": 80,
+    "street_factor": 1.33,
+    "unreachable": 65535
+  },
+  "stations": [
+    [
+      51.501,
+      0
+    ]
+  ],
+  "matrix": [
+    [
+      0
+    ]
+  ],
+  "cell": {
+    "lat": 51.5,
+    "lng": 0,
+    "stations": [
+      [
+        0,
+        2.0
+      ]
+    ]
+  },
+  "place": {
+    "lat": 51.502,
+    "lng": 0
+  },
+  "expected": 3.6972364177649695
+}

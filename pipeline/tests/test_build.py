@@ -667,6 +667,8 @@ def use_synthetic_data(monkeypatch, tmp_path):
         build_module.tfl_journeys, "read_times", lambda path: synthetic_journey_times()
     )
     monkeypatch.setattr(build_module.tfl_lines, "read_stops", lambda path: synthetic_line_stops())
+    # One station, so no ride between stations: the matrix is its one zero.
+    monkeypatch.setattr(build_module.tfl_timetables, "fetch", lambda data_dir, where: ([], {}))
     monkeypatch.setattr(
         build_module.nhs_gp, "fetch", lambda data_dir: (tmp_path / "p", tmp_path / "w")
     )

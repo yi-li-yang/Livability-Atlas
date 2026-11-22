@@ -118,6 +118,24 @@ def qa(
     _say(report, bundle, publishing=publish)
 
 
+@app.command("travel-check")
+def travel_check(
+    region: Annotated[str, typer.Argument(help="The region whose estimate to check.")],
+    sample: Annotated[int, typer.Option("--sample", help="How many journeys to ask.")] = 300,
+    data_dir_option: DataDir = None,
+) -> None:
+    """Compare the travel estimate for a user's places with TfL's Journey Planner."""
+    from atlas.travel_check import check as check_travel
+
+    data_dir = data_dir_option or default_data_dir()
+    region_dir = data_dir / "published" / region
+    version = published_version(region_dir)
+    if version is None:
+        typer.echo(f"No published bundle of {region} in {region_dir}", err=True)
+        raise typer.Exit(code=1)
+    typer.echo(check_travel(region_dir / version, data_dir, region, sample))
+
+
 def _plural(n: int, one: str, many: str) -> str:
     return f"{n} {one if n == 1 else many}"
 

@@ -1,5 +1,5 @@
 import { cellToLatLng } from "h3-js";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type Bundle, loadBundle } from "./data/bundle";
 import { FactorTree } from "./features/factors/FactorTree";
 import { type Layout, loadLayout, saveLayout } from "./features/factors/layout";
@@ -16,6 +16,20 @@ import { noDataNote, viewOptions } from "./features/map/views";
 import { neighbourhoodStabilitySteps } from "./features/neighbourhoods/stability";
 import { TopNeighbourhoods } from "./features/neighbourhoods/TopNeighbourhoods";
 import { topNeighbourhoods } from "./features/neighbourhoods/top";
+import {
+  PlacesPanel,
+  type PostcodeResult,
+} from "./features/places/PlacesPanel";
+import {
+  findPostcode,
+  loadPlaces,
+  type Place,
+  type PostcodeTable,
+  savePlaces,
+  withoutPlace,
+  withPlace,
+} from "./features/places/places";
+import { minutesToPlaces, withPlaces } from "./features/places/withPlaces";
 import { PresetPicker } from "./features/presets/PresetPicker";
 import {
   fromPreset,
@@ -42,6 +56,8 @@ import {
   type Profile,
   scoreRegion,
 } from "./scoring/region";
+import type { TravelData } from "./travel/estimate";
+import { loadPostcodes, loadTravel } from "./travel/load";
 import { useIsPhone } from "./useIsPhone";
 
 const BUNDLES_URL =
@@ -98,6 +114,16 @@ export function App() {
   // On a phone the preferences are a sheet along the bottom, shut until the user opens it.
   const phone = useIsPhone();
   const [sheetOpen, setSheetOpen] = useState(false);
+  // The user's own places, kept in this browser only, and the travel files they need.
+  const [places, setPlaces] = useState<Place[]>(() =>
+    loadPlaces(browserStorage()),
+  );
+  const [picking, setPicking] = useState<string | null>(null);
+  const [travel, setTravel] = useState<
+    | { status: "idle" | "loading" | "failed" | "none" }
+    | { status: "ready"; data: TravelData }
+  >({ status: "idle" });
+  const postcodes = useRef<Promise<PostcodeTable | null> | null>(null);
   const [focus, setFocus] = useState<{
     lng: number;
     lat: number;
@@ -144,7 +170,72 @@ export function App() {
   const flipped = profile.flipped;
   const choices = profile.choices;
   const ranges = profile.ranges;
-  const bundle = state.status === "ready" ? state.bundle : null;
+  const base = state.status === "ready" ? state.bundle : null;
+  useEffect(() => savePlaces(places, browserStorage()), [places]);
+  // The travel files are large, so they load only once the user has a place.
+  useEffect(() => {
+    if (!base || places.length === 0 || travel.status !== "idle") return;
+    if (!base.manifest.travel) {
+      setTravel({ status: "none" });
+      return;
+    }
+    setTravel({ status: "loading" });
+    loadTravel(base).then(
+      (data) =>
+        setTravel(data ? { status: "ready", data } : { status: "none" }),
+      (error) => {
+        console.error(error);
+        setTravel({ status: "failed" });
+      },
+    );
+  }, [base, places.length, travel.status]);
+  // After a failed load, a change to the places tries again.
+  useEffect(() => {
+    if (places.length > 0) {
+      setTravel((now) => (now.status === "failed" ? { status: "idle" } : now));
+    }
+  }, [places]);
+  const perPlace = useMemo(
+    () =>
+      travel.status === "ready" && places.length > 0
+        ? minutesToPlaces(travel.data, places)
+        : [],
+    [travel, places],
+  );
+  // With places of their own, travel time is the time to them: the bundle the app scores says so.
+  const bundle = useMemo(
+    () => (base ? withPlaces(base, perPlace) : null),
+    [base, perPlace],
+  );
+  const placesStatus =
+    places.length === 0
+      ? null
+      : travel.status === "loading" || travel.status === "idle"
+        ? "Working out travel times to your places…"
+        : travel.status === "failed"
+          ? "Travel times to your places could not be loaded."
+          : travel.status === "none"
+            ? "This map has no travel data for your places yet."
+            : "Travel time on the map is now the time to your places.";
+  const findPostcodePlace = async (
+    name: string,
+    text: string,
+  ): Promise<PostcodeResult> => {
+    if (!base) return "failed";
+    postcodes.current ??= loadPostcodes(base);
+    let table: PostcodeTable | null;
+    try {
+      table = await postcodes.current;
+    } catch (error) {
+      console.error(error);
+      postcodes.current = null; // the next try loads the table again
+      return "failed";
+    }
+    const point = table ? findPostcode(table, text) : null;
+    if (!point) return "not found";
+    setPlaces((now) => withPlace(now, { name, ...point }));
+    return "added";
+  };
   const cells = useMemo(() => (bundle ? toHexCells(bundle) : []), [bundle]);
   // The lowest and highest value of each user-range indicator: the ends of its band's slider.
   const extents = useMemo(() => {
@@ -325,8 +416,18 @@ export function App() {
           />
         </div>
         <div className="mt-4 border-t border-neutral-300 pt-3">
+          <PlacesPanel
+            places={places}
+            picking={picking !== null}
+            status={placesStatus}
+            onFindPostcode={findPostcodePlace}
+            onPick={setPicking}
+            onRemove={(index) => setPlaces((now) => withoutPlace(now, index))}
+          />
+        </div>
+        <div className="mt-4 border-t border-neutral-300 pt-3">
           <LimitsPanel
-            bundle={state.bundle}
+            bundle={bundle ?? state.bundle}
             profile={profile}
             onChange={setProfile}
           />
@@ -352,7 +453,16 @@ export function App() {
           selected={selected}
           focus={focus}
           onHover={phone ? () => {} : setHover}
-          onSelect={setSelected}
+          places={places}
+          onSelect={(index) => {
+            if (picking !== null && index !== null && bundle) {
+              const [lat, lng] = cellToLatLng(bundle.cells[index]);
+              setPlaces((now) => withPlace(now, { name: picking, lat, lng }));
+              setPicking(null);
+              return;
+            }
+            setSelected(index);
+          }}
         />
         {state.status === "loading" && (
           <p
@@ -414,6 +524,14 @@ export function App() {
         {chosen && (
           <WhyPanel
             {...chosen}
+            places={
+              selected !== null && perPlace.length === places.length
+                ? places.map((place, i) => ({
+                    name: place.name,
+                    minutes: perPlace[i]?.[selected] ?? Number.NaN,
+                  }))
+                : []
+            }
             phone={phone}
             onClose={() => setSelected(null)}
           />
@@ -445,9 +563,10 @@ export function App() {
               contributors.
             </p>
             <p>
-              Privacy: your weights, limits and choices stay in your browser and
-              are sent to no server. The map's tiles and labels come from
-              OpenFreeMap.
+              Privacy: your weights, limits, choices and places stay in your
+              browser and are sent to no server; a postcode is looked up in a
+              table the app loads, not sent anywhere. The map's tiles and labels
+              come from OpenFreeMap.
             </p>
             {/* Datasets from one publisher often share a line of credit: show each line once. */}
             {[
