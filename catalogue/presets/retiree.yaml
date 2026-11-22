@@ -1,0 +1,24 @@
+id: retiree
+name: Retired
+description: Health care close by, quiet and safe streets, and low running costs. Schools and jobs do not count, and a quiet street is better than a busy one.
+weights:
+  health-care: 5
+  gp-access: 5
+  ae-distance: 5
+  dentists: 4
+  safety: 5
+  environment: 4
+  noise: 5
+  air-quality: 4
+  green-space: 5
+  housing-and-cost: 4
+  council-tax: 5
+  energy-efficiency: 5
+  daily-amenities: 4
+  community-and-people: 4
+  transport: 4
+  education: 0
+  work-and-economy: 0
+  digital-connectivity: 2
+flipped:
+  - nightlife

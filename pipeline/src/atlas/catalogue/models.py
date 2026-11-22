@@ -275,3 +275,37 @@ class Region(_Strict):
     grid: Grid
     buffer_m: int = Field(ge=0)  # measured indicators are computed this far beyond the boundary
     default_places: list[Place] = []
+
+
+# --- presets/<id>.yaml ---
+
+
+class Limit(_Strict):
+    """A hard limit: a cell that fails it is left out of the ranking. It names a measured
+    indicator and one bound: a highest value, a lowest value, or the categories that pass."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    indicator: Id
+    max: float | None = None
+    min: float | None = None
+    in_: list[Text] | None = Field(default=None, alias="in", min_length=1)
+
+    @model_validator(mode="after")
+    def one_bound(self) -> Self:
+        bounds = [b for b in (self.max, self.min, self.in_) if b is not None]
+        if len(bounds) != 1:
+            raise ValueError("a limit needs exactly one of max, min and in")
+        return self
+
+
+class Preset(_Strict):
+    """A ready-made preference profile to start from. Only what it lists differs from the
+    defaults: a factor it does not name keeps its default weight."""
+
+    id: Id
+    name: Text
+    description: Text
+    weights: dict[Id, Weight] = {}
+    flipped: list[Id] = []  # indicators whose direction the user may choose, set the other way
+    limits: list[Limit] = []

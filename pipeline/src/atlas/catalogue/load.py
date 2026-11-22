@@ -11,8 +11,8 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, ValidationError
 
-from atlas.catalogue.checks import check_datasets, check_factors, check_region
-from atlas.catalogue.models import DatasetsFile, FactorsFile, Region
+from atlas.catalogue.checks import check_datasets, check_factors, check_preset, check_region
+from atlas.catalogue.models import DatasetsFile, FactorsFile, Preset, Region
 from atlas.paths import CATALOGUE_DIR
 
 
@@ -58,7 +58,7 @@ def _parse[T: BaseModel](model: type[T], path: Path, problems: list[str]) -> T |
 
 
 def validate_catalogue(directory: Path = CATALOGUE_DIR) -> list[str]:
-    """Checks `factors.yaml`, `datasets.yaml` and `regions/*.yaml` in `directory`.
+    """Checks `factors.yaml`, `datasets.yaml`, `regions/*.yaml` and `presets/*.yaml` in `directory`.
 
     An empty list means they pass.
     """
@@ -79,6 +79,16 @@ def validate_catalogue(directory: Path = CATALOGUE_DIR) -> list[str]:
             )
         if datasets is not None:
             problems.extend(check_region(region, datasets))
+    for path in sorted((directory / "presets").glob("*.yaml")):
+        preset = _parse(Preset, path, problems)
+        if preset is None:
+            continue
+        if preset.id != path.stem:
+            problems.append(
+                f"{preset.id}: the file is presets/{path.name}, so the id must be {path.stem}."
+            )
+        if factors is not None:
+            problems.extend(check_preset(preset, factors))
     return problems
 
 
@@ -89,6 +99,7 @@ class Catalogue:
     factors: FactorsFile
     datasets: DatasetsFile
     regions: dict[str, Region]
+    presets: dict[str, Preset]
 
 
 def load_catalogue(directory: Path = CATALOGUE_DIR) -> Catalogue:
@@ -104,8 +115,13 @@ def load_catalogue(directory: Path = CATALOGUE_DIR) -> Catalogue:
     for path in sorted((directory / "regions").glob("*.yaml")):
         region = read(Region, path)
         regions[region.id] = region
+    presets = {}
+    for path in sorted((directory / "presets").glob("*.yaml")):
+        preset = read(Preset, path)
+        presets[preset.id] = preset
     return Catalogue(
         factors=read(FactorsFile, directory / "factors.yaml"),
         datasets=read(DatasetsFile, directory / "datasets.yaml"),
         regions=regions,
+        presets=presets,
     )
