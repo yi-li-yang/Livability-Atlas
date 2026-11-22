@@ -7,7 +7,7 @@ The machine-readable factor catalogue. The [glossary](../docs/glossary.md) defin
 | `factors.yaml` | The factor tree, with every factor's default weight and the reason for it. A factor without sub-factors is a measured indicator, and research fills in how it is measured and scored |
 | `datasets.yaml` | Every dataset that a measured indicator uses or may use, with its tier and licence, and what it can tell us |
 
-The regions and the presets arrive in later steps.
+`regions/<id>.yaml` holds a region, and `presets/<id>.yaml` a preset (below).
 
 ## factors.yaml
 
@@ -111,3 +111,17 @@ After editing either file, refresh the explorer's copy and run its tests:
 just docs
 just check
 ```
+
+## presets/\<id\>.yaml
+
+A preset is a ready-made preference profile to start from, such as a renter who works in the centre. It lists only what differs from the defaults: a factor it does not name keeps its default weight. `atlas validate` checks each file against the `Preset` model in `pipeline/src/atlas/catalogue/models.py` and `check_preset` in `checks.py`, and `just generate` exports the schema to `shared/schemas/preset.schema.json`.
+
+| Field | Meaning |
+| --- | --- |
+| `id` | The file's name without `.yaml`, in kebab-case |
+| `name`, `description` | The plain words the app shows. The description is one sentence that says what the profile cares about |
+| `weights` | A whole number from 0 to 5 for any factor or measured indicator, by id. Every id must be in `factors.yaml` |
+| `flipped` | Indicators whose direction the user chooses (`preference_type: user-direction`) that the preset sets the other way, such as `nightlife` for a quiet life |
+| `limits` | Hard limits, each on a built measured indicator with exactly one of `max`, `min` or `in` (a list of categories). A limit greys out cells, so a preset uses one only where almost every user of it would want it |
+
+The app does not offer presets yet: that is interface work.

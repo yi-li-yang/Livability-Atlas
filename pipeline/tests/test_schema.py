@@ -12,6 +12,7 @@ def test_it_writes_one_schema_per_file(tmp_path):
         "datasets.schema.json",
         "factors.schema.json",
         "manifest.schema.json",
+        "preset.schema.json",
         "region.schema.json",
     ]
 

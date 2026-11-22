@@ -1,0 +1,17 @@
+id: renter-near-the-centre
+name: Renter who works in the centre
+description: A short trip to work, a rent you can pay, and a lively place after work. Buying a home does not count.
+weights:
+  transport: 5
+  travel-time-to-places: 5
+  housing-and-cost: 4
+  renting-cost: 5
+  buying-cost: 0
+  price-trend: 0
+  sales-volume: 0
+  daily-amenities: 4
+  culture-and-leisure: 4
+  safety: 4
+  digital-connectivity: 4
+  education: 1
+  animal-friendliness: 2

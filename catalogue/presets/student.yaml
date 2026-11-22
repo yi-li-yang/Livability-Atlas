@@ -1,0 +1,20 @@
+id: student
+name: Student
+description: A cheap rent, easy travel and a lively city. Council tax does not count, because students do not pay it, and neither does buying a home.
+weights:
+  housing-and-cost: 5
+  renting-cost: 5
+  buying-cost: 0
+  council-tax: 0
+  price-trend: 0
+  sales-volume: 0
+  transport: 5
+  culture-and-leisure: 5
+  nightlife: 5
+  daily-amenities: 4
+  safety: 4
+  community-and-people: 4
+  digital-connectivity: 4
+  education: 0
+  health-care: 2
+  animal-friendliness: 1
