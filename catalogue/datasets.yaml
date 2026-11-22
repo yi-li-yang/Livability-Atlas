@@ -721,6 +721,24 @@ datasets:
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
 
+  - id: dfe-ks4-performance
+    name: Key stage 4 performance, school level (Department for Education)
+    publisher: Department for Education
+    url: https://explore-education-statistics.service.gov.uk/find-statistics/key-stage-4-performance
+    tier: country
+    area: England
+    resolution: one row for each school, year and group of pupils
+    date: school years 2023/24 to 2025/26 (2024/25 final)
+    licence: OGL-UK-3.0
+    licence_checked: 2026-11-22
+    commercial_use: true
+    licence_note: >-
+      Published on GOV.UK through the Department for Education's statistics
+      API under the Open Government Licence v3.0.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The average Attainment 8 score and the number of pupils of each secondary school
+
   - id: ons-personal-wellbeing-local-authority
     name: Personal well-being estimates by local authority (ONS)
     publisher: Office for National Statistics (ONS)

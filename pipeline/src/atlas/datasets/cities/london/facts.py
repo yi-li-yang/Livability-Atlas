@@ -577,6 +577,23 @@ def your_industry(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Schools around Richmond reach higher GCSE scores than those around Brixton",
+    needs=("school_league_tables",),
+)
+def school_league_tables(cells: Cells) -> str:
+    column = "school_league_tables"
+    reach = covered(cells, column)
+    expect(0.85 < reach < 0.97, f"{share(reach)} of cells have 3 secondary schools with results")
+    values = present(cells, column)
+    expect(bool(((values > 20) & (values < 90)).all()), "an Attainment 8 score is out of range")
+    richmond, brixton = cells.at("Richmond", column), cells.at("Brixton", column)
+    expect(richmond > brixton + 5, f"Richmond {richmond:.1f} and Brixton {brixton:.1f} points")
+    middle = median(cells, column)
+    expect(46 < middle < 56, f"the median is {middle:.1f} points")
+    return f"median {middle:.1f}, Richmond {richmond:.1f}, Brixton {brixton:.1f} points"
+
+
+@FACTS.add(
     "Boroughs rate their lives near 7 out of 10, a point apart at most; the City has none",
     needs=("life_satisfaction",),
 )
