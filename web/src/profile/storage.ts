@@ -7,7 +7,9 @@ export const STORAGE_KEY = "atlas.profile.v1";
 const ID = /^[a-z0-9][a-z0-9-]*$/;
 const NUMBER = /^\d+(\.\d+)?$/;
 const CATEGORY = /^[a-z0-9]+$/i;
-const SIGNED = /^-?\d+(\.\d+)?$/;
+const SIGNED = /^-?\d+(\.\d+)?(e-?\d+)?$/;
+/** A number for the link: a link reads "+" as a space, so "2e+21" is written "2e21". */
+const linkNumber = (x: number): string => String(x).replace("e+", "e");
 const MAX_WEIGHT = 5;
 
 /** A limit as `indicator:kind:value`, a list of categories joined by dots. */
@@ -68,7 +70,7 @@ export function encodeProfile(profile: Profile): string {
   const ranges = Object.entries(profile.ranges ?? {});
   if (ranges.length > 0) {
     parts.push(
-      `r=${ranges.map(([id, [lo, hi]]) => `${id}:${lo}~${hi}`).join(",")}`,
+      `r=${ranges.map(([id, [lo, hi]]) => `${id}:${linkNumber(lo)}~${linkNumber(hi)}`).join(",")}`,
     );
   }
   if (profile.mode === "balanced") parts.push("m=balanced");

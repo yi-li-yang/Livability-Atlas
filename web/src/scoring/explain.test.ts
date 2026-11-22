@@ -9,7 +9,7 @@ import {
   rankOf,
   sortedScores,
 } from "./explain";
-import { allLeafScores, scoreRegion } from "./region";
+import { allLeafScores, type Profile, scoreRegion } from "./region";
 
 const FIXTURES = fileURLToPath(
   new URL("../../e2e/fixtures/bundles/", import.meta.url),
@@ -87,6 +87,25 @@ describe("explainCell", () => {
         expect(strengths).not.toContain(weakness);
       }
     }
+  });
+});
+
+describe("the curve in an explanation", () => {
+  it("is the one the user's direction and band make, not only the catalogue's", async () => {
+    const bundle = await load();
+    const evidence = (profile: Profile) =>
+      explainCell(bundle, profile, 0)
+        .factors.flatMap(function all(f): FactorLine[] {
+          return [f, ...f.children.flatMap(all)];
+        })
+        .find((f) => f.evidence?.indicator.id === "burglary")?.evidence;
+    expect(evidence({ weights: {} })?.flipped).toBe(false);
+    expect(evidence({ weights: {}, flipped: ["burglary"] })?.flipped).toBe(
+      true,
+    );
+    expect(evidence({ weights: {} })?.curve).toEqual(
+      bundle.manifest.indicators.find((i) => i.id === "burglary")?.curve,
+    );
   });
 });
 

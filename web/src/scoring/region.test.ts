@@ -25,13 +25,14 @@ function random(seed: number): () => number {
 const indicator = (
   id: string,
   curve: ManifestIndicator["curve"],
+  preference_type: ManifestIndicator["preference_type"] = "fixed",
 ): ManifestIndicator => ({
   id,
   name: id,
   column: id,
   unit: "",
   evidence_type: "direct",
-  preference_type: "fixed",
+  preference_type,
   curve,
   datasets: [],
 });
@@ -70,7 +71,11 @@ const factors: ManifestFactor[] = [
 const indicators = [
   indicator("crime", { shape: "ramp", t0: 100, t1: 0 }),
   indicator("band", { shape: "lookup", scores: { a: 0, b: 0.5, c: 1 } }),
-  indicator("noise", { shape: "ideal-range", l0: 30, l1: 40, u0: 55, u1: 70 }),
+  indicator(
+    "noise",
+    { shape: "ideal-range", l0: 30, l1: 40, u1: 55, u0: 70 },
+    "user-range",
+  ),
   indicator("trees", { shape: "percentile", better: "higher" }),
   indicator("rank", { shape: "percentile", better: "lower" }),
   indicator("comfort", { shape: "ramp", t0: 0, t1: 10 }),
@@ -334,5 +339,27 @@ describe("the time to rescore a region", () => {
     }
     times.sort((a, b) => a - b);
     expect(times[3]).toBeLessThan(100);
+  });
+});
+
+describe("a band on an indicator that is not a user range", () => {
+  it("changes nothing, since the user has no slider to see or undo it", () => {
+    const made = makeBundle(50, 3);
+    const bundle: Bundle = {
+      ...made,
+      manifest: {
+        ...made.manifest,
+        indicators: made.manifest.indicators.map((i) =>
+          i.id === "noise" ? { ...i, preference_type: "fixed" as const } : i,
+        ),
+      },
+    };
+    const plain = allLeafScores(bundle);
+    const banded = allLeafScores(bundle, [], {}, { noise: [45, 50] });
+    expect(banded.get("noise")).toEqual(plain.get("noise"));
+    const profile: Profile = { weights: {}, ranges: { noise: [45, 50] } };
+    expect(scoreCaseFor(bundle, profile, 0)).toEqual(
+      scoreCaseFor(bundle, { weights: {} }, 0),
+    );
   });
 });

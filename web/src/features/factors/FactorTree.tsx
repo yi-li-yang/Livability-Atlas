@@ -4,6 +4,7 @@ import type {
   ManifestIndicator,
 } from "../../generated/manifest.schema";
 import type { Profile } from "../../scoring/region";
+import { formatNumber } from "./evidence";
 import type { Layout } from "./layout";
 import {
   countAgain,
@@ -88,8 +89,9 @@ export function FactorTree({
         <BandSlider
           name={view.name}
           band={band}
-          min={Math.floor(Math.min(extent?.min ?? band[0], band[0]))}
-          max={Math.ceil(Math.max(extent?.max ?? band[1], band[1]))}
+          min={Math.min(extent?.min ?? band[0], band[0])}
+          max={Math.max(extent?.max ?? band[1], band[1])}
+          unit={indicator.unit}
           onSet={(next) => onChange(withRange(profile, indicator, next))}
         />
       );
@@ -306,6 +308,7 @@ export function FactorTree({
                     </button>
                   )}
                 </div>
+                {preference(f)}
                 {picker(f)}
               </li>
             ))}
@@ -406,10 +409,6 @@ function Direction({
   );
 }
 
-/** A number as the band's words show it: whole where it is whole, else to one decimal place. */
-const plain = (x: number): string =>
-  Number.isInteger(x) ? String(x) : x.toFixed(1);
-
 /** The ideal-range band of a user-range indicator: two sliders for the ends of full marks. */
 function BandSlider({
   name,
@@ -417,15 +416,21 @@ function BandSlider({
   min,
   max,
   onSet,
+  unit,
 }: {
   name: string;
   band: readonly [number, number];
   min: number;
   max: number;
+  /** The indicator's unit, which says how to write its numbers. */
+  unit: string;
   onSet: (band: [number, number]) => void;
 }) {
   const [lo, hi] = band;
-  const step = max - min > 50 ? 1 : (max - min) / 100;
+  // Whole steps over a wide span such as years; a hundredth of the span over a narrow one.
+  const span = max - min;
+  const step = span > 50 ? 1 : span > 0 ? span / 100 : 1;
+  const plain = (x: number) => formatNumber(x, unit);
   return (
     <div className="mt-1 space-y-1 text-xs" data-testid="band">
       <p>

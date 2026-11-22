@@ -238,6 +238,10 @@ describe("the bands of user-range indicators", () => {
     expect(encodeProfile(banded)).toBe("r=building-age:1890~1930,cold:-5~2.5");
     expect(decodeProfile(encodeProfile(banded))).toEqual(banded);
   });
+  it("keep a tiny or huge number that JavaScript writes with an exponent", () => {
+    const tiny = { weights: {}, ranges: { x: [1e-7, 2e21] as const } };
+    expect(decodeProfile(encodeProfile(tiny))).toEqual(tiny);
+  });
   it("are dropped when malformed or upside down, one by one", () => {
     expect(
       decodeProfile("r=a:1~2,b:3~1,c:x~2,d:1~2~3,E:1~2,f:4~4").ranges,

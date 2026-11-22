@@ -178,6 +178,19 @@ function columnScores(
 }
 
 /**
+ * The user's band for an indicator, where it is a user range. A band on any other indicator (from
+ * an edited link, say) is ignored: the user would have no slider to see or undo it.
+ */
+function bandFor(
+  indicator: ManifestIndicator,
+  ranges: Profile["ranges"],
+): Band | undefined {
+  return indicator.preference_type === "user-range"
+    ? ranges?.[indicator.id]
+    : undefined;
+}
+
+/**
  * The leaf scores of every measured indicator of a bundle, with the given directions flipped, the
  * given options picked and the given bands set.
  */
@@ -191,7 +204,13 @@ export function allLeafScores(
   return new Map(
     bundle.manifest.indicators.map((i) => [
       i.id,
-      leafScores(bundle, i, flipped.has(i.id), choices?.[i.id], ranges?.[i.id]),
+      leafScores(
+        bundle,
+        i,
+        flipped.has(i.id),
+        choices?.[i.id],
+        bandFor(i, ranges),
+      ),
     ]),
   );
 }
@@ -343,7 +362,7 @@ export function scoreCaseFor(
           ? regionValues(bundle, indicator.column)
           : undefined,
       flipped: indicator ? flipped.has(indicator.id) : false,
-      band: indicator ? profile.ranges?.[indicator.id] : undefined,
+      band: indicator ? bandFor(indicator, profile.ranges) : undefined,
     };
   };
   return {
