@@ -443,3 +443,97 @@ def test_a_presets_limit_is_written_as_the_web_app_reads_it():
         "weights": {"transport": 5},
         "limits": [{"indicator": "service-level", "in": ["6a", "6b"]}],
     }
+
+
+def _travel(minute=7):
+    import numpy as np
+
+    from atlas.publish.bundle import Travel
+
+    return Travel(
+        stations=[("940GZZLUBXN", 51.4627, -0.1145), ("940GZZLUSKW", 51.4721, -0.1230)],
+        cell_stations=[(0, 0, 3.25), (0, 1, 12.0), (2, 1, 5.5)],
+        matrix=np.array([[0, minute], [minute + 1, 0]], dtype=np.uint16),
+        postcodes=[("SW98HE", 51.4627, -0.1145), ("SW21AA", 51.4612, -0.1156)],
+    )
+
+
+def build_with_travel(catalogue, tmp_path, travel):
+    return write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"service-level": ["6b", "2", None]},
+        travel=travel,
+        out_dir=tmp_path,
+    )
+
+
+def test_a_bundle_can_carry_the_travel_files_that_the_manifest_names(catalogue, tmp_path):
+    bundle = build_with_travel(catalogue, tmp_path, _travel())
+    assert sorted(p.name for p in bundle.iterdir()) == [
+        "cell-stations.parquet",
+        "cells.parquet",
+        "manifest.json",
+        "postcodes.parquet",
+        "station-matrix.parquet",
+        "stations.parquet",
+    ]
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    travel = manifest["travel"]
+    assert travel["indicator"] == "travel-time-to-places"
+    assert travel["stations"] == "stations.parquet"
+    assert travel["cell_stations"] == "cell-stations.parquet"
+    assert travel["matrix"] == "station-matrix.parquet"
+    assert travel["station_count"] == 2
+    assert travel["unreachable"] == 65535
+    stations = pq.read_table(bundle / "stations.parquet").to_pydict()
+    assert stations["stop"] == ["940GZZLUBXN", "940GZZLUSKW"]
+    links = pq.read_table(bundle / "cell-stations.parquet").to_pydict()
+    assert links == {"cell": [0, 0, 2], "station": [0, 1, 1], "minutes": [3.25, 12.0, 5.5]}
+    matrix = pq.read_table(bundle / "station-matrix.parquet").to_pydict()
+    assert matrix["minutes"] == [0, 7, 8, 0]  # row by row: from each station to each
+    assert travel["postcodes"] == "postcodes.parquet"
+    postcodes = pq.read_table(bundle / "postcodes.parquet").to_pydict()
+    assert postcodes["postcode"] == ["SW21AA", "SW98HE"]  # sorted, for the lookup
+    assert postcodes["lat"] == pytest.approx([51.4612, 51.4627], abs=1e-5)
+
+
+def test_the_travel_files_are_part_of_the_version(catalogue, tmp_path):
+    a = build_with_travel(catalogue, tmp_path / "a", _travel(7))
+    b = build_with_travel(catalogue, tmp_path / "b", _travel(7))
+    c = build_with_travel(catalogue, tmp_path / "c", _travel(9))
+    assert a.name == b.name
+    assert a.name != c.name
+
+
+def test_the_travel_files_must_fit_the_cells_and_stations(catalogue, tmp_path):
+    import numpy as np
+
+    from atlas.publish.bundle import Travel
+
+    stations = [("a", 51.0, 0.0)]
+    with pytest.raises(ValueError, match="square"):
+        build_with_travel(
+            catalogue,
+            tmp_path,
+            Travel(stations, [], np.zeros((2, 2), dtype=np.uint16)),
+        )
+    with pytest.raises(ValueError, match="cell"):
+        build_with_travel(
+            catalogue,
+            tmp_path,
+            Travel(stations, [(9, 0, 1.0)], np.zeros((1, 1), dtype=np.uint16)),
+        )
+    with pytest.raises(ValueError, match="station"):
+        build_with_travel(
+            catalogue,
+            tmp_path,
+            Travel(stations, [(0, 3, 1.0)], np.zeros((1, 1), dtype=np.uint16)),
+        )
+    with pytest.raises(ValueError, match="order of the cells"):
+        build_with_travel(
+            catalogue,
+            tmp_path,
+            Travel(stations, [(2, 0, 1.0), (0, 0, 1.0)], np.zeros((1, 1), dtype=np.uint16)),
+        )

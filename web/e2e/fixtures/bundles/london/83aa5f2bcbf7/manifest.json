@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": "12f78cf80627",
+  "version": "83aa5f2bcbf7",
   "region": {
     "id": "london",
     "name": "London"
@@ -34,6 +34,12 @@
               "indicator": "service-level"
             }
           ]
+        },
+        {
+          "id": "travel-time-to-places",
+          "name": "Travel time to places",
+          "default_weight": 3,
+          "indicator": "travel-time-to-places"
         }
       ]
     },
@@ -185,6 +191,20 @@
         "t1": 6.0
       },
       "datasets": ["tfl-unified-api", "naptan", "openstreetmap"]
+    },
+    {
+      "id": "travel-time-to-places",
+      "name": "Travel time to places",
+      "column": "travel_time_to_places",
+      "unit": "minutes",
+      "evidence_type": "estimate",
+      "preference_type": "fixed",
+      "curve": {
+        "shape": "ramp",
+        "t0": 90.0,
+        "t1": 15.0
+      },
+      "datasets": ["tfl-unified-api", "openstreetmap"]
     },
     {
       "id": "burglary",
@@ -643,6 +663,7 @@
       "description": "A short trip to work, a rent you can pay, and a lively place after work. Buying a home does not count.",
       "weights": {
         "transport": 5,
+        "travel-time-to-places": 5,
         "safety": 4
       }
     },
@@ -671,5 +692,17 @@
         "health-care": 2
       }
     }
-  ]
+  ],
+  "travel": {
+    "indicator": "travel-time-to-places",
+    "stations": "stations.parquet",
+    "cell_stations": "cell-stations.parquet",
+    "matrix": "station-matrix.parquet",
+    "station_count": 85,
+    "unreachable": 65535,
+    "reach_minutes": 40.0,
+    "walk_metres_a_minute": 80.0,
+    "street_factor": 1.33,
+    "postcodes": "postcodes.parquet"
+  }
 }

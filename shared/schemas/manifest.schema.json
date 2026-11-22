@@ -491,6 +491,73 @@
       "title": "ManifestRegion",
       "type": "object"
     },
+    "ManifestTravel": {
+      "additionalProperties": false,
+      "description": "The files and constants of the travel estimate to a user's places (D10), which the web app\nreads only when the user adds a place. Each file is beside `cells.parquet`.",
+      "properties": {
+        "indicator": {
+          "title": "Indicator",
+          "type": "string"
+        },
+        "stations": {
+          "title": "Stations",
+          "type": "string"
+        },
+        "cell_stations": {
+          "title": "Cell Stations",
+          "type": "string"
+        },
+        "matrix": {
+          "title": "Matrix",
+          "type": "string"
+        },
+        "station_count": {
+          "title": "Station Count",
+          "type": "integer"
+        },
+        "unreachable": {
+          "title": "Unreachable",
+          "type": "integer"
+        },
+        "reach_minutes": {
+          "title": "Reach Minutes",
+          "type": "number"
+        },
+        "walk_metres_a_minute": {
+          "title": "Walk Metres A Minute",
+          "type": "number"
+        },
+        "street_factor": {
+          "title": "Street Factor",
+          "type": "number"
+        },
+        "postcodes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Postcodes"
+        }
+      },
+      "required": [
+        "indicator",
+        "stations",
+        "cell_stations",
+        "matrix",
+        "station_count",
+        "unreachable",
+        "reach_minutes",
+        "walk_metres_a_minute",
+        "street_factor"
+      ],
+      "title": "ManifestTravel",
+      "type": "object"
+    },
     "Percentile": {
       "additionalProperties": false,
       "properties": {
@@ -613,6 +680,17 @@
       ],
       "default": null,
       "title": "Presets"
+    },
+    "travel": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ManifestTravel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [

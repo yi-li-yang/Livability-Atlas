@@ -83,14 +83,14 @@ test("the sub-factors of each factor are the arcs outside it, sharing its angle"
 }) => {
   await openApp(page);
   await rings(page).click();
-  // Transport has one sub-factor in the test bundle, which takes all of it.
+  // Transport has two sub-factors in the test bundle, at the same default weight.
   await expect(part(page, "getting-around")).toHaveAttribute(
     "data-parent",
     "transport",
   );
   expect(
     Number(await part(page, "getting-around").getAttribute("data-share")),
-  ).toBeCloseTo(1, 3);
+  ).toBeCloseTo(0.5, 3);
   // Each factor's parts add up to the whole of it.
   const sums = await page.evaluate(() => {
     const totals = new Map<string, number>();

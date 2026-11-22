@@ -50,7 +50,10 @@ describe("explainCell", () => {
       "health-care",
     ]);
     const transport = explanation.factors[0];
-    expect(transport.children.map((c) => c.id)).toEqual(["getting-around"]);
+    expect(transport.children.map((c) => c.id)).toEqual([
+      "getting-around",
+      "travel-time-to-places",
+    ]);
     expect(transport.children[0].children.map((c) => c.id)).toEqual([
       "station-proximity",
       "service-level",

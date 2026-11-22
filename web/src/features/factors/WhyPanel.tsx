@@ -109,6 +109,7 @@ export function WhyPanel({
   rank,
   total,
   onMap,
+  places = [],
   phone = false,
   onClose,
 }: {
@@ -117,6 +118,8 @@ export function WhyPanel({
   total: number;
   /** What the map shows in place of the livability score, and the cell's score on it. */
   onMap?: { name: string; score: number | null } | null;
+  /** The estimated minutes from this cell to each of the user's own places. */
+  places?: readonly { name: string; minutes: number }[];
   /** Whether to lay it out for a phone: a sheet from the bottom, across the width. */
   phone?: boolean;
   onClose: () => void;
@@ -187,6 +190,27 @@ export function WhyPanel({
           No weak spots: each factor shows its own score, and a weak one pulls
           the total down harder, so they do not add up to it.
         </p>
+      )}
+      {places.length > 0 && (
+        <section aria-label="Your places" className="mt-3">
+          <h3 className="font-medium">Your places</h3>
+          <ul className="mt-1 space-y-1 text-xs">
+            {places.map((place) => (
+              <li key={place.name} className="flex justify-between gap-2">
+                <span>{place.name}</span>
+                <span className="tabular-nums">
+                  {Number.isNaN(place.minutes)
+                    ? "No way within reach"
+                    : `${Math.round(place.minutes)} minutes`}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1 text-xs text-neutral-600">
+            An estimate by public transport, on a weekday morning. Buses are not
+            counted yet.
+          </p>
+        </section>
       )}
       {explanation.excluded && (
         <p role="note" className="mt-2 rounded bg-neutral-200 p-2 text-xs">

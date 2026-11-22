@@ -42,8 +42,10 @@ web app (React, in each user's browser)
 | --- | --- |
 | `manifest.json` | Factor tree, scoring curves, preference types, datasets, licences and dates, the named neighbourhoods, and the presets |
 | `cells.parquet` | One row per hex cell, one column per measured indicator |
-| `cell-stations.parquet` | For each hex cell, the stations within a 15-min walk and the walking minutes to each |
-| `station-matrix.parquet` | Station-to-station public-transport times, including average waits and changes |
+| `stations.parquet` | The rail stations of the travel estimate, with their position, in the matrix's order |
+| `cell-stations.parquet` | For each hex cell, its 8 quickest stations within a 40-minute street walk, and the walking minutes to each |
+| `station-matrix.parquet` | Station-to-station public-transport times in whole minutes, including the wait to board and the walks between stations at a change ([spec](specs/2026-11-22-own-places.md)) |
+| `postcodes.parquet` | The region's postcodes and their position, so that the app finds a user's postcode without sending it anywhere |
 | `areas.geojson` | Neighbourhood outlines and names |
 | `qa.md` | The QA report: checks, coverage, and changes since the last build |
 

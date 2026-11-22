@@ -61,7 +61,17 @@ const site = mkdtempSync(join(tmpdir(), "site-"));
 cpSync(join(web, "dist"), site, { recursive: true });
 const target = join(site, "bundles", region);
 mkdirSync(join(target, version), { recursive: true });
-for (const file of ["manifest.json", "cells.parquet"]) {
+// The manifest, the cells and the travel files for a user's places, which the manifest lists.
+const manifest = JSON.parse(
+  readFileSync(join(bundle, "manifest.json"), "utf8"),
+);
+const travel = manifest.travel ?? {};
+const files = ["manifest.json", "cells.parquet"].concat(
+  ["stations", "cell_stations", "matrix", "postcodes"]
+    .map((key) => travel[key])
+    .filter(Boolean),
+);
+for (const file of files) {
   cpSync(join(bundle, file), join(target, version, file));
 }
 writeFileSync(join(target, "latest.json"), JSON.stringify({ version }) + "\n");

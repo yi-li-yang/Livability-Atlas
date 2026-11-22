@@ -51,6 +51,10 @@ data region:
 qa region *options:
     cd pipeline; uv run atlas qa {{region}} {{options}}
 
+# Compare the travel estimate for a user's places with TfL's Journey Planner: `just travel-check london`
+travel-check region *options:
+    cd pipeline; uv run atlas travel-check {{region}} {{options}}
+
 # Build the web app
 build:
     cd web; npm run build

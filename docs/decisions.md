@@ -22,7 +22,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D07](#d07-dataset-licences) | Dataset licences | Public builds: open licences that allow commercial use | accepted |
 | [D08](#d08-sensitive-data-and-privacy) | Sensitive data and privacy | Composition as presence and diversity; personal data stays in the browser | accepted |
 | [D09](#d09-default-places) | Default places | London's main job centres | proposed |
-| [D10](#d10-travel-times) | Travel times | Station matrix + in-browser estimate; r5py, with the TfL API as fallback | accepted |
+| [D10](#d10-travel-times) | Travel times | Station matrix + in-browser estimate; the matrix from TfL's timetables now, r5py later | accepted |
 | [D11](#d11-documentation) | Documentation | Living documents | accepted |
 | [D12](#d12-licences) | Licences | Code AGPL-3.0 + CLA; docs CC BY 4.0; data per dataset | accepted |
 | [D13](#d13-development-environment) | Development environment | Windows; `E:` on NTFS | accepted |
@@ -183,13 +183,14 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Choice:**
   - Default places get exact travel times, computed in the data pipeline.
   - A user's own places (up to 3) get an estimate computed in the browser: the walk to a nearby station, then a precomputed station-to-station travel-time matrix, then the walk to the place. Places never leave the device.
-  - The engine is r5py with GTFS timetables, which computes the whole matrix at several departure times in minutes. It waits for the owner's registrations for the timetable sources, and a JDK 21. The TfL Journey Planner API is the fallback: it builds the matrix in about 21 hours for one departure time, at TfL's limit of 500 calls a minute.
+  - The matrix is built now from TfL's own timetables, with a shortest-path search: the Unified API's route sequences and timetables give TfL's lines (the minutes between stops, and the headway from the morning's departures), and one Journey Planner call for each pair of next stops gives National Rail's minutes. Boarding costs 5 minutes from the street plus half the headway and getting off 2 minutes (both fitted to the Journey Planner's times from each station to the default places), and a change to another station within 300 m costs the walk ([spec](specs/2026-11-22-own-places.md)). The app estimates a user's places from it in the browser, with no request: the walk from the cell to its 8 quickest stations, the matrix, and a straight-line walk from a station to the place. r5py with GTFS timetables stays the better engine (buses, several departure times), once the owner has registered for its timetable sources and installed a JDK 21. The Journey Planner cannot build the whole matrix: about 745,000 calls take some 200 hours without a key.
 - **Why:** In a static-first app, the data pipeline cannot precompute every user's places.
 - **Known limits:** Buses are not in the matrix, so bus-only trips come out too long: spike S4 found the estimate more than 20% too long in 19% of journeys, and within 20% in 81%, with a median error of 12% (27 journeys, one morning). Estimates carry the evidence type "estimate".
 - **Revisit when:** The real matrix exists, to check the error on a larger sample and several departure times; or buses join the matrix. Exact routing arrives with a routing service (Phase 4).
 - **History:**
   - 2026-10-23: proposed in the Phase 0 planning session.
   - 2026-10-28: accepted after [spike S4](spikes/S4-routing.md). The design stands, r5py is the engine, and the API is the fallback. r5py was not run, because its timetable sources need accounts that only the owner can create.
+  - 2026-11-22: the matrix is built from TfL's timetables and the Journey Planner's National Rail times, with a shortest-path search, since the Journey Planner alone would take some 200 hours (my call, within the owner's delegation). r5py stays the later engine.
 
 ## D11 Documentation
 

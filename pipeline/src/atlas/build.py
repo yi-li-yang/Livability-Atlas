@@ -14,11 +14,12 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from pyproj import Transformer
 
 from atlas import families
 from atlas.catalogue.load import Catalogue, load_catalogue
 from atlas.catalogue.models import Region
-from atlas.datasets.cities.london import laei, ptal, tfl_journeys, tfl_lines
+from atlas.datasets.cities.london import laei, ptal, tfl_journeys, tfl_lines, tfl_timetables
 from atlas.datasets.countries.gb import (
     census_age,
     census_country_of_birth,
@@ -62,12 +63,13 @@ from atlas.indicators import (
     housing,
     noise,
     prices,
+    station_matrix,
     transport,
 )
 from atlas.indicators import places as place_pool
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
-from atlas.publish.bundle import Choice, Neighbourhoods, write_bundle
+from atlas.publish.bundle import Choice, Neighbourhoods, Travel, write_bundle
 from atlas.spatial import neighbourhoods, walking
 from atlas.spatial.grid import (
     boundary_from_geojson,
@@ -97,6 +99,9 @@ def needs_commercial_licence(
     families' (see `atlas.families`)."""
     allowed = {d.id for d in catalogue.datasets.datasets if d.commercial_use}
     return [i for i in indicators if i in built_from and not set(built_from[i]) <= allowed]
+
+
+TO_WGS84 = Transformer.from_crs("EPSG:27700", "EPSG:4326", always_xy=True)
 
 
 def build_region(
@@ -139,7 +144,8 @@ def build_region(
     columns.update(_flood_columns(cells, region.grid.resolution, data_dir))
     columns.update(_walking_columns(network, cells, data_dir, postcodes))
     columns.update(_amenity_columns(region_id, network, cells, data_dir))
-    columns.update(_travel_columns(region, network, cells, data_dir))
+    travel_columns, travel = _travel(region, network, cells, data_dir, postcodes)
+    columns.update(travel_columns)
     columns.update(_noise_columns(cells, region.grid.resolution, data_dir, postcodes))
     columns.update(_housing_columns(region_id, cells, data_dir))
     columns.update(_price_columns(region_id, cells, data_dir, region.grid.resolution, postcodes))
@@ -169,6 +175,7 @@ def build_region(
         columns=columns,
         choices=choices,
         neighbourhoods=_neighbourhoods(cells, data_dir),
+        travel=travel,
         out_dir=data_dir / "published",
         publish=publish,
     )
@@ -223,15 +230,24 @@ def _housing_columns(region_id: str, cells: list[str], data_dir: Path) -> dict[s
     }
 
 
-def _travel_columns(
-    region: Region, network: walking.Network, cells: list[str], data_dir: Path
-) -> dict[str, Sequence[Any]]:
+def _travel(
+    region: Region,
+    network: walking.Network,
+    cells: list[str],
+    data_dir: Path,
+    postcodes: pd.DataFrame,
+) -> tuple[dict[str, Sequence[Any]], Travel | None]:
     """Travel time to places: the mean over the region's default places (D09) of the quickest
     door-to-door time by public transport on a weekday morning. The Journey Planner is asked for
     the journey from each station, and a cell takes the walk to a station within 40 minutes and
-    that station's journey (an estimate: see `transport.travel_minutes`)."""
+    that station's journey (an estimate: see `transport.travel_minutes`).
+
+    It also gives what the web app needs to estimate travel to a user's own places (D10): the
+    minutes from each station to each, from the timetables (`station_matrix`), and each cell's
+    quickest stations on foot, and the region's postcodes, so that a user's postcode is found in
+    the browser and sent nowhere."""
     if not region.default_places:
-        return {}
+        return {}, None
     rail = tfl_lines.read_stops(tfl_lines.fetch(data_dir))
     rail = transport.place_stops(pd.DataFrame(rail[rail["kind"] == "rail"]))
     x0, y0, x1, y1 = bounds_bng(cells, margin=3000)
@@ -241,7 +257,42 @@ def _travel_columns(
     places = [(p.name, p.lat, p.lng) for p in region.default_places]
     times = tfl_journeys.read_times(tfl_journeys.fetch(data_dir, region.id, stations, places))
     minutes = transport.travel_minutes(network, stations, times, cells)
-    return {"travel-time-to-places": [None if pd.isna(v) else float(v) for v in minutes]}
+    columns: dict[str, Sequence[Any]] = {
+        "travel-time-to-places": [None if pd.isna(v) else float(v) for v in minutes]
+    }
+    where = {
+        str(s): (float(lat), float(lng))
+        for s, lat, lng in stations[["stop", "Latitude", "Longitude"]].to_numpy()
+    }
+    rides, headways = tfl_timetables.fetch(data_dir, where)
+    travel = Travel(
+        stations=[(stop, lat, lng) for stop, (lat, lng) in where.items()],
+        cell_stations=station_matrix.cell_stations(network, stations, cells),
+        matrix=station_matrix.station_matrix(
+            stations,
+            rides,
+            headways,
+            board_minutes=station_matrix.BOARD_MINUTES,
+            alight_minutes=station_matrix.ALIGHT_MINUTES,
+        ),
+        postcodes=_postcodes_inside(cells, postcodes),
+    )
+    return columns, travel
+
+
+def _postcodes_inside(
+    cells: list[str], postcodes: pd.DataFrame, margin: float = 2000
+) -> list[tuple[str, float, float]]:
+    """The postcodes within `margin` metres of the region's cells, with their latitude and
+    longitude, rounded to six places (about 10 cm)."""
+    x0, y0, x1, y1 = bounds_bng(cells, margin=margin)
+    east, north = postcodes["Easting"].to_numpy(), postcodes["Northing"].to_numpy()
+    inside = postcodes.loc[(east >= x0) & (east <= x1) & (north >= y0) & (north <= y1)]
+    lng, lat = TO_WGS84.transform(inside["Easting"].to_numpy(), inside["Northing"].to_numpy())
+    return [
+        (str(code), round(float(a), 6), round(float(b), 6))
+        for code, a, b in zip(inside.index, lat, lng, strict=True)
+    ]
 
 
 def _price_columns(
