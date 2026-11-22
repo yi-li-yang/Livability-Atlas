@@ -42,4 +42,4 @@ A bundle may carry more files beside `cells.parquet`; the manifest lists them un
 
 ## Error check
 
-`atlas travel-check london` asks the Journey Planner for 300 random pairs of cells (from one cell's centre to another's) at 08:30, 12:30 and 18:00, keeping the answers by the cells' ids, and writes the error table (median, mean absolute, share within 20%, by distance band) to the S4 write-up and D10's history.
+`atlas travel-check london` asks the Journey Planner for 300 random pairs of cells (from one cell's centre to another's) at 08:30, 12:30 and 18:00, keeping the answers by the cells' ids, and writes the error table (median, mean absolute, share within 20%, by distance band) to the S4 write-up and D10's history. Result (2026-11-22): 258 journeys with both times at each hour; the estimate is a median 11 minutes too long and within 20% in 70%, the same at the three times, and the error grows with the walks to stations, so it comes from the buses left out.
