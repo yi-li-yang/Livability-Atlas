@@ -1825,7 +1825,37 @@ factors:
           out those it marks permanently closed). Overture is a lower bound, and
           most cells have none.
         datasets: [overture-places]
-      - {id: your-industry, name: "Your industry", default_weight: 0, weight_reason: "Choice factor: weight 0 until the user picks an industry (D18).", description: "Jobs in a chosen industry within reach, or how strong that industry is in a city."}
+      - id: your-industry
+        name: Your industry
+        description: How many jobs in the industries the user picks are close to the home.
+        default_weight: 0
+        weight_reason: "Choice factor: weight 0 until the user picks an industry (D18)."
+        scales: [within-city]
+        status: built
+        unit: jobs per km²
+        preference_type: user-choice
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          No standard says how many jobs of an industry should be near a home,
+          and the counts are too skewed for a ramp, so a hex cell scores by its
+          rank within the region: the share of hex cells with fewer. The
+          direction is fixed, and a user who picks several industries gets the
+          best of them.
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The jobs of the chosen industry for each square kilometre in and around
+          the hex cell: the Business Register and Employment Survey's open table
+          of jobs by 2011 LSOA and by section of the 2007 Standard Industrial
+          Classification (2024, rounded by the ONS to the nearest 25 and left out
+          where a figure could identify a business), shared between hex cells by
+          area, then the mean over the cell and the cells within two steps. The
+          register counts a job where the employer's site is, so a head office
+          counts the jobs of its whole firm. Fourteen sections are offered:
+          farming, mining, the utilities, households as employers and
+          extraterritorial bodies are left out. How far a job is by public
+          transport (jobs within reach) waits for the travel times between stations.
+        datasets: [ons-bres, ons-lsoa-boundaries]
       - {id: salaries, name: "Salaries", default_weight: 3, scales: [across-cities]}
       - {id: unemployment, name: "Unemployment", default_weight: 3, scales: [across-cities]}
       - {id: residency-and-visas, name: "Ease of residency and visas", default_weight: 3, scales: [across-cities]}
