@@ -129,6 +129,16 @@ const PROFILES: Record<string, Profile> = {
   "everything at zero": {
     weights: { safety: 0, environment: 0, comfort: 0 },
   },
+  "no weak spots": { weights: {}, mode: "balanced" },
+  "no weak spots, with weights changed and a subtree off": {
+    weights: { safety: 5, noise: 0, trees: 1 },
+    mode: "balanced",
+  },
+  "no weak spots, with directions flipped": {
+    weights: {},
+    flipped: ["crime", "trees"],
+    mode: "balanced",
+  },
 };
 
 describe("scoring a whole region", () => {
@@ -167,6 +177,24 @@ describe("scoring a whole region", () => {
         slow(bundle, profile),
       );
     }
+  });
+
+  it("scores lower in no weak spots mode where one factor is weak, and never higher", () => {
+    const base = leaves({ weights: {} });
+    const mean = scoreRegion(bundle, { weights: {} }, base);
+    const balanced = scoreRegion(
+      bundle,
+      { weights: {}, mode: "balanced" },
+      base,
+    );
+    let lower = 0;
+    for (let i = 0; i < mean.length; i++) {
+      if (Number.isNaN(mean[i])) continue;
+      // the floor can lift a score of 0 above the arithmetic mean only where the mean is below it
+      expect(balanced[i]).toBeLessThanOrEqual(mean[i] + 1e-9 + 5);
+      if (balanced[i] < mean[i] - 1e-9) lower++;
+    }
+    expect(lower).toBeGreaterThan(mean.length / 2);
   });
 
   it("changes with the weights while the leaf scores stay the same", () => {

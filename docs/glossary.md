@@ -73,6 +73,8 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Default places | Used until a user adds their own places: London's main job centres | Bank, Oxford Circus, Canary Wharf, King's Cross |
 | Destination | A public place or chain a user chooses, scored by distance to the nearest one. Unlike a user's places, it is not personal | Costco, IKEA, the nearest airport |
 | Preset | A ready-made preference profile to start from | Family with children |
+| No weak spots | A way of scoring that lets a low score pull a factor down harder, so that one weak area cannot be made up for by strong ones | A cell with great schools and the worst air scores lower than with the default |
+| Stability of the top | How many of the best neighbourhoods stay among the best when the user's weights change a little | 8 of 10 stay when a weight moves by a fifth |
 
 ### Data and sources
 

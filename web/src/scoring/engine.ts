@@ -28,9 +28,17 @@ export type HardLimit = { id: string; indicator: string } & (
   | { not_in: (number | string)[] }
 );
 
+/**
+ * How a factor's score comes from its children's. The default is the weighted arithmetic mean.
+ * "balanced" ("no weak spots") is the weighted geometric mean, where a score under `WEAK_FLOOR`
+ * counts as the floor, so a weak spot pulls a factor down harder.
+ */
+export type ScoringMode = "mean" | "balanced";
+
 export interface ScoreCase {
   tree: ScoreNode;
   hard_limits?: HardLimit[];
+  mode?: ScoringMode;
 }
 
 export interface NodeResult {
@@ -60,6 +68,25 @@ export interface ScoreResult {
 /** Data coverage below this share of the total weight is flagged. */
 export const LOW_COVERAGE = 0.7;
 
+/** In "no weak spots" mode a score below this counts as this in the geometric mean. */
+export const WEAK_FLOOR = 0.05;
+
+/** The weighted mean of scores that have a weight: arithmetic, or geometric if `balanced`. */
+export function combine(
+  parts: readonly { weight: number; score: number }[],
+  balanced: boolean,
+): number | null {
+  const total = parts.reduce((sum, p) => sum + p.weight, 0);
+  if (total <= 0) return null;
+  const weighted = parts.reduce(
+    (sum, p) =>
+      sum +
+      p.weight * (balanced ? Math.log(Math.max(p.score, WEAK_FLOOR)) : p.score),
+    0,
+  );
+  return balanced ? Math.exp(weighted / total) : weighted / total;
+}
+
 const children = (node: ScoreNode): ScoreNode[] => node.children ?? [];
 
 /** A composite factor whose children all weigh 0 counts as weight 0. */
@@ -80,6 +107,7 @@ function ownScore(leaf: ScoreNode): number | null {
 function scoreOf(
   node: ScoreNode,
   scores: Map<string, number | null>,
+  balanced: boolean,
 ): number | null {
   const kids = children(node);
   if (kids.length === 0) {
@@ -87,17 +115,13 @@ function scoreOf(
     scores.set(node.id, score);
     return score;
   }
-  let total = 0;
-  let weighted = 0;
+  const active: { weight: number; score: number }[] = [];
   for (const kid of kids) {
-    const score = scoreOf(kid, scores);
+    const score = scoreOf(kid, scores, balanced);
     const weight = weightOf(kid);
-    if (weight > 0 && score !== null) {
-      total += weight;
-      weighted += weight * score;
-    }
+    if (weight > 0 && score !== null) active.push({ weight, score });
   }
-  const score = total > 0 ? weighted / total : null;
+  const score = combine(active, balanced);
   scores.set(node.id, score);
   return score;
 }
@@ -158,8 +182,9 @@ function checkLimit(
 /** Scores one hex cell: the livability score, coverage, hard limits, and every node's numbers. */
 export function scoreCell(input: ScoreCase): ScoreResult {
   const { tree } = input;
+  const balanced = input.mode === "balanced";
   const scores = new Map<string, number | null>();
-  scoreOf(tree, scores);
+  scoreOf(tree, scores, balanced);
   const shares = new Map<string, number>();
   sharesOf(tree, 1, shares);
   const effective = new Map<string, number | null>();
@@ -183,7 +208,9 @@ export function scoreCell(input: ScoreCase): ScoreResult {
       score,
       share: shares.get(id) ?? 0,
       effective_share: e,
-      contribution: e === null || score === null ? null : 100 * e * score,
+      // a geometric mean has no contributions that add up
+      contribution:
+        balanced || e === null || score === null ? null : 100 * e * score,
     };
   }
   const root = scores.get(tree.id) ?? null;

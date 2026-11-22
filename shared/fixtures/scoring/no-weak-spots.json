@@ -1,0 +1,86 @@
+{
+  "id": "no-weak-spots",
+  "description": "No weak spots: every factor's score is the weighted geometric mean of its active children's scores, so a low score pulls it down more than an arithmetic mean does. a = sqrt(0.64 * 0.25) = 0.4, and the root = sqrt(0.4 * 0.1) = 0.2 (the arithmetic means would be 0.445 and 0.2725). Contributions are null: a geometric mean has none that add up.",
+  "mode": "balanced",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "a",
+        "weight": 1,
+        "children": [
+          {
+            "id": "a1",
+            "weight": 1,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": 0.64
+          },
+          {
+            "id": "a2",
+            "weight": 1,
+            "curve": {
+              "shape": "ramp",
+              "t0": 0,
+              "t1": 1
+            },
+            "value": 0.25
+          }
+        ]
+      },
+      {
+        "id": "b",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.1
+      }
+    ]
+  },
+  "expected": {
+    "score": 20,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.2,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": null
+      },
+      "a": {
+        "score": 0.4,
+        "share": 0.5,
+        "effective_share": 0.5,
+        "contribution": null
+      },
+      "a1": {
+        "score": 0.64,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": null
+      },
+      "a2": {
+        "score": 0.25,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": null
+      },
+      "b": {
+        "score": 0.1,
+        "share": 0.5,
+        "effective_share": 0.5,
+        "contribution": null
+      }
+    }
+  }
+}

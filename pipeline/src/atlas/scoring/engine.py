@@ -5,9 +5,11 @@ block. The TypeScript engine of the web app must reproduce the same fixtures. No
 dictionaries, so that this scorer and the fixtures share one format.
 """
 
+import math
 from typing import Any
 
 LOW_COVERAGE = 0.7  # data coverage below this share of the total weight is flagged
+WEAK_FLOOR = 0.05  # "no weak spots": a score below this counts as this in the geometric mean
 
 Node = dict[str, Any]
 
@@ -63,15 +65,25 @@ def _own_score(leaf: Node) -> float | None:
     return 1 - score if leaf.get("flipped") else score
 
 
-def _score(node: Node, scores: dict[str, float | None]) -> float | None:
+def _combine(active: list[tuple[float, float]], balanced: bool) -> float | None:
+    """The weighted mean of the active children's scores: arithmetic, or, with `balanced` ("no
+    weak spots"), geometric, where a score below `WEAK_FLOOR` counts as the floor."""
+    total = sum(w for w, _ in active)
+    if total <= 0:
+        return None
+    if balanced:
+        return math.exp(sum(w * math.log(max(s, WEAK_FLOOR)) for w, s in active) / total)
+    return sum(w * s for w, s in active) / total
+
+
+def _score(node: Node, scores: dict[str, float | None], balanced: bool = False) -> float | None:
     kids = _children(node)
     if not kids:
         scores[node["id"]] = _own_score(node)
         return scores[node["id"]]
-    results = [(_weight(child), _score(child, scores)) for child in kids]
+    results = [(_weight(child), _score(child, scores, balanced)) for child in kids]
     active = [(w, s) for w, s in results if w > 0 and s is not None]
-    total = sum(w for w, _ in active)
-    scores[node["id"]] = sum(w * s for w, s in active) / total if total > 0 else None
+    scores[node["id"]] = _combine(active, balanced)
     return scores[node["id"]]
 
 
@@ -116,10 +128,16 @@ def _check(limit: dict[str, Any], leaves: dict[str, Node]) -> str:
 
 
 def score_cell(case: dict[str, Any]) -> dict[str, Any]:
-    """Scores one hex cell: the livability score, coverage, hard limits and every node."""
+    """Scores one hex cell: the livability score, coverage, hard limits and every node.
+
+    A case with `"mode": "balanced"` ("no weak spots") combines the scores of a factor's children
+    by their weighted geometric mean instead of the arithmetic mean. Contributions are then null,
+    since a geometric mean has none that add up.
+    """
     tree = case["tree"]
+    balanced = case.get("mode") == "balanced"
     scores: dict[str, float | None] = {}
-    _score(tree, scores)
+    _score(tree, scores, balanced)
     shares: dict[str, float] = {}
     _shares(tree, 1.0, shares)
     effective: dict[str, float | None] = {}
@@ -137,7 +155,7 @@ def score_cell(case: dict[str, Any]) -> dict[str, Any]:
             "score": score,
             "share": shares[node_id],
             "effective_share": e,
-            "contribution": None if e is None or score is None else 100 * e * score,
+            "contribution": (None if balanced or e is None or score is None else 100 * e * score),
         }
     root = scores[tree["id"]]
     return {

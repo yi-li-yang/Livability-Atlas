@@ -5,7 +5,12 @@ import type {
   ManifestOption,
 } from "../generated/manifest.schema";
 import { curveScore } from "./curves";
-import type { ScoreCase, ScoreNode } from "./engine";
+import {
+  type ScoreCase,
+  type ScoreNode,
+  type ScoringMode,
+  WEAK_FLOOR,
+} from "./engine";
 
 /** What the user has chosen. A weight that is absent is the factor's default weight. */
 export interface Profile {
@@ -20,6 +25,8 @@ export interface Profile {
   choices?: Readonly<Record<string, readonly string[]>>;
   /** The must-have rules: a cell that fails one is greyed out and not ranked. */
   limits?: readonly Limit[];
+  /** "balanced" is "no weak spots": the weighted geometric mean in place of the arithmetic. */
+  mode?: ScoringMode;
 }
 
 /**
@@ -208,6 +215,7 @@ export function scoreRegion(
 ): Float64Array {
   const size = bundle.cells.length;
 
+  const balanced = profile.mode === "balanced";
   const scoreOf = (factor: ManifestFactor): Float64Array => {
     const kids = kidsOf(factor);
     if (kids.length === 0) {
@@ -225,13 +233,16 @@ export function scoreRegion(
       for (let i = 0; i < size; i++) {
         if (!Number.isNaN(scores[i])) {
           total[i] += weight;
-          sum[i] += weight * scores[i];
+          sum[i] +=
+            weight *
+            (balanced ? Math.log(Math.max(scores[i], WEAK_FLOOR)) : scores[i]);
         }
       }
     }
     const out = new Float64Array(size);
     for (let i = 0; i < size; i++) {
-      out[i] = total[i] > 0 ? sum[i] / total[i] : Number.NaN;
+      if (total[i] <= 0) out[i] = Number.NaN;
+      else out[i] = balanced ? Math.exp(sum[i] / total[i]) : sum[i] / total[i];
     }
     return out;
   };
@@ -328,6 +339,7 @@ export function scoreCaseFor(
       weight: 1,
       children: bundle.manifest.factors.map(build),
     },
+    mode: profile.mode,
   };
 }
 
