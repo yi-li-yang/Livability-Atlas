@@ -1653,7 +1653,38 @@ factors:
           register says nothing about free places or fees, and inspection
           outcomes are not used.
         datasets: [ofsted-childcare, os-code-point-open]
-      - {id: school-league-tables, name: "School league tables", default_weight: 3, scales: [within-city]}
+      - id: school-league-tables
+        name: School league tables
+        description: How well pupils of the secondary schools within a walk do at GCSE.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: Attainment 8 points
+        preference_type: fixed
+        curve: {shape: percentile, better: higher}
+        curve_reason: >-
+          No standard sets a good average for the schools of an area, and a
+          school's score follows its intake as much as its teaching, so a hex
+          cell scores by its rank within the region: the share of hex cells
+          whose schools do worse.
+        evidence_type: indirect
+        comparable_across_regions: false
+        method: >-
+          The mean Attainment 8 score, from 0 to 90 points, of the open,
+          state-funded, mainstream secondary schools within 3 km, in a straight
+          line, of the hex cell's centre, each weighted by the number of its
+          pupils, for the school year 2024/25 (final figures), from the
+          Department for Education's key stage 4 performance tables. Attainment
+          8 is the points of a pupil's eight best GCSE results. 3 km is about
+          how far a London secondary pupil travels, and it is a straight line
+          because a pupil's route is by bus or train as often as on foot; within
+          a 25-minute walk only a third of the cells had three schools. A cell
+          with fewer than three such schools with a score has no value. The
+          score shows what pupils reached, not what the school added, since
+          Progress 8 is not published for 2024/25: schools with better-prepared
+          pupils score higher whatever the teaching. Children do not always go
+          to the nearest school.
+        datasets: [dfe-ks4-performance, dfe-gias]
       - {id: school-quality, name: "School quality", default_weight: 3, scales: [across-cities]}
       - {id: international-schools, name: "International schools", default_weight: 3, scales: [across-cities]}
       - {id: universities, name: "Universities", default_weight: 3, scales: [across-cities]}
@@ -3087,6 +3118,24 @@ datasets:
     attribution: Contains public sector information licensed under the Open Government Licence v3.0.
     tells:
       - The date and outcome of each state-funded school's latest inspection, under the framework in force at the time
+
+  - id: dfe-ks4-performance
+    name: Key stage 4 performance, school level (Department for Education)
+    publisher: Department for Education
+    url: https://explore-education-statistics.service.gov.uk/find-statistics/key-stage-4-performance
+    tier: country
+    area: England
+    resolution: one row for each school, year and group of pupils
+    date: school years 2023/24 to 2025/26 (2024/25 final)
+    licence: OGL-UK-3.0
+    licence_checked: 2026-11-22
+    commercial_use: true
+    licence_note: >-
+      Published on GOV.UK through the Department for Education's statistics
+      API under the Open Government Licence v3.0.
+    attribution: Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - The average Attainment 8 score and the number of pupils of each secondary school
 
   - id: ons-personal-wellbeing-local-authority
     name: Personal well-being estimates by local authority (ONS)
