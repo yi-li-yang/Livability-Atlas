@@ -148,6 +148,19 @@ L &= 100 \, s_r
 - A measured indicator whose raw value is missing has no score.
 - A composite factor with no active children has no score, and its parent leaves it out. If the root has no score, the hex cell has no livability score.
 
+### No weak spots mode
+
+By default a weak factor can be made up for by a strong one. A user who wants no weak spots switches the mode to **balanced**, which combines the scores of a factor's active children by their weighted **geometric** mean in place of the arithmetic mean, at every level of the tree:
+
+```math
+s_n = \exp\left(\frac{\sum_{c \in A(n)} w_c \, \ln \max(s_c,\, \varepsilon)}{\sum_{c \in A(n)} w_c}\right), \qquad \varepsilon = 0.05
+```
+
+- The weights are the exponents, so a weight counts as it does in the arithmetic mean, and missing parts are skipped and the weights renormalised in the same way.
+- A score under the floor $\varepsilon$ counts as $\varepsilon$ inside the mean, so a score of 0 is a heavy penalty and not a veto. A measured indicator's own score is not changed.
+- The geometric mean is never above the arithmetic mean of the same scores, but the floor can lift a score of 0 by up to 5 points of the factor's 100.
+- **Score contributions (section 8) are not defined in this mode**: a geometric mean has none that add up, so every node's contribution is `null`. Shares and effective shares are still given (they are the exponents). The interface shows scores, not points, in this mode.
+
 ## 6. Hard limits
 
 - A hard limit is a must-have rule on the raw value of a measured indicator, or on its category: at most a number (`max`), at least a number (`min`), in a list of categories (`in`), or not in one (`not_in`). Rent no higher than the user's cap is a `max`, and flood risk not "high" is a `not_in`. A value that meets a number exactly passes.
@@ -234,19 +247,22 @@ Composite indices and supporting factors therefore get low default weights, and 
 
 These features are in the [backlog](../backlog.md):
 
-- a "no weak spots" mode that uses a weighted geometric mean
-- a sensitivity view showing how stable the top 10 stays when weights shift by ±20%
 - scoring curves that users can edit
+
+## 12a. Sensitivity of the top places
+
+How stable the top 10 stays when the weights shift is computed by `sensitivity` (`web/src/scoring/sensitivity.ts`), and `neighbourhoodStability` (`web/src/features/neighbourhoods/stability.ts`) applies it to the app's ranking of neighbourhoods. Each top-level factor with a weight above 0 is made 20% heavier and then 20% lighter, one at a time, with every other weight as the user has it (a weight of 5 becomes 6 and 4). For each of those scenarios it counts how many of the baseline top places are still in the top. The stability is the mean of those counts over the scenarios, as a share, from 0 to 1, and for each baseline place it gives the share of the scenarios in which it stays. A stability of 1 means that no such change moves the top. The weights in a scenario are not whole numbers, which the engine allows. This function works in the browser only: it ranks with the region engine, which the golden cases already pin down, so it has unit tests and no golden case of its own.
 
 ## 13. Golden test cases
 
-Status: done in step 0.5. `shared/fixtures/scoring/` holds one JSON file for each of 15 cases. The TypeScript engine of the web app and the Python reference scorer (`pipeline/src/atlas/scoring/engine.py`) must both reproduce every one, within 1e-9. The expected numbers were worked out by hand, in comments beside each case's definition, before the scorer was written, and the tests also check that the hand-written numbers add up by themselves (contributions sum to the node above, shares sum to one).
+Status: done in step 0.5. `shared/fixtures/scoring/` holds one JSON file for each of 18 cases. The TypeScript engine of the web app and the Python reference scorer (`pipeline/src/atlas/scoring/engine.py`) must both reproduce every one, within 1e-9. The expected numbers were worked out by hand, in comments beside each case's definition, before the scorer was written, and the tests also check that the hand-written numbers add up by themselves (contributions sum to the node above, shares sum to one).
 
 **Format.** A case holds a `tree` of nodes, optional `hard_limits`, and the `expected` result.
 
 | Field | Meaning |
 | --- | --- |
 | `tree` | A node has an `id` and a `weight`, and either `children`, or the fields of a measured indicator: a `curve` (as in the catalogue), a raw `value` (`null` when missing), `region_values` (percentile curves only: every region cell's value) and `flipped` |
+| `mode` | Optional. `"balanced"` is the no weak spots mode (section 5); anything else, or none, is the arithmetic mean |
 | `hard_limits` | Each has an `id`, an `indicator` (a measured indicator's `id`), and one of `max`, `min`, `in` or `not_in` |
 | `expected.score` | The livability score, 0 to 100 and unrounded, or `null` when no factor is active |
 | `expected.coverage`, `low_coverage` | Data coverage $D$ (section 7), and whether it is under 0.7 |
@@ -267,6 +283,9 @@ The interface rounds the livability score to a whole number for display, and ran
 | `flipped-direction` | $1 - s$ for a ramp, an ideal range and a lookup |
 | `missing-and-low-coverage` | A factor without data is skipped, weights renormalised, coverage under 70% flagged |
 | `zero-weight-composite` | A composite whose children all weigh 0 counts as weight 0 |
+| `no-weak-spots` | The geometric mean down a nested tree (0.4, then 0.2), with null contributions |
+| `no-weak-spots-weights` | Weights are the exponents: 0.9³ × 0.5 = 0.3645 |
+| `no-weak-spots-floor-and-missing` | A score of 0 counts as 0.05, and a factor with no data is skipped |
 | `no-score` | With no active factor the hex cell has no livability score |
 | `weights-are-relative` | Children weighted 2 and 2 split a parent like 5 and 5 |
 | `nested-contributions` | Three levels, with contributions that add up at each |

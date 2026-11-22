@@ -1,0 +1,74 @@
+{
+  "id": "no-weak-spots-floor-and-missing",
+  "description": "A score of 0 is raised to the floor of 0.05 inside the geometric mean, so a zero is a heavy penalty and not a veto: sqrt(0.05 * 0.45) = 0.15. A factor with no data is skipped and the weights renormalised, as in the arithmetic mode (z, weight 2, has no value). The leaf's own score stays 0.",
+  "mode": "balanced",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "x",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0
+      },
+      {
+        "id": "y",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.45
+      },
+      {
+        "id": "z",
+        "weight": 2,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": null
+      }
+    ]
+  },
+  "expected": {
+    "score": 15.0,
+    "coverage": 0.5,
+    "low_coverage": true,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.15,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": null
+      },
+      "x": {
+        "score": 0.0,
+        "share": 0.25,
+        "effective_share": 0.5,
+        "contribution": null
+      },
+      "y": {
+        "score": 0.45,
+        "share": 0.25,
+        "effective_share": 0.5,
+        "contribution": null
+      },
+      "z": {
+        "score": null,
+        "share": 0.5,
+        "effective_share": null,
+        "contribution": null
+      }
+    }
+  }
+}

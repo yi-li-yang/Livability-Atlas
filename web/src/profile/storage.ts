@@ -46,6 +46,7 @@ export function encodeProfile(profile: Profile): string {
   if (profile.limits && profile.limits.length > 0) {
     parts.push(`l=${profile.limits.map(encodeLimit).join(",")}`);
   }
+  if (profile.mode === "balanced") parts.push("m=balanced");
   return parts.join("&");
 }
 
@@ -111,6 +112,7 @@ export function decodeProfile(text: string): Profile {
     ...(flipped.length > 0 ? { flipped } : {}),
     ...(Object.keys(choices).length > 0 ? { choices } : {}),
     ...(limits.length > 0 ? { limits } : {}),
+    ...(params.get("m") === "balanced" ? { mode: "balanced" as const } : {}),
   };
 }
 
@@ -143,6 +145,7 @@ export function pruneProfile(
     ...(flipped.length > 0 ? { flipped } : {}),
     ...(Object.keys(choices).length > 0 ? { choices } : {}),
     ...(limits.length > 0 ? { limits } : {}),
+    ...(profile.mode === "balanced" ? { mode: "balanced" as const } : {}),
   };
 }
 

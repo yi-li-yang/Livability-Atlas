@@ -9,7 +9,7 @@ import type {
   ManifestFactor,
   ManifestIndicator,
 } from "../generated/manifest.schema";
-import { scoreCell } from "./engine";
+import { type ScoringMode, scoreCell } from "./engine";
 import {
   bestPickedOption,
   effectiveWeight,
@@ -37,7 +37,10 @@ export interface FactorLine {
   name: string;
   /** From 0 (worst) to 1 (best), or null where the cell has no data for it. */
   score: number | null;
-  /** The points of the livability score that it adds: the lines of a level add up to the score. */
+  /**
+   * The points of the livability score that it adds: the lines of a level add up to the score.
+   * Null in the "no weak spots" mode, where the scores do not add up (scoring.md, section 5).
+   */
   contribution: number | null;
   /** Its share of the weight in this cell, from 0 to 1, once what has no data is left out. */
   share: number | null;
@@ -56,6 +59,8 @@ export interface LimitLine {
 }
 
 export interface Explanation {
+  /** How the scores were combined: "balanced" has no contributions, so show the scores. */
+  mode: ScoringMode;
   /** The named neighbourhood the cell is in, or null where the bundle names none. */
   neighbourhood: Neighbourhood | null;
   /** The livability score from 0 to 100, or null where no factor has data. */
@@ -144,6 +149,7 @@ export function explainCell(
     }),
   );
   return {
+    mode: profile.mode ?? "mean",
     neighbourhood: neighbourhoodAt(bundle, cellIndex),
     score: result.score,
     lowCoverage: result.low_coverage,

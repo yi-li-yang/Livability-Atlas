@@ -1,0 +1,58 @@
+{
+  "id": "no-weak-spots-weights",
+  "description": "Weights are the exponents of the geometric mean: with weights 3 and 1 the score is 0.6561^(3/4) * 0.0625^(1/4) = 0.9^3 * 0.5 = 0.3645, against 0.5077 for the weighted arithmetic mean.",
+  "mode": "balanced",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "p",
+        "weight": 3,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.6561
+      },
+      {
+        "id": "q",
+        "weight": 1,
+        "curve": {
+          "shape": "ramp",
+          "t0": 0,
+          "t1": 1
+        },
+        "value": 0.0625
+      }
+    ]
+  },
+  "expected": {
+    "score": 36.45,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {
+        "score": 0.3645,
+        "share": 1,
+        "effective_share": 1,
+        "contribution": null
+      },
+      "p": {
+        "score": 0.6561,
+        "share": 0.75,
+        "effective_share": 0.75,
+        "contribution": null
+      },
+      "q": {
+        "score": 0.0625,
+        "share": 0.25,
+        "effective_share": 0.25,
+        "contribution": null
+      }
+    }
+  }
+}

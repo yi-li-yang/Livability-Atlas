@@ -12,8 +12,8 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Presets, e.g. a renter commuting to the centre, a family with children, a retiree | the files are in `catalogue/presets/`; the app does not offer them yet |
 | Preference profiles as shareable URLs, with places left out unless the user includes them | idea |
 | Side-by-side comparison of two hex cells or neighbourhoods | idea |
-| "No weak spots" scoring mode (weighted geometric mean) | idea |
-| Sensitivity view: how stable the top 10 stays when weights shift ±20% | idea |
+| "No weak spots" scoring mode (weighted geometric mean) | the engines and the golden cases are done; the app has no switch yet |
+| Sensitivity view: how stable the top 10 stays when weights shift ±20% | the computation is done (`neighbourhoodStability`); the app does not show it yet |
 | Scoring curves that users can edit | idea |
 | "Areas like X" search (ML) | idea |
 | Price and rent models, and value for money (ML) | idea |

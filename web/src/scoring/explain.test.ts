@@ -90,6 +90,18 @@ describe("explainCell", () => {
   });
 });
 
+describe("an explanation in each scoring mode", () => {
+  it("says the mode, and has contributions only where the scores add up", async () => {
+    const bundle = await load();
+    const mean = explainCell(bundle, { weights: {} }, 0);
+    expect(mean.mode).toBe("mean");
+    const balanced = explainCell(bundle, { weights: {}, mode: "balanced" }, 0);
+    expect(balanced.mode).toBe("balanced");
+    expect(balanced.factors.every((f) => f.contribution === null)).toBe(true);
+    expect(balanced.factors.some((f) => f.score !== null)).toBe(true);
+  });
+});
+
 describe("rankOf", () => {
   const ascending = sortedScores(Float64Array.of(10, Number.NaN, 40, 40, 90));
 

@@ -54,8 +54,8 @@ Status: `todo`, `in progress`, `PR open`, `merged`, `deferred`. **Order of work 
 | 2.7 | Published rankings: cited ranks only | todo | |
 | 3.1 | Travel for the user's own places: `cell-stations.parquet`, `station-matrix.parquet`, a TypeScript estimator with Python parity, a larger error check | todo | |
 | 3.2 | `atlas refresh`: one-command data refresh with anomaly checks | todo | |
-| 3.3 | Scoring-engine functions: "No weak spots" mode, the sensitivity computation | todo | |
-| 3.4 | Presets (`catalogue/presets/`): the files, checks and schema are done (PR open); the app offering them is interface work for later | in progress | feat/presets |
+| 3.3 | Scoring-engine functions: "No weak spots" mode and the sensitivity computation (merged); the app has no switch or view for them yet | in progress | |
+| 3.4 | Presets (`catalogue/presets/`): the files, checks and schema (merged); the app offering them is interface work | in progress | |
 | 3.5 | ML-derived indicators, each labelled `modelled`: area types, areas like X, price and rent models | todo | |
 | 3.6 | Bundle exports for "About the data"; bundle size check | todo | |
 | 4.1 | Generalise the pipeline for a second region | deferred (the owner: finish London and polish the frontend first) | |
@@ -63,6 +63,10 @@ Status: `todo`, `in progress`, `PR open`, `merged`, `deferred`. **Order of work 
 | 5 | Across-cities scale: global-tier baseline, Governance and rights, country adapters | deferred (as 4.1) | |
 
 ## Log
+
+### 2026-11-22
+
+- **Scoring functions: No weak spots and the stability of the top (queue row 3.3).** *No weak spots* is the weighted geometric mean in place of the arithmetic mean, at every composite factor (`mode: "balanced"` in a case, `mode` in the TypeScript `Profile`). The weights are the exponents, missing parts are skipped as before, and **a score under 0.05 counts as 0.05 inside the mean** (my call, to be reviewed: a score of 0 is common, since ramps end at 0, and without a floor one zero would veto a cell; with it a zero is a heavy penalty). The geometric mean has no contributions that add up, so **in this mode every contribution is null** and the interface would show scores. Three golden cases, worked by hand before the code (`no-weak-spots`, `no-weak-spots-weights`, `no-weak-spots-floor-and-missing`; the 18 cases now), are reproduced by the Python reference scorer and the TypeScript engine, and the region engine (`scoreRegion`) is checked against the one-cell engine under three balanced profiles. The Python add-up test also checks that each node's score is the geometric mean of its active children, from the effective shares. *Stability of the top*: `sensitivity` makes each top-level factor 20% heavier and 20% lighter, one at a time, and counts how many of the baseline top places stay; `neighbourhoodStability` applies it to the app's ranking of neighbourhoods, leaving out cells that a hard limit excludes. The scoring method (sections 5 and 12a), the backlog and the glossary say so. Neither has a control in the app yet: that is interface work. A review found that the mode was lost when the profile was pruned, saved or shared (it now travels as `m=balanced`), that a factor with everything inside at weight 0 got scenarios of its own, that two neighbourhoods with the same name were taken for one (the ranking is now keyed by position, and a tie keeps the list's order), and that an explanation did not say its mode (`Explanation.mode`). 262 web unit tests and 977 pytest pass.
 
 ### 2026-10-30
 

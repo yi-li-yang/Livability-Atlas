@@ -78,4 +78,12 @@ describe("topNeighbourhoods", () => {
       topNeighbourhoods(plain, new Float64Array(10), new Uint8Array(10)),
     ).toEqual([]);
   });
+
+  it("breaks a tie by the order of the neighbourhoods, and says where each is in the list", () => {
+    const scores = Float64Array.from([5, 5, 5, 5, 5, 5, 5, 5, 5, N]);
+    const top = topNeighbourhoods(bundle(), scores, new Uint8Array(10), {
+      minimumCells: 1,
+    });
+    expect(top.map((n) => n.position)).toEqual([0, 1, 2]);
+  });
 });

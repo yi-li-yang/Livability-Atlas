@@ -7,7 +7,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from atlas.paths import REPO_ROOT
-from atlas.scoring.engine import curve_score, score_cell
+from atlas.scoring.engine import WEAK_FLOOR, curve_score, score_cell
 
 FIXTURES = sorted((REPO_ROOT / "shared" / "fixtures" / "scoring").glob("*.json"))
 TOLERANCE = 1e-9
@@ -52,9 +52,11 @@ def test_each_golden_case_adds_up_by_itself(path):
     case = load(path)
     nodes = case["expected"]["nodes"]
     root = nodes["root"]
+    balanced = case.get("mode") == "balanced"
     if case["expected"]["score"] is not None:
         assert math.isclose(case["expected"]["score"], 100 * root["score"], abs_tol=TOLERANCE)
-        assert math.isclose(root["contribution"], case["expected"]["score"], abs_tol=TOLERANCE)
+        if not balanced:  # a geometric mean has no contributions that add up
+            assert math.isclose(root["contribution"], case["expected"]["score"], abs_tol=TOLERANCE)
 
     def walk(node: dict[str, Any]) -> None:
         if not children(node):
@@ -65,7 +67,21 @@ def test_each_golden_case_adds_up_by_itself(path):
         active = [
             nodes[c["id"]] for c in children(node) if nodes[c["id"]]["effective_share"] is not None
         ]
-        if active and mine["contribution"] is not None:
+        if balanced:
+            assert all(n["contribution"] is None for n in nodes.values())
+            # the effective shares are the exponents of the geometric mean
+            if active and mine["effective_share"]:
+                assert math.isclose(
+                    sum(a["effective_share"] for a in active),
+                    mine["effective_share"],
+                    abs_tol=TOLERANCE,
+                )
+                product = math.prod(
+                    max(a["score"], WEAK_FLOOR) ** (a["effective_share"] / mine["effective_share"])
+                    for a in active
+                )
+                assert math.isclose(mine["score"], product, abs_tol=TOLERANCE)
+        elif active and mine["contribution"] is not None:
             assert math.isclose(
                 sum(a["effective_share"] for a in active),
                 mine["effective_share"],

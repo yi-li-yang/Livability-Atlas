@@ -2,6 +2,8 @@ import type { Bundle } from "../../data/bundle";
 
 /** A neighbourhood and how its cells score. */
 export interface TopNeighbourhood {
+  /** Its position in the manifest's list: unique, where two names may be the same. */
+  position: number;
   name: string;
   /** The local authority it is in. */
   area: string;
@@ -45,11 +47,15 @@ export function topNeighbourhoods(
   for (let position = 0; position < list.length; position++) {
     if (cells[position] < minimumCells || cells[position] === 0) continue;
     ranked.push({
+      position,
       name: list[position].name,
       area: list[position].area,
       score: sum[position] / cells[position],
       bestCell: best[position],
     });
   }
-  return ranked.sort((a, b) => b.score - a.score).slice(0, count);
+  // A tie keeps the list's order, so that the ranking never depends on how the sort is made.
+  return ranked
+    .sort((a, b) => b.score - a.score || a.position - b.position)
+    .slice(0, count);
 }
