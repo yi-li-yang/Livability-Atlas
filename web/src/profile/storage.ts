@@ -1,3 +1,4 @@
+import type { Band } from "../scoring/curves";
 import type { Limit, Profile } from "../scoring/region";
 
 /** Where the browser keeps the profile between visits. */
@@ -6,6 +7,7 @@ export const STORAGE_KEY = "atlas.profile.v1";
 const ID = /^[a-z0-9][a-z0-9-]*$/;
 const NUMBER = /^\d+(\.\d+)?$/;
 const CATEGORY = /^[a-z0-9]+$/i;
+const SIGNED = /^-?\d+(\.\d+)?$/;
 const MAX_WEIGHT = 5;
 
 /** A limit as `indicator:kind:value`, a list of categories joined by dots. */
@@ -33,6 +35,23 @@ function decodeLimit(text: string): Limit | null {
   return null;
 }
 
+/** The band that a piece of text such as `building-age:1890~1930` holds, or null. */
+function decodeBand(text: string): [string, Band] | null {
+  const [id, range, ...rest] = text.split(":");
+  const [lo, hi, ...more] = (range ?? "").split("~");
+  if (
+    rest.length > 0 ||
+    more.length > 0 ||
+    !ID.test(id ?? "") ||
+    !SIGNED.test(lo ?? "") ||
+    !SIGNED.test(hi ?? "") ||
+    Number(lo) > Number(hi)
+  ) {
+    return null;
+  }
+  return [id, [Number(lo), Number(hi)]];
+}
+
 /** The profile as text for the URL's fragment: `w=transport:0,safety:5&f=crime`. */
 export function encodeProfile(profile: Profile): string {
   const parts: string[] = [];
@@ -45,6 +64,12 @@ export function encodeProfile(profile: Profile): string {
   }
   if (profile.limits && profile.limits.length > 0) {
     parts.push(`l=${profile.limits.map(encodeLimit).join(",")}`);
+  }
+  const ranges = Object.entries(profile.ranges ?? {});
+  if (ranges.length > 0) {
+    parts.push(
+      `r=${ranges.map(([id, [lo, hi]]) => `${id}:${lo}~${hi}`).join(",")}`,
+    );
   }
   if (profile.mode === "balanced") parts.push("m=balanced");
   return parts.join("&");
@@ -107,17 +132,24 @@ export function decodeProfile(text: string): Profile {
     .split(",")
     .map(decodeLimit)
     .filter((limit): limit is Limit => limit !== null);
+  const ranges = Object.fromEntries(
+    (params.get("r") ?? "")
+      .split(",")
+      .map(decodeBand)
+      .filter((band): band is [string, Band] => band !== null),
+  );
   return {
     weights,
     ...(flipped.length > 0 ? { flipped } : {}),
     ...(Object.keys(choices).length > 0 ? { choices } : {}),
     ...(limits.length > 0 ? { limits } : {}),
+    ...(Object.keys(ranges).length > 0 ? { ranges } : {}),
     ...(params.get("m") === "balanced" ? { mode: "balanced" as const } : {}),
   };
 }
 
 /**
- * Keeps only the weights, directions and choices of ids that the region's factor tree has. An
+ * Keeps only the weights, directions, choices, limits and bands of ids that the region's factor tree has. An
  * option is known as `indicator:option`.
  */
 export function pruneProfile(
@@ -140,11 +172,15 @@ export function pruneProfile(
   const limits = (profile.limits ?? []).filter((limit) =>
     known.has(limit.indicator),
   );
+  const ranges = Object.fromEntries(
+    Object.entries(profile.ranges ?? {}).filter(([id]) => known.has(id)),
+  );
   return {
     weights,
     ...(flipped.length > 0 ? { flipped } : {}),
     ...(Object.keys(choices).length > 0 ? { choices } : {}),
     ...(limits.length > 0 ? { limits } : {}),
+    ...(Object.keys(ranges).length > 0 ? { ranges } : {}),
     ...(profile.mode === "balanced" ? { mode: "balanced" as const } : {}),
   };
 }

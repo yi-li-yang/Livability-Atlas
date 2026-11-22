@@ -44,6 +44,24 @@ def curve_score(
     raise ValueError(f"unknown curve shape {shape!r}")
 
 
+def with_band(curve: dict[str, Any], band: list[float] | None) -> dict[str, Any]:
+    """An ideal range with the user's band [lo, hi] in place of l1 and u1 (a user-range indicator).
+
+    The slopes keep the widths of the catalogue's curve, so l0 and u0 move with the band. Any other
+    curve, or no band, is returned as it is.
+    """
+    if band is None or curve["shape"] != "ideal-range":
+        return curve
+    lo, hi = band
+    return {
+        **curve,
+        "l0": lo - (curve["l1"] - curve["l0"]),
+        "l1": lo,
+        "u1": hi,
+        "u0": hi + (curve["u0"] - curve["u1"]),
+    }
+
+
 def _children(node: Node) -> list[Node]:
     return node.get("children", [])
 
@@ -59,7 +77,8 @@ def _weight(node: Node) -> float:
 def _own_score(leaf: Node) -> float | None:
     if leaf.get("value") is None:
         return None
-    score = curve_score(leaf["curve"], leaf["value"], leaf.get("region_values"))
+    curve = with_band(leaf["curve"], leaf.get("band"))
+    score = curve_score(curve, leaf["value"], leaf.get("region_values"))
     if score is None:
         return None
     return 1 - score if leaf.get("flipped") else score

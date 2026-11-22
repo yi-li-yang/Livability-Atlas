@@ -1,4 +1,4 @@
-import { curveScore, type SetCurve } from "./curves";
+import { type Band, curveScore, type SetCurve, withBand } from "./curves";
 
 /**
  * The scoring engine for one hex cell, as docs/methodology/scoring.md defines it. It reproduces the
@@ -18,6 +18,8 @@ export interface ScoreNode {
   region_values?: number[];
   /** A flipped user direction: the score s becomes 1 - s. */
   flipped?: boolean;
+  /** For a user-range indicator, the band the user has set: it moves the ideal range. */
+  band?: Band;
 }
 
 /** A hard limit on a measured indicator's raw value or category. */
@@ -99,7 +101,8 @@ function weightOf(node: ScoreNode): number {
 function ownScore(leaf: ScoreNode): number | null {
   if (leaf.value === undefined || leaf.value === null || !leaf.curve)
     return null;
-  const score = curveScore(leaf.curve, leaf.value, leaf.region_values);
+  const curve = withBand(leaf.curve, leaf.band);
+  const score = curveScore(curve, leaf.value, leaf.region_values);
   if (score === null) return null;
   return leaf.flipped ? 1 - score : score;
 }

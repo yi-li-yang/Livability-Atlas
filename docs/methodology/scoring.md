@@ -118,7 +118,9 @@ For some measured indicators everyone agrees on the direction. For others, peopl
 | User range | People have an ideal band | Temperature, humidity, daylight hours, building age | A comfort band from the research literature; the user drags it |
 | User choice | People pick what to look for | Industry, cuisines, community group, faith | Weight 0 until the user picks |
 
-Flipping a user direction swaps $t_0$ and $t_1$ on a ramp, so every score $s$ becomes $1 - s$. The same holds for every curve shape: a flipped ideal range or lookup scores $1 - s$ too. A user who cannot stand rain can also set a hard limit, e.g. fewer than 100 rainy days a year.
+Flipping a user direction swaps $t_0$ and $t_1$ on a ramp, so every score $s$ becomes $1 - s$. The same holds for every curve shape: a flipped ideal range or lookup scores $1 - s$ too. A user who cannot stand rain can also set a hard limit, e.g. fewer than 100 rainy days a year. In the app the switch reads "More is better" and "Less is better", and which one starts pressed comes from the catalogue's curve (a percentile's `better`, or a ramp's $t_1 > t_0$).
+
+Dragging the band of a user range sets the band $[lo, hi]$ that scores in full: it replaces $l_1$ and $u_1$ of the ideal range, and the slopes keep the widths of the catalogue's curve, so $l_0 = lo - (l_1 - l_0)$ and $u_0 = hi + (u_0 - u_1)$. Until the user drags it, the catalogue's band applies. The band travels in the link (`r=building-age:1890~1930`) and the browser's storage, like the directions (`f=`).
 
 ## 5. Weights and aggregation up the tree
 
@@ -255,13 +257,13 @@ How stable the top 10 stays when the weights shift is computed by `sensitivity` 
 
 ## 13. Golden test cases
 
-Status: done in step 0.5. `shared/fixtures/scoring/` holds one JSON file for each of 18 cases. The TypeScript engine of the web app and the Python reference scorer (`pipeline/src/atlas/scoring/engine.py`) must both reproduce every one, within 1e-9. The expected numbers were worked out by hand, in comments beside each case's definition, before the scorer was written, and the tests also check that the hand-written numbers add up by themselves (contributions sum to the node above, shares sum to one).
+Status: done in step 0.5. `shared/fixtures/scoring/` holds one JSON file for each of 19 cases. The TypeScript engine of the web app and the Python reference scorer (`pipeline/src/atlas/scoring/engine.py`) must both reproduce every one, within 1e-9. The expected numbers were worked out by hand, in comments beside each case's definition, before the scorer was written, and the tests also check that the hand-written numbers add up by themselves (contributions sum to the node above, shares sum to one).
 
 **Format.** A case holds a `tree` of nodes, optional `hard_limits`, and the `expected` result.
 
 | Field | Meaning |
 | --- | --- |
-| `tree` | A node has an `id` and a `weight`, and either `children`, or the fields of a measured indicator: a `curve` (as in the catalogue), a raw `value` (`null` when missing), `region_values` (percentile curves only: every region cell's value) and `flipped` |
+| `tree` | A node has an `id` and a `weight`, and either `children`, or the fields of a measured indicator: a `curve` (as in the catalogue), a raw `value` (`null` when missing), `region_values` (percentile curves only: every region cell's value), `flipped`, and `band` (a user range's `[lo, hi]`) |
 | `mode` | Optional. `"balanced"` is the no weak spots mode (section 5); anything else, or none, is the arithmetic mean |
 | `hard_limits` | Each has an `id`, an `indicator` (a measured indicator's `id`), and one of `max`, `min`, `in` or `not_in` |
 | `expected.score` | The livability score, 0 to 100 and unrounded, or `null` when no factor is active |
@@ -281,6 +283,7 @@ The interface rounds the livability score to a whole number for display, and ran
 | `lookup` | A lookup, and a category it does not list, which counts as missing |
 | `percentile` | Ties share the middle, the best cell scores 1, and a region of one cell scores 0.5 |
 | `flipped-direction` | $1 - s$ for a ramp, an ideal range and a lookup |
+| `user-range` | A user's band moves the ideal range and keeps the widths of its slopes; with no band, the catalogue's applies |
 | `missing-and-low-coverage` | A factor without data is skipped, weights renormalised, coverage under 70% flagged |
 | `zero-weight-composite` | A composite whose children all weigh 0 counts as weight 0 |
 | `no-weak-spots` | The geometric mean down a nested tree (0.4, then 0.2), with null contributions |

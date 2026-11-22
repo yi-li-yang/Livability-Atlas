@@ -134,6 +134,7 @@ const PROFILES: Record<string, Profile> = {
     weights: { safety: 5, noise: 0, trees: 1 },
     mode: "balanced",
   },
+  "a band moved": { weights: {}, ranges: { noise: [45, 50] } },
   "no weak spots, with directions flipped": {
     weights: {},
     flipped: ["crime", "trees"],
@@ -143,7 +144,8 @@ const PROFILES: Record<string, Profile> = {
 
 describe("scoring a whole region", () => {
   const bundle = makeBundle(300, 7);
-  const leaves = (profile: Profile) => allLeafScores(bundle, profile.flipped);
+  const leaves = (profile: Profile) =>
+    allLeafScores(bundle, profile.flipped, profile.choices, profile.ranges);
 
   for (const [name, profile] of Object.entries(PROFILES)) {
     it(`gives the scores that scoreCell gives, with ${name}`, () => {
@@ -197,6 +199,21 @@ describe("scoring a whole region", () => {
     expect(lower).toBeGreaterThan(mean.length / 2);
   });
 
+  it("moves the ideal range to the user's band, and leaves other curves alone", () => {
+    const plain = allLeafScores(bundle);
+    const banded = allLeafScores(
+      bundle,
+      [],
+      {},
+      {
+        noise: [45, 50],
+        crime: [1, 2],
+      },
+    );
+    expect(banded.get("crime")).toEqual(plain.get("crime"));
+    expect(banded.get("noise")).not.toEqual(plain.get("noise"));
+  });
+
   it("changes with the weights while the leaf scores stay the same", () => {
     const base = leaves({ weights: {} });
     const a = scoreRegion(bundle, { weights: {} }, base);
@@ -218,7 +235,8 @@ describe("scoring a whole region", () => {
 
 describe("scoring a region by one factor", () => {
   const bundle = makeBundle(300, 7);
-  const leaves = (profile: Profile) => allLeafScores(bundle, profile.flipped);
+  const leaves = (profile: Profile) =>
+    allLeafScores(bundle, profile.flipped, profile.choices, profile.ranges);
 
   /** What the one-cell engine gives one node of the tree, from 0 to 100. */
   function slowNode(profile: Profile, id: string): (number | null)[] {

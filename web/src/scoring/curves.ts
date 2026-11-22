@@ -5,6 +5,26 @@ export type SetCurve = NonNullable<Curve>;
 
 const clip = (x: number): number => Math.min(1, Math.max(0, x));
 
+/** A user's band for a user-range indicator: the lowest and highest values that score in full. */
+export type Band = readonly [number, number];
+
+/**
+ * An ideal range with the user's band in place of `l1` and `u1` (scoring.md, section 4). The slopes
+ * keep the widths of the catalogue's curve, so `l0` and `u0` move with the band. Any other curve,
+ * or no band, is returned as it is. The Python reference scorer's `with_band` does the same.
+ */
+export function withBand(curve: SetCurve, band: Band | undefined): SetCurve {
+  if (!band || curve.shape !== "ideal-range") return curve;
+  const [lo, hi] = band;
+  return {
+    ...curve,
+    l0: lo - (curve.l1 - curve.l0),
+    l1: lo,
+    u1: hi,
+    u0: hi + (curve.u0 - curve.u1),
+  };
+}
+
 /**
  * The score of a raw value, from 0 (worst) to 1 (best), as docs/methodology/scoring.md, section 3
  * defines it, or null where the curve cannot score it: a category it does not list, or a percentile

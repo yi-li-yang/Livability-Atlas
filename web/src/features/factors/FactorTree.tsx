@@ -12,6 +12,12 @@ import {
   withChoice,
   withWeight,
 } from "./level";
+import {
+  bandOf,
+  higherIsBetter,
+  withDirection,
+  withRange,
+} from "./preferences";
 import { Rings } from "./Rings";
 import { squarify } from "./treemap";
 
@@ -33,6 +39,7 @@ const LAYOUTS: { layout: Layout; name: string }[] = [
 export function FactorTree({
   factors,
   indicators = [],
+  extents = {},
   profile,
   layout,
   heading = true,
@@ -43,6 +50,8 @@ export function FactorTree({
   factors: readonly ManifestFactor[];
   /** The measured indicators, to find the ones that offer a choice. */
   indicators?: readonly ManifestIndicator[];
+  /** The region's lowest and highest value of each user-range indicator, for its band's slider. */
+  extents?: Readonly<Record<string, { min: number; max: number }>>;
   profile: Profile;
   /** How the factors are drawn. */
   layout: Layout;
@@ -59,6 +68,34 @@ export function FactorTree({
   const [openPicker, setOpenPicker] = useState<string | null>(null);
   const optionsOf = (view: FactorView): ManifestIndicator | undefined =>
     indicators.find((i) => i.id === view.factor.indicator && i.options);
+  /** The switch or the band a measured indicator offers, by its preference type. */
+  const preference = (view: FactorView) => {
+    const indicator = indicators.find((i) => i.id === view.factor.indicator);
+    if (indicator?.preference_type === "user-direction") {
+      const higher = higherIsBetter(profile, indicator);
+      return higher === null ? null : (
+        <Direction
+          name={view.name}
+          higher={higher}
+          onSet={(more) => onChange(withDirection(profile, indicator, more))}
+        />
+      );
+    }
+    const band = indicator ? bandOf(profile, indicator) : null;
+    if (indicator?.preference_type === "user-range" && band) {
+      const extent = extents[indicator.id];
+      return (
+        <BandSlider
+          name={view.name}
+          band={band}
+          min={Math.floor(Math.min(extent?.min ?? band[0], band[0]))}
+          max={Math.ceil(Math.max(extent?.max ?? band[1], band[1]))}
+          onSet={(next) => onChange(withRange(profile, indicator, next))}
+        />
+      );
+    }
+    return null;
+  };
   const picker = (view: FactorView) => {
     const indicator = optionsOf(view);
     return indicator ? (
@@ -222,6 +259,7 @@ export function FactorTree({
               onOpen={f.opens ? () => setPath([...opened, f.id]) : undefined}
               onWeight={(w) => onChange(withWeight(profile, f.id, w))}
             />
+            {preference(f)}
             {picker(f)}
           </li>
         ))}
@@ -229,6 +267,8 @@ export function FactorTree({
 
       {(Object.keys(profile.weights).length > 0 ||
         (profile.flipped?.length ?? 0) > 0 ||
+        Object.keys(profile.ranges ?? {}).length > 0 ||
+        profile.mode === "balanced" ||
         (profile.limits?.length ?? 0) > 0) && (
         <button type="button" className="underline" onClick={onReset}>
           Reset to defaults
@@ -326,6 +366,103 @@ function Row({
         className="w-full"
         onChange={(event) => onWeight(Number(event.target.value))}
       />
+    </div>
+  );
+}
+
+/** The "more or less" switch of a user-direction indicator: which way scores better. */
+function Direction({
+  name,
+  higher,
+  onSet,
+}: {
+  name: string;
+  higher: boolean;
+  onSet: (higher: boolean) => void;
+}) {
+  const options = [
+    { more: true, label: "More is better" },
+    { more: false, label: "Less is better" },
+  ];
+  return (
+    <fieldset className="m-0 mt-1 flex w-fit overflow-hidden rounded border border-neutral-400 p-0 text-xs">
+      <legend className="sr-only">Which is better for {name}</legend>
+      {options.map(({ more, label }) => (
+        <button
+          key={label}
+          type="button"
+          aria-pressed={higher === more}
+          className={
+            higher === more
+              ? "bg-neutral-800 px-2 py-0.5 text-white"
+              : "bg-white px-2 py-0.5 hover:bg-neutral-100"
+          }
+          onClick={() => onSet(more)}
+        >
+          {label}
+        </button>
+      ))}
+    </fieldset>
+  );
+}
+
+/** A number as the band's words show it: whole where it is whole, else to one decimal place. */
+const plain = (x: number): string =>
+  Number.isInteger(x) ? String(x) : x.toFixed(1);
+
+/** The ideal-range band of a user-range indicator: two sliders for the ends of full marks. */
+function BandSlider({
+  name,
+  band,
+  min,
+  max,
+  onSet,
+}: {
+  name: string;
+  band: readonly [number, number];
+  min: number;
+  max: number;
+  onSet: (band: [number, number]) => void;
+}) {
+  const [lo, hi] = band;
+  const step = max - min > 50 ? 1 : (max - min) / 100;
+  return (
+    <div className="mt-1 space-y-1 text-xs" data-testid="band">
+      <p>
+        Full marks from {plain(lo)} to {plain(hi)}
+      </p>
+      <label className="flex items-center gap-2">
+        <span className="w-8">From</span>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={lo}
+          aria-label={`${name}: lowest for full marks`}
+          aria-valuetext={plain(lo)}
+          className="flex-1"
+          onChange={(event) =>
+            onSet([Math.min(Number(event.target.value), hi), hi])
+          }
+        />
+      </label>
+      <label className="flex items-center gap-2">
+        <span className="w-8">To</span>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={hi}
+          aria-label={`${name}: highest for full marks`}
+          aria-valuetext={plain(hi)}
+          className="flex-1"
+          onChange={(event) =>
+            onSet([lo, Math.max(Number(event.target.value), lo)])
+          }
+        />
+      </label>
     </div>
   );
 }

@@ -25,7 +25,12 @@ export function neighbourhoodStability(
   options: { count?: number; change?: number } = {},
 ): Sensitivity {
   const { count = 10, change } = options;
-  const leaves = allLeafScores(bundle, profile.flipped, profile.choices);
+  const leaves = allLeafScores(
+    bundle,
+    profile.flipped,
+    profile.choices,
+    profile.ranges,
+  );
   const excluded = excludedCells(bundle, profile.limits ?? []);
   const rank = (p: Profile): string[] =>
     topNeighbourhoods(bundle, scoreRegion(bundle, p, leaves), excluded, {
