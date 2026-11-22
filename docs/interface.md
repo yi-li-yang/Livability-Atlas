@@ -21,6 +21,9 @@ The same rule applies across the app:
 - Scoring curves and data-coverage settings sit behind "Advanced".
 - Dataset credits sit behind "About the data".
 - The legend's "Show on the map" list colours the map by one factor's or one measured indicator's own score in place of the livability score ([spec](specs/2026-10-29-map-by-factor.md)). The ranking, the top neighbourhoods and the hard limits stay as they are, and the quick look and the reasons add the score on the map beside the livability score.
+- **Start from** above the factor tree lists the presets, ready-made preference profiles that the manifest carries (`catalogue/presets/`, cut to the factors of the bundle). Choosing one sets the weights, directions and hard limits; the choices, bands and the way the factors combine stay the user's. While the profile is still the preset's, the list names it with its description and an "Undo" back to what the user had before.
+- **How the factors combine** under the factor tree is a switch between "Add up" (the default) and "No weak spots" (scoring.md, section 5). It goes in the link as `m=balanced`. In "No weak spots" the reasons show each factor's own score ("72 out of 100") in place of points, with a line that says why they do not add up.
+- **Top neighbourhoods**, once open, says how many of them stay when a weight moves by a fifth ("9 of these 10 stay, on average, …", the stability of the top, scoring.md section 12a) and marks with ● those that stay whichever weight moves. It is worked out only while the list is open, once the weights have been still for 0.3 s, one scenario at a time, so the page keeps responding.
 - On a phone (under 768 px wide), panels become bottom sheets ([spec](specs/2026-10-29-phone-layout.md)): the preferences are a bar along the bottom that opens, the legend moves across the top, tapping a cell opens the reasons as a sheet, and there is no quick look, since a phone has no hover.
 
 ## Visual factor tree

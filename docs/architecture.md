@@ -40,7 +40,7 @@ web app (React, in each user's browser)
 
 | File | Contents |
 | --- | --- |
-| `manifest.json` | Factor tree, scoring curves, preference types, datasets, licences and dates |
+| `manifest.json` | Factor tree, scoring curves, preference types, datasets, licences and dates, the named neighbourhoods, and the presets |
 | `cells.parquet` | One row per hex cell, one column per measured indicator |
 | `cell-stations.parquet` | For each hex cell, the stations within a 15-min walk and the walking minutes to each |
 | `station-matrix.parquet` | Station-to-station public-transport times, including average waits and changes |

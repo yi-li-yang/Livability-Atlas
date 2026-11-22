@@ -1,8 +1,9 @@
 import { cellToLatLng } from "h3-js";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { type Bundle, loadBundle } from "./data/bundle";
 import { FactorTree } from "./features/factors/FactorTree";
 import { type Layout, loadLayout, saveLayout } from "./features/factors/layout";
+import { ModeSwitch } from "./features/factors/ModeSwitch";
 import { QuickLook } from "./features/factors/QuickLook";
 import { WhyPanel } from "./features/factors/WhyPanel";
 import { LimitsPanel } from "./features/limits/LimitsPanel";
@@ -12,8 +13,11 @@ import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
 import { noDataNote, viewOptions } from "./features/map/views";
+import { neighbourhoodStabilitySteps } from "./features/neighbourhoods/stability";
 import { TopNeighbourhoods } from "./features/neighbourhoods/TopNeighbourhoods";
 import { topNeighbourhoods } from "./features/neighbourhoods/top";
+import { PresetPicker } from "./features/presets/PresetPicker";
+import { fromPreset, matchingPreset } from "./features/presets/presets";
 import type { Manifest, ManifestFactor } from "./generated/manifest.schema";
 import {
   encodeProfile,
@@ -82,6 +86,8 @@ export function App() {
   );
   const [hover, setHover] = useState<Hover | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  // The profile before the user started from a preset, so that "Undo" can bring it back.
+  const [beforePreset, setBeforePreset] = useState<Profile | null>(null);
   const [opacity, setOpacity] = useState(CELL_OPACITY);
   // What the map shows in place of the livability score: a factor or a measured indicator.
   const [view, setView] = useState<string | null>(null);
@@ -202,6 +208,21 @@ export function App() {
     [bundle, scores, excluded],
   );
 
+  // How many of the top neighbourhoods stay when a weight moves by a fifth. It rescores the region
+  // twice for each counted factor, so the list works it out only when it is opened, a step at a time.
+  const stability = useCallback(
+    () =>
+      bundle && leaves && excluded
+        ? neighbourhoodStabilitySteps(bundle, profile, { leaves, excluded })
+        : null,
+    [bundle, profile, leaves, excluded],
+  );
+  const presets = bundle?.manifest.presets ?? [];
+  const preset = useMemo(
+    () => matchingPreset(profile, bundle?.manifest.presets ?? []),
+    [profile, bundle],
+  );
+
   /** What one cell scores and why, for the quick look and the panel of reasons. */
   const explained = (index: number | null) => {
     if (index === null || !bundle || !scores || !ranked) return null;
@@ -227,6 +248,7 @@ export function App() {
       <>
         <TopNeighbourhoods
           top={top}
+          stability={stability}
           onChoose={(neighbourhood) => {
             const [lat, lng] = cellToLatLng(
               state.bundle.cells[neighbourhood.bestCell],
@@ -240,6 +262,22 @@ export function App() {
             }));
           }}
         />
+        <PresetPicker
+          presets={presets}
+          current={preset}
+          onChoose={(chosen) => {
+            setBeforePreset((before) => (preset ? before : profile));
+            setProfile(fromPreset(profile, chosen));
+          }}
+          onUndo={
+            beforePreset
+              ? () => {
+                  setProfile(beforePreset);
+                  setBeforePreset(null);
+                }
+              : undefined
+          }
+        />
         <FactorTree
           factors={state.bundle.manifest.factors}
           indicators={state.bundle.manifest.indicators}
@@ -252,8 +290,21 @@ export function App() {
             setLayout(next);
             saveLayout(next, browserStorage());
           }}
-          onReset={() => setProfile({ weights: {} })}
+          onReset={() => {
+            setProfile({ weights: {} });
+            setBeforePreset(null);
+          }}
         />
+        <div className="mt-4 border-t border-neutral-300 pt-3">
+          <ModeSwitch
+            mode={profile.mode ?? "mean"}
+            onMode={(mode) =>
+              setProfile(({ mode: _, ...rest }) =>
+                mode === "balanced" ? { ...rest, mode } : rest,
+              )
+            }
+          />
+        </div>
         <div className="mt-4 border-t border-neutral-300 pt-3">
           <LimitsPanel
             bundle={state.bundle}

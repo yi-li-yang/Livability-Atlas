@@ -71,6 +71,28 @@ class ManifestFactor(_Model):
     indicator: str | None = None  # the id of the measured indicator, on a leaf
 
 
+class ManifestLimit(_Model):
+    """A hard limit of a preset, as the web app's profile holds one: one of max, min and in."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    indicator: str
+    max: float | None = None
+    min: float | None = None
+    in_: list[str] | None = Field(default=None, alias="in")
+
+
+class ManifestPreset(_Model):
+    """A ready-made preference profile, cut to the factors and indicators of this bundle."""
+
+    id: str
+    name: str
+    description: str
+    weights: dict[str, int] | None = None
+    flipped: list[str] | None = None
+    limits: list[ManifestLimit] | None = None
+
+
 class Manifest(_Model):
     format_version: Literal[1] = 1
     version: str  # a hash of the bundle's content
@@ -83,3 +105,5 @@ class Manifest(_Model):
     # The neighbourhoods that cells belong to. The `neighbourhood` column of cells.parquet holds,
     # for each cell, the position of its neighbourhood in this list (empty where it has none).
     neighbourhoods: list[ManifestNeighbourhood] | None = None
+    # Ready-made preference profiles to start from (catalogue/presets/), by name.
+    presets: list[ManifestPreset] | None = None

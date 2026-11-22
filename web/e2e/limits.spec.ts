@@ -81,18 +81,19 @@ test("cells that fail a limit are greyed out, and the map comes back when it is 
   const area = () => page.screenshot({ clip });
   const before = await area();
   await addWalkLimit(page, "0.5"); // almost every cell is farther than half a minute
-  await page.waitForTimeout(500);
+  // Wait for the picture to change, not for a fixed time: a slow machine draws later.
+  await expect
+    .poll(async () => differs(before, await area()), { timeout: 10_000 })
+    .toBeGreaterThan(1000);
   const limited = await area();
-  expect(differs(before, limited)).toBeGreaterThan(1000);
   await page
     .getByRole("button", {
       name: "Remove the limit on Walk to the nearest station",
     })
     .click();
-  await page.waitForTimeout(500);
-  expect(differs(before, await area())).toBeLessThan(
-    differs(before, limited) / 4,
-  );
+  await expect
+    .poll(async () => differs(before, await area()), { timeout: 10_000 })
+    .toBeLessThan(differs(before, limited) / 4);
 });
 
 test("a limit is still there after a reload, and travels in the link", async ({
