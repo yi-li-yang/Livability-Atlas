@@ -78,22 +78,37 @@ test("cells that fail a limit are greyed out, and the map comes back when it is 
 }) => {
   await openApp(page);
   const clip = await clearOfPanel(page, page.getByTestId("map"));
-  const area = () => page.screenshot({ clip });
-  const before = await area();
+  // A picture of the map once it has stopped changing: tiles and cells draw at their own pace.
+  const settled = async (): Promise<Buffer> => {
+    let last = await page.screenshot({ clip });
+    for (let i = 0; i < 20; i++) {
+      await page.waitForTimeout(250);
+      const next = await page.screenshot({ clip });
+      if (differs(last, next) < 50) return next;
+      last = next;
+    }
+    return last;
+  };
+  const before = await settled();
   await addWalkLimit(page, "0.5"); // almost every cell is farther than half a minute
-  // Wait for the picture to change, not for a fixed time: a slow machine draws later.
   await expect
-    .poll(async () => differs(before, await area()), { timeout: 10_000 })
+    .poll(async () => differs(before, await page.screenshot({ clip })), {
+      timeout: 10_000,
+    })
     .toBeGreaterThan(1000);
-  const limited = await area();
+  const limited = await settled();
   await page
     .getByRole("button", {
       name: "Remove the limit on Walk to the nearest station",
     })
     .click();
   await expect
-    .poll(async () => differs(before, await area()), { timeout: 10_000 })
-    .toBeLessThan(differs(before, limited) / 4);
+    .poll(async () => differs(limited, await page.screenshot({ clip })), {
+      timeout: 10_000,
+    })
+    .toBeGreaterThan(1000);
+  const after = await settled();
+  expect(differs(before, after)).toBeLessThan(differs(before, limited) / 4);
 });
 
 test("a limit is still there after a reload, and travels in the link", async ({
