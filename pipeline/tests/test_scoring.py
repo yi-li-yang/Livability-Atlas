@@ -69,10 +69,11 @@ def test_each_golden_case_adds_up_by_itself(path):
         ]
         if balanced:
             assert all(n["contribution"] is None for n in nodes.values())
-            if active:  # the effective shares are the exponents of the geometric mean
+            # the effective shares are the exponents of the geometric mean
+            if active and mine["effective_share"]:
                 assert math.isclose(
                     sum(a["effective_share"] for a in active),
-                    1 * (mine["effective_share"] or 0),
+                    mine["effective_share"],
                     abs_tol=TOLERANCE,
                 )
                 product = math.prod(

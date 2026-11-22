@@ -210,3 +210,21 @@ describe("limits", () => {
     expect(decodeProfile("w=transport:3").limits).toBeUndefined();
   });
 });
+
+describe("the scoring mode", () => {
+  const balanced = { weights: { safety: 5 }, mode: "balanced" as const };
+  it("round-trips through the link as m=balanced", () => {
+    expect(encodeProfile(balanced)).toBe("w=safety:5&m=balanced");
+    expect(decodeProfile(encodeProfile(balanced))).toEqual(balanced);
+  });
+  it("is left out where it is the default, and dropped where it is unknown", () => {
+    expect(encodeProfile({ weights: {}, mode: "mean" })).toBe("");
+    expect(decodeProfile("m=strange")).toEqual({ weights: {} });
+  });
+  it("survives pruning and the browser's storage", () => {
+    expect(pruneProfile(balanced, new Set(["safety"]))).toEqual(balanced);
+    const store = memory();
+    saveProfile(balanced, store);
+    expect(loadProfile("", store)).toEqual(balanced);
+  });
+});

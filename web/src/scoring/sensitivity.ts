@@ -30,8 +30,8 @@ export const CHANGE = 0.2;
 /**
  * How stable the top places stay when the weights shift (scoring.md, section 12). Each of the
  * `factors` (id and current weight) is made `change` heavier, and then `change` lighter, one at a
- * time, with every other weight as the profile has it. `rank` gives the leading places, by name,
- * for a profile: the caller scores the region and ranks it, so this stays a pure computation.
+ * time, with every other weight as the profile has it. `rank` gives the leading places, each by a
+ * key that no other place has, for a profile: the caller scores the region and ranks it, so this stays a pure computation.
  *
  * A factor with weight 0 is left out: a share of nothing is nothing. The profile it is given is
  * not changed.

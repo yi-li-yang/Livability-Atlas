@@ -54,7 +54,7 @@ describe("the stability of the top neighbourhoods", () => {
       { weights: { a: 5, b: 1 } },
       { count: 2 },
     );
-    expect(result.baseline).toEqual(["Aston", "Bury"]);
+    expect(result.baseline).toEqual(["0", "1"]); // Aston and Bury
     // every change of "a" or "b" by 20% leaves Aston and Bury on top: 5:1 is far from a tie
     expect(result.stability).toBe(1);
   });
@@ -76,7 +76,7 @@ describe("the stability of the top neighbourhoods", () => {
       { count: 2 },
     );
     // only Aston and Bury have cells with a >= 6, so they are the only neighbourhoods ranked
-    expect(result.baseline.sort()).toEqual(["Aston", "Bury"]);
+    expect(result.baseline.sort()).toEqual(["0", "1"]); // Aston and Bury
   });
 
   it("changes the weights of the top-level factors only", () => {
@@ -84,5 +84,41 @@ describe("the stability of the top neighbourhoods", () => {
     expect(new Set(result.scenarios.map((s) => s.factor))).toEqual(
       new Set(["a", "b"]),
     );
+  });
+
+  it("leaves out a factor that counts for nothing because everything inside it weighs 0", () => {
+    const m = manifest();
+    m.factors = [
+      {
+        id: "g",
+        name: "G",
+        default_weight: 3,
+        children: [{ id: "a", name: "A", default_weight: 3, indicator: "a" }],
+      },
+      { id: "b", name: "B", default_weight: 3, indicator: "b" },
+    ];
+    const result = neighbourhoodStability(
+      { ...bundle(A, B), manifest: m },
+      { weights: { a: 0 } },
+    );
+    expect(new Set(result.scenarios.map((s) => s.factor))).toEqual(
+      new Set(["b"]),
+    );
+  });
+
+  it("tells apart two neighbourhoods with the same name", () => {
+    const m = manifest();
+    m.neighbourhoods = ["Aston", "Aston", "Cole", "Dene"].map((name, i) => ({
+      name,
+      area: `Area ${i}`,
+    }));
+    // the ranking is keyed by the position in the list, so the two are never taken for one
+    const result = neighbourhoodStability(
+      { ...bundle(per([9, 8, 3, 2]), per([2, 3, 8, 9])), manifest: m },
+      { weights: { a: 5, b: 1 } },
+      { count: 1 },
+    );
+    expect(result.baseline).toEqual(["0"]);
+    expect(result.staysIn["0"]).toBe(1);
   });
 });
