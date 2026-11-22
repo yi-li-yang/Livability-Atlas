@@ -291,6 +291,60 @@
       "title": "ManifestIndicator",
       "type": "object"
     },
+    "ManifestLimit": {
+      "additionalProperties": false,
+      "description": "A hard limit of a preset, as the web app's profile holds one: one of max, min and in.",
+      "properties": {
+        "indicator": {
+          "title": "Indicator",
+          "type": "string"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "in": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "In"
+        }
+      },
+      "required": [
+        "indicator"
+      ],
+      "title": "ManifestLimit",
+      "type": "object"
+    },
     "ManifestNeighbourhood": {
       "additionalProperties": false,
       "description": "A named area that hex cells belong to, such as an MSOA: \"Soho\", in Westminster.",
@@ -346,6 +400,76 @@
         "column"
       ],
       "title": "ManifestOption",
+      "type": "object"
+    },
+    "ManifestPreset": {
+      "additionalProperties": false,
+      "description": "A ready-made preference profile, cut to the factors and indicators of this bundle.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "weights": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weights"
+        },
+        "flipped": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Flipped"
+        },
+        "limits": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ManifestLimit"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limits"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description"
+      ],
+      "title": "ManifestPreset",
       "type": "object"
     },
     "ManifestRegion": {
@@ -474,6 +598,21 @@
       ],
       "default": null,
       "title": "Neighbourhoods"
+    },
+    "presets": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ManifestPreset"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Presets"
     }
   },
   "required": [

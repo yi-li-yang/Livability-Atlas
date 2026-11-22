@@ -5,9 +5,9 @@ Schema, and the web app generates its types from that. It holds no date: a bundl
 a hash of its content, so building twice from the same data gives the same bytes.
 """
 
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from atlas.catalogue.models import Curve, EvidenceType, Grid, PreferenceType
 
@@ -71,6 +71,34 @@ class ManifestFactor(_Model):
     indicator: str | None = None  # the id of the measured indicator, on a leaf
 
 
+class ManifestLimit(_Model):
+    """A hard limit of a preset, as the web app's profile holds one: one of max, min and in."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    indicator: str
+    max: float | None = None
+    min: float | None = None
+    in_: list[str] | None = Field(default=None, alias="in")
+
+    @model_validator(mode="after")
+    def one_bound(self) -> Self:
+        if sum(b is not None for b in (self.max, self.min, self.in_)) != 1:
+            raise ValueError("a limit needs exactly one of max, min and in")
+        return self
+
+
+class ManifestPreset(_Model):
+    """A ready-made preference profile, cut to the factors and indicators of this bundle."""
+
+    id: str
+    name: str
+    description: str
+    weights: dict[str, int] | None = None
+    flipped: list[str] | None = None
+    limits: list[ManifestLimit] | None = None
+
+
 class Manifest(_Model):
     format_version: Literal[1] = 1
     version: str  # a hash of the bundle's content
@@ -83,3 +111,5 @@ class Manifest(_Model):
     # The neighbourhoods that cells belong to. The `neighbourhood` column of cells.parquet holds,
     # for each cell, the position of its neighbourhood in this list (empty where it has none).
     neighbourhoods: list[ManifestNeighbourhood] | None = None
+    # Ready-made preference profiles to start from (catalogue/presets/), by name.
+    presets: list[ManifestPreset] | None = None

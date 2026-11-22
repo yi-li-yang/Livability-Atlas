@@ -44,10 +44,11 @@ Livability-Atlas/
 │   │   ├── scoring/       # curves.ts: scoring curves; engine.ts: the scorer for one hex cell; region.ts: the fast scorer for the whole region; explain.ts: one cell's score, factor by factor, with its rank. All reproduce the golden test cases, as the Python reference scorer does
 │   │   ├── useIsPhone.ts  # whether the window is narrow enough for the phone layout
 │   │   ├── profile/       # storage.ts: the preference profile in the browser's storage and the link
-│   │   ├── features/factors/  # FactorTree (the factors as boxes or rings, with sliders), treemap (the box layout), Rings and arcs (the sunburst and its geometry), layout (which of the two the browser remembers), level (what each level shows), colours, QuickLook (the hover card), WhyPanel (the reasons for a hex cell's score), EvidenceDetails and evidence (the value, curve, evidence type and sources behind a measure)
+│   │   ├── features/factors/  # FactorTree (the factors as boxes or rings, with sliders), treemap (the box layout), Rings and arcs (the sunburst and its geometry), layout (which of the two the browser remembers), level (what each level shows), colours, QuickLook (the hover card), ModeSwitch ("Add up" or "No weak spots"), preferences (the direction switch and the band of full marks), WhyPanel (the reasons for a hex cell's score), EvidenceDetails and evidence (the value, curve, evidence type and sources behind a measure)
 │   │   ├── features/map/  # HexMap (the basemap with the hex cells over it), hexcells (shapes and colours), colour, Legend (with the "Show on the map" list), views (what that list offers, from the manifest), OnTheMap (the score on the map, in the quick look and the reasons)
 │   │   ├── features/limits/  # LimitsPanel (the hard limits form) and limits (what a limit says, which measures take one)
-│   │   ├── features/neighbourhoods/  # TopNeighbourhoods (the best neighbourhoods by name and score) and top (how they are ranked)
+│   │   ├── features/neighbourhoods/  # TopNeighbourhoods (the best neighbourhoods by name and score, and how many stay when a weight moves), top (how they are ranked) and stability
+│   │   ├── features/presets/  # PresetPicker ("Start from") and presets (starting from one, undoing it, and which one the profile is at)
 │   │   └── generated/     # TypeScript types from shared/schemas (generated)
 │   ├── serve-bundles.ts   # serves data/published/ at /bundles/ in dev and preview
 │   └── e2e/               # the Playwright tests, and a small data bundle (fixtures/) to load

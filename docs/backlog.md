@@ -9,11 +9,12 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Place and street names drawn above the hex cells. deck.gl's interleaved mode does it but fails against MapLibre 6 (deck.gl 9.4); retry when deck.gl supports MapLibre 6, or draw a labels-only copy of the basemap above the cells | idea |
 | More factors, in catalogue priority order | planned |
 | Crime rates per resident and worker, so that centres with few residents and many workers, like the City of London, stop topping every crime ([spike S2](spikes/S2-crime.md)). Needs a workplace population table whose licence and geography are checked | idea |
-| Presets, e.g. a renter commuting to the centre, a family with children, a retiree | the files are in `catalogue/presets/`; the app does not offer them yet |
+| Presets, e.g. a renter commuting to the centre, a family with children, a retiree | shipped: "Start from", from the manifest's `presets` |
 | Preference profiles as shareable URLs, with places left out unless the user includes them | idea |
 | Side-by-side comparison of two hex cells or neighbourhoods | idea |
-| "No weak spots" scoring mode (weighted geometric mean) | the engines and the golden cases are done; the app has no switch yet |
-| Sensitivity view: how stable the top 10 stays when weights shift ±20% | the computation is done (`neighbourhoodStability`); the app does not show it yet |
+| "No weak spots" scoring mode (weighted geometric mean) | shipped: the "How the factors combine" switch |
+| Sensitivity view: how stable the top 10 stays when weights shift ±20% | shipped: a line under "Top neighbourhoods" and a mark on the steady ones |
+| Rescoring in a Web Worker, so that the stability (30 rescorings, about 1 s in "No weak spots") never holds the page up at all | idea |
 | A switch for the direction of each user-direction indicator, and a band for each user-range indicator | shipped: "More is better" and "Less is better", and "Full marks from … to …" |
 | Scoring curves that users can edit | idea |
 | "Areas like X" search (ML) | idea |

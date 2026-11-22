@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": "513a7b571786",
+  "version": "12f78cf80627",
   "region": {
     "id": "london",
     "name": "London"
@@ -207,7 +207,7 @@
       "id": "violence-and-sexual-offences",
       "name": "Violence and sexual offences",
       "column": "violence_and_sexual_offences",
-      "unit": "crimes a year per 1,000 residents",
+      "unit": "crimes a year per 1,000 residents and workers",
       "evidence_type": "direct",
       "preference_type": "fixed",
       "curve": {
@@ -217,14 +217,16 @@
       "datasets": [
         "police-uk",
         "ons-census-2021-residents",
-        "ons-output-area-boundaries"
+        "ons-output-area-boundaries",
+        "ons-bres",
+        "ons-lsoa-boundaries"
       ]
     },
     {
       "id": "robbery-and-theft-from-the-person",
       "name": "Robbery and theft from the person",
       "column": "robbery_and_theft_from_the_person",
-      "unit": "crimes a year per 1,000 residents",
+      "unit": "crimes a year per 1,000 residents and workers",
       "evidence_type": "direct",
       "preference_type": "fixed",
       "curve": {
@@ -234,7 +236,9 @@
       "datasets": [
         "police-uk",
         "ons-census-2021-residents",
-        "ons-output-area-boundaries"
+        "ons-output-area-boundaries",
+        "ons-bres",
+        "ons-lsoa-boundaries"
       ]
     },
     {
@@ -258,7 +262,7 @@
       "id": "anti-social-behaviour",
       "name": "Anti-social behaviour",
       "column": "anti_social_behaviour",
-      "unit": "incidents a year per 1,000 residents",
+      "unit": "incidents a year per 1,000 residents and workers",
       "evidence_type": "direct",
       "preference_type": "fixed",
       "curve": {
@@ -268,7 +272,9 @@
       "datasets": [
         "police-uk",
         "ons-census-2021-residents",
-        "ons-output-area-boundaries"
+        "ons-output-area-boundaries",
+        "ons-bres",
+        "ons-lsoa-boundaries"
       ]
     },
     {
@@ -387,6 +393,15 @@
       "date": "updated nightly"
     },
     {
+      "id": "ons-bres",
+      "name": "Business Register and Employment Survey, open access (jobs by LSOA)",
+      "publisher": "Office for National Statistics (ONS), through Nomis",
+      "url": "https://www.nomisweb.co.uk/sources/bres",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics, licensed under the Open Government Licence v3.0.",
+      "date": "2024"
+    },
+    {
       "id": "ons-census-2021-residents",
       "name": "Census 2021, usual residents by output area (table TS001)",
       "publisher": "Office for National Statistics (ONS), through Nomis",
@@ -403,6 +418,15 @@
       "licence": "OGL-UK-3.0",
       "attribution": "Source: Office for National Statistics, licensed under the Open Government Licence v3.0.",
       "date": "2021"
+    },
+    {
+      "id": "ons-lsoa-boundaries",
+      "name": "Lower layer Super Output Areas (December 2011) Boundaries EW BGC",
+      "publisher": "Office for National Statistics (ONS)",
+      "url": "https://geoportal.statistics.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. Contains OS data © Crown copyright and database right 2026.",
+      "date": "2011"
     },
     {
       "id": "ons-msoa-boundaries",
@@ -598,6 +622,54 @@
     {
       "name": "King's Cross & Bloomsbury North",
       "area": "Camden"
+    }
+  ],
+  "presets": [
+    {
+      "id": "family-with-children",
+      "name": "Family with children",
+      "description": "Good schools and nurseries, safe streets, clean air and green space. Nightlife and the trip to the centre count less.",
+      "weights": {
+        "safety": 5,
+        "health-care": 4,
+        "environment": 4,
+        "green-space": 5,
+        "community-and-people": 4
+      }
+    },
+    {
+      "id": "renter-near-the-centre",
+      "name": "Renter who works in the centre",
+      "description": "A short trip to work, a rent you can pay, and a lively place after work. Buying a home does not count.",
+      "weights": {
+        "transport": 5,
+        "safety": 4
+      }
+    },
+    {
+      "id": "retiree",
+      "name": "Retired",
+      "description": "Health care close by, quiet and safe streets, and low running costs. Schools and jobs do not count, and a quiet street is better than a busy one.",
+      "weights": {
+        "health-care": 5,
+        "gp-access": 5,
+        "safety": 5,
+        "environment": 4,
+        "green-space": 5,
+        "community-and-people": 4,
+        "transport": 4
+      }
+    },
+    {
+      "id": "student",
+      "name": "Student",
+      "description": "A cheap rent, easy travel and a lively city. Council tax does not count, because students do not pay it, and neither does buying a home.",
+      "weights": {
+        "transport": 5,
+        "safety": 4,
+        "community-and-people": 4,
+        "health-care": 2
+      }
     }
   ]
 }

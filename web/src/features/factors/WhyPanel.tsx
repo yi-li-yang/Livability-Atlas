@@ -62,9 +62,9 @@ function Line({
           {line.name}
         </span>
         <span className="tabular-nums text-neutral-600">
-          {line.contribution !== null &&
-            line.share !== null &&
-            `${points(line.contribution)} of ${points(line.share * 100)} points`}
+          {line.contribution !== null && line.share !== null
+            ? `${points(line.contribution)} of ${points(line.share * 100)} points`
+            : line.score !== null && `${points(line.score * 100)} out of 100`}
         </span>
       </div>
       <Bar line={line} widest={widest} colour={colour} />
@@ -181,6 +181,12 @@ export function WhyPanel({
             )}
           </p>
         </>
+      )}
+      {explanation.mode === "balanced" && explanation.score !== null && (
+        <p className="mt-1 text-xs text-neutral-600">
+          No weak spots: each factor shows its own score, and a weak one pulls
+          the total down harder, so they do not add up to it.
+        </p>
       )}
       {explanation.excluded && (
         <p role="note" className="mt-2 rounded bg-neutral-200 p-2 text-xs">

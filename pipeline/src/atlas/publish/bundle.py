@@ -18,14 +18,16 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from atlas.catalogue.load import Catalogue
-from atlas.catalogue.models import Factor
+from atlas.catalogue.models import Factor, Preset
 from atlas.publish.manifest import (
     Manifest,
     ManifestDataset,
     ManifestFactor,
     ManifestIndicator,
+    ManifestLimit,
     ManifestNeighbourhood,
     ManifestOption,
+    ManifestPreset,
     ManifestRegion,
 )
 
@@ -83,6 +85,41 @@ def _prune(node: Factor, wanted: set[str]) -> ManifestFactor | None:
     return ManifestFactor(
         id=node.id, name=node.name, default_weight=node.default_weight, children=kept
     )
+
+
+def manifest_presets(
+    presets: dict[str, Preset], *, tree: set[str], indicators: set[str]
+) -> list[ManifestPreset]:
+    """The presets, by id, cut to a bundle: a weight on a factor that the bundle's tree lacks, and a
+    direction or a limit on an indicator that it lacks, are left out, so the app reads only what
+    it can show. An empty part is left out too."""
+    out = []
+    for preset_id in sorted(presets):
+        preset = presets[preset_id]
+        weights = {k: v for k, v in preset.weights.items() if k in tree}
+        flipped = [i for i in preset.flipped if i in indicators]
+        limits = [
+            ManifestLimit.model_validate(
+                {"indicator": limit.indicator, "max": limit.max, "min": limit.min, "in": limit.in_}
+            )
+            for limit in preset.limits
+            if limit.indicator in indicators
+        ]
+        out.append(
+            ManifestPreset(
+                id=preset.id,
+                name=preset.name,
+                description=preset.description,
+                weights=weights or None,
+                flipped=flipped or None,
+                limits=limits or None,
+            )
+        )
+    return out
+
+
+def _tree_ids(factors: Sequence[ManifestFactor]) -> set[str]:
+    return {i for f in factors for i in (f.id, *_tree_ids(f.children or []))}
 
 
 def _manifest(
@@ -148,13 +185,19 @@ def _manifest(
         neighbourhoods=[ManifestNeighbourhood(name=n, area=a) for n, a in neighbourhoods.listing]
         if neighbourhoods is not None
         else None,
+        presets=manifest_presets(
+            catalogue.presets, tree=_tree_ids(factors), indicators=set(indicator_ids)
+        )
+        or None,
     )
 
 
 def _json(manifest: Manifest) -> str:
     return (
         json.dumps(
-            manifest.model_dump(mode="json", exclude_none=True), indent=2, ensure_ascii=False
+            manifest.model_dump(mode="json", exclude_none=True, by_alias=True),
+            indent=2,
+            ensure_ascii=False,
         )
         + "\n"
     )

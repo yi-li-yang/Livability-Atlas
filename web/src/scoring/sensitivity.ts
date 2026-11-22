@@ -42,6 +42,26 @@ export function sensitivity(
   factors: Readonly<Record<string, number>>,
   options: { change?: number } = {},
 ): Sensitivity {
+  return finish(sensitivitySteps(rank, profile, factors, options));
+}
+
+/** Runs the steps of a computation to the end, at once. */
+export function finish<T>(steps: Generator<void, T>): T {
+  let step = steps.next();
+  while (!step.done) step = steps.next();
+  return step.value;
+}
+
+/**
+ * `sensitivity` one scenario at a time: it pauses (yields) after each ranking, so that a caller in
+ * the browser can let the page respond between them, and returns the result at the end.
+ */
+export function* sensitivitySteps(
+  rank: (profile: Profile) => string[],
+  profile: Profile,
+  factors: Readonly<Record<string, number>>,
+  options: { change?: number } = {},
+): Generator<void, Sensitivity> {
   const { change = CHANGE } = options;
   const baseline = rank(profile);
   const scenarios: SensitivityScenario[] = [];
@@ -57,6 +77,7 @@ export function sensitivity(
       });
       const kept = baseline.filter((name) => top.includes(name)).length;
       scenarios.push({ factor, direction, top, kept });
+      yield;
     }
   }
   const share = (kept: number): number =>

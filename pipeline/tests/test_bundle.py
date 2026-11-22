@@ -380,3 +380,66 @@ def test_every_cell_needs_a_neighbourhood_entry(catalogue, tmp_path):
             ),
             out_dir=tmp_path,
         )
+
+
+def _ids(factors):
+    for f in factors:
+        yield f["id"]
+        yield from _ids(f.get("children") or [])
+
+
+def test_the_manifest_carries_the_presets_cut_to_its_factor_tree(catalogue, tmp_path):
+    bundle = build(catalogue, tmp_path)
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    presets = {p["id"]: p for p in manifest["presets"]}
+    assert sorted(presets) == sorted(catalogue.presets)
+    tree = set(_ids(manifest["factors"]))
+    indicators = {i["id"] for i in manifest["indicators"]}
+    for preset in presets.values():
+        assert preset["name"] and preset["description"]
+        assert set(preset.get("weights", {})) <= tree
+        assert set(preset.get("flipped", [])) <= indicators
+    # the retiree's weight on Transport is kept; its nightlife, not in this bundle, is not
+    assert presets["retiree"]["weights"]["transport"] == 4
+    assert "flipped" not in presets["retiree"]
+
+
+def test_a_manifest_limit_needs_exactly_one_bound():
+    from pydantic import ValidationError
+
+    from atlas.publish.manifest import ManifestLimit
+
+    with pytest.raises(ValidationError):
+        ManifestLimit.model_validate({"indicator": "x"})
+    with pytest.raises(ValidationError):
+        ManifestLimit.model_validate({"indicator": "x", "max": 1, "min": 0})
+    assert ManifestLimit.model_validate({"indicator": "x", "in": ["a"]}).in_ == ["a"]
+
+
+def test_a_presets_limit_is_written_as_the_web_app_reads_it():
+    from atlas.catalogue.models import Limit, Preset
+    from atlas.publish.bundle import manifest_presets
+
+    preset = Preset(
+        id="p",
+        name="P",
+        description="A preset.",
+        weights={"transport": 5, "gone": 2},
+        flipped=["density"],
+        limits=[
+            Limit.model_validate({"indicator": "service-level", "in": ["6a", "6b"]}),
+            Limit(indicator="council-tax", max=2000),
+            Limit(indicator="density", min=10),
+        ],
+    )
+    [out] = manifest_presets(
+        {"p": preset}, tree={"transport", "service-level"}, indicators={"service-level"}
+    )
+    dumped = out.model_dump(mode="json", exclude_none=True, by_alias=True)
+    assert dumped == {
+        "id": "p",
+        "name": "P",
+        "description": "A preset.",
+        "weights": {"transport": 5},
+        "limits": [{"indicator": "service-level", "in": ["6a", "6b"]}],
+    }

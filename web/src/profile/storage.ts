@@ -5,17 +5,16 @@ import type { Limit, Profile } from "../scoring/region";
 export const STORAGE_KEY = "atlas.profile.v1";
 
 const ID = /^[a-z0-9][a-z0-9-]*$/;
-const NUMBER = /^\d+(\.\d+)?$/;
-const CATEGORY = /^[a-z0-9]+$/i;
-const SIGNED = /^-?\d+(\.\d+)?(e-?\d+)?$/;
+const NUMBER = /^-?\d+(\.\d+)?(e-?\d+)?$/;
+const CATEGORY = /^[a-z0-9][a-z0-9-]*$/i;
 /** A number for the link: a link reads "+" as a space, so "2e+21" is written "2e21". */
 const linkNumber = (x: number): string => String(x).replace("e+", "e");
 const MAX_WEIGHT = 5;
 
 /** A limit as `indicator:kind:value`, a list of categories joined by dots. */
 function encodeLimit(limit: Limit): string {
-  if ("max" in limit) return `${limit.indicator}:max:${limit.max}`;
-  if ("min" in limit) return `${limit.indicator}:min:${limit.min}`;
+  if ("max" in limit) return `${limit.indicator}:max:${linkNumber(limit.max)}`;
+  if ("min" in limit) return `${limit.indicator}:min:${linkNumber(limit.min)}`;
   return `${limit.indicator}:in:${limit.in.join(".")}`;
 }
 
@@ -45,8 +44,8 @@ function decodeBand(text: string): [string, Band] | null {
     rest.length > 0 ||
     more.length > 0 ||
     !ID.test(id ?? "") ||
-    !SIGNED.test(lo ?? "") ||
-    !SIGNED.test(hi ?? "") ||
+    !NUMBER.test(lo ?? "") ||
+    !NUMBER.test(hi ?? "") ||
     Number(lo) > Number(hi)
   ) {
     return null;

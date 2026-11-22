@@ -49,6 +49,19 @@ export type Datasets1 = ManifestDataset[];
 export type Neighbourhoods = ManifestNeighbourhood[] | null;
 export type Name5 = string;
 export type Area = string;
+export type Presets = ManifestPreset[] | null;
+export type Id5 = string;
+export type Name6 = string;
+export type Description = string;
+export type Weights = {
+  [k: string]: number;
+} | null;
+export type Flipped = string[] | null;
+export type Limits = ManifestLimit[] | null;
+export type Indicator1 = string;
+export type Max = number | null;
+export type Min = number | null;
+export type In = string[] | null;
 
 export interface Manifest {
   format_version?: FormatVersion;
@@ -60,6 +73,7 @@ export interface Manifest {
   indicators: Indicators;
   datasets: Datasets1;
   neighbourhoods?: Neighbourhoods;
+  presets?: Presets;
 }
 export interface ManifestRegion {
   id: Id;
@@ -137,4 +151,24 @@ export interface ManifestDataset {
 export interface ManifestNeighbourhood {
   name: Name5;
   area: Area;
+}
+/**
+ * A ready-made preference profile, cut to the factors and indicators of this bundle.
+ */
+export interface ManifestPreset {
+  id: Id5;
+  name: Name6;
+  description: Description;
+  weights?: Weights;
+  flipped?: Flipped;
+  limits?: Limits;
+}
+/**
+ * A hard limit of a preset, as the web app's profile holds one: one of max, min and in.
+ */
+export interface ManifestLimit {
+  indicator: Indicator1;
+  max?: Max;
+  min?: Min;
+  in?: In;
 }

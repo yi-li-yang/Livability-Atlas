@@ -176,6 +176,17 @@ describe("limits", () => {
     expect(decodeProfile(encodeStored(profile))).toEqual(profile);
   });
 
+  it("keep a negative bound and a category with a hyphen", () => {
+    const profile = {
+      weights: {},
+      limits: [
+        { indicator: "frost", min: -5 },
+        { indicator: "rating", in: ["very-good", "good"] },
+      ],
+    };
+    expect(decodeProfile(encodeProfile(profile))).toEqual(profile);
+  });
+
   it("are written as l=indicator:kind:value", () => {
     expect(encodeProfile(profile)).toBe(
       "l=renting-cost:max:2000,gp-walk:min:6.5,service-level:in:3.6a.6b",
@@ -189,11 +200,12 @@ describe("limits", () => {
 
   it("are dropped when malformed, one by one", () => {
     const decoded = decodeProfile(
-      "l=a:max:x,b:max:5,c:mid:5,d:in:,e:in:ok,f:min:-3,g:max:1:2,:max:1",
+      "l=a:max:x,b:max:5,c:mid:5,d:in:,e:in:ok,f:min:-3,g:max:1:2,:max:1,h:min:3-,i:in:-x",
     );
     expect(decoded.limits).toEqual([
       { indicator: "b", max: 5 },
       { indicator: "e", in: ["ok"] },
+      { indicator: "f", min: -3 },
     ]);
   });
 
