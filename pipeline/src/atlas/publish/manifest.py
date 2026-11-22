@@ -5,9 +5,9 @@ Schema, and the web app generates its types from that. It holds no date: a bundl
 a hash of its content, so building twice from the same data gives the same bytes.
 """
 
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from atlas.catalogue.models import Curve, EvidenceType, Grid, PreferenceType
 
@@ -80,6 +80,12 @@ class ManifestLimit(_Model):
     max: float | None = None
     min: float | None = None
     in_: list[str] | None = Field(default=None, alias="in")
+
+    @model_validator(mode="after")
+    def one_bound(self) -> Self:
+        if sum(b is not None for b in (self.max, self.min, self.in_)) != 1:
+            raise ValueError("a limit needs exactly one of max, min and in")
+        return self
 
 
 class ManifestPreset(_Model):

@@ -404,6 +404,18 @@ def test_the_manifest_carries_the_presets_cut_to_its_factor_tree(catalogue, tmp_
     assert "flipped" not in presets["retiree"]
 
 
+def test_a_manifest_limit_needs_exactly_one_bound():
+    from pydantic import ValidationError
+
+    from atlas.publish.manifest import ManifestLimit
+
+    with pytest.raises(ValidationError):
+        ManifestLimit.model_validate({"indicator": "x"})
+    with pytest.raises(ValidationError):
+        ManifestLimit.model_validate({"indicator": "x", "max": 1, "min": 0})
+    assert ManifestLimit.model_validate({"indicator": "x", "in": ["a"]}).in_ == ["a"]
+
+
 def test_a_presets_limit_is_written_as_the_web_app_reads_it():
     from atlas.catalogue.models import Limit, Preset
     from atlas.publish.bundle import manifest_presets

@@ -50,7 +50,9 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Ideal range | A band of values the user likes best. The score falls away on both sides | Summer temperature 20–26 °C |
 | Full marks from … to … | The words over an ideal range's two sliders, "From" and "To": the values between them score in full | Building age: full marks from 1890 to 1930 |
 | Start from | The list of presets above the factor tree. Choosing one sets the weights, directions and hard limits, and "Undo" goes back | Start from: Retired |
-| Add up | The usual way the factors combine: each adds its share of the weight times its score, so a strong factor can make up for a weak one. Its other choice is "No weak spots" | |
+| How the factors combine | The switch under the factor tree between "Add up" and "No weak spots" | |
+| Add up | The usual way the factors combine: each adds its share of the weight times its score, so a strong factor can make up for a weak one. Its other choice is "No weak spots" | Great schools can make up for poor air |
+| Steady (●) | A top neighbourhood that stays in the list whichever factor's weight moves by a fifth | ● beside Wimbledon Broadway South |
 | More is better, Less is better | The switch on a measure where people disagree which way is better. The pressed one says which way scores higher for this user | Nightlife: "Less is better" for someone who wants quiet |
 | Hard limit | A must-have rule, like a search filter. Hex cells that fail it are greyed out and not ranked | Rent no higher than the user's cap |
 | Livability score | The 0–100 result for one hex cell, from the user's own weights | |

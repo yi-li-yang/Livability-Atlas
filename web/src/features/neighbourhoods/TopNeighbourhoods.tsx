@@ -24,6 +24,11 @@ export function TopNeighbourhoods({
   onChoose: (neighbourhood: TopNeighbourhood) => void;
 }) {
   const [open, setOpen] = useState(false);
+  // With nothing to list the list is not drawn, and it comes back shut: so is the state.
+  const empty = top.length === 0;
+  useEffect(() => {
+    if (empty) setOpen(false);
+  }, [empty]);
   const [result, setResult] = useState<Sensitivity | null>(null);
   // It rescores the region dozens of times, so it waits until the weights stop moving.
   useEffect(() => {
@@ -49,6 +54,7 @@ export function TopNeighbourhoods({
     <details
       className="mb-3 text-sm"
       data-testid="top-neighbourhoods"
+      open={open}
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary className="cursor-pointer underline">Top neighbourhoods</summary>

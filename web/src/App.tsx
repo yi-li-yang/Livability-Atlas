@@ -17,7 +17,11 @@ import { neighbourhoodStabilitySteps } from "./features/neighbourhoods/stability
 import { TopNeighbourhoods } from "./features/neighbourhoods/TopNeighbourhoods";
 import { topNeighbourhoods } from "./features/neighbourhoods/top";
 import { PresetPicker } from "./features/presets/PresetPicker";
-import { fromPreset, matchingPreset } from "./features/presets/presets";
+import {
+  fromPreset,
+  matchingPreset,
+  undoPreset,
+} from "./features/presets/presets";
 import type { Manifest, ManifestFactor } from "./generated/manifest.schema";
 import {
   encodeProfile,
@@ -219,7 +223,14 @@ export function App() {
   );
   const presets = bundle?.manifest.presets ?? [];
   const preset = useMemo(
-    () => matchingPreset(profile, bundle?.manifest.presets ?? []),
+    () =>
+      bundle
+        ? matchingPreset(
+            profile,
+            bundle.manifest.presets ?? [],
+            bundle.manifest.factors,
+          )
+        : null,
     [profile, bundle],
   );
 
@@ -267,12 +278,20 @@ export function App() {
           current={preset}
           onChoose={(chosen) => {
             setBeforePreset((before) => (preset ? before : profile));
-            setProfile(fromPreset(profile, chosen));
+            setProfile(
+              fromPreset(profile, chosen, state.bundle.manifest.factors),
+            );
           }}
           onUndo={
             beforePreset
               ? () => {
-                  setProfile(beforePreset);
+                  setProfile(
+                    undoPreset(
+                      profile,
+                      beforePreset,
+                      state.bundle.manifest.factors,
+                    ),
+                  );
                   setBeforePreset(null);
                 }
               : undefined
