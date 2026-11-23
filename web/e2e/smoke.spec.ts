@@ -113,7 +113,7 @@ async function hexLayerPixels(
   page: Page,
   map: Locator,
 ): Promise<{ changed: number; land: number; explained: number }> {
-  const slider = page.getByRole("slider", { name: "Cell opacity" });
+  const slider = page.getByRole("slider", { name: "Colour strength" });
   const show = async (visible: boolean) => {
     await slider.fill(visible ? String(Math.round(CELL_OPACITY * 100)) : "0");
     await settle(page);
@@ -201,7 +201,7 @@ test("one click on a cell of a still map opens its reasons", async ({
     await expect(page.getByTestId("quick-look")).toBeVisible({ timeout: 500 });
   }).toPass({ timeout: 10_000 });
   // Change the cells once, as a user does, let the map come to rest, then click once.
-  const slider = page.getByRole("slider", { name: "Cell opacity" });
+  const slider = page.getByRole("slider", { name: "Colour strength" });
   await slider.fill("0");
   await slider.fill(String(Math.round(CELL_OPACITY * 100)));
   await page.mouse.move(x - 5, y - 5);

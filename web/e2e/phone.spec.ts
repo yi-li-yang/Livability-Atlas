@@ -101,9 +101,9 @@ test("the legend is across the top of the map and never meets the sheet", async 
     page.getByRole("combobox", { name: "Show on the map" }),
   ).toBeVisible();
   // The opacity slider is behind "Colours".
-  const opacity = page.getByRole("slider", { name: "Cell opacity" });
+  const opacity = page.getByRole("slider", { name: "Colour strength" });
   await expect(opacity).toBeHidden();
-  await page.getByText("Colours", { exact: true }).tap();
+  await page.locator("summary", { hasText: "Colours" }).tap();
   await expect(opacity).toBeVisible();
 
   await handle(page).tap();
