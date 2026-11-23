@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { PNG } from "pngjs";
-import { clearOfPanel } from "./clip";
+import { clearCentre, clearOfPanel } from "./clip";
 
 async function openApp(page: Page) {
   await page.goto("/");
@@ -131,10 +131,7 @@ test("the quick look and the reasons say that a cell is left out, and give no ra
     /^[1-9]\d*$/,
   );
   await page.waitForLoadState("networkidle");
-  const box = await page.getByTestId("map").boundingBox();
-  if (!box) throw new Error("the map is not shown");
-  const x = box.x + box.width / 2;
-  const y = box.y + box.height / 2;
+  const { x, y } = await clearCentre(page, page.getByTestId("map"));
   const panel = page.getByRole("complementary", { name: "Why this score" });
   await expect(async () => {
     await page.mouse.move(x - 5, y - 5);

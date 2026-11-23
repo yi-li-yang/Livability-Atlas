@@ -19,6 +19,8 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Few or no homes | A hex cell with fewer than 10 homes, such as a park, an airport or an industrial estate. Scores are for places where people live, so it has no score: the map leaves it clear with a thin outline | Richmond Park, Heathrow |
 | Neighbourhood | A named area of about 8,000 residents, used for names on the map and in the ranked list | About 1,000 in London |
 | Region | The whole area one map covers | Greater London |
+| Colour strength | How solid the colours are over the map, from none (only the map) to full; the slider in the legend | 80% at first |
+| Rank in London | A way to colour the map: each colour is a fifth of the region's hex cells, from its lowest scores (the bottom fifth) to its highest (the top fifth). The legend's other choice, Score, colours by the score out of 100 | A cell in the top fifth scores higher than 80% of London's |
 | Within-city scale | Comparing small areas inside one city | Hex cells across London |
 | Across-cities scale | Comparing whole cities, across countries | London versus Lisbon |
 | Comparable across regions | Whether a measured indicator means the same thing everywhere, so that places in different regions can be compared on it | Satellite PM2.5: yes. Crime counts: no, because countries record crime differently |
@@ -113,6 +115,8 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Top-level factor | The first level of the factor tree, with one weight each | Environment |
 | Preference type | Who sets a measured indicator's direction: fixed, user direction, user range or user choice | Rain: user direction |
 | Ramp | A scoring curve that runs in a straight line from 0 at one threshold to 1 at another, and stays flat beyond them. It falls when lower values are better | PM2.5: 1 at 5 µg/m³, falling to 0 at 25 µg/m³ |
+| Log scale | A way for a ramp to run between its thresholds: by the logarithm of the value, so each step of the same percentage counts the same, or, with an offset of 1, by the logarithm of a count plus one, so the first few count most (D25) | Rent: halfway between £4,000 and £1,000 is £2,000 |
+| Region ramp | A ramp whose thresholds come from the region's own values, for a measured indicator that no standard gives thresholds. The build leaves out up to 1 in 100 extreme hex cells at each end, never a whole area, and writes the thresholds into the bundle (D25) | Renting cost: 0 at £3,739 a month, 1 at £1,540 |
 | Evidence ladder | The kinds of evidence for a factor without a direct measure, from direct counts down to a user's own ratings, each with its evidence type | Culture: venues nearby, then variety, character, activity, perception and rankings |
 | Active child | A child factor that counts in a hex cell: its weight is above 0 and it has a score there | |
 | Effective share | A factor's share of total weight as it works out in one hex cell. A factor with no data there passes its share to its active siblings | Air quality's 0.1 becomes 0.2 where Noise has no data |

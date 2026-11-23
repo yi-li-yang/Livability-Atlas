@@ -249,23 +249,19 @@
                 "mapping": {
                   "ideal-range": "#/$defs/IdealRange",
                   "lookup": "#/$defs/Lookup",
-                  "percentile": "#/$defs/Percentile",
-                  "ramp": "#/$defs/Ramp"
+                  "ramp": "#/$defs/ManifestRamp"
                 },
                 "propertyName": "shape"
               },
               "oneOf": [
                 {
-                  "$ref": "#/$defs/Ramp"
+                  "$ref": "#/$defs/ManifestRamp"
                 },
                 {
                   "$ref": "#/$defs/IdealRange"
                 },
                 {
                   "$ref": "#/$defs/Lookup"
-                },
-                {
-                  "$ref": "#/$defs/Percentile"
                 }
               ]
             },
@@ -412,6 +408,36 @@
         "column": {
           "title": "Column",
           "type": "string"
+        },
+        "curve": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "ideal-range": "#/$defs/IdealRange",
+                  "lookup": "#/$defs/Lookup",
+                  "ramp": "#/$defs/ManifestRamp"
+                },
+                "propertyName": "shape"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/ManifestRamp"
+                },
+                {
+                  "$ref": "#/$defs/IdealRange"
+                },
+                {
+                  "$ref": "#/$defs/Lookup"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Curve"
         }
       },
       "required": [
@@ -490,6 +516,68 @@
         "description"
       ],
       "title": "ManifestPreset",
+      "type": "object"
+    },
+    "ManifestRamp": {
+      "additionalProperties": false,
+      "description": "A ramp as the bundle holds it. `from_region` marks one whose ends the build took from the\nregion's own values (a region ramp in the catalogue, D25).",
+      "properties": {
+        "shape": {
+          "const": "ramp",
+          "title": "Shape",
+          "type": "string"
+        },
+        "t0": {
+          "title": "T0",
+          "type": "number"
+        },
+        "t1": {
+          "title": "T1",
+          "type": "number"
+        },
+        "log": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Log"
+        },
+        "offset": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset"
+        },
+        "from_region": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "From Region"
+        }
+      },
+      "required": [
+        "shape",
+        "t0",
+        "t1"
+      ],
+      "title": "ManifestRamp",
       "type": "object"
     },
     "ManifestRegion": {
@@ -577,62 +665,13 @@
       ],
       "title": "ManifestTravel",
       "type": "object"
-    },
-    "Percentile": {
-      "additionalProperties": false,
-      "properties": {
-        "shape": {
-          "const": "percentile",
-          "title": "Shape",
-          "type": "string"
-        },
-        "better": {
-          "enum": [
-            "higher",
-            "lower"
-          ],
-          "title": "Better",
-          "type": "string"
-        }
-      },
-      "required": [
-        "shape",
-        "better"
-      ],
-      "title": "Percentile",
-      "type": "object"
-    },
-    "Ramp": {
-      "additionalProperties": false,
-      "properties": {
-        "shape": {
-          "const": "ramp",
-          "title": "Shape",
-          "type": "string"
-        },
-        "t0": {
-          "title": "T0",
-          "type": "number"
-        },
-        "t1": {
-          "title": "T1",
-          "type": "number"
-        }
-      },
-      "required": [
-        "shape",
-        "t0",
-        "t1"
-      ],
-      "title": "Ramp",
-      "type": "object"
     }
   },
   "additionalProperties": false,
   "properties": {
     "format_version": {
-      "const": 1,
-      "default": 1,
+      "const": 2,
+      "default": 2,
       "title": "Format Version",
       "type": "integer"
     },

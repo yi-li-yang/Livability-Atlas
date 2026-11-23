@@ -14,8 +14,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from numpy.typing import NDArray
 
-from atlas.catalogue.models import Curve
-from atlas.publish.manifest import Manifest, ManifestOption
+from atlas.publish.manifest import Manifest, ManifestCurve, ManifestOption
 
 # The columns of cells.parquet that are not measured values.
 NOT_VALUES = ("cell", "neighbourhood", "homes")
@@ -33,7 +32,7 @@ class Described:
     indicator: str
     name: str
     unit: str
-    curve: Curve | None
+    curve: ManifestCurve | None  # an option's own curve where it has one, else its indicator's
     datasets: list[str]
     option: ManifestOption | None  # the option of a choice indicator that the column holds
 
@@ -166,11 +165,16 @@ class Cells:
 def _describe(manifest: Manifest) -> list[Described]:
     out: list[Described] = []
     for indicator in manifest.indicators:
-        common = (indicator.id, indicator.name, indicator.unit, indicator.curve)
+        common = (indicator.id, indicator.name, indicator.unit)
         if indicator.options is not None:
-            out += [Described(o.column, *common, indicator.datasets, o) for o in indicator.options]
+            out += [
+                Described(o.column, *common, o.curve or indicator.curve, indicator.datasets, o)
+                for o in indicator.options
+            ]
         else:
-            out.append(Described(indicator.column, *common, indicator.datasets, None))
+            out.append(
+                Described(indicator.column, *common, indicator.curve, indicator.datasets, None)
+            )
     return out
 
 

@@ -14,8 +14,6 @@ export interface ScoreNode {
   curve?: SetCurve;
   /** The raw value in this hex cell, or null where it has none. */
   value?: number | string | null;
-  /** For a percentile curve: the value of every cell of the region. */
-  region_values?: number[];
   /** A flipped user direction: the score s becomes 1 - s. */
   flipped?: boolean;
   /** For a user-range indicator, the band the user has set: it moves the ideal range. */
@@ -102,7 +100,7 @@ function ownScore(leaf: ScoreNode): number | null {
   if (leaf.value === undefined || leaf.value === null || !leaf.curve)
     return null;
   const curve = withBand(leaf.curve, leaf.band);
-  const score = curveScore(curve, leaf.value, leaf.region_values);
+  const score = curveScore(curve, leaf.value);
   if (score === null) return null;
   return leaf.flipped ? 1 - score : score;
 }

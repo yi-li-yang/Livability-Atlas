@@ -17,3 +17,16 @@ export async function clearOfPanel(page: Page, map: Locator) {
     height: mapBox.height,
   };
 }
+
+/**
+ * The middle of the part of the map that the panel leaves clear: the app puts the region's centre
+ * there in its first view, so it is over the cells of the test bundle (D23's follow-up: the camera
+ * keeps clear of the panels).
+ */
+export async function clearCentre(page: Page, map: Locator) {
+  const clip = await clearOfPanel(page, map);
+  return {
+    x: clip.x + clip.width / 2,
+    y: clip.y + clip.height / 2,
+  };
+}

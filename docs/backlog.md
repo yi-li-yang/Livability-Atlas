@@ -10,7 +10,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | `DESIGN.md` for the Impeccable design skill (`/impeccable document`), now that the map's look is settled | idea |
 | A full `/impeccable critique` of the map and the legend | idea |
 | More factors, in catalogue priority order | planned |
-| Design faults that `impeccable detect` found on the app (2026-11-23): a card inside a card, and the "Place 1" placeholder at 3.9:1 contrast (WCAG AA needs 4.5:1) | idea |
+| Placeholders at WCAG AA contrast (they were 3.9:1), found by `impeccable detect` (2026-11-23; its "card inside a card" was a false positive: a bordered toggle) | shipped: 4.7:1 |
 | Crime rates per resident and worker, so that centres with few residents and many workers, like the City of London, stop topping every crime ([spike S2](spikes/S2-crime.md)). Needs a workplace population table whose licence and geography are checked | idea |
 | Presets, e.g. a renter commuting to the centre, a family with children, a retiree | shipped: "Start from", from the manifest's `presets` |
 | Preference profiles as shareable URLs, with places left out unless the user includes them | idea |
@@ -21,6 +21,9 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | A switch for the direction of each user-direction indicator, and a band for each user-range indicator | shipped: "More is better" and "Less is better", and "Full marks from … to …" |
 | Scores coloured by how good they are, so that a factor named for a bad thing (Crime, Noise) reads plainly | shipped: one red → yellow → blue-green scale on the map, the legend and the bars |
 | Scoring curves that users can edit | idea |
+| Score by the amount, never by rank: a region ramp, a log scale, no percentile curve ([spec](specs/2026-11-23-score-by-the-amount.md), D25) | shipped |
+| The values at the ends of the legend, and the value of a hex cell in the quick look, when the map shows one measured indicator | shipped (with D25) |
+| Move an indicator with a national scale from a region ramp to a fixed ramp, so its score compares across regions (school league tables, years of good health), once a second region needs it | idea |
 | "Areas like X" search (ML) | idea |
 | Price and rent models, and value for money (ML) | idea |
 | Area types by clustering (ML) | idea |

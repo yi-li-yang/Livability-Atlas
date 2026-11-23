@@ -1,11 +1,16 @@
-import { PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
+import { PolygonLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
 import { MapLibreOverlay } from "@deck.gl/maplibre";
 import { Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { useEffect, useRef, useState } from "react";
-import type { Rgba } from "./colour";
+import {
+  FEW_HOMES_OUTLINE_MAX_PIXELS,
+  FEW_HOMES_OUTLINE_METRES,
+  type Rgba,
+} from "./colour";
 import type { HexCell } from "./hexcells";
+import { type Inset, insetFor } from "./inset";
 import { LONDON_BOUNDS, LONDON_CENTRE } from "./london";
 import { restack, type Stack } from "./stack";
 
@@ -19,6 +24,38 @@ const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
 /** The prop `@deck.gl/maplibre` reads to put a layer under one of the basemap's (it declares no type for it). */
 type InMap = { beforeId?: string };
+
+/**
+ * The part of the map that the panels over it leave clear: those marked `data-covers-map` beside
+ * the map (the preferences, the legend, the reasons). The camera keeps what it is asked to show
+ * inside it, with a small margin.
+ */
+function clearPart(element: HTMLElement | null): Inset {
+  if (!element?.parentElement) return { top: 0, right: 0, bottom: 0, left: 0 };
+  const panels = [
+    ...element.parentElement.querySelectorAll("[data-covers-map]"),
+  ].map((panel) => panel.getBoundingClientRect());
+  const { top, right, bottom, left } = insetFor(
+    element.getBoundingClientRect(),
+    panels,
+  );
+  const margin = 8;
+  return {
+    top: top + margin,
+    right: right + margin,
+    bottom: bottom + margin,
+    left: left + margin,
+  };
+}
+
+/** The middle of a hexagon, as [longitude, latitude]. */
+function centreOf(corners: readonly [number, number][]): [number, number] {
+  const n = corners.length;
+  return [
+    corners.reduce((sum, [x]) => sum + x, 0) / n,
+    corners.reduce((sum, [, y]) => sum + y, 0) / n,
+  ];
+}
 
 /** Where the pointer is over a cell, in pixels from the map's top left corner. */
 export interface Hover {
@@ -59,6 +96,7 @@ export function HexMap({
   selected,
   focus,
   places = [],
+  marks = [],
   onHover,
   onSelect,
 }: {
@@ -75,6 +113,8 @@ export function HexMap({
   focus: { lng: number; lat: number; request: number } | null;
   /** The user's own places, marked on the map. */
   places?: readonly { name: string; lat: number; lng: number }[];
+  /** The top neighbourhoods' best cells, marked on the map with their places in the list. */
+  marks?: readonly { cell: number; place: number }[];
   onHover: (hover: Hover | null) => void;
   /** Called with the cell that was clicked, or null for a click on no cell. */
   onSelect: (index: number | null) => void;
@@ -86,6 +126,9 @@ export function HexMap({
   // The latest click handler, for the map's own click listener, which is added once.
   const select = useRef(onSelect);
   select.current = onSelect;
+  const hover = useRef(onHover);
+  hover.current = onHover;
+  const fitted = useRef(false);
 
   useEffect(() => {
     if (!container.current) return;
@@ -113,14 +156,36 @@ export function HexMap({
       });
       select.current(picked && picked.index >= 0 ? picked.index : null);
     });
+    // The quick look describes the cell under the pointer, so it goes when the pointer leaves the
+    // map (onto a panel, the legend or off the page) and when the map starts to move under it.
+    const element = container.current;
+    const leave = () => hover.current(null);
+    element.addEventListener("pointerleave", leave);
+    basemap.on("movestart", leave);
     overlay.current = layers;
     map.current = basemap;
     return () => {
+      element.removeEventListener("pointerleave", leave);
       overlay.current = null;
       map.current = null;
       basemap.remove();
     };
   }, []);
+
+  // The first view: the region's centre in the middle of the part of the map the panels leave
+  // clear, not under the panel. It waits for the cells, since the panels come with the data.
+  useEffect(() => {
+    const basemap = map.current;
+    if (!basemap || !stack || cells.length === 0 || fitted.current) return;
+    fitted.current = true;
+    requestAnimationFrame(() =>
+      basemap.jumpTo({
+        center: LONDON_CENTRE,
+        zoom: basemap.getZoom(),
+        padding: clearPart(container.current),
+      }),
+    );
+  });
 
   useEffect(() => {
     if (focus) {
@@ -128,9 +193,33 @@ export function HexMap({
         center: [focus.lng, focus.lat],
         zoom: 13,
         duration: 900,
+        padding: clearPart(container.current),
       });
     }
   }, [focus]);
+
+  // A chosen cell stays in sight: if the reasons (or a sheet) open over it, the map moves it into
+  // the clear part. It waits a frame, for the reasons to be drawn and measured.
+  useEffect(() => {
+    const basemap = map.current;
+    if (!basemap || selected === null || !cells[selected]) return;
+    const frame = requestAnimationFrame(() => {
+      const [lng, lat] = centreOf(cells[selected].polygon);
+      const point = basemap.project([lng, lat]);
+      const clear = clearPart(container.current);
+      const { clientWidth: width, clientHeight: height } =
+        basemap.getContainer();
+      const inside =
+        point.x >= clear.left &&
+        point.x <= width - clear.right &&
+        point.y >= clear.top &&
+        point.y <= height - clear.bottom;
+      if (!inside) {
+        basemap.easeTo({ center: [lng, lat], padding: clear, duration: 400 });
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selected, cells]);
 
   useEffect(() => {
     const basemap = map.current;
@@ -151,8 +240,9 @@ export function HexMap({
             updateTriggers: { getFillColor: colours, getLineColor: outlines },
             filled: true,
             stroked: outlines !== undefined,
-            lineWidthUnits: "pixels",
-            getLineWidth: 1,
+            lineWidthUnits: "meters",
+            getLineWidth: FEW_HOMES_OUTLINE_METRES,
+            lineWidthMaxPixels: FEW_HOMES_OUTLINE_MAX_PIXELS,
             opacity,
             pickable: true,
             autoHighlight: true,
@@ -185,10 +275,46 @@ export function HexMap({
             lineWidthMinPixels: 3,
             stroked: true,
           }),
+          // The answer on the map: each top neighbourhood's best cell, with its place in the list.
+          // These go over the place names, which would otherwise hide them in the centre.
+          new ScatterplotLayer<{ cell: number; place: number }, InMap>({
+            id: "top-marks",
+            data: marks,
+            getPosition: ({ cell }) => centreOf(cells[cell].polygon),
+            getRadius: 9,
+            radiusUnits: "pixels",
+            getFillColor: [255, 255, 255, 240],
+            getLineColor: [30, 30, 30, 255],
+            lineWidthMinPixels: 2,
+            stroked: true,
+          }),
+          new TextLayer<{ cell: number; place: number }, InMap>({
+            id: "top-mark-numbers",
+            data: marks,
+            getPosition: ({ cell }) => centreOf(cells[cell].polygon),
+            getText: ({ place }) => String(place),
+            getSize: 11,
+            sizeUnits: "pixels",
+            getColor: [20, 20, 20, 255],
+            fontWeight: 700,
+            getTextAnchor: "middle",
+            getAlignmentBaseline: "center",
+            characterSet: "0123456789",
+          }),
         ],
       }),
     );
-  }, [stack, cells, colours, outlines, opacity, selected, places, onHover]);
+  }, [
+    stack,
+    cells,
+    colours,
+    outlines,
+    opacity,
+    selected,
+    places,
+    marks,
+    onHover,
+  ]);
 
   return (
     <div

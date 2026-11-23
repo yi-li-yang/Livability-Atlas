@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import { PNG } from "pngjs";
 import { scoreToColour } from "../src/features/map/colour";
-import { clearOfPanel } from "./clip";
+import { clearCentre, clearOfPanel } from "./clip";
 
 /** Opens the app and returns the pixel at the middle of the map, which is over the fixture's cells. */
 async function openOverCells(page: Page) {
@@ -9,9 +9,7 @@ async function openOverCells(page: Page) {
   const map = page.getByTestId("map");
   await expect(map).toHaveAttribute("data-cells", /^[1-9]\d*$/);
   await page.waitForLoadState("networkidle");
-  const box = await map.boundingBox();
-  if (!box) throw new Error("the map is not shown");
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  return clearCentre(page, map);
 }
 
 const view = (page: Page) =>
@@ -143,6 +141,38 @@ test("the quick look and the reasons give the score on the map, and the livabili
   // With the livability score on the map the line goes.
   await view(page).selectOption({ label: "Livability score" });
   await expect(panel.getByTestId("on-the-map")).toHaveCount(0);
+});
+
+test("one measured indicator on its own gives its values: at the legend's ends and in the quick look", async ({
+  page,
+}) => {
+  const { x, y } = await openOverCells(page);
+  const region = page.getByRole("region", { name: "Legend" });
+  await expect(region).toContainText("Worse");
+
+  // Burglary is scored by a region ramp (D25): the ends are its rates, and the long unit is given
+  // once, under the bar.
+  await view(page).selectOption({ label: "Burglary" });
+  await expect(legend(page)).toHaveText("Burglary score");
+  await expect(region).not.toContainText("Worse");
+  await expect(region.getByTestId("legend-unit")).toHaveText(
+    "In crimes a year per 1,000 residents",
+  );
+
+  const card = page.getByTestId("quick-look");
+  await expect(async () => {
+    await page.mouse.move(x - 5, y - 5);
+    await page.mouse.move(x, y);
+    await expect(card).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 10_000 });
+  await expect(card.getByTestId("on-the-map")).toContainText(
+    /On the map: Burglary, [\d.,]+ crimes a year per 1,000 residents, \d+ out of 100/,
+  );
+
+  // A factor that holds others has no single unit: its ends say which way is better.
+  await view(page).selectOption({ label: "Safety" });
+  await expect(region).toContainText("Worse");
+  await expect(region.getByTestId("legend-unit")).toHaveCount(0);
 });
 
 test("a view does not change the ranking: the livability score and rank stay the same", async ({

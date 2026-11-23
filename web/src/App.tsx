@@ -1,6 +1,7 @@
 import { cellToLatLng } from "h3-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type Bundle, fewHomes, loadBundle } from "./data/bundle";
+import { formatValue } from "./features/factors/evidence";
 import { FactorTree } from "./features/factors/FactorTree";
 import { type Layout, loadLayout, saveLayout } from "./features/factors/layout";
 import { ModeSwitch } from "./features/factors/ModeSwitch";
@@ -12,7 +13,19 @@ import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, cellOutlines, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
-import { noDataNote, viewOptions } from "./features/map/views";
+import {
+  type ColourBy,
+  fifthColours,
+  loadColourBy,
+  saveColourBy,
+  scoreSpread,
+} from "./features/map/rank";
+import {
+  legendEnds,
+  noDataNote,
+  viewedIndicator,
+  viewOptions,
+} from "./features/map/views";
 import { neighbourhoodStabilitySteps } from "./features/neighbourhoods/stability";
 import { TopNeighbourhoods } from "./features/neighbourhoods/TopNeighbourhoods";
 import { topNeighbourhoods } from "./features/neighbourhoods/top";
@@ -105,6 +118,12 @@ export function App() {
     loadLayout(browserStorage()),
   );
   const [hover, setHover] = useState<Hover | null>(null);
+  // Colour by the score or by the rank in the region (D24): how the user likes to see the map, so
+  // it is kept in the browser and not in the link, like the factor tree's layout.
+  const [colourBy, setColourBy] = useState<ColourBy>(() =>
+    loadColourBy(browserStorage()),
+  );
+  const mapArea = useRef<HTMLElement>(null);
   const [selected, setSelected] = useState<number | null>(null);
   // The profile before the user started from a preset, so that "Undo" can bring it back.
   const [beforePreset, setBeforePreset] = useState<Profile | null>(null);
@@ -283,12 +302,44 @@ export function App() {
     viewName && shown?.every(Number.isNaN)
       ? noDataNote(viewName, viewNode, profile)
       : null;
+  // A measured indicator shown alone: the legend's ends and the quick look give its values.
+  const viewed =
+    bundle && viewName ? viewedIndicator(bundle.manifest, view) : null;
+  const ends = legendEnds(
+    viewed,
+    viewed !== null && (profile.flipped?.includes(viewed.id) ?? false),
+  );
   // A cell with few or no homes, such as a park or an airport, is not a place to live (D22).
   const few = useMemo(() => (bundle ? fewHomes(bundle) : null), [bundle]);
   const countsHomes = bundle?.manifest.homes != null;
   const colours = useMemo(
     () =>
-      shown ? cellColours(shown, excluded ?? undefined, few ?? undefined) : [],
+      shown
+        ? (colourBy === "rank" ? fifthColours : cellColours)(
+            shown,
+            excluded ?? undefined,
+            few ?? undefined,
+          )
+        : [],
+    [shown, excluded, few, colourBy],
+  );
+  // With hard limits, how many hex cells that would count they leave out, for the legend's key.
+  const leftOut = useMemo(() => {
+    if (!scores || !excluded || (limits ?? []).length === 0) return null;
+    let count = 0;
+    let of = 0;
+    scores.forEach((score, i) => {
+      if (Number.isNaN(score) || few?.[i]) return;
+      of++;
+      if (excluded[i]) count++;
+    });
+    return { count, of };
+  }, [scores, excluded, few, limits]);
+  const spread = useMemo(
+    () =>
+      shown
+        ? scoreSpread(shown, excluded ?? undefined, few ?? undefined)
+        : null,
     [shown, excluded, few],
   );
   const outlines = useMemo(
@@ -309,6 +360,19 @@ export function App() {
         ? topNeighbourhoods(bundle, scores, excluded, { count: 10 })
         : [],
     [bundle, scores, excluded],
+  );
+
+  // The top neighbourhoods answer where to live by the livability score, so the map marks them
+  // only while it shows that score, not a factor's own.
+  const marks = useMemo(
+    () =>
+      viewName
+        ? []
+        : top.map((neighbourhood, i) => ({
+            cell: neighbourhood.bestCell,
+            place: i + 1,
+          })),
+    [viewName, top],
   );
 
   // How many of the top neighbourhoods stay when a weight moves by a fifth. It rescores the region
@@ -338,10 +402,18 @@ export function App() {
     if (index === null || !bundle || !scores || !ranked) return null;
     const score = scores[index];
     const onMap = shown?.[index];
+    const raw = viewed ? bundle.columns[viewed.column][index] : null;
     return {
       onMap:
         viewName && onMap !== undefined
-          ? { name: viewName, score: Number.isNaN(onMap) ? null : onMap }
+          ? {
+              name: viewName,
+              score: Number.isNaN(onMap) ? null : onMap,
+              value:
+                viewed && raw !== null && !Number.isNaN(onMap)
+                  ? formatValue(raw, viewed.unit)
+                  : null,
+            }
           : null,
       explanation: explainCell(bundle, profile, index),
       rank:
@@ -453,7 +525,7 @@ export function App() {
           </p>
         )}
       </header>
-      <main className="relative min-h-0 flex-1">
+      <main ref={mapArea} className="relative min-h-0 flex-1">
         <HexMap
           cells={cells}
           colours={colours}
@@ -463,6 +535,7 @@ export function App() {
           focus={focus}
           onHover={phone ? () => {} : setHover}
           places={places}
+          marks={marks}
           onSelect={(index) => {
             if (picking !== null && index !== null && bundle) {
               const [lat, lng] = cellToLatLng(bundle.cells[index]);
@@ -471,6 +544,8 @@ export function App() {
               return;
             }
             setSelected(index);
+            // The reasons replace the quick look; it must not come back with an old cell after.
+            setHover(null);
           }}
         />
         {state.status === "loading" && (
@@ -485,6 +560,7 @@ export function App() {
           (phone ? (
             <aside
               aria-label="Your preferences"
+              data-covers-map
               className={`absolute inset-x-0 bottom-0 z-10 max-h-[66%] flex-col rounded-t-xl bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.25)] landscape:max-h-[50%] ${chosen ? "hidden" : "flex"}`}
             >
               <button
@@ -507,7 +583,8 @@ export function App() {
           ) : (
             <aside
               aria-label="Your preferences"
-              className="absolute left-4 top-4 z-10 max-h-[calc(100%-17rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
+              data-covers-map
+              className="absolute left-4 top-4 z-10 max-h-[calc(100%-21rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
             >
               {preferences}
             </aside>
@@ -517,12 +594,14 @@ export function App() {
             data-testid="quick-look"
             className="pointer-events-none absolute z-10 w-52 rounded bg-white/95 p-3 shadow"
             style={{
+              // The pointer is measured from the map's corner, so the card flips against the
+              // map's own edges, not the window's.
               left:
-                hover.x > window.innerWidth - 280
+                hover.x > (mapArea.current?.clientWidth ?? 0) - 230
                   ? hover.x - 220
                   : hover.x + 14,
               top:
-                hover.y > window.innerHeight - 260
+                hover.y > (mapArea.current?.clientHeight ?? 0) - 170
                   ? hover.y - 150
                   : hover.y + 14,
             }}
@@ -532,6 +611,8 @@ export function App() {
         )}
         {chosen && (
           <WhyPanel
+            // A new cell opens as a new peek on a phone.
+            key={selected ?? undefined}
             {...chosen}
             places={
               selected !== null && perPlace.length === places.length
@@ -548,8 +629,9 @@ export function App() {
         {state.status === "ready" && (
           <Legend
             title={viewName ? `${viewName} score` : "Livability score"}
-            low="Worse"
-            high="Better"
+            low={ends?.low ?? "Worse"}
+            high={ends?.high ?? "Better"}
+            unit={ends?.unit}
             options={viewChoices}
             view={viewName ? view : null}
             note={viewNote}
@@ -558,6 +640,15 @@ export function App() {
             onView={setView}
             opacity={opacity}
             onOpacity={setOpacity}
+            colourBy={colourBy}
+            onColourBy={(next) => {
+              setColourBy(next);
+              saveColourBy(next, browserStorage());
+            }}
+            region={state.bundle.manifest.region.name}
+            spread={spread}
+            topMarked={!viewName && top.length > 0}
+            leftOut={leftOut}
           />
         )}
       </main>

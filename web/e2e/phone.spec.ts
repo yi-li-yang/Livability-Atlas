@@ -9,8 +9,18 @@ async function openApp(page: Page) {
   await expect(map).toHaveAttribute("data-cells", /^[1-9]\d*$/);
   await page.waitForLoadState("networkidle");
   const box = await map.boundingBox();
-  if (!box) throw new Error("the map is not shown");
-  return { box, x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  const top = await page.getByRole("region", { name: "Legend" }).boundingBox();
+  const bar = await page
+    .getByRole("complementary", { name: "Your preferences" })
+    .boundingBox();
+  if (!box || !top || !bar) throw new Error("the map is not shown");
+  // The middle of the map between the legend and the sheet's bar, where the app puts London's
+  // centre (the map keeps clear of the panels over it).
+  return {
+    box,
+    x: box.x + box.width / 2,
+    y: (top.y + top.height + bar.y) / 2,
+  };
 }
 
 const sheet = (page: Page) =>
@@ -90,10 +100,10 @@ test("the legend is across the top of the map and never meets the sheet", async 
   await expect(
     page.getByRole("combobox", { name: "Show on the map" }),
   ).toBeVisible();
-  // The opacity slider is behind its summary.
-  const opacity = page.getByRole("slider", { name: "Cell opacity" });
+  // The opacity slider is behind "Colours".
+  const opacity = page.getByRole("slider", { name: "Colour strength" });
   await expect(opacity).toBeHidden();
-  await page.getByText("Cell opacity", { exact: true }).tap();
+  await page.locator("summary", { hasText: "Colours" }).tap();
   await expect(opacity).toBeVisible();
 
   await handle(page).tap();
@@ -137,6 +147,28 @@ test("tapping a cell shows the reasons as a sheet over the preferences, and Clos
   await reasons(page).getByRole("button", { name: "Close" }).tap();
   await expect(reasons(page)).toHaveCount(0);
   await expect(sheet(page)).toBeVisible();
+});
+
+test("a tap opens a short peek that keeps the map in sight, and Show the reasons opens them in full", async ({
+  page,
+}) => {
+  const { box: map, x, y } = await openApp(page);
+  await expect(async () => {
+    await page.touchscreen.tap(x, y);
+    await expect(reasons(page)).toBeVisible({ timeout: 700 });
+  }).toPass({ timeout: 15_000 });
+  const show = reasons(page).getByRole("button", { name: "Show the reasons" });
+  await expect(show).toBeVisible();
+  await expect(reasons(page)).toContainText("out of 100");
+  // The peek leaves most of the map in sight; the factors' bars wait for "Show the reasons".
+  const peek = await reasons(page).boundingBox();
+  if (!peek) throw new Error("the reasons are not shown");
+  expect(peek.height).toBeLessThan(map.height * 0.45);
+  await expect(reasons(page).getByTestId("score-bar")).toHaveCount(0);
+
+  await show.tap();
+  await expect(show).toHaveCount(0);
+  await expect(reasons(page).getByTestId("score-bar").first()).toBeVisible();
 });
 
 test("there is no quick look on a phone, where there is no hover", async ({

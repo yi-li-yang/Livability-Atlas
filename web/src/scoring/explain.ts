@@ -14,6 +14,7 @@ import { withBand } from "./curves";
 import { type ScoringMode, scoreCell } from "./engine";
 import {
   bestPickedOption,
+  curveOf,
   effectiveWeight,
   type Limit,
   type LimitResult,
@@ -35,6 +36,8 @@ export interface Evidence {
   curve: ManifestIndicator["curve"];
   /** Whether the user has turned its direction round. */
   flipped: boolean;
+  /** The region's name, whose own values set the ends of a region ramp (D25). */
+  region: string;
 }
 
 /** One factor's part in a hex cell's score. */
@@ -117,6 +120,7 @@ export function explainCell(
         ? withBand(indicator.curve, band)
         : indicator.curve,
       flipped: profile.flipped?.includes(indicator.id) ?? false,
+      region: bundle.manifest.region.name,
     };
     if (indicator.options) {
       const best = bestPickedOption(
@@ -131,6 +135,15 @@ export function explainCell(
         option: best?.option.name ?? null,
         datasets,
         ...how,
+        // An option with ends of its own is scored by them. Where no picked option has a value
+        // here, the first picked one says how they score.
+        curve: curveOf(
+          indicator,
+          best?.option ??
+            indicator.options.find((o) =>
+              profile.choices?.[indicator.id]?.includes(o.id),
+            ),
+        ),
       };
     }
     return {

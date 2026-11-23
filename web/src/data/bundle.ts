@@ -1,6 +1,12 @@
 import { parquetReadObjects } from "hyparquet";
 import type { Manifest } from "../generated/manifest.schema";
 
+/**
+ * The bundle format this app reads. Format 2 (D25) has no percentile curve, may put a ramp on a log
+ * scale, and may give each option of a choice its own curve.
+ */
+export const FORMAT_VERSION = 2;
+
 export type Cell = string;
 export type Value = string | number | null;
 
@@ -88,7 +94,7 @@ export async function loadBundle(
   const manifest = (await (
     await get(fetcher, `${root}/${version}/manifest.json`)
   ).json()) as Manifest;
-  if (manifest.format_version !== 1) {
+  if (manifest.format_version !== FORMAT_VERSION) {
     throw new Error(
       `The bundle's format is ${manifest.format_version}, which this app cannot read`,
     );

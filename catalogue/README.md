@@ -56,10 +56,12 @@ A curve's numbers are in the measured indicator's unit, and scores run from 0 (w
 
 | `shape` | Fields | Rule | Example |
 | --- | --- | --- | --- |
-| `ramp` | `t0`, `t1` | 0 at `t0` and 1 at `t1`, linear in between and flat beyond | `{shape: ramp, t0: 25, t1: 5}` |
+| `ramp` | `t0`, `t1`; optional `log`, `offset` | 0 at `t0` and 1 at `t1`, linear in between and flat beyond. With `log: true`, the score follows ln(value + `offset`) between the two, so each step of the same percentage counts the same; both ends must be above 0 once the offset is added | `{shape: ramp, t0: 25, t1: 5}` |
 | `ideal-range` | `l0`, `l1`, `u1`, `u0` | 0 up to `l0`, 1 from `l1` to `u1`, 0 from `u0`, linear in between. Needs `l0 < l1 ≤ u1 < u0` | `{shape: ideal-range, l0: 14, l1: 20, u1: 26, u0: 32}` |
 | `lookup` | `scores` | A score from 0 to 1 for each category | `{shape: lookup, scores: {low: 1, medium: 0.4, high: 0}}` |
-| `percentile` | `better` | `higher` or `lower`. Only where no meaningful threshold exists | `{shape: percentile, better: lower}` |
+| `region-ramp` | `better`; optional `log`, `offset` | A ramp whose ends come from the region's own values (D25), where no standard or natural scale gives them: `higher` or `lower` is better. The build writes it into the bundle as a plain ramp. Use `log: true` for money, rates and densities, and `log: true, offset: 1` for counts of places nearby | `{shape: region-ramp, better: lower, log: true}` |
+
+Every curve scores by the amount, never by rank (D25).
 
 A `user-range` measured indicator needs an `ideal-range` curve, because its user drags the band.
 

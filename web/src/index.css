@@ -8,3 +8,11 @@
     margin-bottom: 3.5rem;
   }
 }
+
+/* A placeholder, such as the default name of a place, is read: Tailwind's half-strength grey is
+   3.9:1 on white, under WCAG AA's 4.5:1. This grey (#737373) is 4.7:1. */
+@layer base {
+  ::placeholder {
+    color: rgb(115 115 115);
+  }
+}

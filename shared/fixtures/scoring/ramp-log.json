@@ -1,0 +1,77 @@
+{
+  "id": "ramp-log",
+  "description": "Log ramps (D25). A falling log ramp from 4000 to 1000: ln(2000/4000) / ln(1000/4000) = ln(1/2) / ln(1/4) = 0.5, 500 is past full marks (1) and 8000 past none (0). A count with offset 1 from 0 to 15: 0 scores ln(1/1) / ln(16/1) = 0, 3 scores ln(4) / ln(16) = 0.5, and 1, flipped, scores 1 - ln(2) / ln(16) = 1 - 0.25 = 0.75. A value at or below 0 with no offset scores as the low end of the values: 0 on a rising ramp from 1 to 4, and 1 on a falling ramp from 4 to 1. Eight leaves of weight 1: (0.5 + 1 + 0 + 0 + 0.5 + 0.75 + 0 + 1) / 8 = 0.46875.",
+  "tree": {
+    "id": "root",
+    "weight": 1,
+    "children": [
+      {
+        "id": "rent-2000",
+        "weight": 1,
+        "curve": {"shape": "ramp", "t0": 4000, "t1": 1000, "log": true},
+        "value": 2000
+      },
+      {
+        "id": "rent-500",
+        "weight": 1,
+        "curve": {"shape": "ramp", "t0": 4000, "t1": 1000, "log": true},
+        "value": 500
+      },
+      {
+        "id": "rent-8000",
+        "weight": 1,
+        "curve": {"shape": "ramp", "t0": 4000, "t1": 1000, "log": true},
+        "value": 8000
+      },
+      {
+        "id": "cafes-0",
+        "weight": 1,
+        "curve": {"shape": "ramp", "t0": 0, "t1": 15, "log": true, "offset": 1},
+        "value": 0
+      },
+      {
+        "id": "cafes-3",
+        "weight": 1,
+        "curve": {"shape": "ramp", "t0": 0, "t1": 15, "log": true, "offset": 1},
+        "value": 3
+      },
+      {
+        "id": "cafes-1-flipped",
+        "weight": 1,
+        "curve": {"shape": "ramp", "t0": 0, "t1": 15, "log": true, "offset": 1},
+        "value": 1,
+        "flipped": true
+      },
+      {
+        "id": "rising-at-zero",
+        "weight": 1,
+        "curve": {"shape": "ramp", "t0": 1, "t1": 4, "log": true},
+        "value": 0
+      },
+      {
+        "id": "falling-below-zero",
+        "weight": 1,
+        "curve": {"shape": "ramp", "t0": 4, "t1": 1, "log": true},
+        "value": -2
+      }
+    ]
+  },
+  "expected": {
+    "score": 46.875,
+    "coverage": 1,
+    "low_coverage": false,
+    "excluded": false,
+    "limits": {},
+    "nodes": {
+      "root": {"score": 0.46875, "share": 1, "effective_share": 1, "contribution": 46.875},
+      "rent-2000": {"score": 0.5, "share": 0.125, "effective_share": 0.125, "contribution": 6.25},
+      "rent-500": {"score": 1, "share": 0.125, "effective_share": 0.125, "contribution": 12.5},
+      "rent-8000": {"score": 0, "share": 0.125, "effective_share": 0.125, "contribution": 0},
+      "cafes-0": {"score": 0, "share": 0.125, "effective_share": 0.125, "contribution": 0},
+      "cafes-3": {"score": 0.5, "share": 0.125, "effective_share": 0.125, "contribution": 6.25},
+      "cafes-1-flipped": {"score": 0.75, "share": 0.125, "effective_share": 0.125, "contribution": 9.375},
+      "rising-at-zero": {"score": 0, "share": 0.125, "effective_share": 0.125, "contribution": 0},
+      "falling-below-zero": {"score": 1, "share": 0.125, "effective_share": 0.125, "contribution": 12.5}
+    }
+  }
+}

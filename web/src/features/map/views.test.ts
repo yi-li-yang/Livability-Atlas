@@ -5,7 +5,7 @@ import type {
   ManifestIndicator,
 } from "../../generated/manifest.schema";
 import type { Profile } from "../../scoring/region";
-import { noDataNote, viewOptions } from "./views";
+import { legendEnds, noDataNote, viewedIndicator, viewOptions } from "./views";
 
 const leaf = (id: string, name = id): ManifestFactor => ({
   id,
@@ -32,7 +32,7 @@ function manifestOf(
   indicators: ManifestIndicator[],
 ): Manifest {
   return {
-    format_version: 1,
+    format_version: 2,
     version: "test",
     region: { id: "test", name: "Test" },
     grid: { system: "h3", resolution: 9 },
@@ -172,5 +172,87 @@ describe("noDataNote", () => {
     expect(noDataNote("Nothing", undefined, none)).toBe(
       "There is no data for Nothing.",
     );
+  });
+});
+
+describe("the values at the ends of the legend", () => {
+  const rent: ManifestIndicator = {
+    ...indicator("renting-cost"),
+    unit: "£ a month",
+    curve: { shape: "ramp", t0: 3739, t1: 1540, log: true, from_region: true },
+  };
+  const manifest = manifestOf(
+    [
+      {
+        id: "housing",
+        name: "Housing",
+        default_weight: 3,
+        children: [leaf("renting-cost", "Renting cost")],
+      },
+    ],
+    [rent],
+  );
+
+  it("are the values that score 0 and 1, where the map shows a measured indicator", () => {
+    const shown = viewedIndicator(manifest, "renting-cost");
+    expect(shown?.id).toBe("renting-cost");
+    expect(legendEnds(shown, false)).toEqual({
+      low: "£3,739 a month",
+      high: "£1,540 a month",
+      unit: null,
+    });
+  });
+
+  it("swap where the user has turned the direction round", () => {
+    expect(legendEnds(rent, true)).toEqual({
+      low: "£1,540 a month",
+      high: "£3,739 a month",
+      unit: null,
+    });
+  });
+
+  it("give a long unit once, under the bar, so that the two ends fit side by side", () => {
+    const burglary: ManifestIndicator = {
+      ...indicator("burglary"),
+      unit: "crimes a year per 1,000 residents",
+      curve: { shape: "ramp", t0: 14.85, t1: 2.47, log: true },
+    };
+    expect(legendEnds(burglary, false)).toEqual({
+      low: "14.9",
+      high: "2.47",
+      unit: "crimes a year per 1,000 residents",
+    });
+    const tax: ManifestIndicator = {
+      ...indicator("council-tax"),
+      unit: "£ a year (Band D)",
+      curve: { shape: "ramp", t0: 2609.2, t1: 1028.21 },
+    };
+    expect(legendEnds(tax, false)).toEqual({
+      low: "£2,609",
+      high: "£1,028",
+      unit: "£ a year (Band D)",
+    });
+  });
+
+  it("are not given for a factor, the livability score, or a curve with no two ends", () => {
+    expect(viewedIndicator(manifest, "housing")).toBeNull();
+    const choice = manifestOf(
+      [leaf("community")],
+      [
+        {
+          ...indicator("community", "user-choice"),
+          options: [{ id: "a", name: "A", column: "community__a" }],
+        },
+      ],
+    );
+    // A choice has no column of its own: each option has one.
+    expect(viewedIndicator(choice, "community")).toBeNull();
+    expect(viewedIndicator(manifest, null)).toBeNull();
+    expect(legendEnds(null, false)).toBeNull();
+    const lookup = {
+      ...indicator("zone"),
+      curve: { shape: "lookup", scores: { "1": 1 } },
+    } as ManifestIndicator;
+    expect(legendEnds(lookup, false)).toBeNull();
   });
 });

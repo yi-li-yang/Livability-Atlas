@@ -68,14 +68,25 @@ class _Strict(BaseModel):
 
 
 class Ramp(_Strict):
+    """A rise or a fall between two stated values: 0 at t0 and 1 at t1. With `log`, the score
+    follows ln(value + offset) between the two, so each step of the same percentage counts the
+    same; an offset of 1 suits a count, where none and one are a step apart."""
+
     shape: Literal["ramp"]
     t0: float
     t1: float
+    log: StrictBool | None = None
+    offset: float | None = None
 
     @model_validator(mode="after")
     def _ends_differ(self) -> Self:
         if self.t0 == self.t1:
             raise ValueError("a ramp needs two different numbers, t0 and t1")
+        if self.offset is not None and not self.log:
+            raise ValueError("an offset belongs to a log ramp (log: true)")
+        offset = self.offset or 0
+        if self.log and min(self.t0, self.t1) + offset <= 0:
+            raise ValueError("a log ramp needs both ends above 0 once the offset is added")
         return self
 
 
@@ -98,12 +109,24 @@ class Lookup(_Strict):
     scores: dict[str | StrictInt, Score] = Field(min_length=1)
 
 
-class Percentile(_Strict):
-    shape: Literal["percentile"]
+class RegionRamp(_Strict):
+    """A ramp whose ends come from the region's own values (D25), for an indicator that no
+    standard gives thresholds. The build works out the ends and writes a plain ramp into the
+    bundle, so the app never sees this shape."""
+
+    shape: Literal["region-ramp"]
     better: Literal["higher", "lower"]
+    log: StrictBool | None = None
+    offset: float | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def _offset_with_log(self) -> Self:
+        if self.offset is not None and not self.log:
+            raise ValueError("an offset belongs to a log ramp (log: true)")
+        return self
 
 
-Curve = Annotated[Ramp | IdealRange | Lookup | Percentile, Field(discriminator="shape")]
+Curve = Annotated[Ramp | IdealRange | Lookup | RegionRamp, Field(discriminator="shape")]
 
 
 # --- factors.yaml ---

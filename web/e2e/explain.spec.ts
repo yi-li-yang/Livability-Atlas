@@ -1,5 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { scoreToColour } from "../src/features/map/colour";
+import { clearCentre } from "./clip";
 
 /** Opens the app and returns the pixel at the middle of the map, which is over the fixture's cells. */
 async function openOverCells(page: Page) {
@@ -9,7 +10,7 @@ async function openOverCells(page: Page) {
   await page.waitForLoadState("networkidle");
   const box = await map.boundingBox();
   if (!box) throw new Error("the map is not shown");
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2, box };
+  return { ...(await clearCentre(page, map)), box };
 }
 
 test("hovering over a hex cell shows its score, rank, strengths and weakness", async ({
@@ -27,6 +28,44 @@ test("hovering over a hex cell shows its score, rank, strengths and weakness", a
   await expect(card.locator("p").first()).toContainText(/\w, \w/); // the neighbourhood and its borough
   await expect(card).toContainText(/Rank [\d,]+ of [\d,]+/);
   await expect(card).toContainText("Click for the reasons");
+});
+
+test("the quick look goes when the pointer leaves the map or the map moves, and does not come back", async ({
+  page,
+}) => {
+  const { x, y } = await openOverCells(page);
+  const card = page.getByTestId("quick-look");
+  const hoverCell = async () =>
+    expect(async () => {
+      await page.mouse.move(x - 5, y - 5);
+      await page.mouse.move(x, y);
+      await expect(card).toBeVisible({ timeout: 500 });
+    }).toPass({ timeout: 10_000 });
+
+  // Onto the legend, which sits over the map: the card describes no cell any more.
+  await hoverCell();
+  const legend = page.getByRole("region", { name: "Legend" });
+  const box = await legend.boundingBox();
+  if (!box) throw new Error("no legend");
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await expect(card).toBeHidden();
+
+  // Off the page's map altogether, onto the heading.
+  await hoverCell();
+  await page.getByRole("heading", { name: "Livability Atlas" }).hover();
+  await expect(card).toBeHidden();
+
+  // Clicking the cell opens its reasons; closing them must not bring an old card back.
+  await hoverCell();
+  const panel = page.getByRole("complementary", { name: "Why this score" });
+  await expect(async () => {
+    await page.mouse.click(x, y);
+    await expect(panel).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 10_000 });
+  await page.getByRole("heading", { name: "Livability Atlas" }).hover();
+  await page.keyboard.press("Escape");
+  await expect(panel).toBeHidden();
+  await expect(card).toBeHidden();
 });
 
 test("clicking a hex cell says why it scores what it does, and the parts add up", async ({

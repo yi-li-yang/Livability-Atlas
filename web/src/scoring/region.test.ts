@@ -76,14 +76,15 @@ const indicators = [
     { shape: "ideal-range", l0: 30, l1: 40, u1: 55, u0: 70 },
     "user-range",
   ),
-  indicator("trees", { shape: "percentile", better: "higher" }),
-  indicator("rank", { shape: "percentile", better: "lower" }),
+  indicator("trees", { shape: "ramp", t0: 0, t1: 7, log: true, offset: 1 }),
+  indicator("rank", { shape: "ramp", t0: 7, t1: 1, log: true }),
   indicator("comfort", { shape: "ramp", t0: 0, t1: 10 }),
 ];
 
 function makeBundle(size: number, seed: number): Bundle {
   const next = random(seed);
-  // About one value in five is missing. Values repeat, so that percentiles have ties.
+  // About one value in five is missing, and some values are 0, which a log scale with no
+  // offset cannot take.
   const column = (make: () => Value): Value[] =>
     Array.from({ length: size }, () => (next() < 0.2 ? null : make()));
   const columns: Record<string, Value[]> = {
@@ -95,7 +96,7 @@ function makeBundle(size: number, seed: number): Bundle {
     comfort: column(() => next() * 12),
   };
   const manifest: Manifest = {
-    format_version: 1,
+    format_version: 2,
     version: "test",
     region: { id: "test", name: "Test" },
     grid: { system: "h3", resolution: 9 },
@@ -278,19 +279,6 @@ describe("a cell with few or no homes", () => {
     }
   });
 
-  it("is left out of the values that a percentile ranks a cell among", () => {
-    const bundle = withHomes();
-    // The cells with homes rank the same as they would if the others had no value at all.
-    const trees = bundle.columns.trees.map((v, i) => (i % 4 === 0 ? null : v));
-    const without = { ...bundle, columns: { ...bundle.columns, trees } };
-    const scores = allLeafScores(bundle).get("trees") as Float64Array;
-    const reference = allLeafScores(without).get("trees") as Float64Array;
-    expect([...scores]).toEqual([...reference]);
-    expect(
-      bundle.columns.trees.filter((v, i) => i % 4 === 0 && v !== null).length,
-    ).toBeGreaterThan(40);
-  });
-
   it("counts like any other where the bundle has no count of homes", () => {
     const bundle = makeBundle(300, 7);
     const profile: Profile = { weights: {} };
@@ -365,7 +353,7 @@ describe("the time to rescore a region", () => {
   const names = Array.from({ length: 40 }, (_, i) => `indicator-${i}`);
   const big: Bundle = {
     manifest: {
-      format_version: 1,
+      format_version: 2,
       version: "big",
       region: { id: "big", name: "Big" },
       grid: { system: "h3", resolution: 9 },

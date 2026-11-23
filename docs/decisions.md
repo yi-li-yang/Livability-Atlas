@@ -36,6 +36,8 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D21](#d21-mvp-factor-set) | MVP factor set | The nine top-level factors already researched, and Health care as a tenth | accepted |
 | [D22](#d22-a-score-describes-the-homes-in-a-cell) | A score describes the homes in a cell | A hex cell with fewer than 10 homes has no score | accepted |
 | [D23](#d23-the-maps-layers) | The map's layers | The colours under the water, roads and names, over the land use; no satellite | accepted |
+| [D24](#d24-colour-by-score-or-by-rank) | Colour by score or by rank | The score by default; a legend switch to the rank in the region, in fifths | accepted |
+| [D25](#d25-score-by-the-amount-never-by-rank) | Score by the amount, never by rank | A fixed ramp where a standard gives the ends, else a ramp whose ends come from the region's own values; no percentile curve | accepted |
 
 ## D01 First slice
 
@@ -127,6 +129,7 @@ The living list of project decisions. Each entry holds the current choice and wh
   - 2026-10-23: notation rewritten after review, with a symbols table, rendered formulas and a worked example. One rule added: a composite factor whose children all have weight 0 counts as weight 0, so it does not lower data coverage.
   - 2026-10-24: the rising or falling curve is named a ramp, the name the factor catalogue uses for it.
   - 2026-10-28: accepted as version 1, in step 0.5. The percentile curve, lookups with an unlisted category, hard limits and the meaning of missing data are defined exactly, and 15 golden test cases are committed with a Python reference scorer that reproduces them. The spikes' findings joined the spatial framework: walks along streets, residents shared by area, rates pooled with a floor, and noise averaged at addresses.
+  - 2026-11-23: the percentile curve is removed, because a rank hides the amount (D25). A ramp may be on a log scale, and a region ramp takes its thresholds from the region's own values. The golden case `percentile` gives way to `ramp-log`.
 
 ## D07 Dataset licences
 
@@ -364,7 +367,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 ## D22 A score describes the homes in a cell
 
 - **Status:** accepted
-- **Choice:** A hex cell's livability score describes the homes in it. A hex cell with fewer than 10 homes is not a place where people live, so it has no score: the map leaves it clear with a thin outline, so that the basemap shows the park, the airport or the industrial estate, and it is not ranked, not in a neighbourhood's mean score, and not among the values a percentile curve ranks a hex cell against. The bundle counts the homes in each hex cell (`homes` in `cells.parquet`, and `homes.minimum` in the manifest), and the web app applies the rule. A bundle without the count scores every hex cell, as before.
+- **Choice:** A hex cell's livability score describes the homes in it. A hex cell with fewer than 10 homes is not a place where people live, so it has no score: the map leaves it clear with a thin outline, so that the basemap shows the park, the airport or the industrial estate, and it is not ranked, not in a neighbourhood's mean score, and not among the values that set the ends of a region ramp (D25). The bundle counts the homes in each hex cell (`homes` in `cells.parquet`, and `homes.minimum` in the manifest), and the web app applies the rule. A bundle without the count scores every hex cell, as before.
 - **How homes are counted:** in London, the homes with a domestic energy performance certificate (`epc-domestic`), each in the hex cell that holds its postcode's centre. The certificates cover most homes, and a hex cell of housing has dozens or hundreds; 22% of London's hex cells have none, and a hex cell with a few is mostly a park's lodge or a farm.
 - **Why:** On the bundle of 2026-11-22, 19% of London's hex cells had no postcode at all (parks, Heathrow, industrial land, reservoirs, railway land). Their median score was 47 against 63 elsewhere, and 70% of them were in the lowest fifth of all scores, so about two thirds of the red on the map was land where nobody lives. They scored low because every walk starts at the hex cell's centre, deep in the park; rates per resident had almost no residents (Hyde Park: 29 violent crimes per 1,000 people, against 15 around it); and values shared from census areas by area gave a park the area's share (Richmond Park: 10% of homes with gigabit broadband, against 73% around it). The rule needs no list of parks or airports, so it works for any region.
 - **Alternatives considered:**
@@ -375,6 +378,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** a commercial edition is built: the certificates' licence is not for commercial use (D07), so a commercial build has no count of homes and scores every hex cell, until another source of homes is chosen (backlog).
 - **History:**
   - 2026-11-23: accepted. The owner saw parks, industrial land and airports score badly, and approved this rule and the clear hex cells with an outline.
+  - 2026-11-23: the percentile curve is gone (D25); the cells with few homes now stay out of the values that set a region ramp's ends, which the build works out.
 
 ## D23 The map's layers
 
@@ -389,3 +393,38 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** a satellite or aerial source with a clear licence and street-level detail turns up; the same layer order would hold.
 - **History:**
   - 2026-11-23: accepted by the owner, after the comparison.
+
+## D24 Colour by score or by rank
+
+- **Status:** accepted
+- **Choice:** The map colours its cells by their score, from 0 to 100, as before. A switch in the legend, "Score" and "Rank in London" (the region's name), colours them instead by the fifth of the region each falls in, among the cells that count (with homes, a score, and within the hard limits): each fifth takes one stop of the score scale, from red for the bottom fifth to blue-green for the top. Equal scores share a fifth. The choice is how the user likes to see the map, not what they want, so it is kept in the browser and not in the link, as the factor tree's layout is (D17). In score mode the legend also shows where the region's scores lie (a bar for each twentieth of the scale, ticks at 0, 50 and 100, and "Most of London scores 50 to 70", the middle 80% of the cells), and the map marks the top neighbourhoods' best cells with their places in the list while it shows the livability score.
+- **Why:** The Impeccable critique of the map (2026-11-23) found that London's scores bunch between about 50 and 80, so the default map was a yellow-green wash with almost no red and no clear best areas; the first promise is that the map shows the best areas. The owner chose a switch over changing the default.
+- **Alternatives considered:**
+  - Colour by rank only: shows the spread but loses the absolute score, which the reasons and the quick look still give out of 100.
+  - Stretch the scale to the region's spread: the colours would no longer mean the same score in every view, and the legend would need moving numbers.
+- **Revisit when:** a second region arrives: "Rank in" names the region, and ranks never compare across regions.
+- **History:**
+  - 2026-11-23: accepted by the owner, from the critique's questions.
+
+## D25 Score by the amount, never by rank
+
+- **Status:** accepted
+- **Choice:** Every scoring curve scores by the amount, never by rank.
+  - **A fixed ramp** where a standard or a natural scale gives the two ends, as for the walks, air quality and noise.
+  - **A region ramp** where nothing does: a ramp whose ends come from the region's own values, which the build writes into the bundle as numbers. From each end it leaves out the most extreme hex cells, up to 1 in 100, but never a value that a whole area shares (0.1% or more of the cells, and at least two), so a value per borough keeps its dearest and cheapest borough. Only the hex cells with homes count (D22).
+  - **A log scale** where an amount grows by ratio: money, rates and densities score the logarithm of the value, so each step of the same percentage counts the same, in any currency; counts of places nearby score the logarithm of the count plus one, so the first few count most. Shares, indices, times and distances stay on a straight scale.
+  - **No percentile curve.** The 38 indicators that used it moved: 12 to a region ramp on a log scale, 12 counts to a region ramp on the log of the count plus one, 10 to a region ramp on a straight scale, and 4 to a fixed ramp (A&E waiting from 35% to the NHS standard of 95%, life satisfaction over the UK's spread of local-authority means from 7.0 to 8.2, and school inspections and conservation areas from 0 to 100%).
+  - When the map shows one measured indicator, the legend's ends give its values ("£3,739 a month", "£1,540 a month"), and the quick look gives the value of the hex cell.
+  - The bundle's format is 2: an app that reads format 1 refuses it, and this one refuses a format 1 bundle, rather than misreading a curve.
+- **Why:** The owner showed the map with only "Renting cost" on: boroughs at £2,834 and £3,739 a month had the same colour. A percentile scores a cell by its rank among the region's cells, so it follows how many cells hold each value, not the amount. On bundle 36eb7eb8e423, £905 a month between two boroughs moved a cell 5.5 points and £5 between two others moved it 6; council tax 10 points for £7 a year; burglary at 55 a year per 1,000 residents looked like 10; and "none nearby" scored in the middle, 42 for coworking. A region ramp on a log scale gives rent £3,739 0, £2,834 31, £2,349 52, £1,833 80 and £1,540 100, and keeps every indicator's spread at a standard deviation of 16 to 27 points. The details are in the [spec](specs/2026-11-23-score-by-the-amount.md).
+- **Alternatives considered** (each tested on the same bundle):
+  - A straight ramp for money: 60% to 64% of rent and buying cost fell in the top fifth.
+  - The ratio to the region's median: no London rent scored above 63, and no council tax below 38.
+  - Tukey fences, or a 5% trim kept to whole areas: they cut whole boroughs, so Kensington and Chelsea and Westminster both scored 0.
+  - Half percentile and half ramp: £2,834 and £3,739 were only 18 points apart.
+  - Ends at the 1st and 99th percentile of the cells: they kept Kensington and Chelsea only because it holds 1.01% of the cells.
+  - Ends at the 1st and 99th percentile of the distinct values: for counts the tail holds the distinct values, so the cafés' top end was 424 and most cells scored red.
+- **What it costs:** the amounts can look harsh. Council tax scores under 40 in 94% of the cells, because Westminster and Wandsworth are about £1,000 a year below the rest, and where most cells have none nearby (LGBTQ+ venues, coworking, water, nature sites), most cells score 0. Both are the true picture. With every factor counted, the centre leads the livability score more than before, because the counts of places nearby (cafés, venues, lines) now score 0 where there are none, where a rank gave 25 to 42. A region ramp is still relative to its region, as the percentile was. The "Rank in London" colouring (D24) orders the cells, so it cannot show amounts.
+- **Revisit when:** a second region or currency arrives: check that its ends are sound in its QA report, and whether an indicator with a national scale should move to a fixed ramp.
+- **History:**
+  - 2026-11-23: accepted by the owner in plan mode: fix every percentile indicator with one rule, and a log scale for money.

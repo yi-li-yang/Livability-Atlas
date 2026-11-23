@@ -9,5 +9,7 @@ NaPTAN with OpenStreetMap streets, and the police.uk rates, from `just data lond
 `walk-to-green-space` and `gp-walk` are **fabricated** from a formula in `make_fixture.py`, so that
 the tests have factors in Environment and Health care to weigh. They say nothing about London. This bundle is never published, and no build reads it.
 
+The crime rates and Your community are scored by region ramps (D25), so the build works out their ends from these 209 cells, not from all of London: the scores here are Soho's, and a test must not expect London's numbers.
+
 Regenerate it with `uv run --project pipeline python web/e2e/fixtures/make_fixture.py` after
 `just data london`.
