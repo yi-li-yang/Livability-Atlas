@@ -14,10 +14,13 @@ Livability-Atlas/
 ├── justfile               # every command: setup, check, test, validate, generate, docs
 ├── .pre-commit-config.yaml  # checks before each commit: ruff, large files, gitleaks
 ├── .github/workflows/ci.yml  # CI: runs `just check` and the generated-file check
+├── PRODUCT.md             # the product record that the Impeccable design skill reads
 ├── .claude/
 │   ├── settings.json      # shared permissions for the coding agents
-│   └── commands/
-│       └── research-factor.md  # the recipe for researching one factor, as a Claude Code command
+│   ├── commands/
+│   │   └── research-factor.md  # the recipe for researching one factor, as a Claude Code command
+│   ├── skills/impeccable/ # the Impeccable design skill, as its installer wrote it (do not edit)
+│   └── agents/            # Impeccable's helper agents, as its installer wrote them
 ├── pipeline/              # the data pipeline: Python package `atlas`, a uv project
 │   ├── CLAUDE.md          # its rules for agents (AGENTS.md beside it includes this)
 │   ├── pyproject.toml     # dependencies, ruff, pyright and pytest settings

@@ -1,3 +1,6 @@
 # LF everywhere, including Windows checkouts: Biome and ruff format expect it,
 # and the generated files must match what CI regenerates.
 * text=auto eol=lf
+
+# Windows batch files need CRLF to run reliably.
+*.cmd text eol=crlf

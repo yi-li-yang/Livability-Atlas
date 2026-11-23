@@ -13,6 +13,8 @@ repos:
     hooks:
       - id: check-added-large-files
         args: [--maxkb=1000]
+        # The Impeccable skill is vendored as its installer wrote it; its font index is 1.1 MB.
+        exclude: ^\.claude/skills/impeccable/
       - id: check-merge-conflict
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.0
