@@ -12,6 +12,13 @@ import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
 import { cellColours, cellOutlines, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
+import {
+  type ColourBy,
+  fifthColours,
+  loadColourBy,
+  saveColourBy,
+  scoreSpread,
+} from "./features/map/rank";
 import { noDataNote, viewOptions } from "./features/map/views";
 import { neighbourhoodStabilitySteps } from "./features/neighbourhoods/stability";
 import { TopNeighbourhoods } from "./features/neighbourhoods/TopNeighbourhoods";
@@ -105,6 +112,11 @@ export function App() {
     loadLayout(browserStorage()),
   );
   const [hover, setHover] = useState<Hover | null>(null);
+  // Colour by the score or by the rank in the region (D24): how the user likes to see the map, so
+  // it is kept in the browser and not in the link, like the factor tree's layout.
+  const [colourBy, setColourBy] = useState<ColourBy>(() =>
+    loadColourBy(browserStorage()),
+  );
   const mapArea = useRef<HTMLElement>(null);
   const [selected, setSelected] = useState<number | null>(null);
   // The profile before the user started from a preset, so that "Undo" can bring it back.
@@ -289,7 +301,20 @@ export function App() {
   const countsHomes = bundle?.manifest.homes != null;
   const colours = useMemo(
     () =>
-      shown ? cellColours(shown, excluded ?? undefined, few ?? undefined) : [],
+      shown
+        ? (colourBy === "rank" ? fifthColours : cellColours)(
+            shown,
+            excluded ?? undefined,
+            few ?? undefined,
+          )
+        : [],
+    [shown, excluded, few, colourBy],
+  );
+  const spread = useMemo(
+    () =>
+      shown
+        ? scoreSpread(shown, excluded ?? undefined, few ?? undefined)
+        : null,
     [shown, excluded, few],
   );
   const outlines = useMemo(
@@ -310,6 +335,19 @@ export function App() {
         ? topNeighbourhoods(bundle, scores, excluded, { count: 10 })
         : [],
     [bundle, scores, excluded],
+  );
+
+  // The top neighbourhoods answer where to live by the livability score, so the map marks them
+  // only while it shows that score, not a factor's own.
+  const marks = useMemo(
+    () =>
+      viewName
+        ? []
+        : top.map((neighbourhood, i) => ({
+            cell: neighbourhood.bestCell,
+            place: i + 1,
+          })),
+    [viewName, top],
   );
 
   // How many of the top neighbourhoods stay when a weight moves by a fifth. It rescores the region
@@ -464,6 +502,7 @@ export function App() {
           focus={focus}
           onHover={phone ? () => {} : setHover}
           places={places}
+          marks={marks}
           onSelect={(index) => {
             if (picking !== null && index !== null && bundle) {
               const [lat, lng] = cellToLatLng(bundle.cells[index]);
@@ -512,7 +551,7 @@ export function App() {
             <aside
               aria-label="Your preferences"
               data-covers-map
-              className="absolute left-4 top-4 z-10 max-h-[calc(100%-17rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
+              className="absolute left-4 top-4 z-10 max-h-[calc(100%-21rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
             >
               {preferences}
             </aside>
@@ -567,6 +606,14 @@ export function App() {
             onView={setView}
             opacity={opacity}
             onOpacity={setOpacity}
+            colourBy={colourBy}
+            onColourBy={(next) => {
+              setColourBy(next);
+              saveColourBy(next, browserStorage());
+            }}
+            region={state.bundle.manifest.region.name}
+            spread={spread}
+            topMarked={!viewName && top.length > 0}
           />
         )}
       </main>

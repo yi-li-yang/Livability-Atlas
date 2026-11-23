@@ -1,5 +1,32 @@
-import { FEW_HOMES_OUTLINE, LAND_COLOURS, scoreToCss } from "./colour";
+import { FEW_HOMES_OUTLINE, LAND_COLOURS, PALETTE, scoreToCss } from "./colour";
+import type { ColourBy } from "./rank";
 import type { ViewOption } from "./views";
+
+/**
+ * The scores between which most of the region lies (the middle 80%), read off the spread's bands,
+ * as whole numbers: the bands' edges, so they never claim more precision than the bands have.
+ */
+export function middleOf(spread: readonly number[]): [number, number] | null {
+  const total = spread.reduce((a, b) => a + b, 0);
+  if (total === 0) return null;
+  const width = 100 / spread.length;
+  let seen = 0;
+  let low = 0;
+  let high = 100;
+  let lowFound = false;
+  for (let band = 0; band < spread.length; band++) {
+    seen += spread[band];
+    if (!lowFound && seen > total * 0.1) {
+      low = band * width;
+      lowFound = true;
+    }
+    if (seen >= total * 0.9) {
+      high = (band + 1) * width;
+      break;
+    }
+  }
+  return [Math.round(low), Math.round(high)];
+}
 
 /** What the colours mean: a bar from the worst score to the best, with a label at each end. */
 export function Legend({
@@ -14,6 +41,11 @@ export function Legend({
   onView,
   opacity,
   onOpacity,
+  colourBy = "score",
+  onColourBy,
+  region = "the region",
+  spread = null,
+  topMarked = false,
 }: {
   title: string;
   low: string;
@@ -32,7 +64,22 @@ export function Legend({
   /** How strongly the cells show over the map, from 0 to 1. */
   opacity: number;
   onOpacity: (opacity: number) => void;
+  /** Whether the map colours its cells by their score or by their rank in the region (D24). */
+  colourBy?: ColourBy;
+  onColourBy?: (colourBy: ColourBy) => void;
+  /** The region's name, as in "Rank in London". */
+  region?: string;
+  /** How many cells that count fall in each band of the scale, to show where the scores lie. */
+  spread?: readonly number[] | null;
+  /** Whether the map marks the top neighbourhoods with their places in the list. */
+  topMarked?: boolean;
 }) {
+  const byRank = colourBy === "rank";
+  const fifths = `linear-gradient(to right, ${PALETTE.map(
+    ([r, g, b], i) => `rgb(${r} ${g} ${b}) ${i * 20}% ${(i + 1) * 20}%`,
+  ).join(", ")})`;
+  const tallest = spread ? Math.max(...spread, 1) : 1;
+  const middle = spread && !byRank ? middleOf(spread) : null;
   const gradient = `linear-gradient(to right, ${[0, 0.25, 0.5, 0.75, 1].map(scoreToCss).join(", ")})`;
   const groups = new Map<string, { name: string; items: ViewOption[] }>();
   for (const option of options) {
@@ -57,6 +104,62 @@ export function Legend({
       />
       Few or no homes: no score
     </span>
+  );
+  const topMark = topMarked && (
+    <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-600">
+      <span
+        aria-hidden="true"
+        className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 border-neutral-800 bg-white text-[9px] font-semibold text-neutral-900"
+      >
+        1
+      </span>
+      Top neighbourhoods, numbered by rank
+    </p>
+  );
+  // What the colours say about the region, and the marks: under the bar on a desktop, and behind
+  // "Colours" on a phone, where the legend must stay small.
+  const about = (
+    <>
+      {middle && (
+        <p className="mt-1 text-xs text-neutral-600">
+          Most of {region} scores {middle[0]} to {middle[1]}.
+        </p>
+      )}
+      {byRank && (
+        <p className="mt-1 text-xs text-neutral-600">
+          Each colour is a fifth of {region}'s hex cells, from its lowest scores
+          to its highest.
+        </p>
+      )}
+      {topMark}
+    </>
+  );
+  const colourSwitch = onColourBy && (
+    <fieldset
+      className={`m-0 flex w-fit overflow-hidden rounded border border-neutral-400 p-0 text-xs ${phone ? "mt-2" : ""}`}
+    >
+      <legend className="sr-only">Colour the map by</legend>
+      {(
+        [
+          ["score", "Score"],
+          ["rank", `Rank in ${region}`],
+        ] as const
+      ).map(([option, name]) => (
+        <button
+          key={option}
+          type="button"
+          aria-pressed={colourBy === option}
+          className={
+            colourBy === option
+              ? "bg-neutral-800 px-2 py-0.5 text-white"
+              : "bg-white px-2 py-0.5 hover:bg-neutral-100"
+          }
+          onClick={() => onColourBy(option)}
+        >
+          {name}
+        </button>
+      ))}
+    </fieldset>
   );
   const opacityControl = (
     <>
@@ -85,7 +188,7 @@ export function Legend({
       className={
         phone
           ? "absolute left-2 right-2 top-2 z-10 rounded bg-white/90 p-2 text-sm shadow"
-          : "absolute bottom-6 left-4 z-10 w-56 rounded bg-white/90 p-3 text-sm shadow"
+          : "absolute bottom-6 left-4 z-10 w-72 rounded bg-white/90 p-3 text-sm shadow"
       }
     >
       <label className="mb-2 block text-xs text-neutral-600">
@@ -110,17 +213,57 @@ export function Legend({
           ))}
         </select>
       </label>
-      <h2 className={phone ? "sr-only" : "mb-1 font-medium"}>{title}</h2>
+      {phone ? (
+        <h2 className="sr-only">{title}</h2>
+      ) : (
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-x-2">
+          <h2 className="font-medium">{title}</h2>
+          {colourSwitch}
+        </div>
+      )}
+      {spread && !byRank && !phone && (
+        // Where the region's scores lie on the scale: a bar for each band, as tall as its count.
+        <svg
+          aria-hidden="true"
+          data-testid="score-spread"
+          viewBox={`0 0 ${spread.length} 10`}
+          preserveAspectRatio="none"
+          className="block h-4 w-full"
+        >
+          {spread.map((count, band) => (
+            <rect
+              // biome-ignore lint/suspicious/noArrayIndexKey: the bands are fixed and in order
+              key={band}
+              x={band + 0.1}
+              width={0.8}
+              y={10 - (10 * count) / tallest}
+              height={(10 * count) / tallest}
+              fill="rgb(115 115 115)"
+            />
+          ))}
+        </svg>
+      )}
       <div
         data-testid="legend-bar"
         className="h-3 rounded"
-        style={{ background: gradient }}
+        style={{ background: byRank ? fifths : gradient }}
       />
-      <div className="mt-1 flex justify-between gap-2 text-xs text-neutral-600">
-        <span>{low}</span>
+      {!byRank && !phone && (
+        <div
+          aria-hidden="true"
+          className="flex justify-between text-[10px] text-neutral-500 tabular-nums"
+        >
+          <span>0</span>
+          <span>50</span>
+          <span>100</span>
+        </div>
+      )}
+      <div className="mt-0.5 flex justify-between gap-2 text-xs text-neutral-600">
+        <span>{byRank ? "Bottom fifth" : low}</span>
         {phone && fewHomesKey}
-        <span>{high}</span>
+        <span>{byRank ? "Top fifth" : high}</span>
       </div>
+      {!phone && about}
       {fewHomesKey && !phone && (
         <p className="mt-1 text-xs text-neutral-600">{fewHomesKey}</p>
       )}
@@ -131,8 +274,13 @@ export function Legend({
       )}
       {phone ? (
         <details className="mt-1 text-xs text-neutral-600">
-          <summary className="cursor-pointer">Cell opacity</summary>
-          {opacityControl}
+          <summary className="cursor-pointer">Colours</summary>
+          {about}
+          {colourSwitch}
+          <label htmlFor="cell-opacity" className="mt-2 block">
+            Cell opacity
+            {opacityControl}
+          </label>
         </details>
       ) : (
         <label

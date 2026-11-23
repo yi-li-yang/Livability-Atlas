@@ -36,6 +36,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D21](#d21-mvp-factor-set) | MVP factor set | The nine top-level factors already researched, and Health care as a tenth | accepted |
 | [D22](#d22-a-score-describes-the-homes-in-a-cell) | A score describes the homes in a cell | A hex cell with fewer than 10 homes has no score | accepted |
 | [D23](#d23-the-maps-layers) | The map's layers | The colours under the water, roads and names, over the land use; no satellite | accepted |
+| [D24](#d24-colour-by-score-or-by-rank) | Colour by score or by rank | The score by default; a legend switch to the rank in the region, in fifths | accepted |
 
 ## D01 First slice
 
@@ -389,3 +390,15 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** a satellite or aerial source with a clear licence and street-level detail turns up; the same layer order would hold.
 - **History:**
   - 2026-11-23: accepted by the owner, after the comparison.
+
+## D24 Colour by score or by rank
+
+- **Status:** accepted
+- **Choice:** The map colours its cells by their score, from 0 to 100, as before. A switch in the legend, "Score" and "Rank in London" (the region's name), colours them instead by the fifth of the region each falls in, among the cells that count (with homes, a score, and within the hard limits): each fifth takes one stop of the score scale, from red for the bottom fifth to blue-green for the top. Equal scores share a fifth. The choice is how the user likes to see the map, not what they want, so it is kept in the browser and not in the link, as the factor tree's layout is (D17). In score mode the legend also shows where the region's scores lie (a bar for each twentieth of the scale, ticks at 0, 50 and 100, and "Most of London scores 50 to 70", the middle 80% of the cells), and the map marks the top neighbourhoods' best cells with their places in the list while it shows the livability score.
+- **Why:** The Impeccable critique of the map (2026-11-23) found that London's scores bunch between about 50 and 80, so the default map was a yellow-green wash with almost no red and no clear best areas; the first promise is that the map shows the best areas. The owner chose a switch over changing the default.
+- **Alternatives considered:**
+  - Colour by rank only: shows the spread but loses the absolute score, which the reasons and the quick look still give out of 100.
+  - Stretch the scale to the region's spread: the colours would no longer mean the same score in every view, and the legend would need moving numbers.
+- **Revisit when:** a second region arrives: "Rank in" names the region, and ranks never compare across regions.
+- **History:**
+  - 2026-11-23: accepted by the owner, from the critique's questions.
