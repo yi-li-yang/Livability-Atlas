@@ -162,7 +162,7 @@ def test_an_unknown_licence_is_a_warning_and_not_a_failure(tmp_path):
 
 def test_a_sound_bundle_passes_every_check_of_the_values(tmp_path):
     results = value_checks(read_cells(write_sample(tmp_path)))
-    assert len(results) == 5
+    assert len(results) == 6
     assert {r.status for r in results} == {"pass"}, [r for r in results if r.status != "pass"]
 
 
@@ -185,6 +185,16 @@ def test_a_share_may_be_a_hair_above_100_from_rounding(tmp_path):
     values = [99.0, 98.0, 97.0, 95.0, 90.0, 80.0, 100.0 + 1e-9]
     folder = spoil(write_sample(tmp_path), table=replace_column("gigabit_broadband", values))
     assert one(value_checks(read_cells(folder)), "range").status == "pass"
+
+
+def test_a_region_ramp_whose_end_is_outside_its_values_fails(tmp_path):
+    def move_end(manifest):
+        diversity = next(i for i in manifest["indicators"] if i["id"] == "diversity")
+        diversity["curve"]["t1"] = 0.95  # no cell has a diversity of 0.95
+
+    folder = spoil(write_sample(tmp_path), manifest=move_end)
+    result = one(value_checks(read_cells(folder)), "Region ramps")
+    assert result.status == "fail" and "diversity" in result.detail
 
 
 def test_a_text_value_that_the_curve_cannot_score_fails(tmp_path):

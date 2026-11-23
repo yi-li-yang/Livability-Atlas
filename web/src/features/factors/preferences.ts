@@ -10,7 +10,6 @@ export function startsHigherIsBetter(
   indicator: ManifestIndicator,
 ): boolean | null {
   const curve = indicator.curve;
-  if (curve?.shape === "percentile") return curve.better === "higher";
   if (curve?.shape === "ramp") return curve.t1 > curve.t0;
   return null;
 }

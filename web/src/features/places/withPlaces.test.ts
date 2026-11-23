@@ -4,7 +4,7 @@ import type { Manifest } from "../../generated/manifest.schema";
 import { withPlaces } from "./withPlaces";
 
 const manifest = (travel: boolean): Manifest => ({
-  format_version: 1,
+  format_version: 2,
   version: "t",
   region: { id: "t", name: "T" },
   grid: { system: "h3", resolution: 9 },

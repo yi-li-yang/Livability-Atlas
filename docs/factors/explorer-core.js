@@ -27,7 +27,7 @@
     "children", ...INDICATOR_FIELDS];
   const PREFERENCE_TYPES = ["fixed", "user-direction", "user-range", "user-choice"];
   const EVIDENCE_TYPES = ["direct", "estimate", "indirect", "perception", "ranking"];
-  const CURVE_SHAPES = ["ramp", "ideal-range", "lookup", "percentile"];
+  const CURVE_SHAPES = ["ramp", "ideal-range", "lookup", "region-ramp"];
   // The fields each research status requires of a measured indicator, beyond
   // a name and a default weight.
   const RESEARCHED = ["unit", "preference_type", "evidence_type", "comparable_across_regions", "method",
@@ -76,9 +76,16 @@
         problems.push(`${label}: curve must be a mapping with a shape, such as {shape: ramp, t0: 25, t1: 5}.`);
         return;
       }
+      // A log scale (D25), on a ramp or a region ramp: an offset needs it, and cannot be below 0.
+      if (curve.offset !== undefined) {
+        if (curve.log !== true) problems.push(`${label}: an offset belongs to a log ramp (log: true).`);
+        else if (!isNumber(curve.offset) || curve.offset < 0) problems.push(`${label}: an offset cannot be below 0.`);
+      }
       if (curve.shape === "ramp") {
         if (!isNumber(curve.t0) || !isNumber(curve.t1) || curve.t0 === curve.t1) {
           problems.push(`${label}: a ramp needs two different numbers, t0 and t1.`);
+        } else if (curve.log === true && Math.min(curve.t0, curve.t1) + (isNumber(curve.offset) ? curve.offset : 0) <= 0) {
+          problems.push(`${label}: a log ramp needs both ends above 0 once the offset is added.`);
         }
       } else if (curve.shape === "ideal-range") {
         const { l0, l1, u1, u0 } = curve;
@@ -90,9 +97,9 @@
         const valid = isMapping(scores) && Object.keys(scores).length > 0
           && Object.values(scores).every((score) => isNumber(score) && score >= 0 && score <= 1);
         if (!valid) problems.push(`${label}: a lookup curve needs scores, with a score from 0 to 1 for each category.`);
-      } else if (curve.shape === "percentile") {
+      } else if (curve.shape === "region-ramp") {
         if (curve.better !== "higher" && curve.better !== "lower") {
-          problems.push(`${label}: a percentile curve needs better: higher or lower.`);
+          problems.push(`${label}: a region ramp needs better: higher or lower.`);
         }
       } else {
         problems.push(`${label}: curve.shape must be one of ${CURVE_SHAPES.join(", ")}.`);
@@ -414,11 +421,17 @@
       if (!unit) return text;
       return unit.startsWith("%") ? `${text}${unit}` : `${text} ${unit}`;
     };
+    const scale = !curve.log ? "" : curve.offset ? `, on a log scale of the value + ${number.format(curve.offset)}` : ", on a log scale";
     switch (curve.shape) {
       case "ramp":
-        return curve.t1 < curve.t0
+        return (curve.t1 < curve.t0
           ? `1 at ${value(curve.t1)} or less, falling to 0 at ${value(curve.t0)} or more`
-          : `0 at ${value(curve.t0)} or less, rising to 1 at ${value(curve.t1)} or more`;
+          : `0 at ${value(curve.t0)} or less, rising to 1 at ${value(curve.t1)} or more`) + scale;
+      case "region-ramp":
+        // D25: the build takes the ends from the region's own values.
+        return (curve.better === "lower"
+          ? "from 0 at the region's highest value to 1 at its lowest"
+          : "from 0 at the region's lowest value to 1 at its highest") + scale;
       case "ideal-range": {
         const best = curve.l1 === curve.u1
           ? `1 at ${value(curve.l1)}`
@@ -431,8 +444,6 @@
         const best = Object.entries(curve.scores).sort(([, a], [, b]) => b - a);
         return `by ${unit || "category"}: ${best.map(([category, score]) => `${category} → ${number.format(score)}`).join(", ")}`;
       }
-      case "percentile":
-        return `by rank within the region, where ${curve.better} values score better`;
       default:
         return "";
     }

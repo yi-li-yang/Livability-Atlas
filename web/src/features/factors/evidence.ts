@@ -36,12 +36,14 @@ export function formatValue(
 
 /**
  * How a measured indicator's value becomes a score from 0 to 1, in words. Where the user has
- * turned the direction round (`flipped`), it says the user's way.
+ * turned the direction round (`flipped`), it says the user's way. `region` names the region whose
+ * own values set the ends of a region ramp (D25).
  */
 export function describeCurve(
   curve: Curve | undefined,
   unit: string,
   flipped = false,
+  region = "the region",
 ): string {
   if (!curve) return "It has no scoring curve yet.";
   const number = (x: number) => formatNumber(x, unit);
@@ -50,17 +52,19 @@ export function describeCurve(
       const [t0, t1] = flipped ? [curve.t1, curve.t0] : [curve.t0, curve.t1];
       const better = formatValue(t1, unit);
       const worse = number(t0);
-      return t1 < t0
-        ? `Full marks at ${better} or less, none at ${worse} or more.`
-        : `Full marks at ${better} or more, none at ${worse} or less.`;
-    }
-    case "percentile": {
-      const better = flipped
-        ? curve.better === "higher"
-          ? "lower"
-          : "higher"
-        : curve.better;
-      return `Ranked against the region's other hex cells: the ${better}, the better.`;
+      const ends =
+        t1 < t0
+          ? `Full marks at ${better} or less, none at ${worse} or more.`
+          : `Full marks at ${better} or more, none at ${worse} or less.`;
+      const from = curve.from_region
+        ? ` Both ends come from ${region}'s own values.`
+        : "";
+      const between = !curve.log
+        ? ""
+        : curve.offset
+          ? " In between, the first few count most."
+          : " In between, each step of the same percentage counts the same.";
+      return `${ends}${from}${between}`;
     }
   }
   const turned = flipped

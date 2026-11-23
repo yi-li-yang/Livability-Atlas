@@ -52,17 +52,28 @@ describe("curveScore", () => {
     expect(curveScore(ptal, "6b")).toBe(1);
   });
 
-  it("scores a percentile among the region's cells: ties share half, the best scores 1", () => {
-    const lower = { shape: "percentile", better: "lower" } as const;
-    const higher = { shape: "percentile", better: "higher" } as const;
-    expect(curveScore(lower, 10, [10, 10, 20, 30])).toBeCloseTo(5 / 6, 12);
-    expect(curveScore(lower, 20, [10, 10, 20, 30])).toBeCloseTo(1 / 3, 12);
-    expect(curveScore(higher, 5, [1, 2, 3, 4, 5])).toBe(1);
-    expect(curveScore(higher, 1, [1, 2, 3, 4, 5])).toBe(0);
-    expect(curveScore(higher, 7, [7])).toBe(0.5);
+  it("scores a log ramp by the ratio of the values: half of 4000 is halfway to 1000", () => {
+    const rent = { shape: "ramp", t0: 4000, t1: 1000, log: true } as const;
+    expect(curveScore(rent, 2000)).toBeCloseTo(0.5, 12);
+    expect(curveScore(rent, 500)).toBe(1);
+    expect(curveScore(rent, 8000)).toBe(0);
   });
 
-  it("cannot score a percentile without the region's values", () => {
-    expect(curveScore({ shape: "percentile", better: "lower" }, 10)).toBeNull();
+  it("scores a count on the log of the value plus its offset", () => {
+    const cafes = {
+      shape: "ramp",
+      t0: 0,
+      t1: 15,
+      log: true,
+      offset: 1,
+    } as const;
+    expect(curveScore(cafes, 0)).toBe(0);
+    expect(curveScore(cafes, 3)).toBeCloseTo(0.5, 12);
+    expect(curveScore(cafes, 1)).toBeCloseTo(0.25, 12);
+  });
+
+  it("scores a value with no logarithm as the low end of the values", () => {
+    expect(curveScore({ shape: "ramp", t0: 1, t1: 4, log: true }, 0)).toBe(0);
+    expect(curveScore({ shape: "ramp", t0: 4, t1: 1, log: true }, -2)).toBe(1);
   });
 });

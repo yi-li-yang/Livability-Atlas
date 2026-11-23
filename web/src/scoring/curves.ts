@@ -26,18 +26,33 @@ export function withBand(curve: SetCurve, band: Band | undefined): SetCurve {
 }
 
 /**
+ * A ramp's score: linear between t0 and t1, or on ln(value + offset) with `log` (D25). On a log
+ * scale a value at or below -offset has no logarithm, and scores as the low end of the values.
+ */
+function rampScore(
+  curve: Extract<SetCurve, { shape: "ramp" }>,
+  x: number,
+): number {
+  const { t0, t1 } = curve;
+  if (!curve.log) return clip((x - t0) / (t1 - t0));
+  const offset = curve.offset ?? 0;
+  if (x + offset <= 0) return t0 < t1 ? 0 : 1;
+  const ln = (v: number) => Math.log(v + offset);
+  return clip((ln(x) - ln(t0)) / (ln(t1) - ln(t0)));
+}
+
+/**
  * The score of a raw value, from 0 (worst) to 1 (best), as docs/methodology/scoring.md, section 3
- * defines it, or null where the curve cannot score it: a category it does not list, or a percentile
- * without the region's values. The Python reference scorer gives the same numbers.
+ * defines it, or null where the curve cannot score it: a category it does not list. The Python
+ * reference scorer gives the same numbers.
  */
 export function curveScore(
   curve: SetCurve,
   value: number | string,
-  regionValues?: readonly number[],
 ): number | null {
   switch (curve.shape) {
     case "ramp":
-      return clip((Number(value) - curve.t0) / (curve.t1 - curve.t0));
+      return rampScore(curve, Number(value));
     case "ideal-range": {
       const x = Number(value);
       const rising = clip((x - curve.l0) / (curve.l1 - curve.l0));
@@ -46,15 +61,5 @@ export function curveScore(
     }
     case "lookup":
       return curve.scores[String(value)] ?? null;
-    case "percentile": {
-      if (!regionValues || regionValues.length === 0) return null;
-      if (regionValues.length === 1) return 0.5;
-      const x = Number(value);
-      const worse = regionValues.filter((v) =>
-        curve.better === "lower" ? v > x : v < x,
-      ).length;
-      const ties = regionValues.filter((v) => v === x).length;
-      return (worse + 0.5 * (ties - 1)) / (regionValues.length - 1);
-    }
   }
 }

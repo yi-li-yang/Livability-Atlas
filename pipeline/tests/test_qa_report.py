@@ -43,7 +43,7 @@ def test_the_report_of_a_sound_bundle_says_that_it_passed(tmp_path, catalogue):
     assert not report.failed
     assert text.startswith("# QA report: London\n")
     assert f"`{folder.name}`" in text and "7 cells" in text and "5 indicators" in text
-    assert "**Passed.** 14 checks passed, 0 warnings, 0 failed, 0 skipped." in text
+    assert "**Passed.** 15 checks passed, 0 warnings, 0 failed, 0 skipped." in text
     assert section(text, "What needs a look").strip() == "Nothing."
 
 
@@ -70,7 +70,7 @@ def test_warnings_are_listed_but_do_not_fail_the_report(tmp_path, catalogue):
     report = report_of(spoil(write_sample(tmp_path), manifest=unknown), catalogue)
     text = report.markdown()
     assert not report.failed
-    assert "**Passed.** 13 checks passed, 1 warning, 0 failed, 0 skipped." in text
+    assert "**Passed.** 14 checks passed, 1 warning, 0 failed, 0 skipped." in text
     assert "Warning" in section(text, "What needs a look")
 
 
@@ -81,11 +81,20 @@ def test_the_data_table_has_a_row_for_each_column_with_its_spread(tmp_path, cata
         "Walk to the nearest station", "minutes on foot", "100%",
         "2.00", "2.45", "8.00", "25.5", "30.0", "42.9%", "14.3%",
     ]  # fmt: skip
-    # A percentile curve has no full or no marks, and a text column no spread.
-    assert table_row(text, "Diversity")[-2:] == ["–", "–"]
+    # A region ramp scores the cells at its ends in full and at none; a text column has no spread.
+    data = text.split("### Region ramps")[0]
+    assert table_row(data, "Diversity")[-2:] == ["14.3%", "42.9%"]
     ptal = table_row(text, "Service level")
     assert ptal[2] == "100%" and ptal[3:] == ["–"] * 7
     assert table_row(text, "Faith (Sikh)")[1] == "minutes on foot"
+
+
+def test_the_region_ramps_are_listed_with_the_ends_the_build_took(tmp_path, catalogue):
+    text = report_of(write_sample(tmp_path), catalogue).markdown()
+    ramps = section(text, "Region ramps")
+    assert table_row(ramps, "Diversity") == [
+        "Diversity", "diversity index, from 0 to 1", "0.50", "0.72", "linear", "28.6%", "0%",
+    ]  # fmt: skip
 
 
 def test_a_text_column_lists_its_categories_with_their_scores(tmp_path, catalogue):
@@ -173,6 +182,19 @@ def test_a_previous_build_that_differs_lists_what_changed(tmp_path, catalogue):
     changes = section(text, "Changes since the previous build")
     assert f"Compared with `{previous.name}`." in changes
     assert "- Walk to the nearest station: the median moved from 8.00 to 15.0" in changes
+
+
+def test_a_previous_build_in_an_older_format_is_named_and_not_compared_with(tmp_path, catalogue):
+    def old_curve(manifest):
+        # A bundle of format 1, with the percentile curve that D25 removed.
+        manifest["format_version"] = 1
+        diversity = next(i for i in manifest["indicators"] if i["id"] == "diversity")
+        diversity["curve"] = {"shape": "percentile", "better": "higher"}
+
+    previous = spoil(write_sample(tmp_path / "a"), manifest=old_curve)
+    report = report_of(write_sample(tmp_path / "b"), catalogue, previous=previous)
+    assert report.previous == previous.name and report.changes is None
+    assert f"The previous build `{previous.name}` is in an older format" in report.markdown()
 
 
 def test_a_previous_build_that_is_gone_is_named_and_not_compared_with(tmp_path, catalogue):

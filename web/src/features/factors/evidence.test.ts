@@ -61,9 +61,13 @@ describe("describeCurve", () => {
       "Full marks at 15 minutes on foot or more, none at 5 or less.",
     );
     expect(
-      describeCurve({ shape: "percentile", better: "higher" }, "venues", true),
+      describeCurve(
+        { shape: "ramp", t0: 0, t1: 115, log: true, offset: 1 },
+        "venues",
+        true,
+      ),
     ).toBe(
-      "Ranked against the region's other hex cells: the lower, the better.",
+      "Full marks at 0 venues or less, none at 115 or more. In between, the first few count most.",
     );
     expect(
       describeCurve({ shape: "lookup", scores: { a: 1 } }, "", true),
@@ -81,12 +85,27 @@ describe("describeCurve", () => {
     );
   });
 
-  it("explains a percentile as a rank among the region's cells", () => {
-    expect(describeCurve({ shape: "percentile", better: "higher" }, unit)).toBe(
-      "Ranked against the region's other hex cells: the higher, the better.",
+  it("says where a region ramp's ends come from, and how a log scale counts", () => {
+    const rent = {
+      shape: "ramp",
+      t0: 3739,
+      t1: 1540,
+      log: true,
+      from_region: true,
+    } as const;
+    expect(describeCurve(rent, "£ a month", false, "London")).toBe(
+      "Full marks at £1,540 a month or less, none at 3,739 or more. Both ends come from London's own values. In between, each step of the same percentage counts the same.",
     );
-    expect(describeCurve({ shape: "percentile", better: "lower" }, unit)).toBe(
-      "Ranked against the region's other hex cells: the lower, the better.",
+    const cafes = {
+      shape: "ramp",
+      t0: 0,
+      t1: 118,
+      log: true,
+      offset: 1,
+      from_region: true,
+    } as const;
+    expect(describeCurve(cafes, "cafés", false, "London")).toBe(
+      "Full marks at 118 cafés or more, none at 0 or less. Both ends come from London's own values. In between, the first few count most.",
     );
   });
 

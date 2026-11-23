@@ -263,8 +263,9 @@ test("each value must come from its allowed list", () => {
     [{ comparable_across_regions: "yes" }, /^pm25: comparable_across_regions must be true or false/],
     [{ unit: "" }, /^pm25: unit must be non-empty text/],
     [{ method: 42 }, /^pm25: method must be non-empty text/],
-    [{ curve: { shape: "s-curve" } }, /^pm25: curve.shape must be one of ramp, ideal-range, lookup, percentile/],
-    [{ curve: { shape: "percentile", better: "more" } }, /^pm25: a percentile curve needs better: higher or lower/],
+    [{ curve: { shape: "s-curve" } }, /^pm25: curve.shape must be one of ramp, ideal-range, lookup, region-ramp/],
+    [{ curve: { shape: "percentile", better: "lower" } }, /^pm25: curve.shape must be one of/],
+    [{ curve: { shape: "region-ramp", better: "more" } }, /^pm25: a region ramp needs better: higher or lower/],
   ];
   for (const [fields, expected] of cases) expectProblem(problemsOf(researched(fields)), expected);
 });
@@ -277,13 +278,20 @@ test("a curve must follow the rule of its shape", () => {
     [{ shape: "lookup", scores: { low: 1.5 } }, /^pm25: a lookup curve needs scores, with a score from 0 to 1 for each category/],
     [{ shape: "lookup", scores: {} }, /^pm25: a lookup curve needs scores/],
     ["ramp", /^pm25: curve must be a mapping with a shape/],
+    [{ shape: "ramp", t0: 0, t1: 30, log: true }, /^pm25: a log ramp needs both ends above 0 once the offset is added/],
+    [{ shape: "ramp", t0: 0, t1: 30, offset: 1 }, /^pm25: an offset belongs to a log ramp/],
+    [{ shape: "region-ramp", better: "lower", offset: 1 }, /^pm25: an offset belongs to a log ramp/],
+    [{ shape: "region-ramp", better: "higher", log: true, offset: -1 }, /^pm25: an offset cannot be below 0/],
   ];
   for (const [curve, expected] of cases) expectProblem(problemsOf(researched({ curve })), expected);
   const valid = [
     { shape: "ramp", t0: 0, t1: 10 },
     { shape: "ideal-range", l0: 14, l1: 20, u1: 20, u0: 32 },
     { shape: "lookup", scores: { "very low": 1, low: 0.75, high: 0 } },
-    { shape: "percentile", better: "lower" },
+    { shape: "ramp", t0: 0, t1: 30, log: true, offset: 1 },
+    { shape: "region-ramp", better: "lower", log: true },
+    { shape: "region-ramp", better: "higher", log: true, offset: 1 },
+    { shape: "region-ramp", better: "higher" },
   ];
   for (const curve of valid) assert.deepEqual(problemsOf(researched({ curve })), [], JSON.stringify(curve));
 });
@@ -499,7 +507,10 @@ test("describeCurve puts a scoring curve into words", () => {
     [{ shape: "ideal-range", l0: 14, l1: 20, u1: 20, u0: 32 }, "°C", "1 at 20 °C, falling to 0 at 14 °C or less and at 32 °C or more"],
     [{ shape: "lookup", scores: { "very low": 1, low: 0.75, high: 0 } }, "", "by category: very low → 1, low → 0.75, high → 0"],
     [{ shape: "lookup", scores: { 1: 1, 2: 1, 3: 0.89 } }, "fare zone", "by fare zone: 1 → 1, 2 → 1, 3 → 0.89"],
-    [{ shape: "percentile", better: "higher" }, "venues", "by rank within the region, where higher values score better"],
+    [{ shape: "ramp", t0: 4000, t1: 1000, log: true }, "£", "1 at 1,000 £ or less, falling to 0 at 4,000 £ or more, on a log scale"],
+    [{ shape: "region-ramp", better: "lower", log: true }, "£ a month", "from 0 at the region's highest value to 1 at its lowest, on a log scale"],
+    [{ shape: "region-ramp", better: "higher", log: true, offset: 1 }, "venues", "from 0 at the region's lowest value to 1 at its highest, on a log scale of the value + 1"],
+    [{ shape: "region-ramp", better: "higher" }, "% of residents", "from 0 at the region's lowest value to 1 at its highest"],
   ];
   for (const [curve, unit, words] of cases) assert.equal(plain(core.describeCurve(curve, unit)), words);
 });

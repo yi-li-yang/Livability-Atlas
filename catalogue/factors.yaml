@@ -40,11 +40,15 @@ factors:
         status: built
         unit: £ per m²
         preference_type: fixed
-        curve: {shape: percentile, better: lower}
+        curve: {shape: region-ramp, better: lower, log: true}
         curve_reason: &cost-curve-reason >-
           No standard sets a fair price, and prices differ between regions and
-          currencies, so a hex cell scores by its rank within the region. A
-          user's budget belongs in a hard limit, not in the curve.
+          currencies, so the ends of the ramp come from the region's own prices
+          (D25): the dearest scores 0 and the cheapest 1. In between, the score
+          follows the price on a log scale, so each step of the same percentage
+          counts the same, in any currency. A rank would follow how many hex
+          cells share a price, not the amount. A user's budget belongs in a hard
+          limit, not in the curve.
         evidence_type: direct
         comparable_across_regions: false
         method: >-
@@ -75,7 +79,7 @@ factors:
         status: built
         unit: £ a month
         preference_type: fixed
-        curve: {shape: percentile, better: lower}
+        curve: {shape: region-ramp, better: lower, log: true}
         curve_reason: *cost-curve-reason
         evidence_type: direct
         comparable_across_regions: false
@@ -98,7 +102,7 @@ factors:
         status: built
         unit: £ a year (Band D)
         preference_type: fixed
-        curve: {shape: percentile, better: lower}
+        curve: {shape: region-ramp, better: lower, log: true}
         curve_reason: *cost-curve-reason
         evidence_type: direct
         comparable_across_regions: false
@@ -148,13 +152,14 @@ factors:
         status: built
         unit: "% change over five years"
         preference_type: user-direction
-        curve: {shape: percentile, better: lower}
+        curve: {shape: region-ramp, better: lower}
         curve_reason: >-
           No standard sets a fair rise in prices, and the same rise is good news
-          for an owner and bad news for a buyer, so a hex cell scores by its
-          rank within the region and the user can flip the direction. It starts
-          with the buyer's and the renter's view, that a place whose prices rose
-          less is still within reach.
+          for an owner and bad news for a buyer, so the ends of the ramp come
+          from the region's own values (D25), on a straight scale, since a
+          change can be below zero, and the user can flip the direction. It
+          starts with the buyer's and the renter's view, that a place whose
+          prices rose less is still within reach.
         evidence_type: direct
         comparable_across_regions: false
         method: >-
@@ -177,12 +182,13 @@ factors:
         status: built
         unit: sales a year per 1,000 residents
         preference_type: user-direction
-        curve: {shape: percentile, better: higher}
+        curve: {shape: region-ramp, better: higher, log: true}
         curve_reason: >-
-          No standard sets how many homes should sell, so a hex cell scores by
-          its rank within the region. It starts with a busy market scoring
-          higher, because a home there is easier to buy and to sell, and the
-          user can flip the direction to prefer places where people stay.
+          No standard sets how many homes should sell, so the ends of the ramp
+          come from the region's own rates (D25), on a log scale, as for the
+          other rates. It starts with a busy market scoring higher, because a
+          home there is easier to buy and to sell, and the user can flip the
+          direction to prefer places where people stay.
         evidence_type: direct
         comparable_across_regions: false
         method: >-
@@ -247,13 +253,15 @@ factors:
                 status: built
                 unit: lines
                 preference_type: fixed
-                curve: {shape: percentile, better: higher}
+                curve: {shape: region-ramp, better: higher, log: true, offset: 1}
                 curve_reason: >-
-                  No standard says how many lines are enough, so a hex cell scores
-                  by its rank within the region: the share of hex cells with fewer.
-                  The counts are too skewed for a ramp: in London's built data the
-                  median cell has no line within the walk, the 95th percentile has
-                  3 and Bank has 17.
+                  No standard says how many lines are enough, so the ends of the
+                  ramp come from the region's own counts (D25): none scores 0,
+                  and the top end leaves out the few busiest cells. The counts
+                  are skewed (in London's built data the median cell has no line
+                  within the walk, the 95th percentile has 3 and Bank has 17),
+                  so the score follows the log of the count plus one: the first
+                  line counts most, and each further one less.
                 evidence_type: direct
                 comparable_across_regions: false
                 method: >-
@@ -272,11 +280,12 @@ factors:
                 status: built
                 unit: routes
                 preference_type: fixed
-                curve: {shape: percentile, better: higher}
+                curve: {shape: region-ramp, better: higher, log: true, offset: 1}
                 curve_reason: >-
-                  No standard says how many routes are enough, so a hex cell scores
-                  by its rank within the region: the share of hex cells with fewer.
-                  In London's built data the median cell has 3 routes within the
+                  No standard says how many routes are enough, so the ends of
+                  the ramp come from the region's own counts (D25), on the log
+                  of the count plus one, so that the first routes count most. In
+                  London's built data the median cell has 3 routes within the
                   walk, the 95th percentile 14 and Soho 47.
                 evidence_type: direct
                 comparable_across_regions: false
@@ -343,11 +352,12 @@ factors:
             status: built
             unit: night routes and lines
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher, log: true, offset: 1}
             curve_reason: >-
-              No standard says how many night services are enough, so a hex cell
-              scores by its rank within the region: the share of hex cells with
-              fewer. The counts are small and skewed, so many cells tie.
+              No standard says how many night services are enough, so the ends
+              of the ramp come from the region's own counts (D25): none scores
+              0. The counts are small and skewed, so the score follows the log
+              of the count plus one, and the first service counts most.
             evidence_type: direct
             comparable_across_regions: false
             method: >-
@@ -469,13 +479,15 @@ factors:
             status: built
             unit: cafés
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher, log: true, offset: 1}
             curve_reason: &count-reason >-
-              No standard says how many are enough, so a hex cell scores by its
-              rank within the region: the share of hex cells with fewer. Spike
-              S6 counted cafés and restaurants within 800 m of London's homes.
-              The counts are too skewed for a ramp: the median home has 11
+              No standard says how many are enough, so the ends of the ramp come
+              from the region's own counts (D25): none scores 0, and the top end
+              leaves out the few busiest cells. Spike S6 counted cafés and
+              restaurants within 800 m of London's homes: the median home has 11
               cafés and 35 restaurants, and the 95th percentile has 76 and 194.
+              The counts are skewed, so the score follows the log of the count
+              plus one: the first few count most.
             evidence_type: direct
             comparable_across_regions: true
             method: &count-method >-
@@ -529,7 +541,7 @@ factors:
             status: built
             unit: restaurants
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher, log: true, offset: 1}
             curve_reason: *count-reason
             evidence_type: direct
             comparable_across_regions: true
@@ -543,13 +555,14 @@ factors:
             status: built
             unit: cuisines
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher, log: true, offset: 1}
             curve_reason: >-
-              No standard says how many cuisines are enough, so a hex cell
-              scores by its rank within the region: the share of hex cells with
-              fewer. Spike S8 counted them within 800 m of London's homes: from
-              Overture's categories the median is 12, and the 5th to 95th
-              percentile runs from 2 to 41.
+              No standard says how many cuisines are enough, so the ends of the
+              ramp come from the region's own counts (D25), on the log of the
+              count plus one, so that the first few cuisines count most. Spike
+              S8 counted them within 800 m of London's homes: from Overture's
+              categories the median is 12, and the 5th to 95th percentile runs
+              from 2 to 41.
             evidence_type: indirect
             comparable_across_regions: true
             method: >-
@@ -860,11 +873,11 @@ factors:
         status: built
         unit: "% water within 900 m"
         preference_type: fixed
-        curve: {shape: percentile, better: higher}
+        curve: {shape: region-ramp, better: higher}
         curve_reason: >-
-          No standard says how much water should be near a home, so a hex cell
-          scores by its rank within the region. Most cells have none, so many
-          cells tie at zero.
+          No standard says how much water should be near a home, so the ends of
+          the ramp come from the region's own values (D25), on a straight scale:
+          none scores 0. Most cells have none.
         evidence_type: estimate
         comparable_across_regions: true
         method: >-
@@ -976,11 +989,14 @@ factors:
             status: built
             unit: crimes a year per 1,000 residents
             preference_type: fixed
-            curve: {shape: percentile, better: lower}
+            curve: {shape: region-ramp, better: lower, log: true}
             curve_reason: &crime-curve-reason >-
               No standard sets a safe level of crime, and countries record crime
-              differently, so a hex cell scores by its rank within the region:
-              the share of hex cells with a higher rate.
+              differently, so the ends of the ramp come from the region's own
+              rates (D25): the highest scores 0 and the lowest 1, leaving out
+              the most extreme hex cells. In between, the score follows the rate
+              on a log scale, so half the rate is always the same step better. A
+              rank would hide how far apart the rates are.
             evidence_type: direct
             comparable_across_regions: false
             method: &crime-method >-
@@ -1007,7 +1023,7 @@ factors:
             status: built
             unit: crimes a year per 1,000 residents and workers
             preference_type: fixed
-            curve: {shape: percentile, better: lower}
+            curve: {shape: region-ramp, better: lower, log: true}
             curve_reason: *crime-curve-reason
             evidence_type: direct
             comparable_across_regions: false
@@ -1038,7 +1054,7 @@ factors:
             status: built
             unit: crimes a year per 1,000 residents and workers
             preference_type: fixed
-            curve: {shape: percentile, better: lower}
+            curve: {shape: region-ramp, better: lower, log: true}
             curve_reason: *crime-curve-reason
             evidence_type: direct
             comparable_across_regions: false
@@ -1051,7 +1067,7 @@ factors:
             status: built
             unit: crimes a year per 1,000 residents
             preference_type: fixed
-            curve: {shape: percentile, better: lower}
+            curve: {shape: region-ramp, better: lower, log: true}
             curve_reason: *crime-curve-reason
             evidence_type: direct
             comparable_across_regions: false
@@ -1064,7 +1080,7 @@ factors:
             status: built
             unit: incidents a year per 1,000 residents and workers
             preference_type: fixed
-            curve: {shape: percentile, better: lower}
+            curve: {shape: region-ramp, better: lower, log: true}
             curve_reason: *crime-curve-reason
             evidence_type: direct
             comparable_across_regions: false
@@ -1086,11 +1102,11 @@ factors:
         status: built
         unit: fatal or serious collisions a year per 1,000 residents and workers
         preference_type: fixed
-        curve: {shape: percentile, better: lower}
+        curve: {shape: region-ramp, better: lower, log: true}
         curve_reason: >-
           No standard sets a safe number of collisions, and countries record
-          them differently, so a hex cell scores by its rank within the region:
-          the share of hex cells with a higher rate.
+          them differently, so the ends of the ramp come from the region's own
+          rates (D25), on a log scale, as for crime.
         evidence_type: direct
         comparable_across_regions: false
         method: >-
@@ -1188,20 +1204,20 @@ factors:
         status: built
         unit: km in a straight line
         preference_type: fixed
-        curve: {shape: percentile, better: lower}
+        curve: {shape: region-ramp, better: lower}
         curve_reason: >-
           No standard sets a distance. Nicholl and colleagues (Emergency
           Medicine Journal, 2007, volume 24, pages 665 to 668) followed 10,315
           emergency patients taken to hospital by four English ambulance
           services, and found that each extra 10 km of straight-line distance
-          went with about a 1% higher absolute risk of death, with no
-          threshold. Their data are from 1997 to 2001, and the Patients
-          Association has criticised the design. A ramp needs a distance at
-          which the score is 0, and none has a source, so a hex cell scores by
-          its rank within the region: the share of hex cells that are farther.
-          London's cells are 0.05 to 11.9 km from a department (median 3.5 km,
-          95th percentile 7.5 km), so the differences are small beside the
-          study's 10 km, and the rank shows them as a ranking, not as a risk.
+          went with about a 1% higher absolute risk of death, with no threshold.
+          Their data are from 1997 to 2001, and the Patients Association has
+          criticised the design. A fixed ramp needs a distance at which the
+          score is 0, and none has a source, so the ends come from the region's
+          own distances (D25), on a straight scale, as the study's risk rises in
+          a straight line. London's cells are 0.05 to 11.9 km from a department
+          (median 3.5 km, 95th percentile 7.5 km), so the differences are small
+          beside the study's 10 km.
         evidence_type: direct
         comparable_across_regions: true
         method: >-
@@ -1226,12 +1242,13 @@ factors:
         status: built
         unit: "% within 4 hours"
         preference_type: fixed
-        curve: {shape: percentile, better: higher}
+        curve: {shape: ramp, t0: 35, t1: 95}
         curve_reason: >-
-          The NHS Constitution's standard is 95% within four hours, but no
-          London trust reaches it, so a ramp from it would score every cell at
-          the bottom. A hex cell scores by its rank within the region instead:
-          the share of hex cells whose nearest A&E does worse.
+          The NHS Constitution's standard is 95% within four hours, and it
+          scores 1. No trust in England reached it from April to October 2026:
+          the lowest had 36%, the median 61% and the highest 91%. So the ramp
+          falls to 0 at 35%, just below the lowest, and its ends are fixed, so
+          that the score compares across regions (D25).
         evidence_type: indirect
         comparable_across_regions: true
         method: >-
@@ -1255,12 +1272,13 @@ factors:
         status: built
         unit: minutes on foot
         preference_type: fixed
-        curve: {shape: percentile, better: lower}
+        curve: {shape: region-ramp, better: lower}
         curve_reason: >-
           No source says how far from a dentist is too far, and people travel
           further to a dentist than to a GP, so the 15-minute ramp of the walk
-          to a GP does not carry over. A hex cell scores by its rank within the
-          region: the share of cells that are further from a practice.
+          to a GP does not carry over. The ends of the ramp come from the
+          region's own walks (D25), on a straight scale: each minute counts the
+          same.
         evidence_type: indirect
         comparable_across_regions: false
         method: >-
@@ -1331,16 +1349,16 @@ factors:
             status: built
             unit: "% of nearby schools"
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: ramp, t0: 0, t1: 100}
             curve_reason: >-
-              No standard says what share of schools should meet the standard,
-              and nearly all of London's do (the median cell has 100%, and the
-              5th percentile 80%), so a hex cell scores by its rank within the
-              region, and the cells that have every nearby school meeting the
-              standard tie. Ofsted says that the grades of its new report cards
-              do not compare directly with earlier ones, so what meets the
-              standard is a rule of this project (below), to be revisited once
-              report cards cover most schools.
+              The share of nearby schools that meet the standard has natural
+              ends (D25): none scores 0 and all of them 1, as food hygiene's
+              share does. Nearly all of London's schools meet it (the median
+              cell has 100%, and the 5th percentile 80%), so most cells score
+              near the top, which is the true picture. Ofsted says that the
+              grades of its new report cards do not compare directly with
+              earlier ones, so what meets the standard is a rule of this project
+              (below), to be revisited once report cards cover most schools.
             evidence_type: direct
             comparable_across_regions: false
             method: >-
@@ -1394,12 +1412,12 @@ factors:
         status: built
         unit: Attainment 8 points
         preference_type: fixed
-        curve: {shape: percentile, better: higher}
+        curve: {shape: region-ramp, better: higher}
         curve_reason: >-
           No standard sets a good average for the schools of an area, and a
-          school's score follows its intake as much as its teaching, so a hex
-          cell scores by its rank within the region: the share of hex cells
-          whose schools do worse.
+          school's score follows its intake as much as its teaching, so the ends
+          of the ramp come from the region's own values (D25), on a straight
+          scale: each Attainment 8 point counts the same.
         evidence_type: indirect
         comparable_across_regions: false
         method: >-
@@ -1444,12 +1462,13 @@ factors:
             status: built
             unit: "% of residents"
             preference_type: user-choice
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher}
             curve_reason: >-
-              No standard sets how present a group should be, so a hex cell
-              scores by its rank within the region by the share of residents in
-              the chosen group. Only presence scores: the direction is fixed, so
-              a group's absence never adds to a score (D08).
+              No standard sets how present a group should be, so the ends of the
+              ramp come from the region's own shares of the chosen group (D25),
+              each group its own, on a straight scale. Only presence scores: the
+              direction is fixed, so a group's absence never adds to a score
+              (D08).
             evidence_type: direct
             comparable_across_regions: false
             method: >-
@@ -1474,12 +1493,12 @@ factors:
             status: built
             unit: diversity index, from 0 to 1
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher}
             curve_reason: >-
-              No standard sets a level of diversity, so a hex cell scores by its
-              rank within the region. The direction is fixed, because D08 frames
-              composition as the presence of a chosen group and as diversity,
-              never as fewer of any group.
+              No standard sets a level of diversity, so the ends of the ramp
+              come from the region's own values (D25), on a straight scale. The
+              direction is fixed, because D08 frames composition as the presence
+              of a chosen group and as diversity, never as fewer of any group.
             evidence_type: direct
             comparable_across_regions: false
             method: >-
@@ -1549,13 +1568,16 @@ factors:
             status: built
             unit: venues
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher, log: true, offset: 1}
             curve_reason: >-
-              No standard says how many are enough, so a hex cell scores by its rank
-              within the region. These venues are few and cluster, so the walk is 30
-              minutes (2.4 km at 4.8 km/h), the distance people go for a particular
-              place, not the everyday one. Only presence scores, and the absence of
-              a venue does not lower the score of any group (D08).
+              No standard says how many are enough, so the ends of the ramp come
+              from the region's own counts (D25): none scores 0, and the score
+              follows the log of the count plus one, so that the first venue
+              counts most. These venues are few and cluster, so the walk is 30
+              minutes (2.4 km at 4.8 km/h), the distance people go for a
+              particular place, not the everyday one. Only presence scores, and
+              the absence of a venue does not lower the score of any group
+              (D08).
             evidence_type: indirect
             comparable_across_regions: true
             method: >-
@@ -1574,12 +1596,13 @@ factors:
             status: built
             unit: "% of residents"
             preference_type: user-direction
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher}
             curve_reason: >-
               No standard sets how often people should move, and some users want
-              a settled neighbourhood while others want one with newcomers, so a
-              hex cell scores by its rank within the region and the user can flip
-              the direction. It starts with more settled as better.
+              a settled neighbourhood while others want one with newcomers, so
+              the ends of the ramp come from the region's own shares (D25), on a
+              straight scale, and the user can flip the direction. It starts
+              with more settled as better.
             evidence_type: indirect
             comparable_across_regions: false
             method: >-
@@ -1616,11 +1639,12 @@ factors:
             status: built
             unit: venues
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher, log: true, offset: 1}
             curve_reason: >-
-              No standard says how many are enough, so a hex cell scores by its rank
-              within the region: the share of hex cells with fewer. The counts are
-              too skewed for a ramp.
+              No standard says how many are enough, so the ends of the ramp come
+              from the region's own counts (D25): none scores 0. The counts are
+              skewed, so the score follows the log of the count plus one: the
+              first few count most.
             evidence_type: direct
             comparable_across_regions: true
             method: >-
@@ -1645,11 +1669,12 @@ factors:
             status: built
             unit: listed buildings
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher, log: true, offset: 1}
             curve_reason: >-
-              No standard says how many listed buildings are enough, so a hex
-              cell scores by its rank within the region: the share of hex cells
-              with fewer. The counts are too skewed for a ramp.
+              No standard says how many listed buildings are enough, so the ends
+              of the ramp come from the region's own counts (D25): none scores
+              0. The counts are skewed, so the score follows the log of the
+              count plus one: the first few count most.
             evidence_type: direct
             comparable_across_regions: false
             method: >-
@@ -1670,12 +1695,14 @@ factors:
             status: built
             unit: "% of the area"
             preference_type: user-direction
-            curve: {shape: percentile, better: higher}
+            curve: {shape: ramp, t0: 0, t1: 100}
             curve_reason: >-
               No standard says how much conservation area is right. Some users
               want the protected character of one, and others the freedom to
-              change a home, so a hex cell scores by its rank within the region
-              and the user can flip the direction. It starts with more as better.
+              change a home, so the user can flip the direction. The share of
+              the area has natural ends (D25): none scores 0, and a cell wholly
+              inside a conservation area scores 1. It starts with more as
+              better.
             evidence_type: direct
             comparable_across_regions: false
             method: >-
@@ -1693,12 +1720,12 @@ factors:
         status: built
         unit: venues
         preference_type: user-direction
-        curve: {shape: percentile, better: higher}
+        curve: {shape: region-ramp, better: higher, log: true, offset: 1}
         curve_reason: >-
           No standard says how much nightlife is right, and some users want it
-          close while others want quiet, so a hex cell scores by its rank within
-          the region and the user can flip the direction. It starts with more as
-          better.
+          close while others want quiet, so the ends of the ramp come from the
+          region's own counts (D25), on the log of the count plus one, and the
+          user can flip the direction. It starts with more as better.
         evidence_type: direct
         comparable_across_regions: true
         method: >-
@@ -1780,11 +1807,11 @@ factors:
             status: built
             unit: "% of the land within 800 m"
             preference_type: fixed
-            curve: {shape: percentile, better: higher}
+            curve: {shape: region-ramp, better: higher}
             curve_reason: >-
-              No standard says how much nature should be near a home, so a hex
-              cell scores by its rank within the region: the share of hex cells
-              with less. Most cells have none, so many cells tie at zero.
+              No standard says how much nature should be near a home, so the
+              ends of the ramp come from the region's own values (D25), on a
+              straight scale: none scores 0. Most cells have none.
             evidence_type: indirect
             comparable_across_regions: false
             method: >-
@@ -1816,12 +1843,13 @@ factors:
         status: built
         unit: jobs per km²
         preference_type: user-direction
-        curve: {shape: percentile, better: higher}
+        curve: {shape: region-ramp, better: higher, log: true}
         curve_reason: >-
           No standard says how many jobs a place should have, and some users
-          want work close while others want a quiet residential street, so a hex
-          cell scores by its rank within the region and the user can flip the
-          direction. It starts with more as better.
+          want work close while others want a quiet residential street, so the
+          ends of the ramp come from the region's own densities (D25), on a log
+          scale, and the user can flip the direction. It starts with more as
+          better.
         evidence_type: direct
         comparable_across_regions: true
         method: >-
@@ -1841,11 +1869,12 @@ factors:
         status: built
         unit: spaces
         preference_type: fixed
-        curve: {shape: percentile, better: higher}
+        curve: {shape: region-ramp, better: higher, log: true, offset: 1}
         curve_reason: >-
-          No standard says how many are enough, so a hex cell scores by its rank
-          within the region: the share of hex cells with fewer. The counts are
-          too skewed for a ramp.
+          No standard says how many are enough, so the ends of the ramp come
+          from the region's own counts (D25): none scores 0. The counts are
+          skewed, so the score follows the log of the count plus one: the first
+          few count most.
         evidence_type: direct
         comparable_across_regions: true
         method: >-
@@ -1865,11 +1894,12 @@ factors:
         status: built
         unit: jobs per km²
         preference_type: user-choice
-        curve: {shape: percentile, better: higher}
+        curve: {shape: region-ramp, better: higher, log: true, offset: 1}
         curve_reason: >-
           No standard says how many jobs of an industry should be near a home,
-          and the counts are too skewed for a ramp, so a hex cell scores by its
-          rank within the region: the share of hex cells with fewer. The
+          so the ends of the ramp come from the region's own densities of each
+          industry (D25), each its own. The densities are skewed and many cells
+          have none, so the score follows the log of the density plus one. The
           direction is fixed, and a user who picks several industries gets the
           best of them.
         evidence_type: direct
@@ -1962,13 +1992,13 @@ factors:
         status: built
         unit: residents per km²
         preference_type: user-direction
-        curve: {shape: percentile, better: lower}
+        curve: {shape: region-ramp, better: lower, log: true}
         curve_reason: >-
           No standard sets the right density, and some users want a busy area
-          while others want space and quiet, so a hex cell scores by its rank
-          within the region and the user can flip the direction. It starts with
-          fewer people as better, because the measures of nightlife and job
-          density already reward a busy area.
+          while others want space and quiet, so the ends of the ramp come from
+          the region's own densities (D25), on a log scale, and the user can
+          flip the direction. It starts with fewer people as better, because the
+          measures of nightlife and job density already reward a busy area.
         evidence_type: direct
         comparable_across_regions: false
         method: >-
@@ -2083,11 +2113,14 @@ factors:
         status: built
         unit: score from 0 to 10
         preference_type: fixed
-        curve: {shape: percentile, better: higher}
+        curve: {shape: ramp, t0: 7, t1: 8.2}
         curve_reason: >-
-          No standard sets a good score for an area, and boroughs differ by tenths
-          of a point inside wide intervals, so a hex cell scores by its rank
-          within the region: the share of hex cells whose borough scores lower.
+          No standard sets a good score for an area, but the ONS asks the same
+          question across the UK, so the ramp runs over the UK's spread of
+          local-authority means in the latest three years: from 7.0 (the lowest
+          was 7.06) to 8.2 (the highest was 8.17). Boroughs differ by tenths of
+          a point inside wide intervals, and on this fixed scale such a
+          difference stays small (D25).
         evidence_type: perception
         comparable_across_regions: false
         method: >-
@@ -2109,11 +2142,11 @@ factors:
         status: built
         unit: years
         preference_type: fixed
-        curve: {shape: percentile, better: higher}
+        curve: {shape: region-ramp, better: higher}
         curve_reason: >-
-          No standard sets how many years of good health an area should give,
-          so a hex cell scores by its rank within the region: the share of hex
-          cells with fewer.
+          No standard sets how many years of good health an area should give, so
+          the ends of the ramp come from the region's own values (D25), on a
+          straight scale: each year counts the same.
         evidence_type: estimate
         comparable_across_regions: false
         method: >-

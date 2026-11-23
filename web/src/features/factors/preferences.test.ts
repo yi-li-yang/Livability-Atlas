@@ -24,10 +24,20 @@ const indicator = (
 });
 
 const nightlife = indicator("nightlife", {
-  shape: "percentile",
-  better: "higher",
+  shape: "ramp",
+  t0: 0,
+  t1: 115,
+  log: true,
+  offset: 1,
+  from_region: true,
 });
-const density = indicator("density", { shape: "percentile", better: "lower" });
+const density = indicator("density", {
+  shape: "ramp",
+  t0: 17650,
+  t1: 461,
+  log: true,
+  from_region: true,
+});
 const age = indicator(
   "building-age",
   { shape: "ideal-range", l0: 1800, l1: 1850, u1: 2020, u0: 2030 },

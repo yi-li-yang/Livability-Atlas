@@ -580,3 +580,100 @@ def test_the_travel_files_must_fit_the_cells_and_stations(catalogue, tmp_path):
             tmp_path,
             Travel(stations, [(2, 0, 1.0), (0, 0, 1.0)], np.zeros((1, 1), dtype=np.uint16)),
         )
+
+
+# --- region ramps (D25) ---
+
+FOUR_CELLS = ["891fa5a0003ffff", "891fa5a0007ffff", "891fa5a000bffff", "891fa5a000fffff"]
+
+
+def test_the_manifest_is_in_format_2_since_the_percentile_went(catalogue, tmp_path):
+    # D25: no percentile curve, and an option of a choice may carry its own curve.
+    manifest = json.loads(
+        (build(catalogue, tmp_path) / "manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["format_version"] == 2
+
+
+def test_a_region_ramp_is_written_as_a_ramp_with_the_regions_ends(catalogue, tmp_path):
+    # The fourth cell has too few homes to count, so its rent sets no end.
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=FOUR_CELLS,
+        columns={"renting-cost": [1540.0, 3739.0, 2000.0, 9999.0]},
+        homes=Homes(of_cell=[100, 100, 100, 3], minimum=10, datasets=[]),
+        out_dir=tmp_path,
+    )
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    [rent] = manifest.indicators
+    assert rent.curve is not None and rent.curve.shape == "ramp"
+    assert (rent.curve.t0, rent.curve.t1, rent.curve.log, rent.curve.from_region) == (
+        3739,
+        1540,
+        True,
+        True,
+    )
+
+
+def test_a_region_ramp_with_one_value_has_no_curve(catalogue, tmp_path):
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"renting-cost": [2000.0, 2000.0, None]},
+        out_dir=tmp_path,
+    )
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    [rent] = manifest.indicators
+    assert rent.curve is None
+
+
+def test_each_option_of_a_region_ramp_choice_has_its_own_ends(catalogue, tmp_path):
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={},
+        choices={
+            "your-community": [
+                Choice("polish", "Polish", None, [0.0, 2.0, 10.0]),
+                Choice("irish", "Irish", None, [1.0, 3.0, 4.0]),
+            ]
+        },
+        out_dir=tmp_path,
+    )
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    [community] = manifest.indicators
+    assert community.curve is None
+    assert community.options is not None
+    ends = {
+        o.id: (o.curve.t0, o.curve.t1)
+        for o in community.options
+        if o.curve is not None and o.curve.shape == "ramp"
+    }
+    assert ends == {"polish": (0, 10), "irish": (1, 4)}
+
+
+def test_a_fixed_curve_is_written_as_the_catalogue_gives_it(catalogue, tmp_path):
+    bundle = build_with_choices(catalogue, tmp_path)
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    faith = next(i for i in manifest.indicators if i.id == "faith")
+    assert faith.curve is not None and faith.curve.shape == "ramp"
+    assert faith.curve.from_region is None
+    assert faith.options is not None and all(o.curve is None for o in faith.options)
+
+
+def test_a_choice_with_a_fixed_curve_is_written_with_homes_too(catalogue, tmp_path):
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"service-level": ["6b", "2", None]},
+        choices=choices(),
+        homes=homes(),
+        out_dir=tmp_path,
+    )
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    faith = next(i for i in manifest.indicators if i.id == "faith")
+    assert faith.curve is not None and faith.curve.shape == "ramp"

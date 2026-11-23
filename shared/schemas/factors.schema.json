@@ -137,8 +137,8 @@
                 "mapping": {
                   "ideal-range": "#/$defs/IdealRange",
                   "lookup": "#/$defs/Lookup",
-                  "percentile": "#/$defs/Percentile",
-                  "ramp": "#/$defs/Ramp"
+                  "ramp": "#/$defs/Ramp",
+                  "region-ramp": "#/$defs/RegionRamp"
                 },
                 "propertyName": "shape"
               },
@@ -153,7 +153,7 @@
                   "$ref": "#/$defs/Lookup"
                 },
                 {
-                  "$ref": "#/$defs/Percentile"
+                  "$ref": "#/$defs/RegionRamp"
                 }
               ]
             },
@@ -308,32 +308,9 @@
       "title": "Lookup",
       "type": "object"
     },
-    "Percentile": {
-      "additionalProperties": false,
-      "properties": {
-        "shape": {
-          "const": "percentile",
-          "title": "Shape",
-          "type": "string"
-        },
-        "better": {
-          "enum": [
-            "higher",
-            "lower"
-          ],
-          "title": "Better",
-          "type": "string"
-        }
-      },
-      "required": [
-        "shape",
-        "better"
-      ],
-      "title": "Percentile",
-      "type": "object"
-    },
     "Ramp": {
       "additionalProperties": false,
+      "description": "A rise or a fall between two stated values: 0 at t0 and 1 at t1. With `log`, the score\nfollows ln(value + offset) between the two, so each step of the same percentage counts the\nsame; an offset of 1 suits a count, where none and one are a step apart.",
       "properties": {
         "shape": {
           "const": "ramp",
@@ -347,6 +324,30 @@
         "t1": {
           "title": "T1",
           "type": "number"
+        },
+        "log": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Log"
+        },
+        "offset": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset"
         }
       },
       "required": [
@@ -355,6 +356,56 @@
         "t1"
       ],
       "title": "Ramp",
+      "type": "object"
+    },
+    "RegionRamp": {
+      "additionalProperties": false,
+      "description": "A ramp whose ends come from the region's own values (D25), for an indicator that no\nstandard gives thresholds. The build works out the ends and writes a plain ramp into the\nbundle, so the app never sees this shape.",
+      "properties": {
+        "shape": {
+          "const": "region-ramp",
+          "title": "Shape",
+          "type": "string"
+        },
+        "better": {
+          "enum": [
+            "higher",
+            "lower"
+          ],
+          "title": "Better",
+          "type": "string"
+        },
+        "log": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Log"
+        },
+        "offset": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset"
+        }
+      },
+      "required": [
+        "shape",
+        "better"
+      ],
+      "title": "RegionRamp",
       "type": "object"
     }
   },

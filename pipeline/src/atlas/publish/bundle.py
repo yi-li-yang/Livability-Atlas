@@ -19,10 +19,12 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from atlas.catalogue.load import Catalogue
-from atlas.catalogue.models import Factor, Preset
+from atlas.catalogue.models import Curve, Factor, Preset, Ramp, RegionRamp
 from atlas.indicators.station_matrix import STREET_FACTOR, UNREACHABLE, WALK_METRES_A_MINUTE
+from atlas.publish.curves import resolve
 from atlas.publish.manifest import (
     Manifest,
+    ManifestCurve,
     ManifestDataset,
     ManifestFactor,
     ManifestHomes,
@@ -31,6 +33,7 @@ from atlas.publish.manifest import (
     ManifestNeighbourhood,
     ManifestOption,
     ManifestPreset,
+    ManifestRamp,
     ManifestRegion,
     ManifestTravel,
 )
@@ -211,6 +214,25 @@ def manifest_presets(
     return out
 
 
+def _bundle_curve(curve: Curve | None, values: Sequence[Any]) -> ManifestCurve | None:
+    """A catalogue curve as the bundle holds it: a region ramp becomes a plain ramp with the ends
+    of these values (D25), and None where they cannot tell cells apart."""
+    if curve is None:
+        return None
+    if isinstance(curve, RegionRamp):
+        return resolve(curve, values)
+    if isinstance(curve, Ramp):
+        return ManifestRamp.model_validate(curve.model_dump(exclude_none=True))
+    return curve
+
+
+def _counted(values: Sequence[Any], homes: Homes | None) -> list[Any]:
+    """The values of the cells that a score describes: those with homes (D22), or all of them."""
+    if homes is None:
+        return list(values)
+    return [v for v, n in zip(values, homes.of_cell, strict=True) if n >= homes.minimum]
+
+
 def _tree_ids(factors: Sequence[ManifestFactor]) -> set[str]:
     return {i for f in factors for i in (f.id, *_tree_ids(f.children or []))}
 
@@ -220,6 +242,7 @@ def _manifest(
     region_id: str,
     cell_count: int,
     indicator_ids: list[str],
+    columns: dict[str, Sequence[Any]],
     choices: dict[str, list[Choice]],
     neighbourhoods: Neighbourhoods | None = None,
     homes: Homes | None = None,
@@ -231,25 +254,39 @@ def _manifest(
         if leaf is None:
             raise KeyError(f"the catalogue has no measured indicator {indicator_id}")
         leaves[indicator_id] = leaf
-    indicators = [
-        ManifestIndicator(
-            id=i,
-            name=leaf.name,
-            column=_column(i),
-            unit=leaf.unit or "",
-            evidence_type=leaf.evidence_type,
-            preference_type=leaf.preference_type,  # type: ignore[arg-type]
-            curve=leaf.curve,
-            datasets=list(leaf.datasets or []),
-            options=[
-                ManifestOption(id=o.id, name=o.name, group=o.group, column=_option_column(i, o.id))
-                for o in choices[i]
-            ]
-            if i in choices
-            else None,
+    indicators = []
+    for i, leaf in leaves.items():
+        # A choice whose curve is a region ramp scores each option against that option's own
+        # values, so each option carries its ends and the indicator carries none.
+        per_option = i in choices and isinstance(leaf.curve, RegionRamp)
+        indicators.append(
+            ManifestIndicator(
+                id=i,
+                name=leaf.name,
+                column=_column(i),
+                unit=leaf.unit or "",
+                evidence_type=leaf.evidence_type,
+                preference_type=leaf.preference_type,  # type: ignore[arg-type]
+                curve=None
+                if per_option
+                else _bundle_curve(leaf.curve, _counted(columns[i], homes) if i in columns else []),
+                datasets=list(leaf.datasets or []),
+                options=[
+                    ManifestOption(
+                        id=o.id,
+                        name=o.name,
+                        group=o.group,
+                        column=_option_column(i, o.id),
+                        curve=_bundle_curve(leaf.curve, _counted(o.values, homes))
+                        if per_option
+                        else None,
+                    )
+                    for o in choices[i]
+                ]
+                if i in choices
+                else None,
+            )
         )
-        for i, leaf in leaves.items()
-    ]
     used = {d for leaf in leaves.values() for d in leaf.datasets or []} | {region.boundary.dataset}
     if neighbourhoods is not None:
         used |= set(neighbourhoods.datasets)
@@ -347,7 +384,14 @@ def write_bundle(
         if len(values) != len(cells):
             raise ValueError(f"{indicator_id} has {len(values)} values for {len(cells)} cells")
     manifest = _manifest(
-        catalogue, region_id, len(cells), [*columns, *choices], choices, neighbourhoods, homes
+        catalogue,
+        region_id,
+        len(cells),
+        [*columns, *choices],
+        columns,
+        choices,
+        neighbourhoods,
+        homes,
     )
 
     table = pa.table(

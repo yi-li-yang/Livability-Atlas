@@ -73,15 +73,13 @@ const indicatorOf = (
   bundle.manifest.indicators.find((i) => i.id === id);
 
 /**
- * The values of a column that a percentile curve compares a cell with: those of the places where
- * people live, since a park or an airport is not a place to compare a home with (D22).
+ * The curve that scores an indicator, or one option of a choice: an option has its own where its
+ * ends come from its own values (a region ramp, D25), and else takes the indicator's.
  */
-function regionValues(bundle: Bundle, column: string): number[] {
-  const few = fewHomes(bundle);
-  return bundle.columns[column]
-    .filter((v, i) => v !== null && !few[i])
-    .map(Number);
-}
+export const curveOf = (
+  indicator: ManifestIndicator,
+  option?: ManifestOption,
+): ManifestIndicator["curve"] => option?.curve ?? indicator.curve ?? null;
 
 /** The options of a choice indicator that the user has picked and the bundle has. */
 function pickedOptions(
@@ -112,7 +110,12 @@ export function leafScores(
   // picked it has no score.
   const out = new Float64Array(bundle.cells.length).fill(Number.NaN);
   for (const option of pickedOptions(indicator, picked)) {
-    const scores = columnScores(bundle, option.column, indicator.curve, false);
+    const scores = columnScores(
+      bundle,
+      option.column,
+      curveOf(indicator, option),
+      false,
+    );
     for (let i = 0; i < out.length; i++) {
       if (Number.isNaN(scores[i])) continue;
       if (Number.isNaN(out[i]) || scores[i] > out[i]) out[i] = scores[i];
@@ -133,53 +136,10 @@ function columnScores(
   if (!curve) return out;
   // A cell with few or no homes has no score (D22).
   const few = fewHomes(bundle);
-
-  // A percentile needs the rank of a value among all of the region's, so sort them once.
-  let sorted: Float64Array | undefined;
-  if (curve.shape === "percentile") {
-    sorted = Float64Array.from(regionValues(bundle, column)).sort();
-  }
-  const below = (x: number): number => {
-    // The number of values < x, by binary search in the ascending array.
-    let lo = 0;
-    let hi = sorted?.length ?? 0;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if ((sorted as Float64Array)[mid] < x) lo = mid + 1;
-      else hi = mid;
-    }
-    return lo;
-  };
-  const notAbove = (x: number): number => {
-    // The number of values <= x.
-    let lo = 0;
-    let hi = sorted?.length ?? 0;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if ((sorted as Float64Array)[mid] <= x) lo = mid + 1;
-      else hi = mid;
-    }
-    return lo;
-  };
-
   for (let i = 0; i < values.length; i++) {
     const value = values[i];
     if (value === null || few[i]) continue;
-    let score: number | null;
-    if (curve.shape === "percentile" && sorted) {
-      const n = sorted.length;
-      if (n === 1) {
-        score = 0.5;
-      } else {
-        const x = Number(value);
-        const lower = below(x);
-        const ties = notAbove(x) - lower;
-        const worse = curve.better === "lower" ? n - lower - ties : lower;
-        score = (worse + 0.5 * (ties - 1)) / (n - 1);
-      }
-    } else {
-      score = curveScore(curve, value);
-    }
+    const score = curveScore(curve, value);
     if (score !== null) out[i] = flipped ? 1 - score : score;
   }
   return out;
@@ -312,9 +272,12 @@ export function bestPickedOption(
 ): { option: ManifestOption; score: number } | null {
   let best: { option: ManifestOption; score: number } | null = null;
   for (const option of pickedOptions(indicator, picked)) {
-    const score = columnScores(bundle, option.column, indicator.curve, false)[
-      cellIndex
-    ];
+    const score = columnScores(
+      bundle,
+      option.column,
+      curveOf(indicator, option),
+      false,
+    )[cellIndex];
     if (!Number.isNaN(score) && (best === null || score > best.score)) {
       best = { option, score };
     }
@@ -348,12 +311,8 @@ export function scoreCaseFor(
     return {
       id: factor.id,
       weight,
-      curve: indicator.curve ?? undefined,
+      curve: curveOf(indicator, best?.option) ?? undefined,
       value: best ? valueAt(best.option.column) : null,
-      region_values:
-        best && indicator.curve?.shape === "percentile"
-          ? regionValues(bundle, best.option.column)
-          : undefined,
     };
   };
   const build = (factor: ManifestFactor): ScoreNode => {
@@ -369,10 +328,6 @@ export function scoreCaseFor(
       weight,
       curve: indicator?.curve ?? undefined,
       value: indicator ? valueAt(indicator.column) : null,
-      region_values:
-        indicator?.curve?.shape === "percentile"
-          ? regionValues(bundle, indicator.column)
-          : undefined,
       flipped: indicator ? flipped.has(indicator.id) : false,
       band: indicator ? bandFor(indicator, profile.ranges) : undefined,
     };
