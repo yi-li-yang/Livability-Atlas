@@ -10,6 +10,8 @@ export type CellCount = number;
 export type Id1 = string;
 export type Name1 = string;
 export type DefaultWeight = number;
+export type StartsCounted = boolean | null;
+export type StartWeight = number | null;
 export type Children = ManifestFactor[] | null;
 export type Indicator = string | null;
 export type Factors = ManifestFactor[];
@@ -106,6 +108,8 @@ export interface ManifestFactor {
   id: Id1;
   name: Name1;
   default_weight: DefaultWeight;
+  starts_counted?: StartsCounted;
+  start_weight?: StartWeight;
   children?: Children;
   indicator?: Indicator;
 }

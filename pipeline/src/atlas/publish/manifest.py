@@ -81,7 +81,13 @@ class ManifestFactor(_Model):
 
     id: str
     name: str
+    # The weight it takes when the user counts it (D14).
     default_weight: int = Field(ge=0, le=5)
+    # One of the few essentials that count when a user starts, with everything inside it.
+    starts_counted: bool | None = None
+    # Its weight when the user has not set one, where that is not `default_weight`: 0 on the top
+    # factor of a branch that holds no essential, so that it starts at "Not counted".
+    start_weight: int | None = Field(default=None, ge=0, le=5)
     children: list["ManifestFactor"] | None = None
     indicator: str | None = None  # the id of the measured indicator, on a leaf
 

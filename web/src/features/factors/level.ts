@@ -30,6 +30,11 @@ export interface Level {
   counted: FactorView[];
   /** The factors at weight 0, which the drawing leaves out. */
   notCounted: FactorView[];
+  /**
+   * The outermost factor opened to reach this level that is at weight 0, such as a branch that
+   * starts at "Not counted" (D14): nothing at this level changes the score until it counts.
+   */
+  uncounted: ManifestFactor | null;
 }
 
 const kidsOf = (factor: ManifestFactor): ManifestFactor[] =>
@@ -81,6 +86,9 @@ export function levelAt(
     trail,
     counted: views.filter((v) => v.effectiveWeight > 0),
     notCounted: views.filter((v) => v.effectiveWeight === 0),
+    uncounted:
+      trail.find((step) => weightIn(profile, step.factor) === 0)?.factor ??
+      null,
   };
 }
 
@@ -129,18 +137,35 @@ export function withChoice(
 }
 
 /**
- * The profile with a factor counted again: the weights set inside it are cleared, so that it and
- * everything in it return to their default weights, and a factor whose default is 0 gets 1.
+ * The profile with a factor counted, from "Not counted": the weights set inside it are cleared, so
+ * that what is inside it takes its start weights, and the factor itself takes its default weight,
+ * or that of a first pick where its default is 0. A choice picked inside it keeps counting, with
+ * the factors that lead to it.
  */
-export function countAgain(profile: Profile, factor: ManifestFactor): Profile {
+export function countFactor(profile: Profile, factor: ManifestFactor): Profile {
   const weights = { ...profile.weights };
-  const clear = (f: ManifestFactor): void => {
+  const paths: ManifestFactor[][] = [];
+  const clear = (f: ManifestFactor, path: ManifestFactor[]): void => {
     delete weights[f.id];
-    for (const kid of kidsOf(f)) clear(kid);
+    if ((profile.choices?.[f.id]?.length ?? 0) > 0) paths.push([...path, f]);
+    for (const kid of kidsOf(f)) clear(kid, [...path, f]);
   };
-  clear(factor);
-  const restored: Profile = { ...profile, weights };
-  return effectiveWeight(factor, restored) > 0
-    ? restored
-    : withWeight(restored, factor.id, 1);
+  clear(factor, []);
+  // A weight the user set on the factor itself stays: it was not counted only because all that is
+  // inside it was at 0.
+  const own = profile.weights[factor.id] ?? 0;
+  weights[factor.id] =
+    own > 0
+      ? own
+      : factor.default_weight > 0
+        ? factor.default_weight
+        : CHOSEN_WEIGHT;
+  for (const path of paths) {
+    for (const f of path) {
+      if (weightIn({ ...profile, weights }, f) > 0) continue;
+      const before = profile.weights[f.id] ?? 0;
+      weights[f.id] = before > 0 ? before : CHOSEN_WEIGHT;
+    }
+  }
+  return { ...profile, weights };
 }

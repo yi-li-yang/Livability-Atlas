@@ -44,11 +44,13 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Sub-factor | A part of a factor, opened from it. It can split again | Air quality, inside Environment |
 | Measured indicator | The bottom of the factor tree: one number per hex cell, taken from a dataset | Annual mean NO₂ in µg/m³ |
 | Weight | How much a factor matters to the user, from 0 (ignore) to 5 (crucial) | |
-| Default weight | The starting weight, set from evidence of what people value. Users change it | |
+| Default weight | The weight a factor takes when it counts and the user has not moved it. Users change it | 3 for most factors |
 | Share of total weight | How much of the user's total weight one factor carries. Each factor's share splits among its sub-factors by their weights, and the factor tree draws it as area | Weights of 4, 4 and 2 give shares of 40%, 40% and 20% |
 | Show on the map | A list in the legend that colours the map by one factor's or one measured indicator's own score instead of the livability score, to see where one thing is good or bad. The ranking does not change | Safety only |
 | Boxes, Rings | The two ways the factor tree is drawn, which the user switches between. Boxes are nested rectangles, one for each factor. Rings are an inner ring of factors with their sub-factors in a ring round it. Either way the size is the factor's share of total weight | The "Boxes" and "Rings" buttons above the factor tree |
-| Not counted | A factor at weight 0, or whose sub-factors are all at weight 0. The factor tree leaves it out of the drawing and lists it apart, from where the user can count it again | Climate, when its weight is 0 |
+| Not counted | A factor at weight 0, or whose sub-factors are all at weight 0. The factor tree leaves it out of the drawing and lists it apart, where "Count" brings it in. At the start, every factor but the essentials is not counted | Education, at the start |
+| A few essentials | The start: only a few factors count, and the user counts what else matters to them (D14). The first choice in "Start from" | Renting cost, a station, your places, Safety, green space and groceries |
+| Everything, equally | The choice in "Start from" that counts every factor at its default weight | |
 | Scoring curve | The rule that turns a measured value into a score from 0 (worst) to 1 (best) | PM2.5: 5 µg/m³ scores 1, and 25 µg/m³ scores 0 |
 | Ideal range | A band of values the user likes best. The score falls away on both sides | Summer temperature 20–26 °C |
 | Full marks from … to … | The words over an ideal range's two sliders, "From" and "To": the values between them score in full | Building age: full marks from 1890 to 1930 |

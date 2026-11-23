@@ -21,6 +21,8 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | A switch for the direction of each user-direction indicator, and a band for each user-range indicator | shipped: "More is better" and "Less is better", and "Full marks from … to …" |
 | Scores coloured by how good they are, so that a factor named for a bad thing (Crime, Noise) reads plainly | shipped: one red → yellow → blue-green scale on the map, the legend and the bars |
 | Scoring curves that users can edit | idea |
+| Start with a few essentials, and "Everything, equally" in Start from ([spec](specs/2026-11-23-start-with-essentials.md), D14) | shipped |
+| A "pick your top few" step for a first visit, from the full list (Bond, Carlson and Keeney 2008; Netzer and Srinivasan 2011), if the essentials start leaves people with flat weights | idea |
 | Score by the amount, never by rank: a region ramp, a log scale, no percentile curve ([spec](specs/2026-11-23-score-by-the-amount.md), D25) | shipped |
 | The values at the ends of the legend, and the value of a hex cell in the quick look, when the map shows one measured indicator | shipped (with D25) |
 | Move an indicator with a national scale from a region ramp to a fixed ramp, so its score compares across regions (school league tables, years of good health), once a second region needs it | idea |

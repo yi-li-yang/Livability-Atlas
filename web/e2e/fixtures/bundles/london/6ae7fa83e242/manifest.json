@@ -1,6 +1,6 @@
 {
   "format_version": 2,
-  "version": "3107fb8ff374",
+  "version": "6ae7fa83e242",
   "region": {
     "id": "london",
     "name": "London"
@@ -25,12 +25,14 @@
               "id": "station-proximity",
               "name": "Walk to the nearest station",
               "default_weight": 3,
+              "starts_counted": true,
               "indicator": "station-proximity"
             },
             {
               "id": "service-level",
               "name": "Service level",
               "default_weight": 3,
+              "start_weight": 0,
               "indicator": "service-level"
             }
           ]
@@ -39,6 +41,7 @@
           "id": "travel-time-to-places",
           "name": "Travel time to places",
           "default_weight": 3,
+          "starts_counted": true,
           "indicator": "travel-time-to-places"
         }
       ]
@@ -57,6 +60,7 @@
               "id": "walk-to-green-space",
               "name": "Walk to a green space",
               "default_weight": 3,
+              "starts_counted": true,
               "indicator": "walk-to-green-space"
             }
           ]
@@ -67,6 +71,7 @@
       "id": "safety",
       "name": "Safety",
       "default_weight": 3,
+      "starts_counted": true,
       "children": [
         {
           "id": "crime",
@@ -111,6 +116,7 @@
       "id": "health-care",
       "name": "Health care",
       "default_weight": 3,
+      "start_weight": 0,
       "children": [
         {
           "id": "gp-access",
@@ -131,6 +137,7 @@
       "id": "community-and-people",
       "name": "Community and people",
       "default_weight": 3,
+      "start_weight": 0,
       "children": [
         {
           "id": "community-composition",

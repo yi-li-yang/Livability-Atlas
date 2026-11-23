@@ -10,6 +10,10 @@ const CATEGORY = /^[a-z0-9][a-z0-9-]*$/i;
 /** A number for the link: a link reads "+" as a space, so "2e+21" is written "2e21". */
 const linkNumber = (x: number): string => String(x).replace("e+", "e");
 const MAX_WEIGHT = 5;
+/** The version of the text: 2 since the start became a few essentials (D14). */
+const VERSION = "v=2";
+/** The parts that text can carry, besides its version. */
+const PARTS = ["w", "f", "l", "r", "m", "c", "s"];
 
 /** A limit as `indicator:kind:value`, a list of categories joined by dots. */
 function encodeLimit(limit: Limit): string {
@@ -73,7 +77,10 @@ export function encodeProfile(profile: Profile): string {
     );
   }
   if (profile.mode === "balanced") parts.push("m=balanced");
-  return parts.join("&");
+  if (profile.everything) parts.push("s=all");
+  // v=2: the start is a few essentials (D14), so a factor the text does not set takes its start
+  // weight. Text without it is from before, when every factor counted.
+  return parts.length > 0 ? `${VERSION}&${parts.join("&")}` : "";
 }
 
 /**
@@ -86,9 +93,8 @@ export function encodeStored(profile: Profile): string {
     .filter(([, options]) => options.length > 0)
     .map(([id, options]) => `${id}:${options.join(".")}`);
   const link = encodeProfile(profile);
-  return choices.length > 0
-    ? `${link}${link ? "&" : ""}c=${choices.join(",")}`
-    : link;
+  if (choices.length === 0) return link;
+  return `${link || VERSION}&c=${choices.join(",")}`;
 }
 
 /**
@@ -97,6 +103,10 @@ export function encodeStored(profile: Profile): string {
  */
 export function decodeProfile(text: string): Profile {
   const params = new URLSearchParams(text.replace(/^#/, ""));
+  // Text from before v=2 was written when every factor counted from the start, so it still does.
+  const before = !params.has("v") && PARTS.some((part) => params.has(part));
+  const everything =
+    before || (params.get("v") === "2" && params.get("s") === "all");
   const weights: Record<string, number> = {};
   for (const entry of (params.get("w") ?? "").split(",")) {
     const [id, value, ...rest] = entry.split(":");
@@ -146,6 +156,7 @@ export function decodeProfile(text: string): Profile {
     ...(limits.length > 0 ? { limits } : {}),
     ...(Object.keys(ranges).length > 0 ? { ranges } : {}),
     ...(params.get("m") === "balanced" ? { mode: "balanced" as const } : {}),
+    ...(everything ? { everything: true as const } : {}),
   };
 }
 
@@ -183,6 +194,7 @@ export function pruneProfile(
     ...(limits.length > 0 ? { limits } : {}),
     ...(Object.keys(ranges).length > 0 ? { ranges } : {}),
     ...(profile.mode === "balanced" ? { mode: "balanced" as const } : {}),
+    ...(profile.everything ? { everything: true as const } : {}),
   };
 }
 

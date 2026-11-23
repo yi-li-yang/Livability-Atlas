@@ -1,7 +1,8 @@
 import { expect, type Page, test } from "@playwright/test";
 
+/** Opens the app with every factor counted ("Everything, equally"), as these tests draw them all. */
 async function openApp(page: Page) {
-  await page.goto("/");
+  await page.goto("/#v=2&s=all");
   await expect(page.getByTestId("map")).toHaveAttribute(
     "data-cells",
     /^[1-9]\d*$/,
@@ -74,7 +75,7 @@ test("a slider resizes an arc at once, and a factor at weight 0 leaves the rings
   await expect(
     page.getByRole("heading", { name: "Not counted" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Count Transport again" }).click();
+  await page.getByRole("button", { name: "Count Transport" }).click();
   await expect(tile(page, "transport")).toHaveCount(1);
 });
 

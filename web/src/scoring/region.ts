@@ -32,6 +32,12 @@ export interface Profile {
   limits?: readonly Limit[];
   /** "balanced" is "no weak spots": the weighted geometric mean in place of the arithmetic. */
   mode?: ScoringMode;
+  /**
+   * Whether a factor the profile does not set counts at its default weight ("Everything,
+   * equally", and every profile from before D14's start changed), rather than at its start weight,
+   * which leaves all but a few essentials not counted.
+   */
+  everything?: true;
 }
 
 /**
@@ -49,8 +55,16 @@ export type LimitResult = "pass" | "fail" | "could_not_check";
 /** The id of the tree's root, which holds the top-level factors. */
 export const ROOT_ID = "livability";
 
+/**
+ * A factor's weight in a profile: the one the user set, or else its start weight (D14), which is
+ * 0 at the top of a branch that holds none of the essentials, or its default weight where the
+ * profile counts everything.
+ */
 export const weightIn = (profile: Profile, factor: ManifestFactor): number =>
-  profile.weights[factor.id] ?? factor.default_weight;
+  profile.weights[factor.id] ??
+  (profile.everything
+    ? factor.default_weight
+    : (factor.start_weight ?? factor.default_weight));
 
 const kidsOf = (factor: ManifestFactor): ManifestFactor[] =>
   factor.children ?? [];

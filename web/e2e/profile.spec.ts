@@ -54,19 +54,21 @@ test("a link can set a factor to weight 0", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("reset returns every weight to its default and clears the link", async ({
+test("Start again goes back to the few essentials and clears the link", async ({
   page,
 }) => {
-  await page.goto("/#w=transport:0,environment:1");
+  await page.goto("/#v=2&w=transport:0,environment:1");
   await ready(page);
-  await page.getByRole("button", { name: "Reset to defaults" }).click();
+  await page.getByRole("button", { name: "Start again" }).click();
   await expect(tile(page, "transport")).toHaveCount(1);
   await expect(
     page.getByRole("slider", { name: "Weight of Environment" }),
   ).toHaveValue("3");
-  await expect(
-    page.getByRole("button", { name: "Reset to defaults" }),
-  ).toHaveCount(0);
+  // Health care holds no essential, so it is not counted at the start (D14).
+  await expect(tile(page, "health-care")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Start again" })).toHaveCount(
+    0,
+  );
   await expect.poll(() => page.url()).not.toContain("w=");
 });
 

@@ -118,8 +118,8 @@ test("a user-range indicator has a band that the user drags, which rescores the 
     })
     .toBeGreaterThan(2000);
 
-  // "Reset to defaults" brings the catalogue's band back.
-  await page.getByRole("button", { name: "Reset to defaults" }).click();
+  // "Start again" brings the catalogue's band back.
+  await page.getByRole("button", { name: "Start again" }).click();
   await expect(page.getByTestId("band")).toContainText(
     "Full marks from 5 to 15",
   );

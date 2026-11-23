@@ -20,5 +20,7 @@ weights:
   education: 0
   work-and-economy: 0
   digital-connectivity: 2
+  # Counted, so that the flip of nightlife below makes a quiet street score higher (D14).
+  culture-and-leisure: 3
 flipped:
   - nightlife

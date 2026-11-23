@@ -40,6 +40,46 @@ test("starting from a preset sets its weights, says so, and can be undone", asyn
   await expect(weight(page, "Safety")).toHaveValue("4");
 });
 
+test("a new visitor starts with a few essentials, and can count everything or one factor more", async ({
+  page,
+}) => {
+  await openApp(page);
+  const start = page.getByRole("combobox", { name: "Start from" });
+  await expect(start).toHaveValue("a-few-essentials");
+  await expect(page.getByTestId("presets")).toContainText(
+    "Only a few things count to start with:",
+  );
+  // Health care holds no essential (D14), so it starts under "Not counted". Opened, it says that
+  // nothing in it counts yet, with a way to count it.
+  await expect(weight(page, "Health care")).toHaveCount(0);
+  await page.getByRole("button", { name: "Open Health care" }).click();
+  await expect(page.getByRole("note")).toContainText(
+    "Health care is not counted",
+  );
+  await page.getByRole("button", { name: "Count Health care" }).click();
+  await expect(page.getByRole("note")).toHaveCount(0);
+  await page.getByRole("button", { name: "All factors" }).click();
+  await expect(weight(page, "Health care")).toHaveValue("3");
+  await expect(start).toHaveValue("");
+
+  await start.selectOption({ label: "Everything, equally" });
+  await expect(weight(page, "Health care")).toHaveValue("3");
+  await expect(start).toHaveValue("everything-equally");
+  await expect.poll(() => page.url()).toContain("s=all");
+
+  await start.selectOption({ label: "A few essentials" });
+  await expect(weight(page, "Health care")).toHaveCount(0);
+});
+
+test("a link from before the start changed still counts every factor", async ({
+  page,
+}) => {
+  await page.goto("/#w=transport:4");
+  await expect(page.getByTestId("factor-tree")).toBeVisible();
+  await expect(weight(page, "Transport")).toHaveValue("4");
+  await expect(weight(page, "Health care")).toHaveValue("3");
+});
+
 test("the no weak spots switch changes the score, goes in the link, and the reasons show scores", async ({
   page,
 }) => {

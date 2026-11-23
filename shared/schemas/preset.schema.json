@@ -60,7 +60,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "A ready-made preference profile to start from. Only what it lists differs from the\ndefaults: a factor it does not name keeps its default weight.",
+  "description": "A ready-made preference profile to start from. Only what it lists differs from the\ndefaults: a factor it does not name keeps its start weight, so a preset adds to the few\nessentials that count at the start (D14).",
   "properties": {
     "id": {
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",

@@ -7,7 +7,7 @@ import type { Profile } from "../../scoring/region";
 import { formatNumber } from "./evidence";
 import type { Layout } from "./layout";
 import {
-  countAgain,
+  countFactor,
   type FactorView,
   levelAt,
   withChoice,
@@ -60,7 +60,10 @@ export function FactorTree({
   heading?: boolean;
   onChange: (profile: Profile) => void;
   onLayout: (layout: Layout) => void;
-  /** Returns every weight to its default. */
+  /**
+   * Goes back to the start (D14): a few essentials, with no directions, bands, limits or way of
+   * combining set.
+   */
   onReset: () => void;
 }) {
   const [path, setPath] = useState<string[]>([]);
@@ -203,6 +206,22 @@ export function FactorTree({
         ))}
       </nav>
 
+      {level.uncounted && (
+        <p role="note" className="text-xs text-neutral-600">
+          {level.uncounted.name} is not counted, so nothing in it changes the
+          map yet.{" "}
+          <button
+            type="button"
+            className="underline"
+            onClick={() =>
+              level.uncounted && onChange(countFactor(profile, level.uncounted))
+            }
+          >
+            Count {level.uncounted.name}
+          </button>
+        </p>
+      )}
+
       <div
         data-testid="factor-tree"
         className="relative w-full overflow-hidden rounded"
@@ -271,9 +290,10 @@ export function FactorTree({
         (profile.flipped?.length ?? 0) > 0 ||
         Object.keys(profile.ranges ?? {}).length > 0 ||
         profile.mode === "balanced" ||
+        profile.everything ||
         (profile.limits?.length ?? 0) > 0) && (
         <button type="button" className="underline" onClick={onReset}>
-          Reset to defaults
+          Start again
         </button>
       )}
 
@@ -296,15 +316,15 @@ export function FactorTree({
                       Open
                     </button>
                   )}
-                  {/* A choice counts once something is picked, so it offers no "again". */}
+                  {/* A choice counts once something is picked, so it offers no "Count". */}
                   {!optionsOf(f) && (
                     <button
                       type="button"
                       className="underline"
-                      aria-label={`Count ${f.name} again`}
-                      onClick={() => onChange(countAgain(profile, f.factor))}
+                      aria-label={`Count ${f.name}`}
+                      onClick={() => onChange(countFactor(profile, f.factor))}
                     >
-                      Count again
+                      Count
                     </button>
                   )}
                 </div>

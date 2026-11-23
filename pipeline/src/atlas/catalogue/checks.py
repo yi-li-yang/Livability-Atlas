@@ -81,6 +81,34 @@ def check_factors(factors: FactorsFile, datasets: DatasetsFile) -> list[str]:
     return problems
 
 
+def _path_to(nodes: list[Factor], factor_id: str) -> list[Factor]:
+    """The factors from the top down to the one with this id, or none."""
+    for node in nodes:
+        if node.id == factor_id:
+            return [node]
+        inside = _path_to(node.children or [], factor_id)
+        if inside:
+            return [node, *inside]
+    return []
+
+
+def _holds_essential(node: Factor) -> bool:
+    return bool(node.starts_counted) or any(_holds_essential(c) for c in node.children or [])
+
+
+def _start_weight(node: Factor, path: list[Factor]) -> int:
+    """A factor's weight at the start (D14), on its path from the top: its default where it holds
+    an essential or is inside one, or where its parent starts at 0 (inside a branch that starts
+    at 0, each factor keeps its default); 0 at the top of a branch that holds no essential."""
+    position = path.index(node)
+    above = path[:position]
+    if any(f.starts_counted for f in above) or _holds_essential(node):
+        return node.default_weight
+    if position > 0 and not _holds_essential(above[-1]):
+        return node.default_weight
+    return 0
+
+
 def check_preset(preset: Preset, factors: FactorsFile) -> list[str]:
     """The ids a preset names must be in the factor tree. A flipped indicator must let the user
     choose its direction, and a limit must be on a measured indicator that is built."""
@@ -106,6 +134,15 @@ def check_preset(preset: Preset, factors: FactorsFile) -> list[str]:
                 f"{preset.id}: {indicator} is not an indicator whose direction the user chooses, "
                 "so it cannot be flipped."
             )
+        elif any(_holds_essential(f) for f in factors.factors):
+            # With no essential in the catalogue, everything counts at the start.
+            path = _path_to(factors.factors, indicator)
+            off = [f.id for f in path if preset.weights.get(f.id, _start_weight(f, path)) == 0]
+            if off:
+                problems.append(
+                    f"{preset.id}: the flip of {indicator} counts for nothing, because "
+                    f"{off[0]} is at weight 0 (D14): give it a weight."
+                )
     for limit in preset.limits:
         node = every.get(limit.indicator)
         if node is None:

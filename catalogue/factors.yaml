@@ -75,6 +75,7 @@ factors:
         name: Renting cost
         description: The average monthly private rent in the borough.
         default_weight: 3
+        starts_counted: true
         scales: [within-city]
         status: built
         unit: £ a month
@@ -223,6 +224,7 @@ factors:
             name: Walk to the nearest station
             description: Walking minutes to the nearest Tube, rail, DLR, Overground, Elizabeth line or tram station.
             default_weight: 3
+            starts_counted: true
             status: built
             unit: minutes on foot
             preference_type: fixed
@@ -378,6 +380,7 @@ factors:
         name: Travel time to places
         description: Door-to-door public-transport time to the default places, or to the user's own places.
         default_weight: 3
+        starts_counted: true
         scales: [within-city]
         status: built
         unit: minutes
@@ -435,6 +438,7 @@ factors:
             name: Groceries
             description: Walking minutes to the nearest supermarket, convenience shop or greengrocer.
             default_weight: 3
+            starts_counted: true
             status: built
             unit: minutes on foot
             preference_type: fixed
@@ -814,6 +818,7 @@ factors:
             name: Walk to a green space
             description: Walking minutes to the nearest public park or other green space of at least 2 hectares.
             default_weight: 3
+            starts_counted: true
             scales: [within-city]
             status: built
             unit: minutes on foot
@@ -973,6 +978,7 @@ factors:
     name: Safety
     description: Crime and road danger.
     default_weight: 3
+    starts_counted: true
     weight_reason: "Every factor starts equal, at the middle of the scale (the owner's choice, 2026-10-30). The evidence behind D14 is in the default-weights spec."
     scales: [within-city, across-cities]
     children:

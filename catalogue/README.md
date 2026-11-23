@@ -19,6 +19,7 @@ Every factor has these fields:
 | `name` | yes | The plain name the app shows |
 | `default_weight` | yes | A whole number from 0 to 5 |
 | `weight_reason` | on every top-level factor, and elsewhere when the weight is not 3 | Why the default weight is what it is. A top-level factor's reason names how many of D14's five sources weigh it ([spec](../docs/specs/2026-10-28-default-weights.md)) |
+| `starts_counted` | no | `true` on one of the few essentials that count when a user starts (D14), with everything inside it. Every other factor starts at "Not counted", and takes its `default_weight` once the user counts it. Never on a choice |
 | `description` | no | One sentence |
 | `scales` | on top-level factors | `within-city`, `across-cities`, or both. A sub-factor inherits its parent's scales, or lists a subset of them |
 | `children` | no | The sub-factors |
@@ -116,7 +117,7 @@ just check
 
 ## presets/\<id\>.yaml
 
-A preset is a ready-made preference profile to start from, such as a renter who works in the centre. It lists only what differs from the defaults: a factor it does not name keeps its default weight. `atlas validate` checks each file against the `Preset` model in `pipeline/src/atlas/catalogue/models.py` and `check_preset` in `checks.py`, and `just generate` exports the schema to `shared/schemas/preset.schema.json`.
+A preset is a ready-made preference profile to start from, such as a renter who works in the centre. It lists only what differs from the start: a factor it does not name keeps its start weight, so a preset adds to the few essentials that count at the start (D14). `atlas validate` checks each file against the `Preset` model in `pipeline/src/atlas/catalogue/models.py` and `check_preset` in `checks.py`, and `just generate` exports the schema to `shared/schemas/preset.schema.json`.
 
 | Field | Meaning |
 | --- | --- |
