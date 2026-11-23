@@ -3,15 +3,15 @@
 ## Now
 
 - **Phase 0 is done**, except its last exit criterion: that a fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and this file alone (see Next).
-- **Phase 1 (the London MVP) is feature-complete but for the public release**, which is the owner's decision ([roadmap](roadmap.md#phase-1-london-mvp)). The last feature, a user's own places with the travel estimate in the browser, was built on 2026-11-22 from TfL's timetables, with no registration. **The finishing push (2026-10-30, see the work queue below) has taken the bundle from 41 to 62 measured indicators across 15 top-level factors**, all in `main` and in the local bundle `atlas build london` writes (16,668 hex cells), with the two user-choice indicators, Your community (42 options) and Faith (7). **The live site still has the older bundle** (41 indicators, 10 factors): the new one changes every default score, because five more factors now count at the equal default weight, so the owner should look at the map before `just site` publishes it. A rebuild takes about 10 minutes once the downloads are kept; the first build downloads the police archive (1.7 GB), the energy certificates (8.3 GB, with an `EPC_TOKEN` in `.env`) and the Journey Planner's station times (about an hour).
+- **Phase 1 (the London MVP) is feature-complete but for the public release**, which is the owner's decision ([roadmap](roadmap.md#phase-1-london-mvp)). The last feature, a user's own places with the travel estimate in the browser, was built on 2026-11-22 from TfL's timetables, with no registration. **The finishing push (2026-10-30, see the work queue below) has taken the bundle from 41 to 62 measured indicators across 15 top-level factors**, all in `main` and in the local bundle `atlas build london` writes (16,668 hex cells), with the two user-choice indicators, Your community (42 options) and Faith (7). **The live site has the newest bundle** (`491e7170e59f`, published on 2026-11-23 at the owner's request, with the travel files for a user's places). A rebuild takes about 10 minutes once the downloads are kept; the first build downloads the police archive (1.7 GB), the energy certificates (8.3 GB, with an `EPC_TOKEN` in `.env`) and the Journey Planner's station times (about an hour).
 - **Every build is checked.** `atlas build` writes `qa.md` beside the bundle (68 checks for London: its structure, datasets and values, 12 relations between independent datasets, and 44 known facts) and publishes the bundle only if none failed. `atlas qa london` checks a version again ([spec](specs/2026-10-29-qa-report.md)).
 - **The web app** shows the map coloured by the livability score, the factor tree with a slider for each factor (drawn as boxes or as rings, as the user prefers), a quick look on hover, a panel of reasons on click with the evidence behind each measure, hard limits that grey out the cells that fail them, a "More is better" or "Less is better" switch on each measure where people disagree and a band of full marks on building age, the top neighbourhoods by name with how many stay when a weight moves, presets to start from ("Start from"), a "No weak spots" way of combining the factors, the profile saved in the browser and in the link (choices in the browser only), the picker for choice factors, and "Your places": up to 3 places of the user's own, by postcode or on the map, whose travel times are estimated in the browser and replace the default places'. Works on a phone as well as a desktop, and is checked against the manifest, so a new factor needs no change to its code.
 - Everything is merged into `main` through pull requests with green CI.
 
 ## Next
 
-1. **Released** to GitHub Pages (`just site`). Still open, for the owner: the LAEI's and Defra's background maps' licences are unconfirmed, and the site includes NO₂ and PM2.5 built from them.
-2. **The owner looks at the new bundle before `just site`**: it adds the travel files for a user's places (about 4.3 MB more, fetched only when a user adds a place), and the site script now copies them.
+1. **Released** to GitHub Pages (`just site`), with the newest bundle since 2026-11-23. Still open, for the owner, and set aside by the owner for now: the LAEI's and Defra's background maps' licences are unconfirmed, and the site includes NO₂ and PM2.5 built from them.
+2. Buses in the travel estimate for a user's places: the estimate is about 11 minutes too long at the median on random journeys, mostly where the walk to a station is long ([S4](spikes/S4-routing.md)).
 3. The cuisine choice (D19) on the user-choice mechanism, and main language as an option of Your community if a table at the smallest areas turns up (the census gives the detailed languages only down to boroughs). Optional polish: a fuller page for the dataset credits (backlog).
 4. Close Phase 0: its one open exit criterion is that a fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and this file alone. Only a fresh session can show that, so it waits for the next one to try.
 5. Checks only the owner can make, none of them blocking the licence side any more (the project is non-commercial for now, D07):
@@ -63,6 +63,10 @@ Status: `todo`, `in progress`, `PR open`, `merged`, `deferred`. **Order of work 
 | 5 | Across-cities scale: global-tier baseline, Governance and rights, country adapters | deferred (as 4.1) | |
 
 ## Log
+
+### 2026-11-23
+
+- Published the site with bundle `491e7170e59f` (`just site`), at the owner's request; the licence questions are set aside for now. GitHub Pages built it, all six bundle files answer, and on the live site a place added by postcode recolours the map, with no errors in the page.
 
 ### 2026-11-22
 

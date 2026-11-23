@@ -93,12 +93,12 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [x] The phone layout: below 768 px of width the panels become bottom sheets and the map shows above them ([spec](specs/2026-10-29-phone-layout.md)). Playwright tests run in a phone-sized window.
   - [x] A single-factor view: the legend's "Show on the map" colours the map by one factor's or one measured indicator's own score ([spec](specs/2026-10-29-map-by-factor.md)). Its list is made from the manifest alone, and a test compares it with the manifest.
   - Check: contributions shown in the app add up to the livability score, on the same cases as the golden ones.
-- [ ] **Validation and release.** The QA report runs all its checks. The site is then released as a public static site, with the owner's go-ahead.
+- [x] **Validation and release.** The QA report runs all its checks. The site is then released as a public static site, with the owner's go-ahead.
   - [x] The QA report runs dataset checks, cross-checks and known-fact assertions ([validation.md](methodology/validation.md)), and each factor's data coverage ([spec](specs/2026-10-29-qa-report.md)). `atlas build` writes `qa.md` beside the bundle and publishes it only if no check failed, and `atlas qa` checks any version again. London's report has 52 checks: 13 of the bundle, its datasets and its values, 12 relations, and 27 known facts.
   - [x] `just build london` rebuilds the bundle from raw downloads, and gives the same result every time. A synthetic build is pinned by a test, and a rebuild of London from the kept downloads reproduced version `09eb39a09d3c` byte for byte.
   - [x] A new factor is added by the recipe with no change to the UI's code. The app builds its factor tree, its "Show on the map" list and its reasons from the manifest alone, and a Playwright test walks the factor tree level by level against the manifest, so that a factor the app hid, or a factor the manifest lacks, fails it.
   - [x] Every dataset in the bundle has a licence entry, with its attribution shown, and is marked for commercial use or not. The QA report fails a bundle whose dataset is not listed or has no attribution, warns on an unknown licence, and lists the commercial-use markings; the app shows each credit once under "About the data", and an indicator's sources with their licences in the evidence layer. A fuller page for the credits is in the [backlog](backlog.md).
-  - The release itself is the owner's decision: publishing is outward-facing.
+  - [x] The site is public on GitHub Pages, released with the owner's go-ahead; it has had the newest bundle (`491e7170e59f`, with a user's places) since 2026-11-23. The licences of the LAEI and Defra's background maps are still to confirm (progress.md, Next).
 
 ## Phase 2: depth and trust
 
