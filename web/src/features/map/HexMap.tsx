@@ -83,6 +83,9 @@ export function HexMap({
   const overlay = useRef<MapLibreOverlay | null>(null);
   const [stack, setStack] = useState<Stack | null>(null);
   const map = useRef<MapLibreMap | null>(null);
+  // The latest click handler, for the map's own click listener, which is added once.
+  const select = useRef(onSelect);
+  select.current = onSelect;
 
   useEffect(() => {
     if (!container.current) return;
@@ -99,6 +102,17 @@ export function HexMap({
     const layers = new MapLibreOverlay({ interleaved: true, layers: [] });
     basemap.addControl(layers);
     basemap.once("style.load", () => setStack(restack(basemap)));
+    // A click is picked here, not by deck.gl's onClick: interleaved with MapLibre, deck.gl's own
+    // click (picked asynchronously from the pointer-down) was lost on the full London bundle, while
+    // hovering still worked. pickObject reads the cell under the point at once.
+    basemap.on("click", (event) => {
+      const picked = layers.pickObject({
+        x: event.point.x,
+        y: event.point.y,
+        layerIds: ["hex-cells"],
+      });
+      select.current(picked && picked.index >= 0 ? picked.index : null);
+    });
     overlay.current = layers;
     map.current = basemap;
     return () => {
@@ -145,7 +159,6 @@ export function HexMap({
             highlightColor: [255, 255, 255, 110],
             onHover: ({ index, x, y }) =>
               onHover(index >= 0 ? { index, x, y } : null),
-            onClick: ({ index }) => onSelect(index >= 0 ? index : null),
           }),
           new PolygonLayer<HexCell, InMap>({
             id: "selected-cell",
@@ -175,17 +188,7 @@ export function HexMap({
         ],
       }),
     );
-  }, [
-    stack,
-    cells,
-    colours,
-    outlines,
-    opacity,
-    selected,
-    places,
-    onHover,
-    onSelect,
-  ]);
+  }, [stack, cells, colours, outlines, opacity, selected, places, onHover]);
 
   return (
     <div
