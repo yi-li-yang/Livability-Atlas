@@ -23,8 +23,28 @@ export function scoreToCss(score: number): string {
   return `rgb(${r} ${g} ${b})`;
 }
 
-/** How much of a cell's colour shows over the basemap, until the user changes it. */
-export const CELL_OPACITY = 0.5;
+/**
+ * How much of a cell's colour shows over the land under it, until the user changes it. The roads,
+ * water and names sit above the cells (stack.ts), so the cells can be nearly solid.
+ */
+export const CELL_OPACITY = 0.8;
+
+/**
+ * The land use under the cells, which shows in a cell with few or no homes (stack.ts). Pale and
+ * greyed, so that none passes for a score colour: against every score drawn at `CELL_OPACITY`,
+ * over the background or over the tint itself, each stays at ΔE 8 or more (OKLab ×100) in normal
+ * vision and under simulated deuteranopia and protanopia, checked with the dataviz skill's
+ * colour-difference code. Under tritanopia the industry tint comes to 7.8, so the outline of a
+ * cell with few homes (`FEW_HOMES_OUTLINE`) tells them apart too.
+ */
+export const LAND_COLOURS = {
+  green: "#E1E8D6",
+  industry: "#E6E2EC",
+  railway: "#EAE7E2",
+} as const;
+
+/** Rivers, lakes and reservoirs, drawn above the cells: a pale blue, apart from the teal end. */
+export const WATER = "#D0DDE6";
 
 /** A hex cell that has no score: transparent, so that the map shows through. */
 export const UNSCORED: Rgba = [128, 128, 128, 60];

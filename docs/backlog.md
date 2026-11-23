@@ -6,7 +6,9 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 
 | Item | Status |
 | --- | --- |
-| Place and street names drawn above the hex cells. deck.gl's interleaved mode does it but fails against MapLibre 6 (deck.gl 9.4); retry when deck.gl supports MapLibre 6, or draw a labels-only copy of the basemap above the cells | idea |
+| Place and street names drawn above the hex cells | shipped: the cells sit under the water, roads and names, over the land use (D23) |
+| `DESIGN.md` for the Impeccable design skill (`/impeccable document`), now that the map's look is settled | idea |
+| A full `/impeccable critique` of the map and the legend | idea |
 | More factors, in catalogue priority order | planned |
 | Design faults that `impeccable detect` found on the app (2026-11-23): a card inside a card, and the "Place 1" placeholder at 3.9:1 contrast (WCAG AA needs 4.5:1) | idea |
 | Crime rates per resident and worker, so that centres with few residents and many workers, like the City of London, stop topping every crime ([spike S2](spikes/S2-crime.md)). Needs a workplace population table whose licence and geography are checked | idea |
@@ -80,6 +82,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Native mobile apps | The web app works well on phones |
 | Within-city maps outside London | Phase 3, once the region recipe is proven |
 | Forecasts (prices, gentrification) | Trend data is in place |
+| A satellite basemap (D23) | A source with street-level detail and a licence that allows this use turns up; EOX's Sentinel-2 cloudless is too coarse, and Esri's free terms are for OpenStreetMap editing |
 
 ## Dropped
 

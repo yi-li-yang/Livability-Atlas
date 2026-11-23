@@ -1,4 +1,4 @@
-import { FEW_HOMES_OUTLINE, scoreToCss } from "./colour";
+import { FEW_HOMES_OUTLINE, LAND_COLOURS, scoreToCss } from "./colour";
 import type { ViewOption } from "./views";
 
 /** What the colours mean: a bar from the worst score to the best, with a label at each end. */
@@ -42,7 +42,8 @@ export function Legend({
     };
     groups.set(option.groupId, { ...group, items: [...group.items, option] });
   }
-  // A hex cell with few or no homes is left clear with an outline: the key shows one.
+  // A hex cell with few or no homes is left clear with an outline, and the land use shows in it:
+  // the key shows one, half park and half industry.
   const fewHomesKey = fewHomes && (
     <span className="flex items-center gap-1.5">
       <span
@@ -51,6 +52,7 @@ export function Legend({
         className="inline-block h-3 w-4 shrink-0 rounded-sm border"
         style={{
           borderColor: `rgb(${FEW_HOMES_OUTLINE.slice(0, 3).join(" ")})`,
+          background: `linear-gradient(to right, ${LAND_COLOURS.green} 50%, ${LAND_COLOURS.industry} 50%)`,
         }}
       />
       Few or no homes: no score

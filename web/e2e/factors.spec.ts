@@ -119,7 +119,8 @@ test("the panel and the legend are stacked above the hex cells, so none are draw
   page,
 }) => {
   await openApp(page);
-  // deck.gl's canvas has no z-index of its own: it takes the first one among its ancestors.
+  // The cells are drawn in the map's canvas (D23), which has no z-index of its own: it takes the
+  // first one among its ancestors.
   const stacking = await page.evaluate(() => {
     const zOf = (element: Element | null): number => {
       for (let e = element; e; e = e.parentElement) {
@@ -128,9 +129,7 @@ test("the panel and the legend are stacked above the hex cells, so none are draw
       }
       return 0;
     };
-    const cells = document.querySelector(
-      '[data-testid="map"] canvas:not(.maplibregl-canvas)',
-    );
+    const cells = document.querySelector('[data-testid="map"] canvas');
     return {
       cells: zOf(cells),
       panel: zOf(document.querySelector("aside")),
@@ -147,7 +146,7 @@ test("the cell opacity slider fades the cells, so the map shows through", async 
   await openApp(page);
   const map = page.getByTestId("map");
   const slider = page.getByRole("slider", { name: "Cell opacity" });
-  await expect(slider).toHaveValue("50");
+  await expect(slider).toHaveValue("80");
   const clip = await clearOfPanel(page, map);
   const normal = await page.screenshot({ clip });
   await slider.fill("0");

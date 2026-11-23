@@ -1,20 +1,24 @@
 import { PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
-import { MapboxOverlay } from "@deck.gl/mapbox";
+import { MapLibreOverlay } from "@deck.gl/maplibre";
 import { Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Rgba } from "./colour";
 import type { HexCell } from "./hexcells";
 import { LONDON_BOUNDS, LONDON_CENTRE } from "./london";
+import { restack, type Stack } from "./stack";
 
 // MapLibre 6 looks for its worker script beside the bundle, where Vite does not
 // put it. Importing it with ?url makes Vite emit it, and this points MapLibre there.
 setWorkerUrl(workerUrl);
 
 // OpenFreeMap needs no key (docs/tech-stack.md). Positron is its light grey style, made to sit
-// under data: its own colours stay out of the way of the cells'.
+// under data: its own colours stay out of the way of the cells'. stack.ts adds the land use.
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+
+/** The prop `@deck.gl/maplibre` reads to put a layer under one of the basemap's (it declares no type for it). */
+type InMap = { beforeId?: string };
 
 /** Where the pointer is over a cell, in pixels from the map's top left corner. */
 export interface Hover {
@@ -24,12 +28,13 @@ export interface Hover {
 }
 
 /**
- * A basemap of London with the hex cells drawn over it, coloured by their score. The cells are
- * translucent so that the streets show through; the user sets how much.
+ * A basemap of London with the hex cells drawn inside it, coloured by their score (D23): over the
+ * land, under the water, roads and place names, which stay sharp. A cell with few or no homes has
+ * no fill, so the land use under it shows. The user sets how solid the cells are.
  *
- * deck.gl's interleaved mode would draw the cells beneath the basemap's place names, but deck.gl
- * 9.4 fails against MapLibre 6 there (its `getViewport` reads a transform that has changed), so
- * the cells go in a canvas of their own over the map.
+ * The cells are deck.gl layers interleaved with MapLibre's (`@deck.gl/maplibre`). deck.gl adds
+ * them to the map only while the style is fully loaded, and MapLibre counts the style as loading
+ * while any tile loads, so the layers are given to deck.gl once the map is first idle.
  */
 export function HexMap({
   cells,
@@ -60,7 +65,8 @@ export function HexMap({
   onSelect: (index: number | null) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
-  const overlay = useRef<MapboxOverlay | null>(null);
+  const overlay = useRef<MapLibreOverlay | null>(null);
+  const [stack, setStack] = useState<Stack | null>(null);
   const map = useRef<MapLibreMap | null>(null);
 
   useEffect(() => {
@@ -75,8 +81,12 @@ export function HexMap({
         [LONDON_BOUNDS[2] + 0.5, LONDON_BOUNDS[3] + 0.3],
       ],
     });
-    const layers = new MapboxOverlay({ interleaved: false, layers: [] });
+    const layers = new MapLibreOverlay({ interleaved: true, layers: [] });
     basemap.addControl(layers);
+    basemap.once("style.load", () => {
+      const stacked = restack(basemap);
+      basemap.once("idle", () => setStack(stacked));
+    });
     overlay.current = layers;
     map.current = basemap;
     return () => {
@@ -97,10 +107,12 @@ export function HexMap({
   }, [focus]);
 
   useEffect(() => {
+    if (!stack) return;
     overlay.current?.setProps({
       layers: [
-        new PolygonLayer<HexCell>({
+        new PolygonLayer<HexCell, InMap>({
           id: "hex-cells",
+          beforeId: stack.cellsBefore,
           data: cells,
           getPolygon: (cell) => cell.polygon,
           // Read by index, so that a new score only re-evaluates the colours, not the shapes.
@@ -119,8 +131,9 @@ export function HexMap({
             onHover(index >= 0 ? { index, x, y } : null),
           onClick: ({ index }) => onSelect(index >= 0 ? index : null),
         }),
-        new PolygonLayer<HexCell>({
+        new PolygonLayer<HexCell, InMap>({
           id: "selected-cell",
+          beforeId: stack.labelsBefore,
           data: selected === null ? [] : [cells[selected]],
           getPolygon: (cell) => cell.polygon,
           filled: false,
@@ -128,20 +141,33 @@ export function HexMap({
           getLineColor: [20, 20, 20, 255],
           lineWidthMinPixels: 3,
         }),
-        new ScatterplotLayer<{ name: string; lat: number; lng: number }>({
-          id: "your-places",
-          data: places,
-          getPosition: (place) => [place.lng, place.lat],
-          getRadius: 7,
-          radiusUnits: "pixels",
-          getFillColor: [255, 255, 255, 255],
-          getLineColor: [20, 20, 20, 255],
-          lineWidthMinPixels: 3,
-          stroked: true,
-        }),
+        new ScatterplotLayer<{ name: string; lat: number; lng: number }, InMap>(
+          {
+            id: "your-places",
+            beforeId: stack.labelsBefore,
+            data: places,
+            getPosition: (place) => [place.lng, place.lat],
+            getRadius: 7,
+            radiusUnits: "pixels",
+            getFillColor: [255, 255, 255, 255],
+            getLineColor: [20, 20, 20, 255],
+            lineWidthMinPixels: 3,
+            stroked: true,
+          },
+        ),
       ],
     });
-  }, [cells, colours, outlines, opacity, selected, places, onHover, onSelect]);
+  }, [
+    stack,
+    cells,
+    colours,
+    outlines,
+    opacity,
+    selected,
+    places,
+    onHover,
+    onSelect,
+  ]);
 
   return (
     <div
