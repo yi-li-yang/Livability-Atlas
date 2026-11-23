@@ -16,6 +16,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Sensitivity view: how stable the top 10 stays when weights shift ±20% | shipped: a line under "Top neighbourhoods" and a mark on the steady ones |
 | Rescoring in a Web Worker, so that the stability (30 rescorings, about 1 s in "No weak spots") never holds the page up at all | idea |
 | A switch for the direction of each user-direction indicator, and a band for each user-range indicator | shipped: "More is better" and "Less is better", and "Full marks from … to …" |
+| Scores coloured by how good they are, so that a factor named for a bad thing (Crime, Noise) reads plainly | shipped: one red → yellow → blue-green scale on the map, the legend and the bars |
 | Scoring curves that users can edit | idea |
 | "Areas like X" search (ML) | idea |
 | Price and rent models, and value for money (ML) | idea |

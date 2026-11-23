@@ -17,14 +17,22 @@ async function fixtureFetch(url: string | URL | Request): Promise<Response> {
 }
 
 describe("scoreToColour", () => {
-  it("runs from the palette's first colour for 0 to its last for 1", () => {
-    expect(scoreToColour(0)).toEqual([68, 1, 84, 255]);
-    expect(scoreToColour(1)).toEqual([253, 231, 37, 255]);
+  it("runs from red for 0, through yellow for 0.5, to blue-green for 1", () => {
+    expect(scoreToColour(0)).toEqual([178, 54, 30, 255]);
+    expect(scoreToColour(0.5)).toEqual([237, 200, 74, 255]);
+    expect(scoreToColour(1)).toEqual([42, 143, 148, 255]);
   });
 
   it("blends between stops", () => {
-    const [r, g, b] = scoreToColour(0.5);
-    expect([r, g, b]).toEqual([33, 145, 140]);
+    const [r, g, b] = scoreToColour(0.125);
+    expect([r, g, b]).toEqual([201, 89, 44]);
+  });
+
+  it("is redder for a low score and greener for a high one", () => {
+    const [lowRed, lowGreen] = scoreToColour(0.2);
+    const [highRed, highGreen] = scoreToColour(0.8);
+    expect(lowRed).toBeGreaterThan(lowGreen);
+    expect(highGreen).toBeGreaterThan(highRed);
   });
 
   it("clamps a score outside 0 to 1", () => {

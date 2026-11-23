@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import type { Explanation, FactorLine } from "../../scoring/explain";
 import { describeLimit } from "../limits/limits";
+import { scoreToCss } from "../map/colour";
 import { OnTheMap } from "../map/OnTheMap";
 import { factorColour } from "./colours";
 import { EvidenceDetails } from "./EvidenceDetails";
@@ -11,29 +12,27 @@ const points = (value: number): string => String(Math.round(value));
 /**
  * One bar for a factor. The track is the most the factor could add, from its share of the weight,
  * and the filled part is what it adds in this hex cell, so a short fill in a long track is a
- * factor that matters to the user and scores badly here.
+ * factor that matters to the user and scores badly here. The fill takes its score's colour on the
+ * map, red for worse and blue-green for better, so that a name such as Crime reads as good or bad.
  */
-function Bar({
-  line,
-  widest,
-  colour,
-}: {
-  line: FactorLine;
-  widest: number;
-  colour: string;
-}) {
+function Bar({ line, widest }: { line: FactorLine; widest: number }) {
   if (line.share === null || line.score === null) {
     return <p className="text-xs text-neutral-600">No data here</p>;
   }
   return (
     <div
-      className="h-2 rounded-sm bg-neutral-200"
+      className="h-2 rounded-sm bg-neutral-100 ring-1 ring-neutral-300"
       style={{ width: `${(line.share / widest) * 100}%` }}
       aria-hidden="true"
     >
       <div
-        className="h-full rounded-sm"
-        style={{ width: `${line.score * 100}%`, background: colour }}
+        data-testid="score-bar"
+        data-score={line.score}
+        className="h-full rounded-sm ring-1 ring-inset ring-black/20"
+        style={{
+          width: `${line.score * 100}%`,
+          background: scoreToCss(line.score),
+        }}
       />
     </div>
   );
@@ -46,20 +45,28 @@ function Line({
 }: {
   line: FactorLine;
   widest: number;
-  colour: string;
+  /** The factor's own colour, as in the factor tree, for a top-level factor. */
+  colour?: string;
 }) {
   const opens = line.children.length > 0;
   const summary = (
     <div className="space-y-1">
       <div className="flex justify-between gap-2">
-        <span className="flex gap-1">
+        <span className="flex items-center gap-1">
           <span
             aria-hidden="true"
             className="inline-block w-3 text-neutral-500 transition-transform group-open:rotate-90"
           >
             {opens ? "›" : ""}
           </span>
-          {line.name}
+          {colour && (
+            <span
+              aria-hidden="true"
+              className="inline-block size-3 shrink-0 rounded-sm"
+              style={{ background: colour }}
+            />
+          )}
+          <span>{line.name}</span>
         </span>
         <span className="tabular-nums text-neutral-600">
           {line.contribution !== null && line.share !== null
@@ -67,7 +74,7 @@ function Line({
             : line.score !== null && `${points(line.score * 100)} out of 100`}
         </span>
       </div>
-      <Bar line={line} widest={widest} colour={colour} />
+      <Bar line={line} widest={widest} />
     </div>
   );
   if (line.children.length === 0) {
@@ -90,12 +97,7 @@ function Line({
         </summary>
         <ul className="mt-2 space-y-2 border-l border-neutral-300 pl-3">
           {line.children.map((child) => (
-            <Line
-              key={child.id}
-              line={child}
-              widest={widestInside}
-              colour={colour}
-            />
+            <Line key={child.id} line={child} widest={widestInside} />
           ))}
         </ul>
       </details>
