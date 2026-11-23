@@ -183,3 +183,35 @@ test("the hex cells are drawn while the map's tiles still load, as on a slow net
     })
     .toBeGreaterThan(2000);
 });
+
+test("one click on a cell of a still map opens its reasons", async ({
+  page,
+}) => {
+  // With deck.gl's own onClick, interleaved with MapLibre, a click on the full London bundle was
+  // lost (HexMap now picks it from MapLibre's click). The small fixture bundle did not show that
+  // fault, so this test guards the click path, not that fault itself.
+  await page.goto("/");
+  const map = page.getByTestId("map");
+  await expect(map).toHaveAttribute("data-cells", /^[1-9]\d*$/);
+  await page.waitForLoadState("networkidle");
+  const box = await map.boundingBox();
+  if (!box) throw new Error("no map");
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  await expect(async () => {
+    await page.mouse.move(x - 5, y - 5);
+    await page.mouse.move(x, y);
+    await expect(page.getByTestId("quick-look")).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 10_000 });
+  // Change the cells once, as a user does, let the map come to rest, then click once.
+  const slider = page.getByRole("slider", { name: "Cell opacity" });
+  await slider.fill("0");
+  await slider.fill(String(Math.round(CELL_OPACITY * 100)));
+  await page.mouse.move(x - 5, y - 5);
+  await page.mouse.move(x, y);
+  await page.waitForTimeout(1500);
+  await page.mouse.click(x, y);
+  await expect(
+    page.getByRole("complementary", { name: "Why this score" }),
+  ).toBeVisible({ timeout: 3000 });
+});
