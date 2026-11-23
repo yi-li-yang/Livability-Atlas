@@ -24,7 +24,12 @@ export function scoreToCss(score: number): string {
 }
 
 /** How much of a cell's colour shows over the basemap, until the user changes it. */
-export const CELL_OPACITY = 0.5;
+// SPIKE: styles a, b and c draw the cells under the roads and labels, so they can be more solid.
+export const CELL_OPACITY =
+  typeof window !== "undefined" &&
+  /[?&]mapstyle=[abc]/.test(window.location.search)
+    ? 0.8
+    : 0.5;
 
 /** A hex cell that has no score: transparent, so that the map shows through. */
 export const UNSCORED: Rgba = [128, 128, 128, 60];
