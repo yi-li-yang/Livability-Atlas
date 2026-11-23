@@ -35,6 +35,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D20](#d20-agent-rules) | Agent rules | One rule file, `CLAUDE.md`, bridged to other agents by `AGENTS.md` | accepted |
 | [D21](#d21-mvp-factor-set) | MVP factor set | The nine top-level factors already researched, and Health care as a tenth | accepted |
 | [D22](#d22-a-score-describes-the-homes-in-a-cell) | A score describes the homes in a cell | A hex cell with fewer than 10 homes has no score | accepted |
+| [D23](#d23-the-maps-layers) | The map's layers | The colours under the water, roads and names, over the land use; no satellite | accepted |
 
 ## D01 First slice
 
@@ -375,3 +376,16 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **History:**
   - 2026-11-23: accepted. The owner saw parks, industrial land and airports score badly, and approved this rule and the clear hex cells with an outline.
 
+## D23 The map's layers
+
+- **Status:** accepted
+- **Choice:** The hex cells are drawn inside the basemap, not over it. From the bottom up: the land (the background, buildings, and the land use: parks, woods and grass, industrial and business land, railways, cemeteries), the hex cells, then the water, roads, railways and place names. The roads, the river and the names stay sharp over the colours, so the cells start at 80% opacity, not 50%. A hex cell with few or no homes (D22) has no fill, so the land use under it shows what is there. The land use comes from the basemap's own OpenMapTiles source, in pale greyed tints that stay at ΔE 8 or more from every score colour in normal vision and in red-green colour blindness (`web/src/features/map/colour.ts`). The layer order is worked out from each layer's type and source-layer, not from layer ids (`web/src/features/map/stack.ts`).
+- **How:** deck.gl's layers are interleaved with MapLibre's through `@deck.gl/maplibre`, with `beforeId` on each layer. The first try, with `@deck.gl/mapbox`, failed against MapLibre 6. deck.gl adds its layers only while the style counts as loaded, which MapLibre does not while tiles load, so the app gives deck.gl its layers once the map is first idle.
+- **Why:** With the cells in a canvas over the whole map, the colours washed over the streets, the Thames and the place names, and a cell with few homes showed only Positron's pale grey: parks were faint, and industrial land and railways were not drawn at all. The owner compared four styles from screenshots at city, district and street zoom (2026-11-23) and chose this one.
+- **Alternatives considered:**
+  - A satellite basemap. The only free source with no key and a clear licence is EOX's Sentinel-2 cloudless: 10 m pixels, blurry at street zoom, and its recent years are for non-commercial use only. Esri's World Imagery is sharp, but its free terms are for OpenStreetMap editing. And a colour drawn over a photograph changes with what is under it, so the cells stop matching the legend.
+  - The same layer order on a grey map with no land use: the cleanest, but a park and an industrial estate look the same.
+  - Each cell as a ring in its score colour, with the map clear inside: keeps the most map, but at city zoom the rings blur into noise.
+- **Revisit when:** a satellite or aerial source with a clear licence and street-level detail turns up; the same layer order would hold.
+- **History:**
+  - 2026-11-23: accepted by the owner, after the comparison.

@@ -1,10 +1,24 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { PNG } from "pngjs";
-import { CELL_OPACITY, scoreToColour } from "../src/features/map/colour";
+import {
+  CELL_OPACITY,
+  LAND_COLOURS,
+  scoreToColour,
+} from "../src/features/map/colour";
 import { clearOfPanel } from "./clip";
 
 // Every colour the map can give a cell: the palette, blended between its stops.
 const COLOURS = Array.from({ length: 101 }, (_, i) => scoreToColour(i / 100));
+
+const rgb = (hex: string) =>
+  [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+
+// The colours of bare land under the cells: the land use and the background. Elsewhere a road, a
+// river or a name's halo is drawn over the cells and only partly shows them, so only these pixels
+// say how the cells are coloured. The match is exact, or a halo over bare land would pass for it.
+const LAND = [...Object.values(LAND_COLOURS).map(rgb), [242, 243, 240]];
+const onLand = (pixel: number[]) =>
+  LAND.some((land) => land.every((c, k) => Math.abs(c - pixel[k]) <= 1));
 
 test("the page shows a map of London under its heading", async ({ page }) => {
   await page.goto("/");
@@ -55,8 +69,6 @@ test("the app says so when the data cannot be loaded", async ({ page }) => {
   await expect(page.getByRole("alert")).toHaveText(/could not be loaded/);
 });
 
-const HEX_LAYER = '[data-testid="map"] canvas:not(.maplibregl-canvas)';
-
 /**
  * Whether `after` is a colour of the palette drawn over `before` at some opacity: it fits the colour's blend with `before` at the best opacity, which must be a plausible one. The opacity is
  * fitted, since what deck.gl composites is not exactly the opacity that the layer is given.
@@ -79,24 +91,33 @@ function fitsPalette(after: number[], before: number[]): boolean {
   });
 }
 
+/** Waits for the map to draw a frame or two after a change. */
+async function settle(page: Page): Promise<void> {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await page.waitForTimeout(300);
+}
+
 /**
- * Screenshots the map with the hex layer shown, hidden and shown again, and compares them. Returns how many
- * pixels the layer changed, and how many of those are a palette colour drawn at the cells'
- * opacity over the pixel that was there before.
+ * Screenshots the map with the cells shown, faded out with the opacity slider, and shown again,
+ * and compares them. The cells are drawn inside the map, under its roads and names (D23), so the
+ * slider is the way to take them away. Returns how many pixels the cells changed, how many of those
+ * had bare land under them, and how many of those are a palette colour drawn at the cells' opacity
+ * over the land.
  */
 async function hexLayerPixels(
   page: Page,
   map: Locator,
-): Promise<{ changed: number; explained: number }> {
-  const show = (visible: boolean) =>
-    page.evaluate(
-      ([selector, value]) => {
-        for (const canvas of document.querySelectorAll<HTMLElement>(selector)) {
-          canvas.style.visibility = value;
-        }
-      },
-      [HEX_LAYER, visible ? "visible" : "hidden"],
-    );
+): Promise<{ changed: number; land: number; explained: number }> {
+  const slider = page.getByRole("slider", { name: "Cell opacity" });
+  const show = async (visible: boolean) => {
+    await slider.fill(visible ? String(Math.round(CELL_OPACITY * 100)) : "0");
+    await settle(page);
+  };
   const clip = await clearOfPanel(page, map);
   await show(true);
   const withCells = PNG.sync.read(await page.screenshot({ clip }));
@@ -106,6 +127,7 @@ async function hexLayerPixels(
   const again = PNG.sync.read(await page.screenshot({ clip }));
 
   let changed = 0;
+  let land = 0;
   let explained = 0;
   for (let i = 0; i < withCells.data.length; i += 4) {
     const after = [
@@ -119,9 +141,11 @@ async function hexLayerPixels(
     // a basemap tile that arrives meanwhile (it did, on a slow runner): it says nothing of the cells.
     if (after.some((c, k) => Math.abs(c - again.data[i + k]) >= 4)) continue;
     changed++;
+    if (!onLand(before)) continue;
+    land++;
     if (fitsPalette(after, before)) explained++;
   }
-  return { changed, explained };
+  return { changed, land, explained };
 }
 
 test("the hex cells are drawn on the map, in the palette's colours", async ({
@@ -136,6 +160,7 @@ test("the hex cells are drawn on the map, in the palette's colours", async ({
       timeout: 20_000,
     })
     .toBeGreaterThan(2000);
-  const { changed, explained } = await hexLayerPixels(page, map);
-  expect(explained / changed).toBeGreaterThan(0.9);
+  const { land, explained } = await hexLayerPixels(page, map);
+  expect(land).toBeGreaterThan(2000);
+  expect(explained / land).toBeGreaterThan(0.9);
 });

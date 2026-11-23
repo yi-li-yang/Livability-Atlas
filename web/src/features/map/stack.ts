@@ -1,18 +1,11 @@
-import type { LayerSpecification, StyleSpecification } from "maplibre-gl";
+import type { LayerSpecification } from "maplibre-gl";
+import { LAND_COLOURS, WATER } from "./colour";
 
 /**
- * SPIKE: the map styles compared in spike/map-layers, chosen with `?mapstyle=`.
- * - now: the cells over the whole basemap, as today.
- * - a: the cells under the water, roads and labels, with land use drawn under them.
- * - b: as a, but the basemap stays neutral grey: only the cells carry colour.
- * - c: as a, but each cell is a ring in its score colour, with the map visible inside.
+ * Where the hex cells sit among the basemap's layers (D23). From the bottom up: the land (the
+ * background, land use, parks, buildings), the cells, then the water, roads, railways and place
+ * names, so that the map's lines and names stay sharp over the colours.
  */
-export type MapStyle = "now" | "a" | "b" | "c";
-
-export function mapStyleFromUrl(search: string): MapStyle {
-  const value = new URLSearchParams(search).get("mapstyle");
-  return value === "a" || value === "b" || value === "c" ? value : "now";
-}
 
 /** The basemap's source-layers that are land: they go under the cells. */
 const LAND = new Set(["landuse", "landcover", "park", "building", "aeroway"]);
@@ -26,34 +19,37 @@ function isLand(layer: LayerSpecification): boolean {
   );
 }
 
-/**
- * Where the cells go in the basemap's stack: the land layers move under the first layer that is
- * not land (water, roads, labels), keeping their order, and the cells go just under that layer.
- */
-export function stackCells(layers: readonly LayerSpecification[]): {
-  /** The land layers that sit above `cellsBefore` in the style, to move under it. */
+export interface Stack {
+  /** The land layers that sit above `cellsBefore` in the style, to move under it, in order. */
   move: string[];
-  /** The id of the layer the cells go under. */
+  /** The id of the layer the cells go under: the first that is not land. */
   cellsBefore: string | undefined;
-  /** The id of the first label layer, which the outlines and places go under. */
+  /** The id of the first label layer, which the selected cell and the user's places go under. */
   labelsBefore: string | undefined;
-} {
+}
+
+/**
+ * Works out the stack from the style's layers, by their type and source-layer rather than by id,
+ * so that it still holds if the basemap's style changes.
+ */
+export function stackCells(layers: readonly LayerSpecification[]): Stack {
   const first = layers.find((layer) => !isLand(layer));
   const firstIndex = first ? layers.indexOf(first) : layers.length;
-  const move = layers
-    .slice(firstIndex)
-    .filter(isLand)
-    .map((layer) => layer.id);
   return {
-    move,
+    move: layers
+      .slice(firstIndex)
+      .filter(isLand)
+      .map((layer) => layer.id),
     cellsBefore: first?.id,
     labelsBefore: layers.find((layer) => layer.type === "symbol")?.id,
   };
 }
 
-const GREEN = "#D3E4C3";
-
-/** Land use, drawn from the basemap's own tiles so that a cell with few homes shows what is there. */
+/**
+ * Land use, drawn from the basemap's own OpenMapTiles source so that a cell with few or no homes
+ * shows what is there: parks and woods, industrial and business land, railways. The tints are pale
+ * and greyed, so that they never pass for a score colour (colour.ts).
+ */
 export const LAND_USE: LayerSpecification[] = [
   {
     id: "atlas-green",
@@ -67,14 +63,14 @@ export const LAND_USE: LayerSpecification[] = [
       true,
       false,
     ],
-    paint: { "fill-color": GREEN },
+    paint: { "fill-color": LAND_COLOURS.green },
   },
   {
     id: "atlas-park",
     type: "fill",
     source: "openmaptiles",
     "source-layer": "park",
-    paint: { "fill-color": GREEN },
+    paint: { "fill-color": LAND_COLOURS.green },
   },
   {
     id: "atlas-landuse",
@@ -92,12 +88,6 @@ export const LAND_USE: LayerSpecification[] = [
         "quarry",
         "railway",
         "cemetery",
-        "hospital",
-        "school",
-        "university",
-        "college",
-        "stadium",
-        "pitch",
       ],
       true,
       false,
@@ -106,45 +96,37 @@ export const LAND_USE: LayerSpecification[] = [
       "fill-color": [
         "match",
         ["get", "class"],
-        ["industrial", "commercial", "retail", "garages", "quarry"],
-        "#DCD6E6",
         "railway",
-        "#E3DCD0",
+        LAND_COLOURS.railway,
         "cemetery",
-        GREEN,
-        "#E8E3D8",
+        LAND_COLOURS.green,
+        LAND_COLOURS.industry,
       ],
     },
   },
 ];
 
-/** Restacks a loaded basemap for a map style. */
-export function restack(
-  map: {
-    getStyle: () => StyleSpecification;
-    moveLayer: (id: string, before?: string) => void;
-    addLayer: (layer: LayerSpecification, before?: string) => void;
-    setLayoutProperty: (id: string, name: string, value: unknown) => void;
-    setPaintProperty: (id: string, name: string, value: unknown) => void;
-    getLayer: (id: string) => unknown;
-  },
-  style: MapStyle,
-): { cellsBefore?: string; labelsBefore?: string } {
-  const { move, cellsBefore, labelsBefore } = stackCells(map.getStyle().layers);
-  if (style === "now") return {};
-  for (const id of move) map.moveLayer(id, cellsBefore);
-  const hide = (id: string) => {
+/** The basemap's layers that the stack hides: Positron's grey wash over homes only muddies the cells. */
+const HIDE = ["landuse_residential"];
+
+/** What `restack` needs of a MapLibre map (methods, so that MapLibre's own types fit). */
+export interface Restackable {
+  getStyle(): { layers: LayerSpecification[] };
+  getLayer(id: string): unknown;
+  moveLayer(id: string, before?: string): unknown;
+  addLayer(layer: LayerSpecification, before?: string): unknown;
+  setLayoutProperty(id: string, name: "visibility", value: "none"): unknown;
+  setPaintProperty(id: string, name: "fill-color", value: string): unknown;
+}
+
+/** Restacks a loaded basemap, adds the land use, and says where the cells go. */
+export function restack(map: Restackable): Stack {
+  const stack = stackCells(map.getStyle().layers);
+  for (const id of stack.move) map.moveLayer(id, stack.cellsBefore);
+  for (const id of HIDE) {
     if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
-  };
-  // Positron's grey wash over homes only muddies the cells.
-  hide("landuse_residential");
-  if (style === "b") {
-    hide("park");
-    hide("landcover_wood");
-  } else {
-    for (const layer of LAND_USE) map.addLayer(layer, cellsBefore);
-    if (map.getLayer("water"))
-      map.setPaintProperty("water", "fill-color", "#BCD4E0");
   }
-  return { cellsBefore, labelsBefore };
+  for (const layer of LAND_USE) map.addLayer(layer, stack.cellsBefore);
+  if (map.getLayer("water")) map.setPaintProperty("water", "fill-color", WATER);
+  return stack;
 }
