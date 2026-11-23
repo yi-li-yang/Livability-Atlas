@@ -4,7 +4,11 @@ import { Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { useEffect, useRef, useState } from "react";
-import type { Rgba } from "./colour";
+import {
+  FEW_HOMES_OUTLINE_MAX_PIXELS,
+  FEW_HOMES_OUTLINE_METRES,
+  type Rgba,
+} from "./colour";
 import type { HexCell } from "./hexcells";
 import { type Inset, insetFor } from "./inset";
 import { LONDON_BOUNDS, LONDON_CENTRE } from "./london";
@@ -236,8 +240,9 @@ export function HexMap({
             updateTriggers: { getFillColor: colours, getLineColor: outlines },
             filled: true,
             stroked: outlines !== undefined,
-            lineWidthUnits: "pixels",
-            getLineWidth: 1,
+            lineWidthUnits: "meters",
+            getLineWidth: FEW_HOMES_OUTLINE_METRES,
+            lineWidthMaxPixels: FEW_HOMES_OUTLINE_MAX_PIXELS,
             opacity,
             pickable: true,
             autoHighlight: true,

@@ -108,6 +108,13 @@ describe("cellColours with limits", () => {
     expect(colours[1]).toEqual(EXCLUDED);
     expect(colours[2]).toEqual(EXCLUDED);
     expect(EXCLUDED).not.toEqual(UNSCORED); // a cell left out differs from one with no data
+    // A light grey, not a dark slab: the map stays readable under the cells a limit leaves out
+    // (the critique of the map, 2026-11-23), and it is no colour of the scale.
+    const [r, g, b, a] = EXCLUDED;
+    expect(r).toBe(g);
+    expect(g).toBe(b);
+    expect(r).toBeGreaterThanOrEqual(180);
+    expect(a).toBe(255);
   });
 
   it("colours every cell by its score where no limit applies", () => {
