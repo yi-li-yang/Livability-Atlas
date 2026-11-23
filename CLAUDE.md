@@ -88,3 +88,4 @@ Recipes for adding a factor, a dataset or a region are in [CONTRIBUTING.md](CONT
 - `E:` is NTFS (D13). Python comes from uv (3.13, in `pipeline/.venv`), separate from the conda base install.
 - Set `PYTHONUTF8=1`, and pass `encoding="utf-8"` when opening text files, because the Windows code page here is not UTF-8.
 - Set `UV_CACHE_DIR` to a folder on `E:`, so uv can hard-link packages instead of copying them.
+- Run local Playwright tests with no more than 2 workers (`web/playwright.config.ts` sets this). Close the browser when a temporary script is done with it.

@@ -5,6 +5,9 @@ const port = Number(process.env.ATLAS_E2E_PORT ?? 4173);
 
 export default defineConfig({
   testDir: "./e2e",
+  // Each worker runs its own Chromium with software WebGL, which is heavy: keep it to 2 on a
+  // local machine. CI keeps Playwright's default.
+  workers: process.env.CI ? undefined : 2,
   webServer: {
     command: `npm run preview -- --port ${port} --strictPort`,
     // The tests read a small bundle that is kept in the repository, not the real data.
