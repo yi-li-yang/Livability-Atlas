@@ -31,7 +31,7 @@ def test_the_command_checks_the_latest_bundle_and_writes_its_report(tmp_path):
     bundle = write_sample(published(tmp_path))
     result = run(tmp_path)
     assert result.exit_code == 0, result.output
-    assert "QA passed: 13 checks, 0 warnings, 0 skipped" in result.output
+    assert "QA passed: 14 checks, 0 warnings, 0 skipped" in result.output
     assert str(bundle / "qa.md") in result.output
     assert (bundle / "qa.md").exists()
     assert "Published" not in result.output
@@ -41,7 +41,7 @@ def test_a_check_that_fails_is_listed_and_the_command_fails(tmp_path):
     bundle = spoil(write_sample(published(tmp_path)), manifest=lambda m: m.update(cell_count=8))
     result = run(tmp_path)
     assert result.exit_code == 1
-    assert "QA failed: 1 of 13 checks failed" in result.output
+    assert "QA failed: 1 of 14 checks failed" in result.output
     assert "The rows match the manifest's cell count" in result.output
     assert (bundle / "qa.md").exists()
 
@@ -53,7 +53,7 @@ def test_a_warning_is_listed_but_the_command_passes(tmp_path):
     spoil(write_sample(published(tmp_path)), manifest=unknown)
     result = run(tmp_path)
     assert result.exit_code == 0, result.output
-    assert "QA passed: 12 checks, 1 warning, 0 skipped" in result.output
+    assert "QA passed: 13 checks, 1 warning, 0 skipped" in result.output
     assert "Warning, Datasets: No dataset has an unknown licence" in result.output
 
 

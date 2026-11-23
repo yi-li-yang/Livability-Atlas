@@ -16,6 +16,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Term | Meaning | Example |
 | --- | --- | --- |
 | Hex cell | One hexagon of the map grid, about 350 m across. The smallest area the app scores | Greater London has about 17,000 |
+| Few or no homes | A hex cell with fewer than 10 homes, such as a park, an airport or an industrial estate. Scores are for places where people live, so it has no score: the map leaves it clear with a thin outline | Richmond Park, Heathrow |
 | Neighbourhood | A named area of about 8,000 residents, used for names on the map and in the ranked list | About 1,000 in London |
 | Region | The whole area one map covers | Greater London |
 | Within-city scale | Comparing small areas inside one city | Hex cells across London |
@@ -101,6 +102,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | H3 | An open-source system of hexagon grids covering the globe, from Uber | Resolution 9 gives the hex cells |
 | MSOA | Middle layer Super Output Area: the UK census area used for neighbourhoods. The House of Commons Library publishes readable names for them | About 1,000 in London |
 | Output area | The smallest area for which the census publishes results. Output areas group into MSOAs | Census 2021 residents by output area |
+| Homes (of a hex cell) | The number of homes in a hex cell, from the domestic energy certificates placed at their postcode's centre. Under the manifest's minimum, the hex cell has few or no homes and no score (D22) | `homes` in `cells.parquet` |
 | Buffer zone | A 2 km ring around the region, computed but not shown, so that hex cells at the edge count what lies just outside | |
 | Dataset tier | How much of the world a dataset covers: one city, one country, or the globe | PTAL is city tier |
 

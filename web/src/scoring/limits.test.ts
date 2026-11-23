@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { type Bundle, loadBundle } from "../data/bundle";
+import { type Bundle, fewHomes, loadBundle } from "../data/bundle";
 import { type HardLimit, scoreCell } from "./engine";
 import {
   checkLimits,
@@ -109,7 +109,11 @@ describe("checkLimits", () => {
         ? { id: `limit-${n}`, indicator: limit.indicator, in: [...limit.in] }
         : { id: `limit-${n}`, ...limit },
     );
+    // A cell with few or no homes has no values in the one-cell engine, and the map leaves it clear
+    // whatever its limits (D22), so only the places where people live are compared.
+    const few = fewHomes(bundle);
     bundle.cells.forEach((_, i) => {
+      if (few[i]) return;
       const reference = scoreCell({
         ...scoreCaseFor(bundle, { weights: {} }, i),
         hard_limits,

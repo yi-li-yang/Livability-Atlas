@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": "83aa5f2bcbf7",
+  "version": "9b09f6e74725",
   "region": {
     "id": "london",
     "name": "London"
@@ -386,6 +386,15 @@
   ],
   "datasets": [
     {
+      "id": "epc-domestic",
+      "name": "Energy performance certificates for homes, England and Wales",
+      "publisher": "Ministry of Housing, Communities and Local Government (MHCLG)",
+      "url": "https://get-energy-performance-data.communities.gov.uk/",
+      "licence": "OGL-UK-3.0",
+      "attribution": "Contains public sector information licensed under the Open Government Licence v3.0. Address data © Ordnance Survey and Royal Mail, used only to match certificates to sales.",
+      "date": "certificates lodged since 2008"
+    },
+    {
       "id": "hoc-msoa-names",
       "name": "MSOA Names (House of Commons Library)",
       "publisher": "House of Commons Library",
@@ -644,6 +653,10 @@
       "area": "Camden"
     }
   ],
+  "homes": {
+    "column": "homes",
+    "minimum": 10
+  },
   "presets": [
     {
       "id": "family-with-children",

@@ -238,6 +238,67 @@ describe("scoring a whole region", () => {
   });
 });
 
+describe("a cell with few or no homes", () => {
+  /** The random bundle, with homes in all but every fourth cell, which has 3 (under 10). */
+  function withHomes(): Bundle {
+    const bundle = makeBundle(300, 7);
+    return {
+      ...bundle,
+      manifest: { ...bundle.manifest, homes: { column: "homes", minimum: 10 } },
+      homes: bundle.cells.map((_, i) => (i % 4 === 0 ? 3 : 120)),
+    };
+  }
+  const leaves = (bundle: Bundle, profile: Profile) =>
+    allLeafScores(bundle, profile.flipped, profile.choices, profile.ranges);
+
+  it("has no score, on the whole and on each factor", () => {
+    const bundle = withHomes();
+    const profile: Profile = { weights: {} };
+    const scores = scoreRegion(bundle, profile, leaves(bundle, profile));
+    const safety = scoreRegion(
+      bundle,
+      profile,
+      leaves(bundle, profile),
+      "safety",
+    );
+    for (let i = 0; i < scores.length; i += 4) {
+      expect(scores[i], `cell ${i}`).toBeNaN();
+      expect(safety[i], `cell ${i}`).toBeNaN();
+    }
+    expect(scores.filter((s) => !Number.isNaN(s)).length).toBeGreaterThan(150);
+  });
+
+  it("gives the scores that scoreCell gives", () => {
+    const bundle = withHomes();
+    for (const profile of Object.values(PROFILES)) {
+      expectSame(
+        scoreRegion(bundle, profile, leaves(bundle, profile)),
+        slow(bundle, profile),
+      );
+    }
+  });
+
+  it("is left out of the values that a percentile ranks a cell among", () => {
+    const bundle = withHomes();
+    // The cells with homes rank the same as they would if the others had no value at all.
+    const trees = bundle.columns.trees.map((v, i) => (i % 4 === 0 ? null : v));
+    const without = { ...bundle, columns: { ...bundle.columns, trees } };
+    const scores = allLeafScores(bundle).get("trees") as Float64Array;
+    const reference = allLeafScores(without).get("trees") as Float64Array;
+    expect([...scores]).toEqual([...reference]);
+    expect(
+      bundle.columns.trees.filter((v, i) => i % 4 === 0 && v !== null).length,
+    ).toBeGreaterThan(40);
+  });
+
+  it("counts like any other where the bundle has no count of homes", () => {
+    const bundle = makeBundle(300, 7);
+    const profile: Profile = { weights: {} };
+    const scores = scoreRegion(bundle, profile, leaves(bundle, profile));
+    expect(scores.filter((s) => Number.isNaN(s)).length).toBeLessThan(10);
+  });
+});
+
 describe("scoring a region by one factor", () => {
   const bundle = makeBundle(300, 7);
   const leaves = (profile: Profile) =>

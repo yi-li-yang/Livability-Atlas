@@ -18,11 +18,17 @@ def test_a_bundle_is_read_with_its_manifest_and_its_cells(cells):
     assert cells.manifest.cell_count == 7
 
 
-def test_the_value_columns_leave_out_the_cell_and_the_neighbourhood(cells):
+def test_the_value_columns_leave_out_the_cell_the_neighbourhood_and_the_homes(cells):
     assert "cell" not in cells.columns and "neighbourhood" not in cells.columns
+    assert "homes" not in cells.columns
     assert {"service_level", "station_proximity", "faith__hindu", "faith__sikh"} <= set(
         cells.columns
     )
+
+
+def test_the_homes_are_read_for_every_cell_and_at_a_place(cells):
+    assert list(cells.home_counts()) == [300, 250, 200, 150, 100, 3, 0]
+    assert cells.homes_at("Soho") == 200  # Soho is the third of the sorted cells
 
 
 def test_numbers_are_floats_with_nan_where_a_cell_has_no_value(tmp_path):

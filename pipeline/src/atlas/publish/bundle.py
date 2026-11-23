@@ -25,6 +25,7 @@ from atlas.publish.manifest import (
     Manifest,
     ManifestDataset,
     ManifestFactor,
+    ManifestHomes,
     ManifestIndicator,
     ManifestLimit,
     ManifestNeighbourhood,
@@ -132,6 +133,19 @@ class Neighbourhoods:
     datasets: Sequence[str]
 
 
+@dataclass(frozen=True)
+class Homes:
+    """The number of homes in each cell, the fewest that make a cell a place where people live
+    (D22), and the datasets to credit for the count."""
+
+    of_cell: Sequence[int]
+    minimum: int
+    datasets: Sequence[str]
+
+
+HOMES_COLUMN = "homes"
+
+
 def _column(indicator_id: str) -> str:
     return indicator_id.replace("-", "_")
 
@@ -208,6 +222,7 @@ def _manifest(
     indicator_ids: list[str],
     choices: dict[str, list[Choice]],
     neighbourhoods: Neighbourhoods | None = None,
+    homes: Homes | None = None,
 ) -> Manifest:
     region = catalogue.regions[region_id]
     leaves = {}
@@ -238,6 +253,8 @@ def _manifest(
     used = {d for leaf in leaves.values() for d in leaf.datasets or []} | {region.boundary.dataset}
     if neighbourhoods is not None:
         used |= set(neighbourhoods.datasets)
+    if homes is not None:
+        used |= set(homes.datasets)
     datasets = [
         ManifestDataset(
             id=d.id,
@@ -263,6 +280,9 @@ def _manifest(
         datasets=datasets,
         neighbourhoods=[ManifestNeighbourhood(name=n, area=a) for n, a in neighbourhoods.listing]
         if neighbourhoods is not None
+        else None,
+        homes=ManifestHomes(column=HOMES_COLUMN, minimum=homes.minimum)
+        if homes is not None
         else None,
         presets=manifest_presets(
             catalogue.presets, tree=_tree_ids(factors), indicators=set(indicator_ids)
@@ -290,6 +310,7 @@ def write_bundle(
     columns: dict[str, Sequence[Any]],
     choices: dict[str, list[Choice]] | None = None,
     neighbourhoods: Neighbourhoods | None = None,
+    homes: Homes | None = None,
     travel: Travel | None = None,
     out_dir: Path,
     publish: bool = True,
@@ -309,6 +330,8 @@ def write_bundle(
             for i in neighbourhoods.of_cell
         ):
             raise ValueError("a cell's neighbourhood is not in the neighbourhood list")
+    if homes is not None and len(homes.of_cell) != len(cells):
+        raise ValueError(f"homes has {len(homes.of_cell)} counts for {len(cells)} cells")
     for indicator_id, options in choices.items():
         if indicator_id in columns:
             raise ValueError(f"{indicator_id} is a choice, so it cannot also have a plain column")
@@ -324,7 +347,7 @@ def write_bundle(
         if len(values) != len(cells):
             raise ValueError(f"{indicator_id} has {len(values)} values for {len(cells)} cells")
     manifest = _manifest(
-        catalogue, region_id, len(cells), [*columns, *choices], choices, neighbourhoods
+        catalogue, region_id, len(cells), [*columns, *choices], choices, neighbourhoods, homes
     )
 
     table = pa.table(
@@ -333,6 +356,11 @@ def write_bundle(
             **(
                 {"neighbourhood": pa.array(list(neighbourhoods.of_cell), pa.int32())}
                 if neighbourhoods is not None
+                else {}
+            ),
+            **(
+                {HOMES_COLUMN: pa.array(list(homes.of_cell), pa.int32())}
+                if homes is not None
                 else {}
             ),
             **{_column(i): pa.array(list(v)) for i, v in columns.items()},

@@ -167,7 +167,13 @@ export function WhyPanel({
           <OnTheMap {...onMap} />
         </div>
       )}
-      {explanation.score === null ? (
+      {explanation.fewHomes ? (
+        <p className="mt-2">
+          Few or no homes here, such as in a park, at an airport or on an
+          industrial estate. Scores are for places where people live, so this
+          hex cell has none.
+        </p>
+      ) : explanation.score === null ? (
         <p className="mt-2">There is no data here for the factors you count.</p>
       ) : (
         <>
@@ -214,7 +220,7 @@ export function WhyPanel({
           </p>
         </section>
       )}
-      {explanation.excluded && (
+      {explanation.excluded && !explanation.fewHomes && (
         <p role="note" className="mt-2 rounded bg-neutral-200 p-2 text-xs">
           Left out of the ranking: this hex cell fails a hard limit. Its score
           is shown for reference.
@@ -246,14 +252,15 @@ export function WhyPanel({
         </p>
       )}
       <ul className="mt-3 space-y-3">
-        {explanation.factors.map((factor, position) => (
-          <Line
-            key={factor.id}
-            line={factor}
-            widest={widest}
-            colour={factorColour(factor.id, position).base}
-          />
-        ))}
+        {!explanation.fewHomes &&
+          explanation.factors.map((factor, position) => (
+            <Line
+              key={factor.id}
+              line={factor}
+              widest={widest}
+              colour={factorColour(factor.id, position).base}
+            />
+          ))}
       </ul>
     </aside>
   );

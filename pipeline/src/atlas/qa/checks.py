@@ -58,7 +58,22 @@ def bundle_checks(cells: Cells) -> list[Result]:
         _result(BUNDLE, "The cells are H3 cells of the grid's resolution", grid),
         _result(BUNDLE, "The columns match the manifest", columns, ok=f"{len(expected)} columns"),
         _result(BUNDLE, "The neighbourhoods match their list", _neighbourhood_problems(cells)),
+        _result(BUNDLE, "The homes match the manifest", _homes_problems(cells)),
     ]
+
+
+def _homes_problems(cells: Cells) -> list[str]:
+    homes = cells.manifest.homes
+    has_column = homes is not None and homes.column in cells.table.column_names
+    if homes is None:
+        return (
+            ["the table has a homes column and the manifest has none"] if cells.has("homes") else []
+        )
+    if not has_column:
+        return [f"the manifest names a column {homes.column} and the table has none"]
+    counts = cells.table[homes.column].to_pylist()
+    bad = sorted({str(n) for n in counts if n is None or n < 0})
+    return [f"counts that are not 0 or more: {some(bad)}"] if bad else []
 
 
 def _neighbourhood_problems(cells: Cells) -> list[str]:

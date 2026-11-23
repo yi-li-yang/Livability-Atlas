@@ -370,6 +370,26 @@ def station_matrix(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Nobody lives in Richmond Park, on Hampstead Heath, on Hackney Marshes or at Heathrow, many "
+    "live in Soho, Brixton, Croydon and Southall, and about a quarter of the cells have no homes",
+    needs=("homes",),
+)
+def homes(cells: Cells) -> str:
+    # The London build of 2026-11-23 counted 0 homes in each of the four places without, 248 to
+    # 783 in the four with, and 26% of cells under the minimum of 10.
+    minimum = cells.manifest.homes.minimum if cells.manifest.homes else 0
+    empty = ("Richmond Park", "Hampstead Heath", "Hackney Marshes", "Heathrow")
+    lived = ("Soho", "Brixton", "Croydon", "Southall")
+    for place in empty:
+        expect(cells.homes_at(place) < minimum, f"{place} has {cells.homes_at(place):.0f} homes")
+    for place in lived:
+        expect(cells.homes_at(place) >= 100, f"{place} has only {cells.homes_at(place):.0f} homes")
+    without = float((cells.home_counts() < minimum).mean())
+    expect(0.15 < without < 0.35, f"{share(without)} of cells have no homes")
+    return f"{share(without)} of cells have no homes; Soho {cells.homes_at('Soho'):.0f} homes"
+
+
+@FACTS.add(
     "The park is near in Hyde Park and far in the City",
     needs=("walk_to_green_space",),
 )

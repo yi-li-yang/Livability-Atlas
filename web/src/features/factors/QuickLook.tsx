@@ -30,7 +30,12 @@ export function QuickLook({
         </p>
       )}
       {onMap && <OnTheMap {...onMap} />}
-      {score === null ? (
+      {explanation.fewHomes ? (
+        <p className="font-medium">
+          Few or no homes here, so no score: scores are for places where people
+          live.
+        </p>
+      ) : score === null ? (
         <p className="font-medium">No score here: there is no data for it.</p>
       ) : (
         <>

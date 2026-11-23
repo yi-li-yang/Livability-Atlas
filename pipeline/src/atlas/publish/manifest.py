@@ -118,6 +118,14 @@ class ManifestTravel(_Model):
     postcodes: str | None = None
 
 
+class ManifestHomes(_Model):
+    """Where people live (D22). A score describes the homes in a cell, so a cell with fewer than
+    `minimum` homes, such as a park, an airport or an industrial estate, has no score."""
+
+    column: str  # the column of cells.parquet with the number of homes in each cell
+    minimum: int
+
+
 class Manifest(_Model):
     format_version: Literal[1] = 1
     version: str  # a hash of the bundle's content
@@ -130,6 +138,8 @@ class Manifest(_Model):
     # The neighbourhoods that cells belong to. The `neighbourhood` column of cells.parquet holds,
     # for each cell, the position of its neighbourhood in this list (empty where it has none).
     neighbourhoods: list[ManifestNeighbourhood] | None = None
+    # The homes in each cell. Without it, every cell counts as a place where people live.
+    homes: ManifestHomes | None = None
     # Ready-made preference profiles to start from (catalogue/presets/), by name.
     presets: list[ManifestPreset] | None = None
     # The station matrix and each cell's stations, for the travel estimate to a user's places.

@@ -28,7 +28,7 @@ def replace_column(name: str, values: list):
 
 def test_a_sound_bundle_passes_every_check_of_the_bundle(tmp_path):
     results = bundle_checks(read_cells(write_sample(tmp_path)))
-    assert len(results) == 5
+    assert len(results) == 6
     assert {r.status for r in results} == {"pass"}, [r for r in results if r.status != "pass"]
 
 
@@ -56,7 +56,7 @@ def test_a_cell_without_an_id_fails_and_does_not_stop_the_other_checks(tmp_path)
     result = one(results, "sorted")
     assert result.status == "fail" and "1 cells have no id" in result.detail
     assert one(results, "H3").status == "pass"  # the cells that have an id are fine
-    assert len(results) == 5
+    assert len(results) == 6
 
 
 def test_a_cell_that_is_not_an_h3_cell_of_the_resolution_fails(tmp_path):
@@ -95,6 +95,23 @@ def test_neighbourhoods_in_the_manifest_need_their_column_and_the_reverse(tmp_pa
     assert one(bundle_checks(read_cells(no_column)), "neighbourhoods").status == "fail"
     no_list = spoil(write_sample(tmp_path / "b"), manifest=lambda m: m.pop("neighbourhoods"))
     assert one(bundle_checks(read_cells(no_list)), "neighbourhoods").status == "fail"
+
+
+def test_homes_in_the_manifest_need_their_column_and_the_reverse(tmp_path):
+    no_column = spoil(write_sample(tmp_path / "a"), table=lambda t: t.drop_columns(["homes"]))
+    assert one(bundle_checks(read_cells(no_column)), "homes").status == "fail"
+    no_entry = spoil(write_sample(tmp_path / "b"), manifest=lambda m: m.pop("homes"))
+    assert one(bundle_checks(read_cells(no_entry)), "homes").status == "fail"
+
+
+def test_a_count_of_homes_below_zero_fails(tmp_path):
+    edit = replace_column("homes", [300, 250, 200, 150, 100, -3, 0])
+    result = one(bundle_checks(read_cells(spoil(write_sample(tmp_path), table=edit))), "homes")
+    assert result.status == "fail" and "-3" in result.detail
+
+
+def test_sound_homes_pass(tmp_path):
+    assert one(bundle_checks(read_cells(write_sample(tmp_path))), "homes").status == "pass"
 
 
 # --- the datasets ---

@@ -1,4 +1,4 @@
-import type { Bundle, Value } from "../data/bundle";
+import { type Bundle, fewHomes, type Value } from "../data/bundle";
 import type {
   ManifestFactor,
   ManifestIndicator,
@@ -72,9 +72,15 @@ const indicatorOf = (
 ): ManifestIndicator | undefined =>
   bundle.manifest.indicators.find((i) => i.id === id);
 
-/** The values of a column that a percentile curve compares a cell with. */
+/**
+ * The values of a column that a percentile curve compares a cell with: those of the places where
+ * people live, since a park or an airport is not a place to compare a home with (D22).
+ */
 function regionValues(bundle: Bundle, column: string): number[] {
-  return bundle.columns[column].filter((v) => v !== null).map(Number);
+  const few = fewHomes(bundle);
+  return bundle.columns[column]
+    .filter((v, i) => v !== null && !few[i])
+    .map(Number);
 }
 
 /** The options of a choice indicator that the user has picked and the bundle has. */
@@ -125,6 +131,8 @@ function columnScores(
   const values = bundle.columns[column];
   const out = new Float64Array(values.length).fill(Number.NaN);
   if (!curve) return out;
+  // A cell with few or no homes has no score (D22).
+  const few = fewHomes(bundle);
 
   // A percentile needs the rank of a value among all of the region's, so sort them once.
   let sorted: Float64Array | undefined;
@@ -156,7 +164,7 @@ function columnScores(
 
   for (let i = 0; i < values.length; i++) {
     const value = values[i];
-    if (value === null) continue;
+    if (value === null || few[i]) continue;
     let score: number | null;
     if (curve.shape === "percentile" && sorted) {
       const n = sorted.length;
@@ -321,6 +329,10 @@ export function scoreCaseFor(
   cellIndex: number,
 ): ScoreCase {
   const flipped = new Set(profile.flipped);
+  // A cell with few or no homes has no score, so none of its values counts (D22).
+  const lived = !fewHomes(bundle)[cellIndex];
+  const valueAt = (column: string): Value =>
+    lived ? bundle.columns[column][cellIndex] : null;
   /** A choice indicator in this cell: the picked option that scores best, with its own value. */
   const buildChoice = (
     factor: ManifestFactor,
@@ -337,7 +349,7 @@ export function scoreCaseFor(
       id: factor.id,
       weight,
       curve: indicator.curve ?? undefined,
-      value: best ? bundle.columns[best.option.column][cellIndex] : null,
+      value: best ? valueAt(best.option.column) : null,
       region_values:
         best && indicator.curve?.shape === "percentile"
           ? regionValues(bundle, best.option.column)
@@ -356,7 +368,7 @@ export function scoreCaseFor(
       id: factor.id,
       weight,
       curve: indicator?.curve ?? undefined,
-      value: indicator ? bundle.columns[indicator.column][cellIndex] : null,
+      value: indicator ? valueAt(indicator.column) : null,
       region_values:
         indicator?.curve?.shape === "percentile"
           ? regionValues(bundle, indicator.column)

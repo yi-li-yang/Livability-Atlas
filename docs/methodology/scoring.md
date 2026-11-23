@@ -31,6 +31,7 @@ Section 8 ends with a [worked example](#worked-example).
 
 - **Hex cells.** The within-city scale scores H3 resolution 9 hex cells. They average 0.105 km², with edges of about 200 m, so each is about 350 m across. About 17,000 cover Greater London.
 - **Buffer zone.** Measured indicators are computed over the region plus a 2 km ring around it, so a hex cell at the boundary still counts the parks and shops just outside. Only the region is displayed.
+- **Homes.** A score describes the homes in a hex cell (D22). A hex cell with fewer homes than the bundle's minimum (10 in London), such as a park, an airport or an industrial estate, has few or no homes and no score: it is not ranked, not in a neighbourhood's mean, and not among the values that a percentile curve ranks a hex cell against (section 3). A bundle that does not count homes scores every hex cell.
 - **Neighbourhoods.** In the UK, neighbourhoods are MSOAs: census areas of about 8,000 residents, about 1,000 of them in London. The House of Commons Library's readable names label them on the map and in the ranked list.
 - **Across-cities scale (Phase 3).** The unit becomes a city outline from the GHS Urban Centre Database. The rest of this method is unchanged.
 
@@ -178,6 +179,8 @@ D = \sum_{i \text{ with data}} P_i
 ```
 
 Hex cells with data coverage below 70% ($D < 0.7$) are flagged.
+
+A hex cell with few or no homes (section 1) is not a case of missing data: it has no score at all, whatever data it has, and no data coverage.
 
 ## 8. Explanation: score contributions
 

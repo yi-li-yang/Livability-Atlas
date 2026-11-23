@@ -31,6 +31,12 @@ describe("explainCell", () => {
     const scores = scoreRegion(bundle, profile, allLeafScores(bundle));
     for (const index of [0, 17, 100, bundle.cells.length - 1]) {
       const explanation = explainCell(bundle, profile, index);
+      if (Number.isNaN(scores[index])) {
+        // A cell with few or no homes has no score (D22).
+        expect(explanation.fewHomes).toBe(true);
+        expect(explanation.score).toBeNull();
+        continue;
+      }
       expect(explanation.score).toBeCloseTo(scores[index], 9);
       const total = explanation.factors.reduce(
         (sum, f) => sum + (f.contribution ?? 0),
@@ -90,6 +96,34 @@ describe("explainCell", () => {
         expect(strengths).not.toContain(weakness);
       }
     }
+  });
+});
+
+describe("an explanation of a cell with few or no homes", () => {
+  /** The fixture bundle with 2 homes in its first cell and 300 in every other. */
+  async function withHomes(): Promise<Bundle> {
+    const bundle = await load();
+    return {
+      ...bundle,
+      manifest: { ...bundle.manifest, homes: { column: "homes", minimum: 10 } },
+      homes: bundle.cells.map((_, i) => (i === 0 ? 2 : 300)),
+    };
+  }
+
+  it("says so, and has no score", async () => {
+    const bundle = await withHomes();
+    const explanation = explainCell(bundle, { weights: {} }, 0);
+    expect(explanation.fewHomes).toBe(true);
+    expect(explanation.score).toBeNull();
+    expect(explanation.strengths).toEqual([]);
+    expect(explanation.weakness).toBeNull();
+  });
+
+  it("is a plain explanation for a place where people live", async () => {
+    const bundle = await withHomes();
+    const explanation = explainCell(bundle, { weights: {} }, 1);
+    expect(explanation.fewHomes).toBe(false);
+    expect(explanation.score).not.toBeNull();
   });
 });
 

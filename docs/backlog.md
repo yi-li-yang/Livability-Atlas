@@ -31,6 +31,10 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | "Why we differ" view against published rankings | idea |
 | Known facts and relations as a data file in the catalogue, once a second city shows which shapes repeat (today they are code in `datasets/cities/<region>/facts.py`, [spec](specs/2026-10-29-qa-report.md)) | idea |
 | The QA report in the app's "About the data", with the version and the date of each dataset | idea |
+| No score where nobody lives: a hex cell with few or no homes (parks, airports, industrial land) is left clear and not ranked (D22) | shipped |
+| Walks measured from each hex cell's homes, not its centre. On the London bundle of 2026-11-22 the homes at a park's edge were a median of 48 m from their hex cell's centre, so the gain is small (D22) | idea |
+| A source of homes for a commercial edition, since the energy certificates' licence is not for commercial use: OS Open UPRN with a way to tell homes apart, or AddressBase (D22) | idea |
+| Measures that say the same thing share their weight (scoring.md, section 10). About 30% of the default weight measures what is within a walk, over 9 top-level factors, against about 7% for parks and nature, so a home beside a large park gains little. Changes every score and D14: for the owner to decide after seeing the map without the parks' scores | idea |
 
 ## Phase 3: more places
 

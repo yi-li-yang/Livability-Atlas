@@ -34,6 +34,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D19](#d19-food-quality) | Food quality | Open signals first | accepted |
 | [D20](#d20-agent-rules) | Agent rules | One rule file, `CLAUDE.md`, bridged to other agents by `AGENTS.md` | accepted |
 | [D21](#d21-mvp-factor-set) | MVP factor set | The nine top-level factors already researched, and Health care as a tenth | accepted |
+| [D22](#d22-a-score-describes-the-homes-in-a-cell) | A score describes the homes in a cell | A hex cell with fewer than 10 homes has no score | accepted |
 
 ## D01 First slice
 
@@ -358,3 +359,19 @@ The living list of project decisions. Each entry holds the current choice and wh
   - 2026-10-28: proposed, the last item of step 0.2.
   - 2026-10-28: accepted with Health care as a tenth. The owner delegated the decision, so it can be reversed in review.
   - 2026-10-28: frozen in step 0.5, with the [MVP scope](specs/2026-10-28-mvp-scope.md): the ten factors, their weights and all 41 researched measured indicators (32 ship at launch, 5 need a curve, 4 are blocked by a licence or an owner action). From now on, adding or removing a top-level factor from the MVP, or dropping a measured indicator from its scope, needs a record here.
+
+## D22 A score describes the homes in a cell
+
+- **Status:** accepted
+- **Choice:** A hex cell's livability score describes the homes in it. A hex cell with fewer than 10 homes is not a place where people live, so it has no score: the map leaves it clear with a thin outline, so that the basemap shows the park, the airport or the industrial estate, and it is not ranked, not in a neighbourhood's mean score, and not among the values a percentile curve ranks a hex cell against. The bundle counts the homes in each hex cell (`homes` in `cells.parquet`, and `homes.minimum` in the manifest), and the web app applies the rule. A bundle without the count scores every hex cell, as before.
+- **How homes are counted:** in London, the homes with a domestic energy performance certificate (`epc-domestic`), each in the hex cell that holds its postcode's centre. The certificates cover most homes, and a hex cell of housing has dozens or hundreds; 22% of London's hex cells have none, and a hex cell with a few is mostly a park's lodge or a farm.
+- **Why:** On the bundle of 2026-11-22, 19% of London's hex cells had no postcode at all (parks, Heathrow, industrial land, reservoirs, railway land). Their median score was 47 against 63 elsewhere, and 70% of them were in the lowest fifth of all scores, so about two thirds of the red on the map was land where nobody lives. They scored low because every walk starts at the hex cell's centre, deep in the park; rates per resident had almost no residents (Hyde Park: 29 violent crimes per 1,000 people, against 15 around it); and values shared from census areas by area gave a park the area's share (Richmond Park: 10% of homes with gigabit broadband, against 73% around it). The rule needs no list of parks or airports, so it works for any region.
+- **Alternatives considered:**
+  - A list of land uses to mask (parks from OS Open Greenspace, airports): misses industrial land, reservoirs and railway land, and needs a new list per region.
+  - Walks from each hex cell's homes rather than its centre: the homes at a park's edge are a median of 48 m from their hex cell's centre, under a minute's walk, so this changes little. In the backlog.
+  - Keep the scores and dim the hex cells: the number still misleads.
+- **Not decided here:** homes beside a large park gain little, because the measures of what is within a walk (about 30% of the default weight) outweigh the park-related ones (about 7%), and a home beside a park does have less town within a walk. That follows from the equal default weights (D14). Measures that say the same thing sharing their weight (scoring.md, section 10) is in the backlog for the owner to decide.
+- **Revisit when:** a commercial edition is built: the certificates' licence is not for commercial use (D07), so a commercial build has no count of homes and scores every hex cell, until another source of homes is chosen (backlog).
+- **History:**
+  - 2026-11-23: accepted. The owner saw parks, industrial land and airports score badly, and approved this rule and the clear hex cells with an outline.
+

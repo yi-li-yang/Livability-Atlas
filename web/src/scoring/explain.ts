@@ -1,5 +1,6 @@
 import {
   type Bundle,
+  fewHomes,
   type Neighbourhood,
   neighbourhoodAt,
   type Value,
@@ -70,6 +71,11 @@ export interface Explanation {
   neighbourhood: Neighbourhood | null;
   /** The livability score from 0 to 100, or null where no factor has data. */
   score: number | null;
+  /**
+   * Whether the cell has few or no homes, such as a park or an airport: it is not a place where
+   * people live, so it has no score (D22).
+   */
+  fewHomes: boolean;
   /** Whether the score rests on thin data: under 70% of the weight has data. */
   lowCoverage: boolean;
   /** The top-level factors that count, in the catalogue's order. */
@@ -169,6 +175,7 @@ export function explainCell(
     mode: profile.mode ?? "mean",
     neighbourhood: neighbourhoodAt(bundle, cellIndex),
     score: result.score,
+    fewHomes: fewHomes(bundle)[cellIndex] === 1,
     lowCoverage: result.low_coverage,
     limits,
     excluded: limits.some((l) => l.result === "fail"),

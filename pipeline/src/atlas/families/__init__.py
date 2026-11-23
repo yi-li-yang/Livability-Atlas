@@ -30,13 +30,20 @@ import numpy as np
 import pandas as pd
 
 from atlas.catalogue.models import Region
-from atlas.datasets.countries.gb import bres, census_residents, ons_lsoa, ons_msoa, output_areas
+from atlas.datasets.countries.gb import (
+    bres,
+    census_residents,
+    epc,
+    ons_lsoa,
+    ons_msoa,
+    output_areas,
+)
 from atlas.datasets.world import overture
 from atlas.indicators import crime
 from atlas.indicators import places as place_pool
 from atlas.publish.bundle import Choice
 from atlas.spatial import walking
-from atlas.spatial.grid import bounds_bng, cell_centres_bng, lonlat_box
+from atlas.spatial.grid import bounds_bng, cell_centres_bng, cells_at_bng, lonlat_box
 
 
 @dataclass
@@ -61,6 +68,22 @@ class Context:
         x0, y0, x1, y1 = bounds_bng(self.cells, margin=margin)
         east, north = self.postcodes["Easting"], self.postcodes["Northing"]
         return self.postcodes.loc[(east >= x0) & (east <= x1) & (north >= y0) & (north <= y1)]
+
+    @cached_property
+    def homes(self) -> pd.DataFrame:
+        """The region's homes with an energy certificate, one row each (see `epc.read_stock`), with
+        the `cell` that holds their postcode's centre."""
+        inside = self.postcodes_inside()
+        homes = epc.stock(self.data_dir, self.region_id, set(inside.index))
+        where = inside.reindex(pd.Index(homes["postcode"]))
+        known = where["Easting"].notna().to_numpy()
+        homes = homes.loc[known].reset_index(drop=True)
+        homes["cell"] = cells_at_bng(
+            where["Easting"].to_numpy(dtype=float)[known],
+            where["Northing"].to_numpy(dtype=float)[known],
+            self.resolution,
+        )
+        return homes
 
     @cached_property
     def residents(self) -> pd.Series:
