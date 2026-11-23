@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { Explanation, FactorLine } from "../../scoring/explain";
 import { describeLimit } from "../limits/limits";
 import { scoreToCss } from "../map/colour";
@@ -122,10 +122,15 @@ export function WhyPanel({
   onMap?: { name: string; score: number | null } | null;
   /** The estimated minutes from this cell to each of the user's own places. */
   places?: readonly { name: string; minutes: number }[];
-  /** Whether to lay it out for a phone: a sheet from the bottom, across the width. */
+  /**
+   * Whether to lay it out for a phone: a sheet from the bottom, across the width, which opens as a
+   * short peek (the score, the rank, the strengths and weakness) so that the cell tapped stays in
+   * sight, and grows to the full reasons on "Show the reasons".
+   */
   phone?: boolean;
   onClose: () => void;
 }) {
+  const [open, setOpen] = useState(!phone);
   useEffect(() => {
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -141,6 +146,7 @@ export function WhyPanel({
   return (
     <aside
       aria-label="Why this score"
+      data-covers-map
       className={
         phone
           ? "absolute inset-x-0 bottom-0 z-20 max-h-[70%] overflow-y-auto rounded-t-xl bg-white p-3 landscape:max-h-[55%] text-sm shadow-[0_-2px_10px_rgba(0,0,0,0.25)]"
@@ -193,75 +199,102 @@ export function WhyPanel({
           </p>
         </>
       )}
-      {explanation.mode === "balanced" && explanation.score !== null && (
-        <p className="mt-1 text-xs text-neutral-600">
-          No weak spots: each factor shows its own score, and a weak one pulls
-          the total down harder, so they do not add up to it.
-        </p>
+      {!open && (
+        <>
+          {!explanation.fewHomes && explanation.score !== null && (
+            <ul className="mt-1">
+              {explanation.strengths.map((f) => (
+                <li key={f.id}>+ {f.name}</li>
+              ))}
+              {explanation.weakness && <li>− {explanation.weakness.name}</li>}
+            </ul>
+          )}
+          <button
+            type="button"
+            aria-expanded="false"
+            className="mt-2 min-h-11 w-full rounded border border-neutral-300 font-medium"
+            onClick={() => setOpen(true)}
+          >
+            Show the reasons
+          </button>
+        </>
       )}
-      {places.length > 0 && (
-        <section aria-label="Your places" className="mt-3">
-          <h3 className="font-medium">Your places</h3>
-          <ul className="mt-1 space-y-1 text-xs">
-            {places.map((place) => (
-              <li key={place.name} className="flex justify-between gap-2">
-                <span>{place.name}</span>
-                <span className="tabular-nums">
-                  {Number.isNaN(place.minutes)
-                    ? "No way within reach"
-                    : `${Math.round(place.minutes)} minutes`}
-                </span>
-              </li>
-            ))}
+      {open && (
+        <>
+          {explanation.mode === "balanced" && explanation.score !== null && (
+            <p className="mt-1 text-xs text-neutral-600">
+              No weak spots: each factor shows its own score, and a weak one
+              pulls the total down harder, so they do not add up to it.
+            </p>
+          )}
+          {places.length > 0 && (
+            <section aria-label="Your places" className="mt-3">
+              <h3 className="font-medium">Your places</h3>
+              <ul className="mt-1 space-y-1 text-xs">
+                {places.map((place) => (
+                  <li key={place.name} className="flex justify-between gap-2">
+                    <span>{place.name}</span>
+                    <span className="tabular-nums">
+                      {Number.isNaN(place.minutes)
+                        ? "No way within reach"
+                        : `${Math.round(place.minutes)} minutes`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1 text-xs text-neutral-600">
+                An estimate by public transport, on a weekday morning. Buses are
+                not counted yet.
+              </p>
+            </section>
+          )}
+          {explanation.excluded && !explanation.fewHomes && (
+            <p role="note" className="mt-2 rounded bg-neutral-200 p-2 text-xs">
+              Left out of the ranking: this hex cell fails a hard limit. Its
+              score is shown for reference.
+            </p>
+          )}
+          {explanation.limits.length > 0 && (
+            <section aria-label="Your hard limits" className="mt-3">
+              <h3 className="font-medium">Your hard limits</h3>
+              <ul className="mt-1 space-y-1 text-xs">
+                {explanation.limits.map(({ limit, indicator, result }) => (
+                  <li
+                    key={limit.indicator}
+                    className="flex justify-between gap-2"
+                  >
+                    <span>{describeLimit(limit, indicator)}</span>
+                    <span className="shrink-0 font-medium">
+                      {result === "pass"
+                        ? "Met"
+                        : result === "fail"
+                          ? "Failed"
+                          : "No data to check"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {explanation.lowCoverage && explanation.score !== null && (
+            <p role="note" className="mt-2 rounded bg-amber-100 p-2 text-xs">
+              This score rests on thin data: less than 70% of the weight you
+              gave has data here.
+            </p>
+          )}
+          <ul className="mt-3 space-y-3">
+            {!explanation.fewHomes &&
+              explanation.factors.map((factor, position) => (
+                <Line
+                  key={factor.id}
+                  line={factor}
+                  widest={widest}
+                  colour={factorColour(factor.id, position).base}
+                />
+              ))}
           </ul>
-          <p className="mt-1 text-xs text-neutral-600">
-            An estimate by public transport, on a weekday morning. Buses are not
-            counted yet.
-          </p>
-        </section>
+        </>
       )}
-      {explanation.excluded && !explanation.fewHomes && (
-        <p role="note" className="mt-2 rounded bg-neutral-200 p-2 text-xs">
-          Left out of the ranking: this hex cell fails a hard limit. Its score
-          is shown for reference.
-        </p>
-      )}
-      {explanation.limits.length > 0 && (
-        <section aria-label="Your hard limits" className="mt-3">
-          <h3 className="font-medium">Your hard limits</h3>
-          <ul className="mt-1 space-y-1 text-xs">
-            {explanation.limits.map(({ limit, indicator, result }) => (
-              <li key={limit.indicator} className="flex justify-between gap-2">
-                <span>{describeLimit(limit, indicator)}</span>
-                <span className="shrink-0 font-medium">
-                  {result === "pass"
-                    ? "Met"
-                    : result === "fail"
-                      ? "Failed"
-                      : "No data to check"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-      {explanation.lowCoverage && explanation.score !== null && (
-        <p role="note" className="mt-2 rounded bg-amber-100 p-2 text-xs">
-          This score rests on thin data: less than 70% of the weight you gave
-          has data here.
-        </p>
-      )}
-      <ul className="mt-3 space-y-3">
-        {!explanation.fewHomes &&
-          explanation.factors.map((factor, position) => (
-            <Line
-              key={factor.id}
-              line={factor}
-              widest={widest}
-              colour={factorColour(factor.id, position).base}
-            />
-          ))}
-      </ul>
     </aside>
   );
 }

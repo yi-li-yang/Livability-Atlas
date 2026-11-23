@@ -139,6 +139,28 @@ test("tapping a cell shows the reasons as a sheet over the preferences, and Clos
   await expect(sheet(page)).toBeVisible();
 });
 
+test("a tap opens a short peek that keeps the map in sight, and Show the reasons opens them in full", async ({
+  page,
+}) => {
+  const { box: map, x, y } = await openApp(page);
+  await expect(async () => {
+    await page.touchscreen.tap(x, y);
+    await expect(reasons(page)).toBeVisible({ timeout: 700 });
+  }).toPass({ timeout: 15_000 });
+  const show = reasons(page).getByRole("button", { name: "Show the reasons" });
+  await expect(show).toBeVisible();
+  await expect(reasons(page)).toContainText("out of 100");
+  // The peek leaves most of the map in sight; the factors' bars wait for "Show the reasons".
+  const peek = await reasons(page).boundingBox();
+  if (!peek) throw new Error("the reasons are not shown");
+  expect(peek.height).toBeLessThan(map.height * 0.45);
+  await expect(reasons(page).getByTestId("score-bar")).toHaveCount(0);
+
+  await show.tap();
+  await expect(show).toHaveCount(0);
+  await expect(reasons(page).getByTestId("score-bar").first()).toBeVisible();
+});
+
 test("there is no quick look on a phone, where there is no hover", async ({
   page,
 }) => {

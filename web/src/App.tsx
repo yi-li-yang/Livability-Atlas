@@ -488,6 +488,7 @@ export function App() {
           (phone ? (
             <aside
               aria-label="Your preferences"
+              data-covers-map
               className={`absolute inset-x-0 bottom-0 z-10 max-h-[66%] flex-col rounded-t-xl bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.25)] landscape:max-h-[50%] ${chosen ? "hidden" : "flex"}`}
             >
               <button
@@ -510,6 +511,7 @@ export function App() {
           ) : (
             <aside
               aria-label="Your preferences"
+              data-covers-map
               className="absolute left-4 top-4 z-10 max-h-[calc(100%-17rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
             >
               {preferences}
@@ -537,6 +539,8 @@ export function App() {
         )}
         {chosen && (
           <WhyPanel
+            // A new cell opens as a new peek on a phone.
+            key={selected ?? undefined}
             {...chosen}
             places={
               selected !== null && perPlace.length === places.length
