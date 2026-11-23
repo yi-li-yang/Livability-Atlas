@@ -32,6 +32,13 @@ export const UNSCORED: Rgba = [128, 128, 128, 60];
 /** A hex cell that a hard limit leaves out: a darker grey than one with no score, and not ranked. */
 export const EXCLUDED: Rgba = [70, 70, 70, 175];
 
+/**
+ * A hex cell with few or no homes, such as a park, an airport or an industrial estate (D22): no
+ * fill, so that the map shows what is there, and a thin outline in `FEW_HOMES_OUTLINE`.
+ */
+export const FEW_HOMES: Rgba = [0, 0, 0, 0];
+export const FEW_HOMES_OUTLINE: Rgba = [90, 90, 90, 200];
+
 /** The colour of a score from 0 (worst) to 1 (best), blended between the palette's stops. */
 export function scoreToColour(score: number | null): Rgba {
   if (score === null) return UNSCORED;

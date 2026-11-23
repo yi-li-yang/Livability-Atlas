@@ -12,7 +12,7 @@ import pyarrow.parquet as pq
 
 from atlas.catalogue.load import load_catalogue
 from atlas.paths import CATALOGUE_DIR
-from atlas.publish.bundle import Choice, Neighbourhoods, write_bundle
+from atlas.publish.bundle import Choice, Homes, Neighbourhoods, write_bundle
 
 SOHO = h3.latlng_to_cell(51.5136, -0.1337, 9)
 CELLS = sorted(h3.grid_disk(SOHO, 1))
@@ -43,6 +43,11 @@ def sample_neighbourhoods() -> Neighbourhoods:
         of_cell=[0, 0, 0, 0, 1, 1, None],
         datasets=["hoc-msoa-names", "ons-msoa-boundaries"],
     )
+
+
+def sample_homes() -> Homes:
+    """Homes in five of the cells; the sixth has a park lodge's three and the last has none."""
+    return Homes(of_cell=[300, 250, 200, 150, 100, 3, 0], minimum=10, datasets=["epc-domestic"])
 
 
 def spoil(
@@ -79,6 +84,7 @@ def write_sample(
         columns={**sample_columns(), **(columns or {})},
         choices=sample_choices() if choices is None else choices,
         neighbourhoods=sample_neighbourhoods() if neighbourhoods is None else neighbourhoods,
+        homes=sample_homes(),
         out_dir=out_dir,
         publish=publish,
     )

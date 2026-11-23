@@ -1,4 +1,4 @@
-import { scoreToCss } from "./colour";
+import { FEW_HOMES_OUTLINE, scoreToCss } from "./colour";
 import type { ViewOption } from "./views";
 
 /** What the colours mean: a bar from the worst score to the best, with a label at each end. */
@@ -9,6 +9,7 @@ export function Legend({
   options,
   view,
   note,
+  fewHomes = false,
   phone = false,
   onView,
   opacity,
@@ -23,6 +24,8 @@ export function Legend({
   view: string | null;
   /** Something to say about what is shown, such as that it has no data. */
   note?: string | null;
+  /** Whether the map leaves the cells with few or no homes clear, which the legend then explains. */
+  fewHomes?: boolean;
   /** Whether to lay it out for a phone: across the top of the map, with the opacity tucked away. */
   phone?: boolean;
   onView: (view: string | null) => void;
@@ -39,6 +42,20 @@ export function Legend({
     };
     groups.set(option.groupId, { ...group, items: [...group.items, option] });
   }
+  // A hex cell with few or no homes is left clear with an outline: the key shows one.
+  const fewHomesKey = fewHomes && (
+    <span className="flex items-center gap-1.5">
+      <span
+        aria-hidden="true"
+        data-testid="few-homes-key"
+        className="inline-block h-3 w-4 shrink-0 rounded-sm border"
+        style={{
+          borderColor: `rgb(${FEW_HOMES_OUTLINE.slice(0, 3).join(" ")})`,
+        }}
+      />
+      Few or no homes: no score
+    </span>
+  );
   const opacityControl = (
     <>
       <input
@@ -96,10 +113,14 @@ export function Legend({
         className="h-3 rounded"
         style={{ background: gradient }}
       />
-      <div className="mt-1 flex justify-between text-xs text-neutral-600">
+      <div className="mt-1 flex justify-between gap-2 text-xs text-neutral-600">
         <span>{low}</span>
+        {phone && fewHomesKey}
         <span>{high}</span>
       </div>
+      {fewHomesKey && !phone && (
+        <p className="mt-1 text-xs text-neutral-600">{fewHomesKey}</p>
+      )}
       {note && (
         <p role="note" className="mt-1 text-xs text-neutral-600">
           {note}

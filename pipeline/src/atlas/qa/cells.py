@@ -17,7 +17,8 @@ from numpy.typing import NDArray
 from atlas.catalogue.models import Curve
 from atlas.publish.manifest import Manifest, ManifestOption
 
-NOT_VALUES = ("cell", "neighbourhood")  # the columns of cells.parquet that are not measured
+# The columns of cells.parquet that are not measured values.
+NOT_VALUES = ("cell", "neighbourhood", "homes")
 
 
 class OutsideBundle(KeyError):
@@ -132,6 +133,16 @@ class Cells:
         if cell not in self._row:
             raise OutsideBundle(f"{place} is outside the bundle's cells")
         return cell
+
+    def home_counts(self) -> NDArray[np.float64]:
+        """The number of homes in each cell (D22), or NaN for each where the bundle has no count."""
+        homes = self.manifest.homes
+        if homes is None or homes.column not in self.table.column_names:
+            return np.full(self.count, np.nan)
+        return np.asarray(self.table[homes.column].to_numpy(zero_copy_only=False), dtype=float)
+
+    def homes_at(self, place: str) -> float:
+        return float(self.home_counts()[self._row[self.cell_of(place)]])
 
     def at(self, place: str, column: str) -> float:
         return float(self.numbers(column)[self._row[self.cell_of(place)]])

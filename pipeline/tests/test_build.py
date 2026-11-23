@@ -657,6 +657,9 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(
         build_module.epc, "certificates", lambda data_dir, region, codes: certificates
     )
+    # 12 homes with a certificate, all at the one postcode, W1 1AA, in the east of AREA.
+    stock = pd.DataFrame({"postcode": ["W11AA"] * 12, "efficiency": [70.0] * 12})
+    monkeypatch.setattr(build_module.epc, "stock", lambda data_dir, region, codes: stock)
     monkeypatch.setattr(build_module.tfl_lines, "fetch", lambda data_dir: tmp_path / "lines")
     monkeypatch.setattr(
         build_module.tfl_journeys,
@@ -925,6 +928,25 @@ def test_a_commercial_build_leaves_out_the_indicators_whose_dataset_has_no_comme
     assert not {"epc-domestic", "hm-land-registry-price-paid"} & {
         d["id"] for d in manifest["datasets"]
     }
+
+
+def test_the_bundle_counts_the_homes_in_each_cell(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data")
+    table = pq.read_table(bundle / "cells.parquet").to_pandas()
+    east = h3.latlng_to_cell(51.5120, -0.1285, 9)
+    assert table.set_index("cell").loc[east, "homes"] == 12
+    assert table["homes"].sum() == 12  # the other cells have none
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["homes"] == {"column": "homes", "minimum": 10}
+    assert "epc-domestic" in {d["id"] for d in manifest["datasets"]}
+
+
+def test_a_commercial_build_has_no_count_of_homes(monkeypatch, tmp_path):
+    use_synthetic_data(monkeypatch, tmp_path)
+    bundle = build_region("london", data_dir=tmp_path / "data", commercial=True)
+    assert "homes" not in pq.read_table(bundle / "cells.parquet").column_names
+    assert "homes" not in json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
 
 
 def test_the_command_has_a_commercial_option(monkeypatch, tmp_path):

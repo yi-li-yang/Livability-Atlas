@@ -28,4 +28,6 @@ def test_the_fixture_bundle_is_valid_under_the_current_manifest_model():
         for column in ([o.column for o in i.options] if i.options else [i.column])
     ]
     named = ["neighbourhood"] if manifest.neighbourhoods else []
+    if manifest.homes:
+        named.append(manifest.homes.column)
     assert table.column_names == ["cell", *named, *expected]

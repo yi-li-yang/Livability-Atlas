@@ -10,7 +10,6 @@ from typing import Any
 import pandas as pd
 
 from atlas.families import Context, Family
-from atlas.families.energy import homes_by_cell
 from atlas.indicators.pooling import per_km2, pooled_median
 
 STEPS = 2
@@ -29,7 +28,7 @@ def columns_with(ctx: Context, homes: pd.DataFrame) -> dict[str, Sequence[Any]]:
 
 
 def columns(ctx: Context) -> dict[str, Sequence[Any]]:
-    return columns_with(ctx, homes_by_cell(ctx))
+    return columns_with(ctx, ctx.homes)
 
 
 FAMILY = Family("urban_form", columns, built_from={"building-age": ("epc-domestic",)})

@@ -33,7 +33,7 @@ class Columns:
         indicators = built(load_catalogue(CATALOGUE_DIR).factors.factors)
         choices = {i for i, n in indicators.items() if n.preference_type == "user-choice"}
         self.plain = {i.replace("-", "_") for i in indicators if i not in choices}
-        self.plain.add("neighbourhood")
+        self.plain |= {"neighbourhood", "homes"}
         self.prefixes = {i.replace("-", "_") for i in choices}
 
     def has(self, column: str) -> bool:

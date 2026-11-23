@@ -1,7 +1,8 @@
 """Writes the small data bundle that the web app's tests load: the cells within 8 steps of Soho.
 
 The service level, the walk to the nearest station, the travel time to the default places, the
-five crime rates, the options of the two choice indicators, the neighbourhoods, and the travel
+five crime rates, the options of the two choice indicators, the neighbourhoods, the homes in each
+cell (so the parks around Soho have few or none), and the travel
 files cut to these cells (their stations, the matrix between those, and the postcodes around)
 come from a real
 London bundle, so run `just data london` first. The other two indicators are FABRICATED, only so
@@ -20,7 +21,7 @@ import pyarrow.parquet as pq
 from atlas.catalogue.load import load_catalogue
 from atlas.indicators import crime
 from atlas.paths import REPO_ROOT, data_dir
-from atlas.publish.bundle import Choice, Neighbourhoods, Travel, write_bundle
+from atlas.publish.bundle import Choice, Homes, Neighbourhoods, Travel, write_bundle
 
 OUT = REPO_ROOT / "web" / "e2e" / "fixtures" / "bundles"
 SOHO = h3.latlng_to_cell(51.5136, -0.1337, 9)
@@ -73,6 +74,15 @@ def main() -> None:
         of_cell=[None if i is None else renumbered[i] for i in old],
         datasets=["hoc-msoa-names", "ons-msoa-boundaries"],
     )
+    homes = (
+        Homes(
+            of_cell=[table["homes"][row[c]] for c in cells],
+            minimum=manifest["homes"]["minimum"],
+            datasets=["epc-domestic"],
+        )
+        if "homes" in manifest
+        else None
+    )
     fabricated = {
         # A pattern that varies from cell to cell.
         "walk-to-green-space": [4 + (i * 7) % 12 for i in range(len(cells))],
@@ -87,6 +97,7 @@ def main() -> None:
         columns={**real, **fabricated},
         choices=choices,
         neighbourhoods=neighbourhoods,
+        homes=homes,
         travel=travel,
         out_dir=OUT,
     )

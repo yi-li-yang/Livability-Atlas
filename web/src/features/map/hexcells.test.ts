@@ -3,8 +3,14 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadBundle } from "../../data/bundle";
 import { allLeafScores, scoreRegion } from "../../scoring/region";
-import { EXCLUDED, scoreToColour, UNSCORED } from "./colour";
-import { cellColours, toHexCells } from "./hexcells";
+import {
+  EXCLUDED,
+  FEW_HOMES,
+  FEW_HOMES_OUTLINE,
+  scoreToColour,
+  UNSCORED,
+} from "./colour";
+import { cellColours, cellOutlines, toHexCells } from "./hexcells";
 
 const FIXTURES = fileURLToPath(
   new URL("../../../e2e/fixtures/bundles/", import.meta.url),
@@ -107,5 +113,25 @@ describe("cellColours with limits", () => {
   it("colours every cell by its score where no limit applies", () => {
     const scores = Float64Array.from([10, 90]);
     expect(cellColours(scores)).toEqual(cellColours(scores, new Uint8Array(2)));
+  });
+});
+
+describe("a cell with few or no homes", () => {
+  it("has no fill, whatever its score or its limits, so that the map shows through", () => {
+    const scores = Float64Array.from([10, Number.NaN, Number.NaN]);
+    const excluded = Uint8Array.from([0, 0, 1]);
+    const few = Uint8Array.from([0, 1, 1]);
+    const colours = cellColours(scores, excluded, few);
+    expect(colours[0]).toEqual(scoreToColour(0.1));
+    expect(colours[1]).toEqual(FEW_HOMES);
+    expect(colours[2]).toEqual(FEW_HOMES);
+    expect(FEW_HOMES[3]).toBe(0);
+  });
+
+  it("is outlined, and a place where people live is not", () => {
+    const outlines = cellOutlines(Uint8Array.from([0, 1]));
+    expect(outlines[0][3]).toBe(0);
+    expect(outlines[1]).toEqual(FEW_HOMES_OUTLINE);
+    expect(FEW_HOMES_OUTLINE[3]).toBeGreaterThan(0);
   });
 });

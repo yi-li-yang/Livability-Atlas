@@ -1,6 +1,6 @@
 import { cellToLatLng } from "h3-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type Bundle, loadBundle } from "./data/bundle";
+import { type Bundle, fewHomes, loadBundle } from "./data/bundle";
 import { FactorTree } from "./features/factors/FactorTree";
 import { type Layout, loadLayout, saveLayout } from "./features/factors/layout";
 import { ModeSwitch } from "./features/factors/ModeSwitch";
@@ -10,7 +10,7 @@ import { LimitsPanel } from "./features/limits/LimitsPanel";
 import { rangeOf } from "./features/limits/limits";
 import { CELL_OPACITY } from "./features/map/colour";
 import { HexMap, type Hover } from "./features/map/HexMap";
-import { cellColours, toHexCells } from "./features/map/hexcells";
+import { cellColours, cellOutlines, toHexCells } from "./features/map/hexcells";
 import { Legend } from "./features/map/Legend";
 import { noDataNote, viewOptions } from "./features/map/views";
 import { neighbourhoodStabilitySteps } from "./features/neighbourhoods/stability";
@@ -283,9 +283,17 @@ export function App() {
     viewName && shown?.every(Number.isNaN)
       ? noDataNote(viewName, viewNode, profile)
       : null;
+  // A cell with few or no homes, such as a park or an airport, is not a place to live (D22).
+  const few = useMemo(() => (bundle ? fewHomes(bundle) : null), [bundle]);
+  const countsHomes = bundle?.manifest.homes != null;
   const colours = useMemo(
-    () => (shown ? cellColours(shown, excluded ?? undefined) : []),
-    [shown, excluded],
+    () =>
+      shown ? cellColours(shown, excluded ?? undefined, few ?? undefined) : [],
+    [shown, excluded, few],
+  );
+  const outlines = useMemo(
+    () => (few && countsHomes ? cellOutlines(few) : undefined),
+    [few, countsHomes],
   );
   const ranked = useMemo(
     () =>
@@ -449,6 +457,7 @@ export function App() {
         <HexMap
           cells={cells}
           colours={colours}
+          outlines={outlines}
           opacity={opacity}
           selected={selected}
           focus={focus}
@@ -498,7 +507,7 @@ export function App() {
           ) : (
             <aside
               aria-label="Your preferences"
-              className="absolute left-4 top-4 z-10 max-h-[calc(100%-15.5rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
+              className="absolute left-4 top-4 z-10 max-h-[calc(100%-17rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
             >
               {preferences}
             </aside>
@@ -544,6 +553,7 @@ export function App() {
             options={viewChoices}
             view={viewName ? view : null}
             note={viewNote}
+            fewHomes={countsHomes}
             phone={phone}
             onView={setView}
             opacity={opacity}

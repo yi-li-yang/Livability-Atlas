@@ -7,6 +7,7 @@ from atlas.catalogue.load import load_catalogue
 from atlas.paths import CATALOGUE_DIR
 from atlas.publish.bundle import (
     Choice,
+    Homes,
     Neighbourhoods,
     previous_version,
     publish_latest,
@@ -378,6 +379,48 @@ def test_every_cell_needs_a_neighbourhood_entry(catalogue, tmp_path):
             neighbourhoods=Neighbourhoods(
                 listing=[("Soho", "Westminster")], of_cell=[0], datasets=[]
             ),
+            out_dir=tmp_path,
+        )
+
+
+def homes():
+    return Homes(of_cell=[250, 0, 3], minimum=10, datasets=["epc-domestic"])
+
+
+def test_the_homes_of_each_cell_are_a_column_and_the_manifest_gives_the_minimum(
+    catalogue, tmp_path
+):
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={"service-level": ["6b", "2", None]},
+        homes=homes(),
+        out_dir=tmp_path,
+    )
+    table = pq.read_table(bundle / "cells.parquet")
+    assert table.column_names == ["cell", "homes", "service_level"]
+    assert table["homes"].to_pylist() == [250, 0, 3]
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest.homes is not None
+    assert (manifest.homes.column, manifest.homes.minimum) == ("homes", 10)
+    assert "epc-domestic" in {d.id for d in manifest.datasets}
+
+
+def test_a_bundle_without_homes_has_no_such_column_or_entry(catalogue, tmp_path):
+    bundle = build(catalogue, tmp_path)
+    assert "homes" not in pq.read_table(bundle / "cells.parquet").column_names
+    assert "homes" not in json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+
+
+def test_every_cell_needs_a_count_of_homes(catalogue, tmp_path):
+    with pytest.raises(ValueError, match="homes"):
+        write_bundle(
+            catalogue,
+            region_id="london",
+            cells=CELLS,
+            columns={"service-level": ["6b", "2", None]},
+            homes=Homes(of_cell=[1, 2], minimum=10, datasets=[]),
             out_dir=tmp_path,
         )
 

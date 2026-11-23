@@ -16,6 +16,12 @@ export interface Bundle {
    * where it has none (or the bundle names none).
    */
   neighbourhoodOf?: (number | null)[];
+  /**
+   * The number of homes in each cell, where the bundle counts them (the manifest's `homes`). A
+   * cell with fewer than the manifest's minimum is not a place where people live, so it has no
+   * score (D22).
+   */
+  homes?: number[];
   /** The address of the bundle's folder, from which its other files (the travel files) load. */
   folder?: string;
 }
@@ -34,6 +40,27 @@ export function neighbourhoodAt(
   const position = bundle.neighbourhoodOf?.[cellIndex];
   if (position === null || position === undefined) return null;
   return bundle.manifest.neighbourhoods?.[position] ?? null;
+}
+
+const fewHomesCache = new WeakMap<Bundle, Uint8Array>();
+
+/**
+ * 1 for each cell with few or no homes (fewer than the manifest's minimum), such as a park, an
+ * airport or an industrial estate, and 0 for each place where people live. Without a count of
+ * homes, every cell is a place where people live.
+ */
+export function fewHomes(bundle: Bundle): Uint8Array {
+  const known = fewHomesCache.get(bundle);
+  if (known) return known;
+  const out = new Uint8Array(bundle.cells.length);
+  const minimum = bundle.manifest.homes?.minimum;
+  if (minimum !== undefined && bundle.homes) {
+    bundle.homes.forEach((count, i) => {
+      if (count < minimum) out[i] = 1;
+    });
+  }
+  fewHomesCache.set(bundle, out);
+  return out;
 }
 
 export type Fetcher = (url: string) => Promise<Response>;
@@ -90,11 +117,16 @@ export async function loadBundle(
       ? null
       : Number(position);
   });
+  const homesColumn = manifest.homes?.column;
+  const homes = homesColumn
+    ? rows.map((row) => Number(row[homesColumn] ?? 0))
+    : undefined;
   return {
     manifest,
     cells,
     columns,
     neighbourhoodOf: named,
+    homes,
     folder: `${root}/${version}`,
   };
 }

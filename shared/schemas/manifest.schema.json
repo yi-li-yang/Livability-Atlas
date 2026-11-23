@@ -182,6 +182,26 @@
       "title": "ManifestFactor",
       "type": "object"
     },
+    "ManifestHomes": {
+      "additionalProperties": false,
+      "description": "Where people live (D22). A score describes the homes in a cell, so a cell with fewer than\n`minimum` homes, such as a park, an airport or an industrial estate, has no score.",
+      "properties": {
+        "column": {
+          "title": "Column",
+          "type": "string"
+        },
+        "minimum": {
+          "title": "Minimum",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "column",
+        "minimum"
+      ],
+      "title": "ManifestHomes",
+      "type": "object"
+    },
     "ManifestIndicator": {
       "additionalProperties": false,
       "properties": {
@@ -665,6 +685,17 @@
       ],
       "default": null,
       "title": "Neighbourhoods"
+    },
+    "homes": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ManifestHomes"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "presets": {
       "anyOf": [

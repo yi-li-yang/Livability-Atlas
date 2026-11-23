@@ -34,6 +34,7 @@ export interface Hover {
 export function HexMap({
   cells,
   colours,
+  outlines,
   opacity,
   selected,
   focus,
@@ -44,6 +45,8 @@ export function HexMap({
   cells: HexCell[];
   /** The colour of each cell, in the order of `cells`. */
   colours: Rgba[];
+  /** The colour of each cell's outline, such as that of a cell with few or no homes. */
+  outlines?: Rgba[];
   /** How much of a cell's colour shows over the basemap, from 0 to 1. */
   opacity: number;
   /** The index of the cell the user has clicked, outlined on the map. */
@@ -102,9 +105,12 @@ export function HexMap({
           getPolygon: (cell) => cell.polygon,
           // Read by index, so that a new score only re-evaluates the colours, not the shapes.
           getFillColor: (_cell, { index }) => colours[index],
-          updateTriggers: { getFillColor: colours },
+          getLineColor: (_cell, { index }) => outlines?.[index] ?? [0, 0, 0, 0],
+          updateTriggers: { getFillColor: colours, getLineColor: outlines },
           filled: true,
-          stroked: false,
+          stroked: outlines !== undefined,
+          lineWidthUnits: "pixels",
+          getLineWidth: 1,
           opacity,
           pickable: true,
           autoHighlight: true,
@@ -135,7 +141,7 @@ export function HexMap({
         }),
       ],
     });
-  }, [cells, colours, opacity, selected, places, onHover, onSelect]);
+  }, [cells, colours, outlines, opacity, selected, places, onHover, onSelect]);
 
   return (
     <div

@@ -49,6 +49,8 @@ export type Datasets1 = ManifestDataset[];
 export type Neighbourhoods = ManifestNeighbourhood[] | null;
 export type Name5 = string;
 export type Area = string;
+export type Column2 = string;
+export type Minimum = number;
 export type Presets = ManifestPreset[] | null;
 export type Id5 = string;
 export type Name6 = string;
@@ -83,6 +85,7 @@ export interface Manifest {
   indicators: Indicators;
   datasets: Datasets1;
   neighbourhoods?: Neighbourhoods;
+  homes?: ManifestHomes | null;
   presets?: Presets;
   travel?: ManifestTravel | null;
 }
@@ -162,6 +165,14 @@ export interface ManifestDataset {
 export interface ManifestNeighbourhood {
   name: Name5;
   area: Area;
+}
+/**
+ * Where people live (D22). A score describes the homes in a cell, so a cell with fewer than
+ * `minimum` homes, such as a park, an airport or an industrial estate, has no score.
+ */
+export interface ManifestHomes {
+  column: Column2;
+  minimum: Minimum;
 }
 /**
  * A ready-made preference profile, cut to the factors and indicators of this bundle.

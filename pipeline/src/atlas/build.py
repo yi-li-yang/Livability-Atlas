@@ -60,6 +60,7 @@ from atlas.indicators import (
     faith,
     flood,
     health,
+    homes,
     housing,
     noise,
     prices,
@@ -69,7 +70,7 @@ from atlas.indicators import (
 from atlas.indicators import places as place_pool
 from atlas.paths import CATALOGUE_DIR
 from atlas.paths import data_dir as default_data_dir
-from atlas.publish.bundle import Choice, Neighbourhoods, Travel, write_bundle
+from atlas.publish.bundle import Choice, Homes, Neighbourhoods, Travel, write_bundle
 from atlas.spatial import neighbourhoods, walking
 from atlas.spatial.grid import (
     boundary_from_geojson,
@@ -167,6 +168,8 @@ def build_region(
         for indicator in needs_commercial_licence(catalogue, [*columns, *choices], built_from):
             columns.pop(indicator, None)
             choices.pop(indicator, None)
+    allowed = {d.id for d in catalogue.datasets.datasets if d.commercial_use}
+    counted = None if commercial and not set(HOMES_FROM) <= allowed else _homes(ctx)
 
     return write_bundle(
         catalogue,
@@ -175,10 +178,21 @@ def build_region(
         columns=columns,
         choices=choices,
         neighbourhoods=_neighbourhoods(cells, data_dir),
+        homes=counted,
         travel=travel,
         out_dir=data_dir / "published",
         publish=publish,
     )
+
+
+# The datasets that the homes in each cell are counted from (D22).
+HOMES_FROM = ("epc-domestic",)
+
+
+def _homes(ctx: families.Context) -> Homes:
+    """The homes in each cell: those with an energy certificate, at their postcode's centre."""
+    counts = homes.count_by_cell(ctx.homes["cell"], ctx.cells)
+    return Homes(counts, homes.MINIMUM_HOMES, HOMES_FROM)
 
 
 def _crime_columns(ctx: families.Context) -> dict[str, list]:

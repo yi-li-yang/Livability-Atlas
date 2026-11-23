@@ -43,7 +43,7 @@ def test_the_report_of_a_sound_bundle_says_that_it_passed(tmp_path, catalogue):
     assert not report.failed
     assert text.startswith("# QA report: London\n")
     assert f"`{folder.name}`" in text and "7 cells" in text and "5 indicators" in text
-    assert "**Passed.** 13 checks passed, 0 warnings, 0 failed, 0 skipped." in text
+    assert "**Passed.** 14 checks passed, 0 warnings, 0 failed, 0 skipped." in text
     assert section(text, "What needs a look").strip() == "Nothing."
 
 
@@ -70,7 +70,7 @@ def test_warnings_are_listed_but_do_not_fail_the_report(tmp_path, catalogue):
     report = report_of(spoil(write_sample(tmp_path), manifest=unknown), catalogue)
     text = report.markdown()
     assert not report.failed
-    assert "**Passed.** 12 checks passed, 1 warning, 0 failed, 0 skipped." in text
+    assert "**Passed.** 13 checks passed, 1 warning, 0 failed, 0 skipped." in text
     assert "Warning" in section(text, "What needs a look")
 
 
