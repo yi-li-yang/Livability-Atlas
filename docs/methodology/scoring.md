@@ -31,7 +31,7 @@ Section 8 ends with a [worked example](#worked-example).
 
 - **Hex cells.** The within-city scale scores H3 resolution 9 hex cells. They average 0.105 km², with edges of about 200 m, so each is about 350 m across. About 17,000 cover Greater London.
 - **Buffer zone.** Measured indicators are computed over the region plus a 2 km ring around it, so a hex cell at the boundary still counts the parks and shops just outside. Only the region is displayed.
-- **Homes.** A score describes the homes in a hex cell (D22). A hex cell with fewer homes than the bundle's minimum (10 in London), such as a park, an airport or an industrial estate, has few or no homes and no score: it is not ranked, not in a neighbourhood's mean, and not among the values that a percentile curve ranks a hex cell against (section 3). A bundle that does not count homes scores every hex cell.
+- **Homes.** A score describes the homes in a hex cell (D22). A hex cell with fewer homes than the bundle's minimum (10 in London), such as a park, an airport or an industrial estate, has few or no homes and no score: it is not ranked, not in a neighbourhood's mean, and not among the values that set the ends of a region ramp (section 3). A bundle that does not count homes scores every hex cell.
 - **Neighbourhoods.** In the UK, neighbourhoods are MSOAs: census areas of about 8,000 residents, about 1,000 of them in London. The House of Commons Library's readable names label them on the map and in the ranked list.
 - **Across-cities scale (Phase 3).** The unit becomes a city outline from the GHS Urban Centre Database. The rest of this method is unchanged.
 
@@ -68,14 +68,14 @@ Environment                          ← one weight
 
 ## 3. Scoring curves
 
-Each measured indicator $i$ has a scoring curve $f_i$ that turns its raw value $x_i$ into a score from 0 (worst) to 1 (best). Every curve has stated thresholds and a written justification in the factor catalogue.
+Each measured indicator $i$ has a scoring curve $f_i$ that turns its raw value $x_i$ into a score from 0 (worst) to 1 (best). Every curve scores by the amount, never by rank (D25), and has stated thresholds and a written justification in the factor catalogue.
 
 | Shape | Definition | Example |
 | --- | --- | --- |
-| Ramp (rising or falling) | 0 at threshold $t_0$ and 1 at threshold $t_1$, linear in between and flat beyond | PM2.5: $t_0 = 25$ µg/m³, $t_1 = 5$ µg/m³ (the WHO 2021 guideline) |
+| Ramp (rising or falling) | 0 at threshold $t_0$ and 1 at threshold $t_1$, linear in between and flat beyond, or on a log scale | PM2.5: $t_0 = 25$ µg/m³, $t_1 = 5$ µg/m³ (the WHO 2021 guideline) |
 | Ideal range | 0 up to $l_0$, rising to 1 at $l_1$, 1 up to $u_1$, then falling to 0 at $u_0$ | Summer temperature, with a band the user can move |
 | Lookup | A score for each category | Flood risk band, with illustrative values: very low 1, low 0.75, medium 0.4, high 0 |
-| Percentile (fallback) | The cell's rank among the region's hex cells, defined below | Only where no meaningful threshold exists |
+| Region ramp | A ramp whose thresholds come from the region's own values, defined below | Renting cost, where no standard sets a fair rent |
 
 A ramp is
 
@@ -84,6 +84,14 @@ f(x) = \min\left(1,\ \max\left(0,\ \frac{x - t_0}{t_1 - t_0}\right)\right)
 ```
 
 It rises when $t_1 > t_0$ and falls when $t_1 < t_0$. For PM2.5, a raw value of 9 µg/m³ scores $(9 - 25)/(5 - 25) = 0.8$.
+
+**Log scale.** A ramp with `log` scores the logarithm of the value plus an offset $c$ (0 unless stated):
+
+```math
+f(x) = \min\left(1,\ \max\left(0,\ \frac{\ln(x + c) - \ln(t_0 + c)}{\ln(t_1 + c) - \ln(t_0 + c)}\right)\right)
+```
+
+With $c = 0$, each step of the same percentage counts the same, in any unit or currency: on a ramp from £4,000 (0) to £1,000 (1), £2,000 scores $\ln(1/2)/\ln(1/4) = 0.5$. This suits money, rates and densities. With $c = 1$, a count of places nearby scores none and one a step apart, and the first few count most: on a ramp from 0 to 15, 3 scores $\ln 4/\ln 16 = 0.5$. Both thresholds must be above 0 once $c$ is added. A value with $x + c \le 0$ has no logarithm, and scores as the low end of the values: 0 on a rising ramp and 1 on a falling one.
 
 An ideal range is the lower of two ramps: one rising from $l_0$ to $l_1$, and one falling from $u_1$ to $u_0$. With illustrative summer temperatures of $l_0 = 14$, $l_1 = 20$, $u_1 = 26$ and $u_0 = 32$ °C, 23 °C scores 1 and 29 °C scores 0.5.
 
@@ -98,15 +106,9 @@ score
 
 **Lookup.** A category that the curve does not list counts as missing data.
 
-**Percentile.** Among the $N$ hex cells of the region that have a value, a cell scores
+**Region ramp.** Where no standard and no natural scale gives the thresholds, the build takes them from the region's own values and writes them into the bundle as a plain ramp, so that the bundle states its thresholds as numbers (D25). It uses the values of the hex cells with homes (section 1), in the displayed region without the buffer zone. From each end it leaves out the most extreme cells, up to 1 in 100 of them, but never a value that a whole area shares: 0.1% or more of the cells, and at least two. So a value per borough, such as a rent, keeps the dearest and the cheapest borough; a value per cell loses its most extreme 1% at each end; and a count keeps 0 as its low end. The catalogue says which end is better (`better: lower` puts the highest value at $t_0$) and whether the ramp is on a log scale. Where the region's values are all the same, the measured indicator cannot tell cells apart, so it has no curve in that bundle, and no score. A choice indicator takes the ends of each option from that option's own values.
 
-```math
-f(x) = \frac{W + \tfrac{1}{2}\,(T - 1)}{N - 1}
-```
-
-where $W$ counts the cells with a worse value, and $T$ the cells with the same value, itself included. The best cell scores 1, the worst 0, tied cells share the middle, and a region of one cell scores 0.5. The region is the displayed region, without the buffer zone. A lower raw value is worse for a "higher is better" measured indicator, and the reverse for "lower is better".
-
-**Why thresholds before percentiles.** With percentiles, every region's best hex cell scores 1, so a score means "good for this region", not "good". Thresholds keep scores comparable across regions, as long as the measured indicator itself is comparable (section 9).
+**Why thresholds, and why not ranks.** With a region ramp, every region's best hex cell scores 1, so a score means "good for this region", not "good". Fixed thresholds keep scores comparable across regions, as long as the measured indicator itself is comparable (section 9), so a standard or a natural scale comes first. A rank (a percentile) would also be relative to the region, and it hides the amount. Until D25, London's rents of £2,834 and £3,739 a month scored 6 and 0.5, because a rank follows how many hex cells each borough has, and £5 between two outer boroughs moved a cell 6 points.
 
 ## 4. Preference types
 
@@ -119,7 +121,7 @@ For some measured indicators everyone agrees on the direction. For others, peopl
 | User range | People have an ideal band | Temperature, humidity, daylight hours, building age | A comfort band from the research literature; the user drags it |
 | User choice | People pick what to look for | Industry, cuisines, community group, faith | Weight 0 until the user picks |
 
-Flipping a user direction swaps $t_0$ and $t_1$ on a ramp, so every score $s$ becomes $1 - s$. The same holds for every curve shape: a flipped ideal range or lookup scores $1 - s$ too. A user who cannot stand rain can also set a hard limit, e.g. fewer than 100 rainy days a year. In the app the switch reads "More is better" and "Less is better", and which one starts pressed comes from the catalogue's curve (a percentile's `better`, or a ramp's $t_1 > t_0$).
+Flipping a user direction swaps $t_0$ and $t_1$ on a ramp, so every score $s$ becomes $1 - s$. The same holds for every curve shape: a flipped ideal range or lookup scores $1 - s$ too. A user who cannot stand rain can also set a hard limit, e.g. fewer than 100 rainy days a year. In the app the switch reads "More is better" and "Less is better", and which one starts pressed comes from the catalogue's curve (a region ramp's `better`, or a ramp's $t_1 > t_0$).
 
 Dragging the band of a user range sets the band $[lo, hi]$ that scores in full: it replaces $l_1$ and $u_1$ of the ideal range, and the slopes keep the widths of the catalogue's curve, so $l_0 = lo - (l_1 - l_0)$ and $u_0 = hi + (u_0 - u_1)$. Until the user drags it, the catalogue's band applies. The band travels in the link (`r=building-age:1890~1930`) and the browser's storage, like the directions (`f=`).
 
@@ -266,7 +268,7 @@ Status: done in step 0.5. `shared/fixtures/scoring/` holds one JSON file for eac
 
 | Field | Meaning |
 | --- | --- |
-| `tree` | A node has an `id` and a `weight`, and either `children`, or the fields of a measured indicator: a `curve` (as in the catalogue), a raw `value` (`null` when missing), `region_values` (percentile curves only: every region cell's value), `flipped`, and `band` (a user range's `[lo, hi]`) |
+| `tree` | A node has an `id` and a `weight`, and either `children`, or the fields of a measured indicator: a `curve` (as in a bundle, where a region ramp is already a ramp), a raw `value` (`null` when missing), `flipped`, and `band` (a user range's `[lo, hi]`) |
 | `mode` | Optional. `"balanced"` is the no weak spots mode (section 5); anything else, or none, is the arithmetic mean |
 | `hard_limits` | Each has an `id`, an `indicator` (a measured indicator's `id`), and one of `max`, `min`, `in` or `not_in` |
 | `expected.score` | The livability score, 0 to 100 and unrounded, or `null` when no factor is active |
@@ -284,7 +286,7 @@ The interface rounds the livability score to a whole number for display, and ran
 | `ramp` | Falling and rising ramps, flat beyond both thresholds, and a value at a threshold |
 | `ideal-range` | Inside the band, on each slope, and at its edges |
 | `lookup` | A lookup, and a category it does not list, which counts as missing |
-| `percentile` | Ties share the middle, the best cell scores 1, and a region of one cell scores 0.5 |
+| `ramp-log` | Log ramps: a ratio halfway scores 0.5, a count with offset 1 from 0, and a value with no logarithm scores as the low end |
 | `flipped-direction` | $1 - s$ for a ramp, an ideal range and a lookup |
 | `user-range` | A user's band moves the ideal range and keeps the widths of its slopes; with no band, the catalogue's applies |
 | `missing-and-low-coverage` | A factor without data is skipped, weights renormalised, coverage under 70% flagged |

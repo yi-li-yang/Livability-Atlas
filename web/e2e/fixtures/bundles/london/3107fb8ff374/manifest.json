@@ -1,6 +1,6 @@
 {
-  "format_version": 1,
-  "version": "9b09f6e74725",
+  "format_version": 2,
+  "version": "3107fb8ff374",
   "region": {
     "id": "london",
     "name": "London"
@@ -214,8 +214,11 @@
       "evidence_type": "direct",
       "preference_type": "fixed",
       "curve": {
-        "shape": "percentile",
-        "better": "lower"
+        "shape": "ramp",
+        "t0": 51.83390678876084,
+        "t1": 5.574307139041994,
+        "log": true,
+        "from_region": true
       },
       "datasets": [
         "police-uk",
@@ -231,8 +234,11 @@
       "evidence_type": "direct",
       "preference_type": "fixed",
       "curve": {
-        "shape": "percentile",
-        "better": "lower"
+        "shape": "ramp",
+        "t0": 27.15931495971898,
+        "t1": 1.9029926943257276,
+        "log": true,
+        "from_region": true
       },
       "datasets": [
         "police-uk",
@@ -250,8 +256,11 @@
       "evidence_type": "direct",
       "preference_type": "fixed",
       "curve": {
-        "shape": "percentile",
-        "better": "lower"
+        "shape": "ramp",
+        "t0": 73.12585315120985,
+        "t1": 2.9920446655256443,
+        "log": true,
+        "from_region": true
       },
       "datasets": [
         "police-uk",
@@ -269,8 +278,11 @@
       "evidence_type": "direct",
       "preference_type": "fixed",
       "curve": {
-        "shape": "percentile",
-        "better": "lower"
+        "shape": "ramp",
+        "t0": 63.463880566662,
+        "t1": 3.974940516470779,
+        "log": true,
+        "from_region": true
       },
       "datasets": [
         "police-uk",
@@ -286,8 +298,11 @@
       "evidence_type": "direct",
       "preference_type": "fixed",
       "curve": {
-        "shape": "percentile",
-        "better": "lower"
+        "shape": "ramp",
+        "t0": 25.969211321405947,
+        "t1": 0.5422121312782042,
+        "log": true,
+        "from_region": true
       },
       "datasets": [
         "police-uk",
@@ -332,10 +347,6 @@
       "unit": "% of residents",
       "evidence_type": "direct",
       "preference_type": "user-choice",
-      "curve": {
-        "shape": "percentile",
-        "better": "higher"
-      },
       "datasets": [
         "ons-census-2021-topic-summaries",
         "ons-output-area-boundaries"
@@ -345,13 +356,25 @@
           "id": "ethnic-indian",
           "name": "Indian",
           "group": "Ethnic group",
-          "column": "your_community__ethnic_indian"
+          "column": "your_community__ethnic_indian",
+          "curve": {
+            "shape": "ramp",
+            "t0": 1.0490933893417211,
+            "t1": 23.631405798744748,
+            "from_region": true
+          }
         },
         {
           "id": "religion-hindu",
           "name": "Hindu",
           "group": "Religion",
-          "column": "your_community__religion_hindu"
+          "column": "your_community__religion_hindu",
+          "curve": {
+            "shape": "ramp",
+            "t0": 0.3478337950211762,
+            "t1": 15.813678326330093,
+            "from_region": true
+          }
         }
       ]
     },

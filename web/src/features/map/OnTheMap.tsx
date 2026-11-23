@@ -4,10 +4,13 @@ import { scoreToCss } from "./colour";
 export function OnTheMap({
   name,
   score,
+  value = null,
 }: {
   name: string;
   /** From 0 to 100, or null where the cell has no data for it. */
   score: number | null;
+  /** For a measured indicator, its value here with its unit, such as "£2,834 a month". */
+  value?: string | null;
 }) {
   return (
     <p data-testid="on-the-map" className="text-sm">
@@ -17,6 +20,7 @@ export function OnTheMap({
         ", no data here"
       ) : (
         <>
+          {value && <span data-testid="value-here">{`, ${value}`}</span>}
           {", "}
           {/* The colour the score has on the map, so that a name such as Crime reads as good or bad. */}
           <span

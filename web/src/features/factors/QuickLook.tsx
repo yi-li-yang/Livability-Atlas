@@ -14,7 +14,11 @@ export function QuickLook({
   rank: number | null;
   total: number;
   /** What the map shows in place of the livability score, and the cell's score on it. */
-  onMap?: { name: string; score: number | null } | null;
+  onMap?: {
+    name: string;
+    score: number | null;
+    value?: string | null;
+  } | null;
 }) {
   const { score, strengths, weakness, neighbourhood } = explanation;
   return (

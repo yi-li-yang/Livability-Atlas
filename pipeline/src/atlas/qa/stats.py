@@ -7,8 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import NDArray
 
-from atlas.catalogue.models import Curve
-from atlas.publish.manifest import ManifestFactor
+from atlas.publish.manifest import ManifestCurve, ManifestFactor, ManifestRamp
 from atlas.qa.cells import Cells, Described
 from atlas.scoring.engine import LOW_COVERAGE
 
@@ -40,6 +39,11 @@ class ColumnStats:
     full: float | None = None
     none: float | None = None
     categories: tuple[Category, ...] | None = None  # a text column, in its curve's order
+    # A ramp whose ends the build took from the region's values (D25), and the shares of the cells
+    # with a value that lie past the end that scores 0 and past the end that scores 1.
+    region_ramp: ManifestRamp | None = None
+    past_none: float | None = None
+    past_full: float | None = None
 
     @property
     def label(self) -> str:
@@ -77,6 +81,8 @@ def _stats(cells: Cells, described: Described) -> ColumnStats:
         float(x) for x in np.percentile(present, [0, 5, 50, 95, 100])
     )
     full, none = curve_span(described.curve, present)
+    curve = described.curve
+    region = curve if curve is not None and curve.shape == "ramp" and curve.from_region else None
     return ColumnStats(
         **base,
         valued=len(present) / total,
@@ -87,24 +93,48 @@ def _stats(cells: Cells, described: Described) -> ColumnStats:
         highest=highest,
         full=full,
         none=none,
+        region_ramp=region,
+        past_none=_past(present, region.t0, region.t1) if region else None,
+        past_full=_past(present, region.t1, region.t0) if region else None,
     )
 
 
-def _lookup(curve: Curve | None) -> dict[str, float]:
+def _past(present: NDArray[np.float64], end: float, other: float) -> float:
+    """The share of the values beyond `end`, on the side away from `other`."""
+    beyond = present < end if end < other else present > end
+    return float(beyond.mean())
+
+
+def _lookup(curve: ManifestCurve | None) -> dict[str, float]:
     if curve is None or curve.shape != "lookup":
         return {}
     return {str(key): float(score) for key, score in curve.scores.items()}
 
 
+def ramp_scores(curve: ManifestRamp, present: NDArray[np.float64]) -> NDArray[np.float64]:
+    """A ramp's scores of a whole array, linear or on a log scale, as the reference scorer
+    (`atlas.scoring.engine.curve_score`) gives them one by one."""
+    if not curve.log:
+        return np.clip((present - curve.t0) / (curve.t1 - curve.t0), 0.0, 1.0)
+    offset = curve.offset or 0.0
+    shifted = present + offset
+    low = 0.0 if curve.t0 < curve.t1 else 1.0  # the score of a value with no logarithm
+    with np.errstate(divide="ignore", invalid="ignore"):
+        logged = (np.log(shifted) - np.log(curve.t0 + offset)) / (
+            np.log(curve.t1 + offset) - np.log(curve.t0 + offset)
+        )
+    return np.where(shifted <= 0, low, np.clip(logged, 0.0, 1.0))
+
+
 def curve_span(
-    curve: Curve | None, present: NDArray[np.float64]
+    curve: ManifestCurve | None, present: NDArray[np.float64]
 ) -> tuple[float | None, float | None]:
     """The shares of values that a ramp or an ideal-range curve scores 1 and 0. The formulas are
     the reference scorer's (`atlas.scoring.engine.curve_score`), over a whole array."""
     if curve is None:
         return None, None
     if curve.shape == "ramp":
-        scores = np.clip((present - curve.t0) / (curve.t1 - curve.t0), 0.0, 1.0)
+        scores = ramp_scores(curve, present)
     elif curve.shape == "ideal-range":
         rising = np.clip((present - curve.l0) / (curve.l1 - curve.l0), 0.0, 1.0)
         falling = np.clip((present - curve.u0) / (curve.u1 - curve.u0), 0.0, 1.0)

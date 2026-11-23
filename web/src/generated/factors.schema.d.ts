@@ -14,18 +14,22 @@ export type Status = ("idea" | "researched" | "spiked" | "built") | null;
 export type Children = Factor[] | null;
 export type Unit = string | null;
 export type PreferenceType = ("fixed" | "user-direction" | "user-range" | "user-choice") | null;
-export type Curve = (Ramp | IdealRange | Lookup | Percentile) | null;
+export type Curve = (Ramp | IdealRange | Lookup | RegionRamp) | null;
 export type Shape = "ramp";
 export type T0 = number;
 export type T1 = number;
+export type Log = boolean | null;
+export type Offset = number | null;
 export type Shape1 = "ideal-range";
 export type L0 = number;
 export type L1 = number;
 export type U1 = number;
 export type U0 = number;
 export type Shape2 = "lookup";
-export type Shape3 = "percentile";
+export type Shape3 = "region-ramp";
 export type Better = "higher" | "lower";
+export type Log1 = boolean | null;
+export type Offset1 = number | null;
 export type CurveReason = string | null;
 export type EvidenceType = ("direct" | "estimate" | "indirect" | "perception" | "ranking") | null;
 export type ComparableAcrossRegions = boolean | null;
@@ -53,10 +57,17 @@ export interface Factor {
   method?: Method;
   datasets?: Datasets;
 }
+/**
+ * A rise or a fall between two stated values: 0 at t0 and 1 at t1. With `log`, the score
+ * follows ln(value + offset) between the two, so each step of the same percentage counts the
+ * same; an offset of 1 suits a count, where none and one are a step apart.
+ */
 export interface Ramp {
   shape: Shape;
   t0: T0;
   t1: T1;
+  log?: Log;
+  offset?: Offset;
 }
 export interface IdealRange {
   shape: Shape1;
@@ -72,7 +83,14 @@ export interface Lookup {
 export interface Scores {
   [k: string]: number;
 }
-export interface Percentile {
+/**
+ * A ramp whose ends come from the region's own values (D25), for an indicator that no
+ * standard gives thresholds. The build works out the ends and writes a plain ramp into the
+ * bundle, so the app never sees this shape.
+ */
+export interface RegionRamp {
   shape: Shape3;
   better: Better;
+  log?: Log1;
+  offset?: Offset1;
 }

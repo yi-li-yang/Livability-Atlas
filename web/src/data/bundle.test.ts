@@ -92,7 +92,8 @@ describe("loadBundle", () => {
       const path = String(url);
       if (path.endsWith("latest.json"))
         return new Response('{"version":"abc"}');
-      return new Response(JSON.stringify({ format_version: 2 }));
+      // Format 1 had the percentile curve, which D25 removed.
+      return new Response(JSON.stringify({ format_version: 1 }));
     };
     await expect(loadBundle("/bundles", "london", odd)).rejects.toThrow(
       /format/,

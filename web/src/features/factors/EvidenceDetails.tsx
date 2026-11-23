@@ -7,7 +7,8 @@ import { describeCurve, evidenceTypeText, formatValue } from "./evidence";
  * their dates and licences. It opens from a "Details" link and shows nothing until asked.
  */
 export function EvidenceDetails({ evidence }: { evidence: Evidence }) {
-  const { indicator, value, option, datasets, curve, flipped } = evidence;
+  const { indicator, value, option, datasets, curve, flipped, region } =
+    evidence;
   const here = indicator.options
     ? option === null
       ? "Nothing picked has a value here"
@@ -25,7 +26,7 @@ export function EvidenceDetails({ evidence }: { evidence: Evidence }) {
         </div>
         <div>
           <dt className="font-medium">How it scores</dt>
-          <dd>{describeCurve(curve, indicator.unit, flipped)}</dd>
+          <dd>{describeCurve(curve, indicator.unit, flipped, region)}</dd>
         </div>
         <div>
           <dt className="font-medium">Kind of evidence</dt>

@@ -145,6 +145,8 @@ def value_checks(cells: Cells) -> list[Result]:
     empty: list[str] = []
     sparse: list[str] = []
     constant: list[str] = []
+    misplaced: list[str] = []
+    ramps = 0
     checked = 0
     texts = cells.texts()
     for described in cells.described():
@@ -177,6 +179,15 @@ def value_checks(cells: Cells) -> list[Result]:
                         f"{column} has {outside} values outside {low:g}{top} ({described.unit})"
                     )
             valued, distinct = len(present), len(np.unique(present))
+            curve = described.curve
+            if curve is not None and curve.shape == "ramp" and curve.from_region:
+                # The build took the ends from these values, so each lies among them.
+                ramps += 1
+                if len(present) and any(
+                    end < present.min() - TOLERANCE or end > present.max() + TOLERANCE
+                    for end in (curve.t0, curve.t1)
+                ):
+                    misplaced.append(f"{column} ({curve.t0:g} to {curve.t1:g})")
         if valued == 0:
             empty.append(column)
         elif valued / cells.count < ENOUGH:
@@ -191,6 +202,12 @@ def value_checks(cells: Cells) -> list[Result]:
             ok=f"{checked} columns",
         ),
         _result(VALUES, "Text values are ones the curve can score", unscorable),
+        _result(
+            VALUES,
+            "Region ramps have their ends among their values",
+            [f"ends outside the values: {some(misplaced)}"] if misplaced else [],
+            ok=f"{ramps} region ramps",
+        ),
         _result(
             VALUES, "Every indicator has values", [f"no values in {some(empty)}"] if empty else []
         ),

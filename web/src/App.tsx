@@ -1,6 +1,7 @@
 import { cellToLatLng } from "h3-js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type Bundle, fewHomes, loadBundle } from "./data/bundle";
+import { formatValue } from "./features/factors/evidence";
 import { FactorTree } from "./features/factors/FactorTree";
 import { type Layout, loadLayout, saveLayout } from "./features/factors/layout";
 import { ModeSwitch } from "./features/factors/ModeSwitch";
@@ -19,7 +20,12 @@ import {
   saveColourBy,
   scoreSpread,
 } from "./features/map/rank";
-import { noDataNote, viewOptions } from "./features/map/views";
+import {
+  legendEnds,
+  noDataNote,
+  viewedIndicator,
+  viewOptions,
+} from "./features/map/views";
 import { neighbourhoodStabilitySteps } from "./features/neighbourhoods/stability";
 import { TopNeighbourhoods } from "./features/neighbourhoods/TopNeighbourhoods";
 import { topNeighbourhoods } from "./features/neighbourhoods/top";
@@ -296,6 +302,13 @@ export function App() {
     viewName && shown?.every(Number.isNaN)
       ? noDataNote(viewName, viewNode, profile)
       : null;
+  // A measured indicator shown alone: the legend's ends and the quick look give its values.
+  const viewed =
+    bundle && viewName ? viewedIndicator(bundle.manifest, view) : null;
+  const ends = legendEnds(
+    viewed,
+    viewed !== null && (profile.flipped?.includes(viewed.id) ?? false),
+  );
   // A cell with few or no homes, such as a park or an airport, is not a place to live (D22).
   const few = useMemo(() => (bundle ? fewHomes(bundle) : null), [bundle]);
   const countsHomes = bundle?.manifest.homes != null;
@@ -389,10 +402,18 @@ export function App() {
     if (index === null || !bundle || !scores || !ranked) return null;
     const score = scores[index];
     const onMap = shown?.[index];
+    const raw = viewed ? bundle.columns[viewed.column][index] : null;
     return {
       onMap:
         viewName && onMap !== undefined
-          ? { name: viewName, score: Number.isNaN(onMap) ? null : onMap }
+          ? {
+              name: viewName,
+              score: Number.isNaN(onMap) ? null : onMap,
+              value:
+                viewed && raw !== null && !Number.isNaN(onMap)
+                  ? formatValue(raw, viewed.unit)
+                  : null,
+            }
           : null,
       explanation: explainCell(bundle, profile, index),
       rank:
@@ -608,8 +629,9 @@ export function App() {
         {state.status === "ready" && (
           <Legend
             title={viewName ? `${viewName} score` : "Livability score"}
-            low="Worse"
-            high="Better"
+            low={ends?.low ?? "Worse"}
+            high={ends?.high ?? "Better"}
+            unit={ends?.unit}
             options={viewChoices}
             view={viewName ? view : null}
             note={viewNote}

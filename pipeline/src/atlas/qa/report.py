@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from atlas.catalogue.load import Catalogue
+from atlas.publish.manifest import Manifest
 from atlas.qa.cells import Cells, read_cells
 from atlas.qa.changes import Snapshot, compare, snapshot
 from atlas.qa.checks import bundle_checks, dataset_checks, value_checks
@@ -47,6 +48,9 @@ class Report:
     previous: str | None  # the version this build is compared with
     changes: list[str] | None  # None where there is no previous build to compare with
     published: bool = False  # whether `latest.json` named this version when it was checked
+    # False where the previous build is on disk but in a format this version cannot read, such as
+    # a manifest with a curve shape that has gone (D25).
+    previous_readable: bool = True
 
     @property
     def failed(self) -> bool:
@@ -82,9 +86,14 @@ def check_bundle(
     ]
     stats = column_stats(cells)
     changes = None
+    readable = True
     if previous is not None and (previous / "manifest.json").exists():
-        now = Snapshot(cells.count, stats, cells.manifest.datasets)
-        changes = compare(now, snapshot(read_cells(previous)))
+        # A build in an older format (such as one with the percentile curve, before D25) cannot be
+        # read by this version, so it is named and not compared with.
+        readable = _format_of(previous) == FORMAT_VERSION
+        if readable:
+            now = Snapshot(cells.count, stats, cells.manifest.datasets)
+            changes = compare(now, snapshot(read_cells(previous)))
     return Report(
         region=cells.manifest.region.name,
         version=cells.manifest.version,
@@ -98,7 +107,16 @@ def check_bundle(
         previous=previous.name if previous is not None else None,
         changes=changes,
         published=published,
+        previous_readable=readable,
     )
+
+
+FORMAT_VERSION = Manifest.model_fields["format_version"].default
+
+
+def _format_of(folder: Path) -> object:
+    """The format version that a bundle's manifest says it is in."""
+    return json.loads((folder / "manifest.json").read_text(encoding="utf-8")).get("format_version")
 
 
 def write_report(folder: Path, report: Report) -> Path:
@@ -174,6 +192,16 @@ def _lines(report: Report) -> list[str]:
         "and 0: a curve that gives nearly every cell the same score adds little contrast.",
         "",
         *_data(report.stats),
+        "",
+        "### Region ramps",
+        "",
+        "The ends that the build took from the region's own values (D25): a cell scores 0 at the "
+        "first and 1 at the second, and a cell past an end scores as that end. The build leaves "
+        "out up to 1 in 100 cells at each end, but never a value that a whole area shares. The "
+        "shares past each end count every cell with a value, so they include the cells with few "
+        "homes, which set no end.",
+        "",
+        *_region_ramps(report.stats),
         "",
         "### Text indicators",
         "",
@@ -261,6 +289,30 @@ def _data(stats: Sequence[ColumnStats]) -> list[str]:
     return _table(headers, rows)
 
 
+def _region_ramps(stats: Sequence[ColumnStats]) -> list[str]:
+    headers = ["Indicator", "Unit", "Scores 0 at", "Scores 1 at", "Scale", "Past 0", "Past 1"]
+    rows = []
+    for s in stats:
+        ramp = s.region_ramp
+        if ramp is None:
+            continue
+        scale = "log" if ramp.log else "linear"
+        if ramp.log and ramp.offset:
+            scale = f"log of the value + {number(ramp.offset)}"
+        rows.append(
+            [
+                s.label,
+                s.unit,
+                number(ramp.t0),
+                number(ramp.t1),
+                scale,
+                share(s.past_none or 0.0),
+                share(s.past_full or 0.0),
+            ]
+        )
+    return _table(headers, rows) if rows else ["None."]
+
+
 def _categories(stats: Sequence[ColumnStats]) -> list[str]:
     lines = []
     for s in stats:
@@ -311,6 +363,11 @@ def _facts(results: Sequence[Result]) -> list[str]:
 
 
 def _changes(report: Report) -> list[str]:
+    if report.changes is None and report.previous is not None and not report.previous_readable:
+        return [
+            f"The previous build `{report.previous}` is in an older format that this version "
+            "cannot read, so there is nothing to compare with."
+        ]
     if report.changes is None and report.previous is not None:
         return [
             f"The previous build `{report.previous}` is no longer on disk, "

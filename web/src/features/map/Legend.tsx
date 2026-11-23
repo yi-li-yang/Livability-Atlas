@@ -69,6 +69,7 @@ export function Legend({
   title,
   low,
   high,
+  unit = null,
   options,
   view,
   note,
@@ -87,6 +88,8 @@ export function Legend({
   title: string;
   low: string;
   high: string;
+  /** The unit of the values at the ends, where it is too long to give at each end. */
+  unit?: string | null;
   /** What the map can show in place of the livability score, grouped by top-level factor. */
   options: readonly ViewOption[];
   /** The id of the factor or indicator the map shows, or null for the livability score. */
@@ -306,6 +309,11 @@ export function Legend({
         {phone && fewHomesKey}
         <span>{byRank ? "Top fifth" : high}</span>
       </div>
+      {unit && !byRank && (
+        <p data-testid="legend-unit" className="text-xs text-neutral-600">
+          In {unit}
+        </p>
+      )}
       {!phone && about}
       {fewHomesKey && !phone && (
         <p className="mt-1 text-xs text-neutral-600">{fewHomesKey}</p>

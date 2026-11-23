@@ -5,15 +5,26 @@ Schema, and the web app generates its types from that. It holds no date: a bundl
 a hash of its content, so building twice from the same data gives the same bytes.
 """
 
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from atlas.catalogue.models import Curve, EvidenceType, Grid, PreferenceType
+from atlas.catalogue.models import EvidenceType, Grid, IdealRange, Lookup, PreferenceType, Ramp
 
 
 class _Model(BaseModel):
     model_config = ConfigDict(extra="forbid")
+
+
+class ManifestRamp(Ramp):
+    """A ramp as the bundle holds it. `from_region` marks one whose ends the build took from the
+    region's own values (a region ramp in the catalogue, D25)."""
+
+    from_region: bool | None = None
+
+
+# The curves of a bundle: the catalogue's, with each region ramp worked out into a plain ramp.
+ManifestCurve = Annotated[ManifestRamp | IdealRange | Lookup, Field(discriminator="shape")]
 
 
 class ManifestRegion(_Model):
@@ -38,6 +49,9 @@ class ManifestOption(_Model):
     name: str
     group: str | None = None  # the title of the picker's section
     column: str  # the column of cells.parquet that holds this option's raw value
+    # The option's own curve, where the indicator's is a region ramp: its ends come from this
+    # option's values. Without it, the option is scored by the indicator's curve.
+    curve: ManifestCurve | None = None
 
 
 class ManifestNeighbourhood(_Model):
@@ -56,7 +70,8 @@ class ManifestIndicator(_Model):
     unit: str
     evidence_type: EvidenceType
     preference_type: PreferenceType
-    curve: Curve | None = None
+    # None where the indicator has no curve, or where each option of a choice has its own.
+    curve: ManifestCurve | None = None
     datasets: list[str]
     options: list[ManifestOption] | None = None
 
@@ -127,7 +142,9 @@ class ManifestHomes(_Model):
 
 
 class Manifest(_Model):
-    format_version: Literal[1] = 1
+    # 2 since D25: the percentile curve is gone, a ramp may be on a log scale, and an option of a
+    # choice may carry its own curve. An app that reads format 1 cannot read these.
+    format_version: Literal[2] = 2
     version: str  # a hash of the bundle's content
     region: ManifestRegion
     grid: Grid

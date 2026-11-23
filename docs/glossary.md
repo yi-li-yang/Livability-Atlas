@@ -115,6 +115,8 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Top-level factor | The first level of the factor tree, with one weight each | Environment |
 | Preference type | Who sets a measured indicator's direction: fixed, user direction, user range or user choice | Rain: user direction |
 | Ramp | A scoring curve that runs in a straight line from 0 at one threshold to 1 at another, and stays flat beyond them. It falls when lower values are better | PM2.5: 1 at 5 µg/m³, falling to 0 at 25 µg/m³ |
+| Log scale | A way for a ramp to run between its thresholds: by the logarithm of the value, so each step of the same percentage counts the same, or, with an offset of 1, by the logarithm of a count plus one, so the first few count most (D25) | Rent: halfway between £4,000 and £1,000 is £2,000 |
+| Region ramp | A ramp whose thresholds come from the region's own values, for a measured indicator that no standard gives thresholds. The build leaves out up to 1 in 100 extreme hex cells at each end, never a whole area, and writes the thresholds into the bundle (D25) | Renting cost: 0 at £3,739 a month, 1 at £1,540 |
 | Evidence ladder | The kinds of evidence for a factor without a direct measure, from direct counts down to a user's own ratings, each with its evidence type | Culture: venues nearby, then variety, character, activity, perception and rankings |
 | Active child | A child factor that counts in a hex cell: its weight is above 0 and it has a score there | |
 | Effective share | A factor's share of total weight as it works out in one hex cell. A factor with no data there passes its share to its active siblings | Air quality's 0.1 becomes 0.2 where Noise has no data |

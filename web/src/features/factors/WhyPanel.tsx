@@ -119,7 +119,11 @@ export function WhyPanel({
   rank: number | null;
   total: number;
   /** What the map shows in place of the livability score, and the cell's score on it. */
-  onMap?: { name: string; score: number | null } | null;
+  onMap?: {
+    name: string;
+    score: number | null;
+    value?: string | null;
+  } | null;
   /** The estimated minutes from this cell to each of the user's own places. */
   places?: readonly { name: string; minutes: number }[];
   /**

@@ -1,8 +1,9 @@
 import numpy as np
 import pytest
 
-from atlas.catalogue.models import IdealRange, Percentile, Ramp
+from atlas.catalogue.models import IdealRange, Lookup
 from atlas.publish.bundle import Choice
+from atlas.publish.manifest import ManifestRamp
 from atlas.qa.cells import read_cells
 from atlas.qa.stats import column_stats, curve_span, factor_coverage
 from atlas.scoring.engine import curve_score
@@ -61,8 +62,10 @@ def test_the_share_at_full_marks_is_of_the_cells_with_a_value(tmp_path):
 
 
 CURVES = [
-    Ramp(shape="ramp", t0=25, t1=6),  # lower is better
-    Ramp(shape="ramp", t0=0, t1=100),  # higher is better
+    ManifestRamp(shape="ramp", t0=25, t1=6),  # lower is better
+    ManifestRamp(shape="ramp", t0=0, t1=100),  # higher is better
+    ManifestRamp(shape="ramp", t0=100, t1=6, log=True),  # a log ramp, lower is better
+    ManifestRamp(shape="ramp", t0=0, t1=30, log=True, offset=1),  # a count
     IdealRange(shape="ideal-range", l0=10, l1=18, u1=24, u0=32),
 ]
 
@@ -80,15 +83,16 @@ def test_the_share_at_full_marks_and_at_none_is_what_the_reference_scorer_gives(
 
 
 def test_a_curve_that_is_not_a_ramp_or_an_ideal_range_has_no_span():
-    assert curve_span(Percentile(shape="percentile", better="higher"), np.array([1.0, 2.0])) == (
-        None,
-        None,
-    )
+    lookup = Lookup(shape="lookup", scores={"1": 1.0})
+    assert curve_span(lookup, np.array([1.0, 2.0])) == (None, None)
     assert curve_span(None, np.array([1.0, 2.0])) == (None, None)
 
 
-def test_a_percentile_curve_has_no_full_or_none(stats):
-    assert stats["diversity"].full is None and stats["diversity"].none is None
+def test_a_region_ramp_has_its_ends_from_the_cells_with_homes(stats):
+    # Diversity's ends are 0.5 and 0.72, from the five cells with homes; of the seven values,
+    # 0.72 is at full marks, and 0.5, 0.4 and 0.3 at none.
+    assert stats["diversity"].full == pytest.approx(1 / 7)
+    assert stats["diversity"].none == pytest.approx(3 / 7)
 
 
 def test_an_option_is_scored_by_its_indicators_curve(stats):

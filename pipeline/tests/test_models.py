@@ -121,10 +121,37 @@ def test_a_lookup_may_use_numbers_as_categories():
     assert Factor.model_validate(factor(curve_reason="Why.", curve=curve)).curve is not None
 
 
-def test_a_percentile_needs_a_direction():
+def test_a_log_ramp_needs_ends_above_zero_once_the_offset_is_added():
+    curve = {"shape": "ramp", "t0": 0, "t1": 30, "log": True}
+    assert "above 0" in problem(Factor, factor(curve_reason="Why.", curve=curve))
+    counts = {**curve, "offset": 1}
+    assert Factor.model_validate(factor(curve_reason="Why.", curve=counts)).curve is not None
+
+
+def test_an_offset_belongs_to_a_log_ramp():
+    curve = {"shape": "ramp", "t0": 0, "t1": 30, "offset": 1}
+    assert "offset" in problem(Factor, factor(curve_reason="Why.", curve=curve))
+
+
+def test_a_region_ramp_takes_a_direction_and_no_ends():
+    curve = {"shape": "region-ramp", "better": "lower", "log": True}
+    assert Factor.model_validate(factor(curve_reason="Why.", curve=curve)).curve is not None
     assert "better" in problem(
-        Factor, factor(curve_reason="Why.", curve={"shape": "percentile", "better": "sideways"})
+        Factor, factor(curve_reason="Why.", curve={"shape": "region-ramp", "better": "sideways"})
     )
+    with_ends = {"shape": "region-ramp", "better": "lower", "t0": 1, "t1": 2}
+    assert "t0" in problem(Factor, factor(curve_reason="Why.", curve=with_ends))
+
+
+def test_a_region_ramp_offset_cannot_be_negative():
+    curve = {"shape": "region-ramp", "better": "higher", "log": True, "offset": -1}
+    assert "offset" in problem(Factor, factor(curve_reason="Why.", curve=curve))
+
+
+def test_the_percentile_is_gone():
+    # D25: every curve scores by the amount, never by rank.
+    curve = {"shape": "percentile", "better": "lower"}
+    assert "shape" in problem(Factor, factor(curve_reason="Why.", curve=curve))
 
 
 def test_an_unknown_curve_shape_is_rejected():

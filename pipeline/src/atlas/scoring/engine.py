@@ -18,29 +18,32 @@ def _clip(x: float) -> float:
     return min(1.0, max(0.0, x))
 
 
-def curve_score(
-    curve: dict[str, Any], value: Any, region_values: list[float] | None = None
-) -> float | None:
+def _ramp(curve: dict[str, Any], value: float) -> float:
+    """A ramp's score: linear between t0 and t1, or on ln(value + offset) with `log`. On a log
+    scale a value at or below -offset has no logarithm, and scores as the low end of the values."""
+    t0, t1 = curve["t0"], curve["t1"]
+    if not curve.get("log"):
+        return _clip((value - t0) / (t1 - t0))
+    offset = curve.get("offset") or 0
+    if value + offset <= 0:
+        return 0.0 if t0 < t1 else 1.0
+    return _clip(
+        (math.log(value + offset) - math.log(t0 + offset))
+        / (math.log(t1 + offset) - math.log(t0 + offset))
+    )
+
+
+def curve_score(curve: dict[str, Any], value: Any) -> float | None:
     """The score of a raw value from 0 (worst) to 1 (best), or None if the curve cannot score it."""
     shape = curve["shape"]
     if shape == "ramp":
-        return _clip((value - curve["t0"]) / (curve["t1"] - curve["t0"]))
+        return _ramp(curve, value)
     if shape == "ideal-range":
         rising = _clip((value - curve["l0"]) / (curve["l1"] - curve["l0"]))
         falling = _clip((value - curve["u0"]) / (curve["u1"] - curve["u0"]))
         return min(rising, falling)
     if shape == "lookup":
         return curve["scores"].get(str(value))
-    if shape == "percentile":
-        if not region_values:
-            return None
-        if len(region_values) == 1:
-            return 0.5
-        worse = sum(
-            1 for v in region_values if (v > value if curve["better"] == "lower" else v < value)
-        )
-        ties = sum(1 for v in region_values if v == value)
-        return (worse + 0.5 * (ties - 1)) / (len(region_values) - 1)
     raise ValueError(f"unknown curve shape {shape!r}")
 
 
@@ -78,7 +81,7 @@ def _own_score(leaf: Node) -> float | None:
     if leaf.get("value") is None:
         return None
     curve = with_band(leaf["curve"], leaf.get("band"))
-    score = curve_score(curve, leaf["value"], leaf.get("region_values"))
+    score = curve_score(curve, leaf["value"])
     if score is None:
         return None
     return 1 - score if leaf.get("flipped") else score
