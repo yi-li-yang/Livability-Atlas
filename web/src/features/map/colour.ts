@@ -49,15 +49,27 @@ export const WATER = "#D0DDE6";
 /** A hex cell that has no score: transparent, so that the map shows through. */
 export const UNSCORED: Rgba = [128, 128, 128, 60];
 
-/** A hex cell that a hard limit leaves out: a darker grey than one with no score, and not ranked. */
-export const EXCLUDED: Rgba = [70, 70, 70, 175];
+/**
+ * A hex cell that a hard limit leaves out, and not ranked: a light grey, so the map's streets and
+ * names stay readable under it, and no colour of the scale (the critique of the map, 2026-11-23,
+ * found the dark grey it was before read as an error across most of London).
+ */
+export const EXCLUDED: Rgba = [190, 190, 190, 255];
 
 /**
  * A hex cell with few or no homes, such as a park, an airport or an industrial estate (D22): no
  * fill, so that the map shows what is there, and a thin outline in `FEW_HOMES_OUTLINE`.
  */
 export const FEW_HOMES: Rgba = [0, 0, 0, 0];
-export const FEW_HOMES_OUTLINE: Rgba = [90, 90, 90, 200];
+export const FEW_HOMES_OUTLINE: Rgba = [110, 110, 110, 180];
+
+/**
+ * How wide that outline is on the ground. Measured in metres, it grows with the zoom: too thin to
+ * see over all of London, where thousands of outlined cells made a texture that outranked the
+ * scores, about a pixel at district zoom, and at most `FEW_HOMES_OUTLINE_MAX_PIXELS` close up.
+ */
+export const FEW_HOMES_OUTLINE_METRES = 8;
+export const FEW_HOMES_OUTLINE_MAX_PIXELS = 2;
 
 /** The colour of a score from 0 (worst) to 1 (best), blended between the palette's stops. */
 export function scoreToColour(score: number | null): Rgba {
