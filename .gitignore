@@ -30,3 +30,6 @@ Thumbs.db
 # Playwright
 playwright-report/
 test-results/
+
+# The Impeccable design hook's cache (its config files under .impeccable/ are kept)
+**/.impeccable/hook.cache.json

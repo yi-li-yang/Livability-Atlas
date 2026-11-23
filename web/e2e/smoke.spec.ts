@@ -164,3 +164,22 @@ test("the hex cells are drawn on the map, in the palette's colours", async ({
   expect(land).toBeGreaterThan(2000);
   expect(explained / land).toBeGreaterThan(0.9);
 });
+
+test("the hex cells are drawn while the map's tiles still load, as on a slow network", async ({
+  page,
+}) => {
+  // deck.gl adds its layers only when MapLibre says the style is loaded, which it says only once
+  // every tile has loaded: the cells must not wait for that (HexMap's withStyleLoaded).
+  await page.route(/\.pbf(\?|$)/, async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 60_000));
+    await route.continue().catch(() => {});
+  });
+  await page.goto("/");
+  const map = page.getByTestId("map");
+  await expect(map).toHaveAttribute("data-cells", /^[1-9]\d*$/);
+  await expect
+    .poll(async () => (await hexLayerPixels(page, map)).land, {
+      timeout: 20_000,
+    })
+    .toBeGreaterThan(2000);
+});

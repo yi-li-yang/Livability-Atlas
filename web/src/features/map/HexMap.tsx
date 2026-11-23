@@ -28,13 +28,28 @@ export interface Hover {
 }
 
 /**
+ * Runs `add` while the map says its style is loaded. deck.gl adds its layers to the map only when
+ * `isStyleLoaded()` is true, which MapLibre reports only once every tile has loaded too: on a slow
+ * network the cells would wait for the whole basemap, and never come while the map keeps moving.
+ * Adding a layer needs only the style itself, which has loaded by the time this is called.
+ */
+function withStyleLoaded(map: MapLibreMap, add: () => void): void {
+  const own = map as unknown as { isStyleLoaded?: () => boolean };
+  own.isStyleLoaded = () => true;
+  try {
+    add();
+  } finally {
+    delete own.isStyleLoaded;
+  }
+}
+
+/**
  * A basemap of London with the hex cells drawn inside it, coloured by their score (D23): over the
  * land, under the water, roads and place names, which stay sharp. A cell with few or no homes has
  * no fill, so the land use under it shows. The user sets how solid the cells are.
  *
- * The cells are deck.gl layers interleaved with MapLibre's (`@deck.gl/maplibre`). deck.gl adds
- * them to the map only while the style is fully loaded, and MapLibre counts the style as loading
- * while any tile loads, so the layers are given to deck.gl once the map is first idle.
+ * The cells are deck.gl layers interleaved with MapLibre's (`@deck.gl/maplibre`), handed over as
+ * soon as the style has loaded (see `withStyleLoaded`).
  */
 export function HexMap({
   cells,
@@ -83,10 +98,7 @@ export function HexMap({
     });
     const layers = new MapLibreOverlay({ interleaved: true, layers: [] });
     basemap.addControl(layers);
-    basemap.once("style.load", () => {
-      const stacked = restack(basemap);
-      basemap.once("idle", () => setStack(stacked));
-    });
+    basemap.once("style.load", () => setStack(restack(basemap)));
     overlay.current = layers;
     map.current = basemap;
     return () => {
@@ -107,42 +119,48 @@ export function HexMap({
   }, [focus]);
 
   useEffect(() => {
-    if (!stack) return;
-    overlay.current?.setProps({
-      layers: [
-        new PolygonLayer<HexCell, InMap>({
-          id: "hex-cells",
-          beforeId: stack.cellsBefore,
-          data: cells,
-          getPolygon: (cell) => cell.polygon,
-          // Read by index, so that a new score only re-evaluates the colours, not the shapes.
-          getFillColor: (_cell, { index }) => colours[index],
-          getLineColor: (_cell, { index }) => outlines?.[index] ?? [0, 0, 0, 0],
-          updateTriggers: { getFillColor: colours, getLineColor: outlines },
-          filled: true,
-          stroked: outlines !== undefined,
-          lineWidthUnits: "pixels",
-          getLineWidth: 1,
-          opacity,
-          pickable: true,
-          autoHighlight: true,
-          highlightColor: [255, 255, 255, 110],
-          onHover: ({ index, x, y }) =>
-            onHover(index >= 0 ? { index, x, y } : null),
-          onClick: ({ index }) => onSelect(index >= 0 ? index : null),
-        }),
-        new PolygonLayer<HexCell, InMap>({
-          id: "selected-cell",
-          beforeId: stack.labelsBefore,
-          data: selected === null ? [] : [cells[selected]],
-          getPolygon: (cell) => cell.polygon,
-          filled: false,
-          stroked: true,
-          getLineColor: [20, 20, 20, 255],
-          lineWidthMinPixels: 3,
-        }),
-        new ScatterplotLayer<{ name: string; lat: number; lng: number }, InMap>(
-          {
+    const basemap = map.current;
+    const deck = overlay.current;
+    if (!stack || !basemap || !deck) return;
+    withStyleLoaded(basemap, () =>
+      deck.setProps({
+        layers: [
+          new PolygonLayer<HexCell, InMap>({
+            id: "hex-cells",
+            beforeId: stack.cellsBefore,
+            data: cells,
+            getPolygon: (cell) => cell.polygon,
+            // Read by index, so that a new score only re-evaluates the colours, not the shapes.
+            getFillColor: (_cell, { index }) => colours[index],
+            getLineColor: (_cell, { index }) =>
+              outlines?.[index] ?? [0, 0, 0, 0],
+            updateTriggers: { getFillColor: colours, getLineColor: outlines },
+            filled: true,
+            stroked: outlines !== undefined,
+            lineWidthUnits: "pixels",
+            getLineWidth: 1,
+            opacity,
+            pickable: true,
+            autoHighlight: true,
+            highlightColor: [255, 255, 255, 110],
+            onHover: ({ index, x, y }) =>
+              onHover(index >= 0 ? { index, x, y } : null),
+            onClick: ({ index }) => onSelect(index >= 0 ? index : null),
+          }),
+          new PolygonLayer<HexCell, InMap>({
+            id: "selected-cell",
+            beforeId: stack.labelsBefore,
+            data: selected === null ? [] : [cells[selected]],
+            getPolygon: (cell) => cell.polygon,
+            filled: false,
+            stroked: true,
+            getLineColor: [20, 20, 20, 255],
+            lineWidthMinPixels: 3,
+          }),
+          new ScatterplotLayer<
+            { name: string; lat: number; lng: number },
+            InMap
+          >({
             id: "your-places",
             beforeId: stack.labelsBefore,
             data: places,
@@ -153,10 +171,10 @@ export function HexMap({
             getLineColor: [20, 20, 20, 255],
             lineWidthMinPixels: 3,
             stroked: true,
-          },
-        ),
-      ],
-    });
+          }),
+        ],
+      }),
+    );
   }, [
     stack,
     cells,
