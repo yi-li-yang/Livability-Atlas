@@ -86,6 +86,8 @@ export function HexMap({
   // The latest click handler, for the map's own click listener, which is added once.
   const select = useRef(onSelect);
   select.current = onSelect;
+  const hover = useRef(onHover);
+  hover.current = onHover;
 
   useEffect(() => {
     if (!container.current) return;
@@ -113,9 +115,16 @@ export function HexMap({
       });
       select.current(picked && picked.index >= 0 ? picked.index : null);
     });
+    // The quick look describes the cell under the pointer, so it goes when the pointer leaves the
+    // map (onto a panel, the legend or off the page) and when the map starts to move under it.
+    const element = container.current;
+    const leave = () => hover.current(null);
+    element.addEventListener("pointerleave", leave);
+    basemap.on("movestart", leave);
     overlay.current = layers;
     map.current = basemap;
     return () => {
+      element.removeEventListener("pointerleave", leave);
       overlay.current = null;
       map.current = null;
       basemap.remove();

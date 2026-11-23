@@ -105,6 +105,7 @@ export function App() {
     loadLayout(browserStorage()),
   );
   const [hover, setHover] = useState<Hover | null>(null);
+  const mapArea = useRef<HTMLElement>(null);
   const [selected, setSelected] = useState<number | null>(null);
   // The profile before the user started from a preset, so that "Undo" can bring it back.
   const [beforePreset, setBeforePreset] = useState<Profile | null>(null);
@@ -453,7 +454,7 @@ export function App() {
           </p>
         )}
       </header>
-      <main className="relative min-h-0 flex-1">
+      <main ref={mapArea} className="relative min-h-0 flex-1">
         <HexMap
           cells={cells}
           colours={colours}
@@ -471,6 +472,8 @@ export function App() {
               return;
             }
             setSelected(index);
+            // The reasons replace the quick look; it must not come back with an old cell after.
+            setHover(null);
           }}
         />
         {state.status === "loading" && (
@@ -517,12 +520,14 @@ export function App() {
             data-testid="quick-look"
             className="pointer-events-none absolute z-10 w-52 rounded bg-white/95 p-3 shadow"
             style={{
+              // The pointer is measured from the map's corner, so the card flips against the
+              // map's own edges, not the window's.
               left:
-                hover.x > window.innerWidth - 280
+                hover.x > (mapArea.current?.clientWidth ?? 0) - 230
                   ? hover.x - 220
                   : hover.x + 14,
               top:
-                hover.y > window.innerHeight - 260
+                hover.y > (mapArea.current?.clientHeight ?? 0) - 170
                   ? hover.y - 150
                   : hover.y + 14,
             }}
