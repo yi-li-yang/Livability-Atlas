@@ -52,5 +52,6 @@ The preferences panel draws the factor tree, and each factor's area is its share
 
 - Labels use only the words in the glossary's [In the app](glossary.md#in-the-app) part, which carry no jargon.
 - Colours stay readable for colour-blind users.
+- Every score has one colour scale: red is worse, yellow middling, blue-green better. The map, the legend, the bars of "Why this score" and the chip beside "On the map" all use it, so a factor named for a bad thing, such as Crime, reads as good or bad at a glance. The good end leans to blue so that the ends stay apart in colour blindness; the bars also give the score as a length and a number.
 - Everything works with a keyboard.
 - The ranked list is a full alternative to the map for screen-reader users.

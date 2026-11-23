@@ -276,7 +276,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Choice:**
   - Progressive disclosure in five layers: map, quick look, why this score, inside a factor, evidence.
   - Preferences are set in a visual factor tree whose areas follow the weights. It offers both layouts, a treemap and a sunburst, with a switch between them. The treemap shows first.
-  - Each factor has its own colour, from the categorical palette of the Salt design system. The interface itself stays in ink, so colour always means data.
+  - Each factor has its own colour, from the categorical palette of the Salt design system, in the factor tree and as a swatch by its name in "Why this score". A score has the colour of its value on one scale, red (worse) → yellow → blue-green (better), on the map, in the legend and in the bars of "Why this score". The interface itself stays in ink, so colour always means data.
   - Details are in [interface.md](interface.md).
 - **Why:** Users see the answer first and are not flooded with detail. Sizes that follow the weights show at a glance how much each factor counts. The owner tried both layouts in the factor explorer and found each useful. The treemap shows first because rectangles show shares more faithfully than rings, and hold more labels.
 - **Revisit when:** Testing in Phase 1 shows that one layout is rarely used, or that colour by factor confuses.
@@ -284,6 +284,7 @@ The living list of project decisions. Each entry holds the current choice and wh
   - 2026-10-23: proposed after review asked for layered details and a visual, interactive factor list.
   - 2026-10-24: accepted after the owner tried the factor explorer. Both layouts stay, with a switch, and each factor has its own colour.
   - 2026-10-29: the switch is built, as "Boxes" and "Rings" in the app (the treemap and the sunburst are the contributors' words). The boxes still show first. The choice is kept in the browser and not in the link, because it is how the user likes to see the factors and not what they want, so a shared link opens in the recipient's own layout.
+  - 2026-11-23: scores are coloured by how good they are, at the owner's request, because a factor named for a bad thing (Crime, Noise) did not say if a high score was good. The map leaves viridis for the same red → yellow → blue-green scale as the bars, so that yellow means "middling" everywhere. The bars of "Why this score" take their score's colour, and the factor's own colour moves to a swatch by its name.
 
 ## D18 Preference types
 

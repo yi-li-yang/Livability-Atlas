@@ -1,5 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { PNG } from "pngjs";
+import { scoreToColour } from "../src/features/map/colour";
 import { clearOfPanel } from "./clip";
 
 /** Opens the app and returns the pixel at the middle of the map, which is over the fixture's cells. */
@@ -128,6 +129,16 @@ test("the quick look and the reasons give the score on the map, and the livabili
     /On the map: Safety, \d+ out of 100/,
   );
   await expect(panel).toContainText("Livability score");
+  // A chip in the score's colour says at a glance whether it is good or bad.
+  const line = panel.getByTestId("on-the-map");
+  const shown = Number(
+    (await line.textContent())?.match(/(\d+) out of 100/)?.[1],
+  );
+  const chip = line.getByTestId("score-chip");
+  const onMap = Number(await chip.getAttribute("data-score"));
+  expect(Math.round(onMap * 100)).toBe(shown);
+  const [r, g, b] = scoreToColour(onMap);
+  await expect(chip).toHaveCSS("background-color", `rgb(${r}, ${g}, ${b})`);
 
   // With the livability score on the map the line goes.
   await view(page).selectOption({ label: "Livability score" });

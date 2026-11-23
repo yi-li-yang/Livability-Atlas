@@ -66,6 +66,7 @@ Status: `todo`, `in progress`, `PR open`, `merged`, `deferred`. **Order of work 
 
 ### 2026-11-23
 
+- One colour scale for good and bad (the owner's idea): a name such as Crime did not say if a high score meant more crime or less. Every score now has one colour, red (worse) → yellow → blue-green (better), on the map, in the legend, in each bar of "Why this score" (each bar takes its own score's colour, the factor's own colour moves to a swatch by its name) and in a chip beside "On the map: …". The map leaves viridis. The good end is blue-green, not pure green, so the ends and quarters stay apart in colour blindness (checked with the dataviz validator); scores just either side of the middle look alike to a red-green colour-blind reader, so the bars keep the length and number. No names changed.
 - Published the site with bundle `491e7170e59f` (`just site`), at the owner's request; the licence questions are set aside for now. GitHub Pages built it, all six bundle files answer, and on the live site a place added by postcode recolours the map, with no errors in the page.
 
 ### 2026-11-22

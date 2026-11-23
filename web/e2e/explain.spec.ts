@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { scoreToColour } from "../src/features/map/colour";
 
 /** Opens the app and returns the pixel at the middle of the map, which is over the fixture's cells. */
 async function openOverCells(page: Page) {
@@ -68,6 +69,30 @@ test("clicking a hex cell says why it scores what it does, and the parts add up"
   await expect(
     panel.getByText("Walk to the nearest station", { exact: true }),
   ).toBeVisible();
+});
+
+test("each bar in the reasons takes the colour of its own score: red for worse, blue-green for better", async ({
+  page,
+}) => {
+  const { x, y } = await openOverCells(page);
+  const panel = page.getByRole("complementary", { name: "Why this score" });
+  await expect(async () => {
+    await page.mouse.move(x, y);
+    await page.mouse.click(x, y);
+    await expect(panel).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 10_000 });
+  // Open Safety and the Crime inside it, so that the bars of the measures inside are drawn too.
+  await panel.getByText("Safety", { exact: true }).click();
+  await panel.getByText("Crime", { exact: true }).click();
+  await expect(panel.getByText("Burglary", { exact: true })).toBeVisible();
+
+  const bars = panel.getByTestId("score-bar");
+  expect(await bars.count()).toBeGreaterThan(4);
+  for (const bar of await bars.all()) {
+    const score = Number(await bar.getAttribute("data-score"));
+    const [r, g, b] = scoreToColour(score);
+    await expect(bar).toHaveCSS("background-color", `rgb(${r}, ${g}, ${b})`);
+  }
 });
 
 test("the reasons close with the button, with Escape, and by clicking where there is no cell", async ({

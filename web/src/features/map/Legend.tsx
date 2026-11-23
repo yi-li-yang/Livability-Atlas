@@ -1,10 +1,5 @@
-import { scoreToColour } from "./colour";
+import { scoreToCss } from "./colour";
 import type { ViewOption } from "./views";
-
-const css = (score: number): string => {
-  const [r, g, b] = scoreToColour(score);
-  return `rgb(${r} ${g} ${b})`;
-};
 
 /** What the colours mean: a bar from the worst score to the best, with a label at each end. */
 export function Legend({
@@ -35,7 +30,7 @@ export function Legend({
   opacity: number;
   onOpacity: (opacity: number) => void;
 }) {
-  const gradient = `linear-gradient(to right, ${[0, 0.25, 0.5, 0.75, 1].map(css).join(", ")})`;
+  const gradient = `linear-gradient(to right, ${[0, 0.25, 0.5, 0.75, 1].map(scoreToCss).join(", ")})`;
   const groups = new Map<string, { name: string; items: ViewOption[] }>();
   for (const option of options) {
     const group = groups.get(option.groupId) ?? {

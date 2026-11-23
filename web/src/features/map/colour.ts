@@ -1,17 +1,27 @@
 export type Rgba = [number, number, number, number];
 
-// Viridis, which stays readable in the common kinds of colour blindness and in greyscale.
+/**
+ * One scale for every score in the app, on the map and in the bars: red is worse, yellow is
+ * middling, blue-green is better. The good end leans to blue, not pure green, so that the two
+ * ends and the quarters (0.25 against 0.75) stay apart in the common kinds of colour blindness:
+ * checked with the dataviz skill's validator, every pair of stops at ΔE 12 or more under
+ * simulated deuteranopia, protanopia and tritanopia. Scores just either side of the middle
+ * (0.4 against 0.6) look alike to a red-green colour-blind reader, as in any red-to-green scale,
+ * so the bars also show the score as a length and a number.
+ */
 export const PALETTE: [number, number, number][] = [
-  [68, 1, 84],
-  [71, 45, 123],
-  [59, 82, 139],
-  [44, 114, 142],
-  [33, 145, 140],
-  [40, 174, 128],
-  [94, 201, 98],
-  [173, 220, 48],
-  [253, 231, 37],
+  [178, 54, 30], // #B2361E
+  [224, 123, 57], // #E07B39
+  [237, 200, 74], // #EDC84A
+  [131, 197, 166], // #83C5A6
+  [42, 143, 148], // #2A8F94
 ];
+
+/** The colour of a score from 0 (worst) to 1 (best) as CSS, for the legend and the bars. */
+export function scoreToCss(score: number): string {
+  const [r, g, b] = scoreToColour(score);
+  return `rgb(${r} ${g} ${b})`;
+}
 
 /** How much of a cell's colour shows over the basemap, until the user changes it. */
 export const CELL_OPACITY = 0.5;
