@@ -47,9 +47,13 @@ test("a place added by postcode becomes the travel time, stays after a reload, a
   expect(page.url()).not.toContain("W1D");
 
   // The reasons list the minutes to the place.
+  // A click is picked asynchronously too, so it is repeated until it lands, as in view.spec.ts.
   const { x, y } = await pointAtCell(page);
-  await page.mouse.click(x, y);
   const panel = page.getByRole("complementary", { name: "Why this score" });
+  await expect(async () => {
+    await page.mouse.click(x, y);
+    await expect(panel).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 10_000 });
   await expect(panel).toContainText("Your places");
   await expect(panel).toContainText(/Work\s*\d+ minutes/);
 
@@ -78,9 +82,14 @@ test("a place can be chosen on the map, and removed", async ({ page }) => {
   await expect(places.getByRole("status")).toContainText(
     "Click the map where Family is.",
   );
+  // A click that picks no cell leaves the choosing on, so it is repeated until it lands.
   const { x, y } = await pointAtCell(page);
-  await page.mouse.click(x, y);
-  await expect(places.getByRole("listitem")).toHaveText(["FamilyRemove"]);
+  await expect(async () => {
+    await page.mouse.click(x, y);
+    await expect(places.getByRole("listitem")).toHaveText(["FamilyRemove"], {
+      timeout: 500,
+    });
+  }).toPass({ timeout: 10_000 });
   // Choosing the place did not open the reasons of the cell clicked.
   await expect(
     page.getByRole("complementary", { name: "Why this score" }),
