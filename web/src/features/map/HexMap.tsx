@@ -6,6 +6,7 @@ import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { useEffect, useRef, useState } from "react";
 import type { Rgba } from "./colour";
 import type { HexCell } from "./hexcells";
+import { type Inset, insetFor } from "./inset";
 import { LONDON_BOUNDS, LONDON_CENTRE } from "./london";
 import { restack, type Stack } from "./stack";
 
@@ -19,6 +20,29 @@ const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
 /** The prop `@deck.gl/maplibre` reads to put a layer under one of the basemap's (it declares no type for it). */
 type InMap = { beforeId?: string };
+
+/**
+ * The part of the map that the panels over it leave clear: those marked `data-covers-map` beside
+ * the map (the preferences, the legend, the reasons). The camera keeps what it is asked to show
+ * inside it, with a small margin.
+ */
+function clearPart(element: HTMLElement | null): Inset {
+  if (!element?.parentElement) return { top: 0, right: 0, bottom: 0, left: 0 };
+  const panels = [
+    ...element.parentElement.querySelectorAll("[data-covers-map]"),
+  ].map((panel) => panel.getBoundingClientRect());
+  const { top, right, bottom, left } = insetFor(
+    element.getBoundingClientRect(),
+    panels,
+  );
+  const margin = 8;
+  return {
+    top: top + margin,
+    right: right + margin,
+    bottom: bottom + margin,
+    left: left + margin,
+  };
+}
 
 /** Where the pointer is over a cell, in pixels from the map's top left corner. */
 export interface Hover {
@@ -88,6 +112,7 @@ export function HexMap({
   select.current = onSelect;
   const hover = useRef(onHover);
   hover.current = onHover;
+  const fitted = useRef(false);
 
   useEffect(() => {
     if (!container.current) return;
@@ -131,15 +156,56 @@ export function HexMap({
     };
   }, []);
 
+  // The first view: the region's centre in the middle of the part of the map the panels leave
+  // clear, not under the panel. It waits for the cells, since the panels come with the data.
+  useEffect(() => {
+    const basemap = map.current;
+    if (!basemap || !stack || cells.length === 0 || fitted.current) return;
+    fitted.current = true;
+    requestAnimationFrame(() =>
+      basemap.jumpTo({
+        center: LONDON_CENTRE,
+        zoom: basemap.getZoom(),
+        padding: clearPart(container.current),
+      }),
+    );
+  });
+
   useEffect(() => {
     if (focus) {
       map.current?.flyTo({
         center: [focus.lng, focus.lat],
         zoom: 13,
         duration: 900,
+        padding: clearPart(container.current),
       });
     }
   }, [focus]);
+
+  // A chosen cell stays in sight: if the reasons (or a sheet) open over it, the map moves it into
+  // the clear part. It waits a frame, for the reasons to be drawn and measured.
+  useEffect(() => {
+    const basemap = map.current;
+    if (!basemap || selected === null || !cells[selected]) return;
+    const frame = requestAnimationFrame(() => {
+      const corners = cells[selected].polygon;
+      const lng = corners.reduce((sum, [x]) => sum + x, 0) / corners.length;
+      const lat = corners.reduce((sum, [, y]) => sum + y, 0) / corners.length;
+      const point = basemap.project([lng, lat]);
+      const clear = clearPart(container.current);
+      const { clientWidth: width, clientHeight: height } =
+        basemap.getContainer();
+      const inside =
+        point.x >= clear.left &&
+        point.x <= width - clear.right &&
+        point.y >= clear.top &&
+        point.y <= height - clear.bottom;
+      if (!inside) {
+        basemap.easeTo({ center: [lng, lat], padding: clear, duration: 400 });
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selected, cells]);
 
   useEffect(() => {
     const basemap = map.current;

@@ -81,6 +81,7 @@ export function Legend({
   return (
     <section
       aria-label="Legend"
+      data-covers-map
       className={
         phone
           ? "absolute left-2 right-2 top-2 z-10 rounded bg-white/90 p-2 text-sm shadow"

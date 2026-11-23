@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import { PNG } from "pngjs";
 import { scoreToColour } from "../src/features/map/colour";
-import { clearOfPanel } from "./clip";
+import { clearCentre, clearOfPanel } from "./clip";
 
 /** Opens the app and returns the pixel at the middle of the map, which is over the fixture's cells. */
 async function openOverCells(page: Page) {
@@ -9,9 +9,7 @@ async function openOverCells(page: Page) {
   const map = page.getByTestId("map");
   await expect(map).toHaveAttribute("data-cells", /^[1-9]\d*$/);
   await page.waitForLoadState("networkidle");
-  const box = await map.boundingBox();
-  if (!box) throw new Error("the map is not shown");
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  return clearCentre(page, map);
 }
 
 const view = (page: Page) =>

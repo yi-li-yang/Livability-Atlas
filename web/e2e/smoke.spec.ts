@@ -5,7 +5,7 @@ import {
   LAND_COLOURS,
   scoreToColour,
 } from "../src/features/map/colour";
-import { clearOfPanel } from "./clip";
+import { clearCentre, clearOfPanel } from "./clip";
 
 // Every colour the map can give a cell: the palette, blended between its stops.
 const COLOURS = Array.from({ length: 101 }, (_, i) => scoreToColour(i / 100));
@@ -194,10 +194,7 @@ test("one click on a cell of a still map opens its reasons", async ({
   const map = page.getByTestId("map");
   await expect(map).toHaveAttribute("data-cells", /^[1-9]\d*$/);
   await page.waitForLoadState("networkidle");
-  const box = await map.boundingBox();
-  if (!box) throw new Error("no map");
-  const x = box.x + box.width / 2;
-  const y = box.y + box.height / 2;
+  const { x, y } = await clearCentre(page, map);
   await expect(async () => {
     await page.mouse.move(x - 5, y - 5);
     await page.mouse.move(x, y);

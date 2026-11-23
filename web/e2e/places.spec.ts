@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { clearCentre } from "./clip";
 
 async function openApp(page: Page, fragment = "") {
   await page.goto(`/${fragment}`);
@@ -10,13 +11,10 @@ async function openApp(page: Page, fragment = "") {
   await page.waitForLoadState("networkidle");
 }
 
-/** Points at the middle of the map, which is over the fixture's cells, until the layer has
+/** Points at the middle of the map's clear part, which is over the fixture's cells, until the layer has
  * registered the cell under the pointer (it picks asynchronously), and returns that point. */
 async function pointAtCell(page: Page) {
-  const box = await page.getByTestId("map").boundingBox();
-  if (!box) throw new Error("no map");
-  const x = box.x + box.width / 2;
-  const y = box.y + box.height / 2;
+  const { x, y } = await clearCentre(page, page.getByTestId("map"));
   await expect(async () => {
     await page.mouse.move(x - 5, y - 5);
     await page.mouse.move(x, y);

@@ -1,5 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { scoreToColour } from "../src/features/map/colour";
+import { clearCentre } from "./clip";
 
 /** Opens the app and returns the pixel at the middle of the map, which is over the fixture's cells. */
 async function openOverCells(page: Page) {
@@ -9,7 +10,7 @@ async function openOverCells(page: Page) {
   await page.waitForLoadState("networkidle");
   const box = await map.boundingBox();
   if (!box) throw new Error("the map is not shown");
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2, box };
+  return { ...(await clearCentre(page, map)), box };
 }
 
 test("hovering over a hex cell shows its score, rank, strengths and weakness", async ({
