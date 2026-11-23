@@ -1,4 +1,4 @@
-import { PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
+import { PolygonLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
 import { MapLibreOverlay } from "@deck.gl/maplibre";
 import { Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -44,6 +44,15 @@ function clearPart(element: HTMLElement | null): Inset {
   };
 }
 
+/** The middle of a hexagon, as [longitude, latitude]. */
+function centreOf(corners: readonly [number, number][]): [number, number] {
+  const n = corners.length;
+  return [
+    corners.reduce((sum, [x]) => sum + x, 0) / n,
+    corners.reduce((sum, [, y]) => sum + y, 0) / n,
+  ];
+}
+
 /** Where the pointer is over a cell, in pixels from the map's top left corner. */
 export interface Hover {
   index: number;
@@ -83,6 +92,7 @@ export function HexMap({
   selected,
   focus,
   places = [],
+  marks = [],
   onHover,
   onSelect,
 }: {
@@ -99,6 +109,8 @@ export function HexMap({
   focus: { lng: number; lat: number; request: number } | null;
   /** The user's own places, marked on the map. */
   places?: readonly { name: string; lat: number; lng: number }[];
+  /** The top neighbourhoods' best cells, marked on the map with their places in the list. */
+  marks?: readonly { cell: number; place: number }[];
   onHover: (hover: Hover | null) => void;
   /** Called with the cell that was clicked, or null for a click on no cell. */
   onSelect: (index: number | null) => void;
@@ -188,9 +200,7 @@ export function HexMap({
     const basemap = map.current;
     if (!basemap || selected === null || !cells[selected]) return;
     const frame = requestAnimationFrame(() => {
-      const corners = cells[selected].polygon;
-      const lng = corners.reduce((sum, [x]) => sum + x, 0) / corners.length;
-      const lat = corners.reduce((sum, [, y]) => sum + y, 0) / corners.length;
+      const [lng, lat] = centreOf(cells[selected].polygon);
       const point = basemap.project([lng, lat]);
       const clear = clearPart(container.current);
       const { clientWidth: width, clientHeight: height } =
@@ -260,10 +270,46 @@ export function HexMap({
             lineWidthMinPixels: 3,
             stroked: true,
           }),
+          // The answer on the map: each top neighbourhood's best cell, with its place in the list.
+          // These go over the place names, which would otherwise hide them in the centre.
+          new ScatterplotLayer<{ cell: number; place: number }, InMap>({
+            id: "top-marks",
+            data: marks,
+            getPosition: ({ cell }) => centreOf(cells[cell].polygon),
+            getRadius: 9,
+            radiusUnits: "pixels",
+            getFillColor: [255, 255, 255, 240],
+            getLineColor: [30, 30, 30, 255],
+            lineWidthMinPixels: 2,
+            stroked: true,
+          }),
+          new TextLayer<{ cell: number; place: number }, InMap>({
+            id: "top-mark-numbers",
+            data: marks,
+            getPosition: ({ cell }) => centreOf(cells[cell].polygon),
+            getText: ({ place }) => String(place),
+            getSize: 11,
+            sizeUnits: "pixels",
+            getColor: [20, 20, 20, 255],
+            fontWeight: 700,
+            getTextAnchor: "middle",
+            getAlignmentBaseline: "center",
+            characterSet: "0123456789",
+          }),
         ],
       }),
     );
-  }, [stack, cells, colours, outlines, opacity, selected, places, onHover]);
+  }, [
+    stack,
+    cells,
+    colours,
+    outlines,
+    opacity,
+    selected,
+    places,
+    marks,
+    onHover,
+  ]);
 
   return (
     <div

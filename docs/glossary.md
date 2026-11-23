@@ -19,6 +19,7 @@ When you add a term, put it in the part where it is used. A contributor term tha
 | Few or no homes | A hex cell with fewer than 10 homes, such as a park, an airport or an industrial estate. Scores are for places where people live, so it has no score: the map leaves it clear with a thin outline | Richmond Park, Heathrow |
 | Neighbourhood | A named area of about 8,000 residents, used for names on the map and in the ranked list | About 1,000 in London |
 | Region | The whole area one map covers | Greater London |
+| Rank in London | A way to colour the map: each colour is a fifth of the region's hex cells, from its lowest scores (the bottom fifth) to its highest (the top fifth). The legend's other choice, Score, colours by the score out of 100 | A cell in the top fifth scores higher than 80% of London's |
 | Within-city scale | Comparing small areas inside one city | Hex cells across London |
 | Across-cities scale | Comparing whole cities, across countries | London versus Lisbon |
 | Comparable across regions | Whether a measured indicator means the same thing everywhere, so that places in different regions can be compared on it | Satellite PM2.5: yes. Crime counts: no, because countries record crime differently |

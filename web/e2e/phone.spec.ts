@@ -9,8 +9,18 @@ async function openApp(page: Page) {
   await expect(map).toHaveAttribute("data-cells", /^[1-9]\d*$/);
   await page.waitForLoadState("networkidle");
   const box = await map.boundingBox();
-  if (!box) throw new Error("the map is not shown");
-  return { box, x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  const top = await page.getByRole("region", { name: "Legend" }).boundingBox();
+  const bar = await page
+    .getByRole("complementary", { name: "Your preferences" })
+    .boundingBox();
+  if (!box || !top || !bar) throw new Error("the map is not shown");
+  // The middle of the map between the legend and the sheet's bar, where the app puts London's
+  // centre (the map keeps clear of the panels over it).
+  return {
+    box,
+    x: box.x + box.width / 2,
+    y: (top.y + top.height + bar.y) / 2,
+  };
 }
 
 const sheet = (page: Page) =>
@@ -90,10 +100,10 @@ test("the legend is across the top of the map and never meets the sheet", async 
   await expect(
     page.getByRole("combobox", { name: "Show on the map" }),
   ).toBeVisible();
-  // The opacity slider is behind its summary.
+  // The opacity slider is behind "Colours".
   const opacity = page.getByRole("slider", { name: "Cell opacity" });
   await expect(opacity).toBeHidden();
-  await page.getByText("Cell opacity", { exact: true }).tap();
+  await page.getByText("Colours", { exact: true }).tap();
   await expect(opacity).toBeVisible();
 
   await handle(page).tap();
