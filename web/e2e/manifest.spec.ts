@@ -49,7 +49,8 @@ test("the factor tree shows every factor and measured indicator of the manifest,
   const manifest = await (
     await request.get(`/bundles/london/${latest.version}/manifest.json`)
   ).json();
-  await page.goto("/");
+  // Every factor counted ("Everything, equally"), so that each level opens from the tree.
+  await page.goto("/#v=2&s=all");
   await expect(page.getByTestId("factor-tree")).toBeVisible();
   await page.waitForLoadState("networkidle");
 

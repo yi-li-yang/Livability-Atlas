@@ -1,4 +1,4 @@
-import type { ManifestPreset } from "../../generated/manifest.schema";
+import type { StartFrom } from "./presets";
 
 /**
  * "Start from": a list of ready-made preference profiles (presets). Choosing one sets the weights,
@@ -11,10 +11,10 @@ export function PresetPicker({
   onChoose,
   onUndo,
 }: {
-  presets: readonly ManifestPreset[];
+  presets: readonly StartFrom[];
   /** The preset the profile is still exactly at, if any. */
-  current: ManifestPreset | null;
-  onChoose: (preset: ManifestPreset) => void;
+  current: StartFrom | null;
+  onChoose: (preset: StartFrom) => void;
   /** Goes back to the profile before the preset, where there is one to go back to. */
   onUndo?: () => void;
 }) {

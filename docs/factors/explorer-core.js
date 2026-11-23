@@ -23,7 +23,7 @@
   // and the values they allow.
   const INDICATOR_FIELDS = ["unit", "preference_type", "curve", "curve_reason", "evidence_type",
     "comparable_across_regions", "method", "datasets"];
-  const FACTOR_FIELDS = ["id", "name", "description", "default_weight", "weight_reason", "scales", "status",
+  const FACTOR_FIELDS = ["id", "name", "description", "default_weight", "weight_reason", "starts_counted", "scales", "status",
     "children", ...INDICATOR_FIELDS];
   const PREFERENCE_TYPES = ["fixed", "user-direction", "user-range", "user-choice"];
   const EVIDENCE_TYPES = ["direct", "estimate", "indirect", "perception", "ranking"];
@@ -168,6 +168,13 @@
       }
       if (typeof node.name !== "string" || node.name.trim() === "") {
         problems.push(`${label}: name is missing.`);
+      }
+      // One of the few essentials that count when a user starts (D14); a choice counts only once picked.
+      if (node.starts_counted !== undefined) {
+        if (typeof node.starts_counted !== "boolean") problems.push(`${label}: starts_counted must be true or false.`);
+        else if (node.starts_counted && node.preference_type === "user-choice") {
+          problems.push(`${label}: a choice cannot start counted: it counts once the user picks something (D18).`);
+        }
       }
       const weight = node.default_weight;
       const hasWeightReason = typeof node.weight_reason === "string" && node.weight_reason.trim();

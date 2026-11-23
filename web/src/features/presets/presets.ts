@@ -66,7 +66,7 @@ function withChoiceWeights(
 
 /** A profile from parts, leaving out the parts that are empty. */
 function assemble(parts: Profile): Profile {
-  const { weights, flipped, limits, choices, ranges, mode } = parts;
+  const { weights, flipped, limits, choices, ranges, mode, everything } = parts;
   return {
     weights,
     ...(flipped?.length ? { flipped } : {}),
@@ -74,17 +74,59 @@ function assemble(parts: Profile): Profile {
     ...(choices ? { choices } : {}),
     ...(ranges ? { ranges } : {}),
     ...(mode ? { mode } : {}),
+    ...(everything ? { everything } : {}),
   };
+}
+
+/** A way to start: a preset of the catalogue, or one of the two starts, which may count everything. */
+export type StartFrom = ManifestPreset & { everything?: true };
+
+/** Names joined as a person lists them: "a, b and c". */
+function listed(names: readonly string[]): string {
+  return names.length < 2
+    ? (names[0] ?? "")
+    : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
+/**
+ * The two ways to start that come before the catalogue's presets (D14): a few essentials, which is
+ * where a new user starts, and everything at its default weight. None where the tree holds no
+ * essential, as then everything counts from the start.
+ */
+export function startEntries(factors: readonly ManifestFactor[]): StartFrom[] {
+  const essentials: string[] = [];
+  const walk = (nodes: readonly ManifestFactor[]) => {
+    for (const node of nodes) {
+      if (node.starts_counted) essentials.push(node.name);
+      else walk(node.children ?? []);
+    }
+  };
+  walk(factors);
+  if (essentials.length === 0) return [];
+  return [
+    {
+      id: "a-few-essentials",
+      name: "A few essentials",
+      description: `Only a few things count to start with: ${listed(essentials)}. Count anything else that matters to you from Not counted.`,
+    },
+    {
+      id: "everything-equally",
+      name: "Everything, equally",
+      description:
+        "Every factor counts, nearly all at the same weight. Set what does not matter to you to 0.",
+      everything: true,
+    },
+  ];
 }
 
 /**
  * The profile that starts from a preset: its weights, directions and limits replace the user's,
- * and what it does not name is at its default. What is the user's own stays: the choices (a faith
+ * and what it does not name is at its start weight (D14). What is the user's own stays: the choices (a faith
  * or a group, which keep counting), the bands and the way scores combine.
  */
 export function fromPreset(
   profile: Profile,
-  preset: ManifestPreset,
+  preset: StartFrom,
   factors: readonly ManifestFactor[],
 ): Profile {
   const limits = (preset.limits ?? [])
@@ -97,6 +139,7 @@ export function fromPreset(
     choices: profile.choices,
     ranges: profile.ranges,
     mode: profile.mode,
+    everything: preset.everything,
   });
   return withChoiceWeights(base, factors, profile);
 }
@@ -117,6 +160,7 @@ export function undoPreset(
     choices: now.choices,
     ranges: now.ranges,
     mode: now.mode,
+    everything: before.everything,
   });
   return withChoiceWeights(base, factors, now);
 }
@@ -155,11 +199,11 @@ function key(
  * The preset that the profile is still at, or null: a change of any weight, direction or limit
  * leaves it. Choices, bands and the scoring mode do not count.
  */
-export function matchingPreset(
+export function matchingPreset<P extends StartFrom>(
   profile: Profile,
-  presets: readonly ManifestPreset[],
+  presets: readonly P[],
   factors: readonly ManifestFactor[],
-): ManifestPreset | null {
+): P | null {
   const skip = choicePaths(profile, factors);
   const now = key(profile, factors, skip);
   return (

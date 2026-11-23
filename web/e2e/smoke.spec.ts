@@ -161,7 +161,10 @@ test("the hex cells are drawn on the map, in the palette's colours", async ({
     })
     .toBeGreaterThan(2000);
   const { land, explained } = await hexLayerPixels(page, map);
-  expect(land).toBeGreaterThan(2000);
+  // Enough land under the cells to judge their colours by. How much depends on the profile, since
+  // the top neighbourhoods' marks cover some of it: about 1,900 pixels at the start (D14), and
+  // 2,050 with every factor counted.
+  expect(land).toBeGreaterThan(1500);
   expect(explained / land).toBeGreaterThan(0.9);
 });
 

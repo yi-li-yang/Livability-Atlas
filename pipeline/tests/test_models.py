@@ -227,3 +227,16 @@ def test_a_lookup_category_is_text_or_a_number_never_a_yes_or_no():
 
 def test_an_id_cannot_end_in_a_newline():
     assert "id" in problem(Factor, factor(id="air-quality\n"))
+
+
+# --- the start (D14) ---
+
+
+def test_a_factor_can_start_counted():
+    assert Factor.model_validate(factor(starts_counted=True)).starts_counted is True
+
+
+def test_a_choice_cannot_start_counted():
+    # A choice counts once the user picks something (D18), so it cannot count from the start.
+    data = factor(**{**RESEARCHED, "preference_type": "user-choice"}, starts_counted=True)
+    assert "choice" in problem(Factor, data)

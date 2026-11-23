@@ -37,15 +37,19 @@ test("the factor tree shows each factor with its share of the weight and a slide
   page,
 }) => {
   await openApp(page);
-  // Every factor starts at weight 3, so the four that count have a quarter each.
+  // Only the essentials count at the start (D14), each at weight 3, so the three that hold one
+  // have a third each. Health care holds none, so it starts under "Not counted".
   for (const [id, want] of [
-    ["transport", 1 / 4],
-    ["environment", 1 / 4],
-    ["safety", 1 / 4],
-    ["health-care", 1 / 4],
+    ["transport", 1 / 3],
+    ["environment", 1 / 3],
+    ["safety", 1 / 3],
   ] as const) {
     expect(await share(page, id)).toBeCloseTo(want, 3);
   }
+  await expect(tile(page, "health-care")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Count Health care" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("slider", { name: "Weight of Transport" }),
   ).toHaveValue("3");
@@ -61,8 +65,8 @@ test("moving a slider resizes the factor at once, and the others shrink or grow 
   const before = await share(page, "transport");
   await page.getByRole("slider", { name: "Weight of Transport" }).fill("5");
   await expect.poll(() => share(page, "transport")).toBeGreaterThan(before);
-  expect(await share(page, "transport")).toBeCloseTo(5 / 14, 3);
-  expect(await share(page, "environment")).toBeCloseTo(3 / 14, 3);
+  expect(await share(page, "transport")).toBeCloseTo(5 / 11, 3);
+  expect(await share(page, "environment")).toBeCloseTo(3 / 11, 3);
 });
 
 test("a factor at weight 0 leaves the drawing for the not counted list, and can come back", async ({
@@ -73,15 +77,15 @@ test("a factor at weight 0 leaves the drawing for the not counted list, and can 
   await expect(tile(page, "transport")).toHaveCount(0);
   const notCounted = page.getByRole("heading", { name: "Not counted" });
   await expect(notCounted).toBeVisible();
-  expect(await share(page, "environment")).toBeCloseTo(3 / 9, 3);
+  expect(await share(page, "environment")).toBeCloseTo(3 / 6, 3);
 
-  await page.getByRole("button", { name: "Count Transport again" }).click();
+  await page.getByRole("button", { name: "Count Transport" }).click();
   await expect(tile(page, "transport")).toHaveCount(1);
-  // Community and people starts out not counted, so the list stays, without Transport.
+  // Health care starts out not counted, so the list stays, without Transport.
   await expect(
-    page.getByRole("button", { name: "Count Transport again" }),
+    page.getByRole("button", { name: "Count Transport" }),
   ).toHaveCount(0);
-  expect(await share(page, "transport")).toBeCloseTo(1 / 4, 3);
+  expect(await share(page, "transport")).toBeCloseTo(1 / 3, 3);
 });
 
 test("opening a factor shows its sub-factors, and the trail leads back", async ({

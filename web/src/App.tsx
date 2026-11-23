@@ -47,6 +47,7 @@ import { PresetPicker } from "./features/presets/PresetPicker";
 import {
   fromPreset,
   matchingPreset,
+  startEntries,
   undoPreset,
 } from "./features/presets/presets";
 import type { Manifest, ManifestFactor } from "./generated/manifest.schema";
@@ -384,17 +385,21 @@ export function App() {
         : null,
     [bundle, profile, leaves, excluded],
   );
-  const presets = bundle?.manifest.presets ?? [];
-  const preset = useMemo(
+  // A few essentials and everything (D14) come before the catalogue's presets.
+  const presets = useMemo(
     () =>
       bundle
-        ? matchingPreset(
-            profile,
-            bundle.manifest.presets ?? [],
-            bundle.manifest.factors,
-          )
-        : null,
-    [profile, bundle],
+        ? [
+            ...startEntries(bundle.manifest.factors),
+            ...(bundle.manifest.presets ?? []),
+          ]
+        : [],
+    [bundle],
+  );
+  const preset = useMemo(
+    () =>
+      bundle ? matchingPreset(profile, presets, bundle.manifest.factors) : null,
+    [profile, bundle, presets],
   );
 
   /** What one cell scores and why, for the quick look and the panel of reasons. */

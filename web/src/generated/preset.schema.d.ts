@@ -12,7 +12,8 @@ export type Limits = Limit[];
 
 /**
  * A ready-made preference profile to start from. Only what it lists differs from the
- * defaults: a factor it does not name keeps its default weight.
+ * defaults: a factor it does not name keeps its start weight, so a preset adds to the few
+ * essentials that count at the start (D14).
  */
 export interface Preset {
   id: Id;

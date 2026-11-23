@@ -38,7 +38,7 @@ describe("encodeProfile and decodeProfile", () => {
   });
 
   it("read the text of a URL's fragment, with its leading #", () => {
-    expect(decodeProfile("#w=transport:3&f=rain")).toEqual({
+    expect(decodeProfile("#v=2&w=transport:3&f=rain")).toEqual({
       weights: { transport: 3 },
       flipped: ["rain"],
     });
@@ -46,7 +46,7 @@ describe("encodeProfile and decodeProfile", () => {
 
   it("leave out whatever is malformed, and keep the rest", () => {
     const bad =
-      "w=transport:9,safety:-1,crime:2.5,rain:x,:3,ok:4,double:1:2,noval&f=Bad Id,fine";
+      "v=2&w=transport:9,safety:-1,crime:2.5,rain:x,:3,ok:4,double:1:2,noval&f=Bad Id,fine";
     expect(decodeProfile(bad)).toEqual({
       weights: { ok: 4 },
       flipped: ["fine"],
@@ -54,7 +54,7 @@ describe("encodeProfile and decodeProfile", () => {
   });
 
   it("do not let an id carry markup or a path", () => {
-    expect(decodeProfile("w=<script>:3,../x:1,a:1")).toEqual({
+    expect(decodeProfile("v=2&w=<script>:3,../x:1,a:1")).toEqual({
       weights: { a: 1 },
     });
   });
@@ -77,19 +77,19 @@ describe("loadProfile and saveProfile", () => {
   it("start from the saved profile", () => {
     const store = memory();
     saveProfile({ weights: { safety: 5 } }, store);
-    expect(store.data[STORAGE_KEY]).toBe("w=safety:5");
+    expect(store.data[STORAGE_KEY]).toBe("v=2&w=safety:5");
     expect(loadProfile("", store)).toEqual({ weights: { safety: 5 } });
   });
 
   it("prefer the profile in the link to the saved one", () => {
-    const store = memory({ [STORAGE_KEY]: "w=safety:5" });
-    expect(loadProfile("#w=transport:1", store)).toEqual({
+    const store = memory({ [STORAGE_KEY]: "v=2&w=safety:5" });
+    expect(loadProfile("#v=2&w=transport:1", store)).toEqual({
       weights: { transport: 1 },
     });
   });
 
   it("fall back to the saved profile when the link carries none", () => {
-    const store = memory({ [STORAGE_KEY]: "w=safety:5" });
+    const store = memory({ [STORAGE_KEY]: "v=2&w=safety:5" });
     expect(loadProfile("#nothing=here", store)).toEqual({
       weights: { safety: 5 },
     });
@@ -118,7 +118,7 @@ describe("choices", () => {
   };
 
   it("stay out of the link, which a friend may read (D08)", () => {
-    expect(encodeProfile(profile)).toBe("w=faith:3");
+    expect(encodeProfile(profile)).toBe("v=2&w=faith:3");
   });
 
   it("are kept in the browser's storage and round-trip there", () => {
@@ -137,7 +137,7 @@ describe("choices", () => {
   it("come back from storage even when a link sets the weights", () => {
     const store = memory();
     saveProfile(profile, store);
-    const loaded = loadProfile("#w=park:1", store);
+    const loaded = loadProfile("#v=2&w=park:1", store);
     expect(loaded.weights).toEqual({ park: 1 });
     expect(loaded.choices).toEqual(profile.choices);
   });
@@ -189,7 +189,7 @@ describe("limits", () => {
 
   it("are written as l=indicator:kind:value", () => {
     expect(encodeProfile(profile)).toBe(
-      "l=renting-cost:max:2000,gp-walk:min:6.5,service-level:in:3.6a.6b",
+      "v=2&l=renting-cost:max:2000,gp-walk:min:6.5,service-level:in:3.6a.6b",
     );
   });
 
@@ -218,20 +218,22 @@ describe("limits", () => {
   });
 
   it("leave a profile without them as it was", () => {
-    expect(encodeProfile({ weights: { transport: 3 } })).toBe("w=transport:3");
-    expect(decodeProfile("w=transport:3").limits).toBeUndefined();
+    expect(encodeProfile({ weights: { transport: 3 } })).toBe(
+      "v=2&w=transport:3",
+    );
+    expect(decodeProfile("v=2&w=transport:3").limits).toBeUndefined();
   });
 });
 
 describe("the scoring mode", () => {
   const balanced = { weights: { safety: 5 }, mode: "balanced" as const };
   it("round-trips through the link as m=balanced", () => {
-    expect(encodeProfile(balanced)).toBe("w=safety:5&m=balanced");
+    expect(encodeProfile(balanced)).toBe("v=2&w=safety:5&m=balanced");
     expect(decodeProfile(encodeProfile(balanced))).toEqual(balanced);
   });
   it("is left out where it is the default, and dropped where it is unknown", () => {
     expect(encodeProfile({ weights: {}, mode: "mean" })).toBe("");
-    expect(decodeProfile("m=strange")).toEqual({ weights: {} });
+    expect(decodeProfile("v=2&m=strange")).toEqual({ weights: {} });
   });
   it("survives pruning and the browser's storage", () => {
     expect(pruneProfile(balanced, new Set(["safety"]))).toEqual(balanced);
@@ -247,7 +249,9 @@ describe("the bands of user-range indicators", () => {
     ranges: { "building-age": [1890, 1930] as const, cold: [-5, 2.5] as const },
   };
   it("round-trip through the link as r=indicator:lo~hi", () => {
-    expect(encodeProfile(banded)).toBe("r=building-age:1890~1930,cold:-5~2.5");
+    expect(encodeProfile(banded)).toBe(
+      "v=2&r=building-age:1890~1930,cold:-5~2.5",
+    );
     expect(decodeProfile(encodeProfile(banded))).toEqual(banded);
   });
   it("keep a tiny or huge number that JavaScript writes with an exponent", () => {
@@ -267,5 +271,46 @@ describe("the bands of user-range indicators", () => {
     const store = memory();
     saveProfile(banded, store);
     expect(loadProfile("", store)).toEqual(banded);
+  });
+});
+
+describe("the start a profile is built on (D14)", () => {
+  it("writes v=2 in front of anything it writes, and nothing for an empty profile", () => {
+    expect(encodeProfile({ weights: { safety: 5 } })).toBe("v=2&w=safety:5");
+    expect(encodeProfile({ weights: {} })).toBe("");
+  });
+
+  it("writes s=all for a profile that counts everything, and reads it back", () => {
+    const everything = { weights: { safety: 5 }, everything: true as const };
+    expect(encodeProfile(everything)).toBe("v=2&w=safety:5&s=all");
+    expect(decodeProfile(encodeProfile(everything))).toEqual(everything);
+    expect(decodeProfile("v=2&s=all")).toEqual({
+      weights: {},
+      everything: true,
+    });
+  });
+
+  it("reads a link from before the start changed as counting everything, as it did then", () => {
+    expect(decodeProfile("#w=transport:3")).toEqual({
+      weights: { transport: 3 },
+      everything: true,
+    });
+    expect(decodeProfile("#v=2&w=transport:3")).toEqual({
+      weights: { transport: 3 },
+    });
+  });
+
+  it("reads a profile saved before the start changed as counting everything", () => {
+    const store = memory({ [STORAGE_KEY]: "w=safety:5" });
+    expect(loadProfile("", store)).toEqual({
+      weights: { safety: 5 },
+      everything: true,
+    });
+  });
+
+  it("keeps counting everything through pruning", () => {
+    expect(
+      pruneProfile({ weights: {}, everything: true }, new Set(["safety"])),
+    ).toEqual({ weights: {}, everything: true });
   });
 });

@@ -296,6 +296,15 @@ test("a curve must follow the rule of its shape", () => {
   for (const curve of valid) assert.deepEqual(problemsOf(researched({ curve })), [], JSON.stringify(curve));
 });
 
+test("a factor may start counted, but not a choice", () => {
+  assert.deepEqual(problemsOf(researched({ starts_counted: true })), []);
+  expectProblem(problemsOf(researched({ starts_counted: "yes" })), /^pm25: starts_counted must be true or false/);
+  expectProblem(
+    problemsOf(researched({ preference_type: "user-choice", starts_counted: true })),
+    /^pm25: a choice cannot start counted/,
+  );
+});
+
 test("a curve needs a reason, whatever the status", () => {
   const idea = { id: "pm25", name: "PM2.5", default_weight: 3, curve: { shape: "ramp", t0: 25, t1: 5 } };
   expectProblem(problemsOf(idea), /^pm25: a curve needs a curve_reason/);

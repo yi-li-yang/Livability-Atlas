@@ -173,14 +173,45 @@ def _prune(node: Factor, wanted: set[str]) -> ManifestFactor | None:
         if node.id not in wanted:
             return None
         return ManifestFactor(
-            id=node.id, name=node.name, default_weight=node.default_weight, indicator=node.id
+            id=node.id,
+            name=node.name,
+            default_weight=node.default_weight,
+            starts_counted=node.starts_counted or None,
+            indicator=node.id,
         )
     kept = [child for c in node.children if (child := _prune(c, wanted)) is not None]
     if not kept:
         return None
     return ManifestFactor(
-        id=node.id, name=node.name, default_weight=node.default_weight, children=kept
+        id=node.id,
+        name=node.name,
+        default_weight=node.default_weight,
+        starts_counted=node.starts_counted or None,
+        children=kept,
     )
+
+
+def _holds_essential(node: ManifestFactor) -> bool:
+    return bool(node.starts_counted) or any(_holds_essential(c) for c in node.children or [])
+
+
+def _with_start(factors: list[ManifestFactor]) -> list[ManifestFactor]:
+    """The tree with the start (D14): the essentials count, with everything inside them and the
+    factors that lead to them, and the top factor of every other branch starts at weight 0. A
+    bundle that holds no essential counts everything at the start."""
+    if not any(_holds_essential(f) for f in factors):
+        return factors
+
+    def mark(node: ManifestFactor, inside: bool) -> ManifestFactor:
+        counted = inside or _holds_essential(node)
+        within = inside or bool(node.starts_counted)
+        # Inside a branch that starts at 0, each factor keeps its default weight, so that the
+        # whole branch counts once the user counts its top.
+        kids = [mark(c, within) if counted else c for c in node.children] if node.children else None
+        start = None if counted or node.default_weight == 0 else 0
+        return node.model_copy(update={"children": kids, "start_weight": start})
+
+    return [mark(f, False) for f in factors]
 
 
 def manifest_presets(
@@ -306,7 +337,9 @@ def _manifest(
         if d.id in used
     ]
     wanted = set(indicator_ids)
-    factors = [top for f in catalogue.factors.factors if (top := _prune(f, wanted)) is not None]
+    factors = _with_start(
+        [top for f in catalogue.factors.factors if (top := _prune(f, wanted)) is not None]
+    )
     return Manifest(
         version="",
         region=ManifestRegion(id=region.id, name=region.name),

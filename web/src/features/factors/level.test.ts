@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { ManifestFactor } from "../../generated/manifest.schema";
 import {
   CHOSEN_WEIGHT,
-  countAgain,
+  countFactor,
   levelAt,
   withChoice,
   withWeight,
@@ -111,28 +111,74 @@ describe("levelAt", () => {
   });
 });
 
-describe("countAgain", () => {
-  it("returns a factor and what is inside it to their default weights", () => {
+describe("countFactor", () => {
+  it("counts a factor and everything inside it at their default weights", () => {
     const profile = withWeight(
       withWeight(withWeight(NONE, "safety", 0), "crime", 0),
       "lighting",
       0,
     );
-    const back = countAgain(profile, FACTORS[0]);
-    expect(back.weights).toEqual({});
+    const back = countFactor(profile, FACTORS[0]);
+    expect(back.weights).toEqual({ safety: 4 });
     expect(levelAt(FACTORS, back, []).counted.map((f) => f.id)).toContain(
       "safety",
     );
   });
 
-  it("leaves the weights set elsewhere alone", () => {
-    const profile = withWeight(withWeight(NONE, "safety", 0), "comfort", 5);
-    expect(countAgain(profile, FACTORS[0]).weights).toEqual({ comfort: 5 });
+  it("counts a factor that starts at 0 (D14), with all of its branch", () => {
+    const education: ManifestFactor = {
+      id: "education",
+      name: "Education",
+      default_weight: 3,
+      start_weight: 0,
+      children: [leaf("schools", 3), leaf("nurseries", 3)],
+    };
+    const counted = countFactor(NONE, education);
+    expect(counted.weights).toEqual({ education: 3 });
+    expect(levelAt([education], counted, []).counted.map((f) => f.id)).toEqual([
+      "education",
+    ]);
   });
 
-  it("gives a factor whose default weight is 0 a weight of 1", () => {
+  it("leaves the weights set elsewhere alone", () => {
+    const profile = withWeight(withWeight(NONE, "safety", 0), "comfort", 5);
+    expect(countFactor(profile, FACTORS[0]).weights).toEqual({
+      safety: 4,
+      comfort: 5,
+    });
+  });
+
+  it("gives a factor whose default weight is 0 the weight of a first pick", () => {
     const factor = leaf("choice", 0);
-    expect(countAgain(NONE, factor).weights).toEqual({ choice: 1 });
+    expect(countFactor(NONE, factor).weights).toEqual({
+      choice: CHOSEN_WEIGHT,
+    });
+  });
+
+  it("keeps a picked choice inside it counting", () => {
+    const community: ManifestFactor = {
+      id: "community",
+      name: "Community",
+      default_weight: 3,
+      start_weight: 0,
+      children: [
+        {
+          id: "composition",
+          name: "Composition",
+          default_weight: 3,
+          start_weight: 0,
+          children: [leaf("faith", 0), leaf("diversity", 3)],
+        },
+      ],
+    };
+    const picked = {
+      weights: { community: 0, composition: 3, faith: 3 },
+      choices: { faith: ["hindu"] },
+    };
+    const counted = countFactor(picked, community);
+    expect(counted.weights.faith).toBe(3);
+    expect(counted.weights.composition).toBe(3);
+    expect(counted.weights.community).toBe(3);
   });
 });
 

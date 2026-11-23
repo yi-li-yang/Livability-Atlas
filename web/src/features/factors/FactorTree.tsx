@@ -7,7 +7,7 @@ import type { Profile } from "../../scoring/region";
 import { formatNumber } from "./evidence";
 import type { Layout } from "./layout";
 import {
-  countAgain,
+  countFactor,
   type FactorView,
   levelAt,
   withChoice,
@@ -296,15 +296,15 @@ export function FactorTree({
                       Open
                     </button>
                   )}
-                  {/* A choice counts once something is picked, so it offers no "again". */}
+                  {/* A choice counts once something is picked, so it offers no "Count". */}
                   {!optionsOf(f) && (
                     <button
                       type="button"
                       className="underline"
-                      aria-label={`Count ${f.name} again`}
-                      onClick={() => onChange(countAgain(profile, f.factor))}
+                      aria-label={`Count ${f.name}`}
+                      onClick={() => onChange(countFactor(profile, f.factor))}
                     >
-                      Count again
+                      Count
                     </button>
                   )}
                 </div>

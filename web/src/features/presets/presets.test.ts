@@ -3,7 +3,12 @@ import type {
   ManifestFactor,
   ManifestPreset,
 } from "../../generated/manifest.schema";
-import { fromPreset, matchingPreset, undoPreset } from "./presets";
+import {
+  fromPreset,
+  matchingPreset,
+  startEntries,
+  undoPreset,
+} from "./presets";
 
 const leaf = (id: string, weight = 3): ManifestFactor => ({
   id,
@@ -143,5 +148,54 @@ describe("undoing a preset", () => {
     // the choice picked after the preset still counts
     expect(undone.weights.faith).toBeGreaterThan(0);
     expect(undone.weights["community-and-people"]).toBeGreaterThan(0);
+  });
+});
+
+describe("the two ways to start (D14)", () => {
+  // Transport is an essential; Education is not, so it starts at 0, and Health care holds an
+  // essential inside it.
+  const tree: ManifestFactor[] = [
+    { ...leaf("transport"), starts_counted: true },
+    { ...leaf("education"), start_weight: 0 },
+    {
+      id: "health-care",
+      name: "Health care",
+      default_weight: 3,
+      children: [
+        { ...leaf("gp-walk"), starts_counted: true },
+        { ...leaf("dentists"), start_weight: 0 },
+      ],
+    },
+  ];
+
+  it("offers a few essentials first, then everything, then the catalogue's presets", () => {
+    const entries = startEntries(tree);
+    expect(entries.map((e) => e.name)).toEqual([
+      "A few essentials",
+      "Everything, equally",
+    ]);
+    expect(entries[0].description).toContain("transport and gp-walk");
+  });
+
+  it("is at a few essentials where nothing is set", () => {
+    const entries = startEntries(tree);
+    expect(matchingPreset({ weights: {} }, entries, tree)).toBe(entries[0]);
+  });
+
+  it("counts everything at its default weight with Everything, equally", () => {
+    const entries = startEntries(tree);
+    const profile = fromPreset({ weights: { transport: 5 } }, entries[1], tree);
+    expect(profile).toEqual({ weights: {}, everything: true });
+    expect(matchingPreset(profile, entries, tree)).toBe(entries[1]);
+  });
+
+  it("goes back to the essentials from everything", () => {
+    const [essentials] = startEntries(tree);
+    const profile = fromPreset(
+      { weights: {}, everything: true },
+      essentials,
+      tree,
+    );
+    expect(profile).toEqual({ weights: {} });
   });
 });

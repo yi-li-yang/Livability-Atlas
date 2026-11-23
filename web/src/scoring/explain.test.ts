@@ -48,12 +48,12 @@ describe("explainCell", () => {
 
   it("lists the top-level factors that count, and opens each into what is inside it", async () => {
     const bundle = await load();
+    // At the start only the essentials count (D14): Health care and the service level do not.
     const explanation = explainCell(bundle, { weights: {} }, 0);
     expect(explanation.factors.map((f) => f.id)).toEqual([
       "transport",
       "environment",
       "safety",
-      "health-care",
     ]);
     const transport = explanation.factors[0];
     expect(transport.children.map((c) => c.id)).toEqual([
@@ -62,8 +62,17 @@ describe("explainCell", () => {
     ]);
     expect(transport.children[0].children.map((c) => c.id)).toEqual([
       "station-proximity",
-      "service-level",
     ]);
+    // Counting everything brings them in.
+    const everything = explainCell(
+      bundle,
+      { weights: {}, everything: true },
+      0,
+    );
+    expect(everything.factors.map((f) => f.id)).toContain("health-care");
+    expect(everything.factors[0].children[0].children.map((c) => c.id)).toEqual(
+      ["station-proximity", "service-level"],
+    );
   });
 
   it("leaves out a factor at weight 0", async () => {
@@ -72,7 +81,6 @@ describe("explainCell", () => {
     expect(explanation.factors.map((f) => f.id)).toEqual([
       "environment",
       "safety",
-      "health-care",
     ]);
   });
 

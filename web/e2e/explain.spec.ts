@@ -2,9 +2,12 @@ import { expect, type Page, test } from "@playwright/test";
 import { scoreToColour } from "../src/features/map/colour";
 import { clearCentre } from "./clip";
 
-/** Opens the app and returns the pixel at the middle of the map, which is over the fixture's cells. */
-async function openOverCells(page: Page) {
-  await page.goto("/");
+/**
+ * Opens the app (at `hash`, such as "#v=2&s=all" for every factor counted) and returns the pixel at
+ * the middle of the map, which is over the fixture's cells.
+ */
+async function openOverCells(page: Page, hash = "") {
+  await page.goto(`/${hash}`);
   const map = page.getByTestId("map");
   await expect(map).toHaveAttribute("data-cells", /^[1-9]\d*$/);
   await page.waitForLoadState("networkidle");
@@ -79,8 +82,9 @@ test("clicking a hex cell says why it scores what it does, and the parts add up"
     await expect(panel).toBeVisible({ timeout: 500 });
   }).toPass({ timeout: 10_000 });
 
-  // The factors that count, each with what it adds.
-  for (const name of ["Transport", "Environment", "Safety", "Health care"]) {
+  // The factors that count, each with what it adds: at the start, the three that hold an essential
+  // (D14).
+  for (const name of ["Transport", "Environment", "Safety"]) {
     await expect(
       panel.locator("summary", { hasText: name }).first(),
     ).toBeVisible();
@@ -95,7 +99,7 @@ test("clicking a hex cell says why it scores what it does, and the parts add up"
       .locator(":scope > ul > li > details > summary")
       .allTextContents()
   ).map((text) => Number(text.match(/(\d+) of \d+ points/)?.[1]));
-  expect(contributions).toHaveLength(4);
+  expect(contributions).toHaveLength(3);
   const total = contributions.reduce((a, b) => a + b, 0);
   // Each is rounded to a whole number, so they add up to the score within the rounding.
   expect(Math.abs(total - score)).toBeLessThanOrEqual(2);
@@ -104,10 +108,13 @@ test("clicking a hex cell says why it scores what it does, and the parts add up"
   await panel.locator("summary", { hasText: "Transport" }).first().click();
   await expect(panel.getByText("Getting around")).toBeVisible();
   await panel.locator("summary", { hasText: "Getting around" }).first().click();
-  await expect(panel.getByText("Service level", { exact: true })).toBeVisible();
   await expect(
     panel.getByText("Walk to the nearest station", { exact: true }),
   ).toBeVisible();
+  // The service level starts at "Not counted" (D14), so it is not among the reasons.
+  await expect(panel.getByText("Service level", { exact: true })).toHaveCount(
+    0,
+  );
 });
 
 test("each bar in the reasons takes the colour of its own score: red for worse, blue-green for better", async ({
@@ -163,7 +170,8 @@ test("the reasons close with the button, with Escape, and by clicking where ther
 test("the details of a measured indicator give its value, its curve, its kind of evidence and its source", async ({
   page,
 }) => {
-  const { x, y } = await openOverCells(page);
+  // The service level starts at "Not counted" (D14), so this counts every factor.
+  const { x, y } = await openOverCells(page, "#v=2&s=all");
   const panel = page.getByRole("complementary", { name: "Why this score" });
   await expect(async () => {
     await page.mouse.move(x, y);

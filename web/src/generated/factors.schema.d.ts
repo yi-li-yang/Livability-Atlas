@@ -11,6 +11,7 @@ export type DefaultWeight = number;
 export type WeightReason = string | null;
 export type Scales = ["within-city" | "across-cities", ...("within-city" | "across-cities")[]] | null;
 export type Status = ("idea" | "researched" | "spiked" | "built") | null;
+export type StartsCounted = boolean | null;
 export type Children = Factor[] | null;
 export type Unit = string | null;
 export type PreferenceType = ("fixed" | "user-direction" | "user-range" | "user-choice") | null;
@@ -47,6 +48,7 @@ export interface Factor {
   weight_reason?: WeightReason;
   scales?: Scales;
   status?: Status;
+  starts_counted?: StartsCounted;
   children?: Children;
   unit?: Unit;
   preference_type?: PreferenceType;

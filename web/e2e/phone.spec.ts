@@ -3,8 +3,9 @@ import { expect, type Page, test } from "@playwright/test";
 // A phone held upright. Below 768 px wide the panels become sheets (docs/specs/2026-10-29-phone-layout.md).
 test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
+/** Opens the app with every factor counted ("Everything, equally"), as these tests use them all. */
 async function openApp(page: Page) {
-  await page.goto("/");
+  await page.goto("/#v=2&s=all");
   const map = page.getByTestId("map");
   await expect(map).toHaveAttribute("data-cells", /^[1-9]\d*$/);
   await page.waitForLoadState("networkidle");

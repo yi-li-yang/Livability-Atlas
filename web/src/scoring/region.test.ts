@@ -11,6 +11,7 @@ import {
   type Profile,
   scoreCaseFor,
   scoreRegion,
+  weightIn,
 } from "./region";
 
 /** A small seeded generator, so a failing case can be run again. */
@@ -410,5 +411,32 @@ describe("a band on an indicator that is not a user range", () => {
     expect(scoreCaseFor(bundle, profile, 0)).toEqual(
       scoreCaseFor(bundle, { weights: {} }, 0),
     );
+  });
+});
+
+describe("the weight a factor starts at (D14)", () => {
+  const essential: ManifestFactor = {
+    id: "transport",
+    name: "Transport",
+    default_weight: 3,
+    starts_counted: true,
+    indicator: "transport",
+  };
+  const other: ManifestFactor = {
+    id: "education",
+    name: "Education",
+    default_weight: 3,
+    start_weight: 0,
+    indicator: "education",
+  };
+
+  it("is its start weight until the user sets one", () => {
+    expect(weightIn({ weights: {} }, essential)).toBe(3);
+    expect(weightIn({ weights: {} }, other)).toBe(0);
+    expect(weightIn({ weights: { education: 4 } }, other)).toBe(4);
+  });
+
+  it("is its default weight where the profile counts everything", () => {
+    expect(weightIn({ weights: {}, everything: true }, other)).toBe(3);
   });
 });

@@ -677,3 +677,53 @@ def test_a_choice_with_a_fixed_curve_is_written_with_homes_too(catalogue, tmp_pa
     manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
     faith = next(i for i in manifest.indicators if i.id == "faith")
     assert faith.curve is not None and faith.curve.shape == "ramp"
+
+
+# --- the start: a few essentials (D14) ---
+
+
+def _factors_by_id(manifest):
+    out = {}
+
+    def walk(nodes):
+        for node in nodes:
+            out[node.id] = node
+            walk(node.children or [])
+
+    walk(manifest.factors)
+    return out
+
+
+def test_only_the_essentials_count_at_the_start(catalogue, tmp_path):
+    bundle = write_bundle(
+        catalogue,
+        region_id="london",
+        cells=CELLS,
+        columns={
+            "renting-cost": [1540.0, 3739.0, 2000.0],
+            "buying-cost": [5000.0, 9000.0, 7000.0],
+            "burglary": [3.0, 9.0, 5.0],
+            "cafes": [1.0, 30.0, 5.0],
+        },
+        out_dir=tmp_path,
+    )
+    manifest = Manifest.model_validate_json((bundle / "manifest.json").read_text(encoding="utf-8"))
+    nodes = _factors_by_id(manifest)
+    # Renting cost is an essential, so Housing and cost counts, with only it inside.
+    assert nodes["renting-cost"].starts_counted is True
+    assert nodes["housing-and-cost"].start_weight is None
+    assert nodes["buying-cost"].start_weight == 0
+    # Safety is an essential as a whole: everything in it counts.
+    assert nodes["safety"].starts_counted is True
+    assert nodes["burglary"].start_weight is None
+    # Daily amenities holds no essential in this bundle (no groceries), so it starts at 0, and
+    # what is inside it keeps its own weight for when the user counts it.
+    assert nodes["daily-amenities"].start_weight == 0
+    assert nodes["cafes"].start_weight is None
+
+
+def test_a_bundle_with_no_essential_counts_everything_at_the_start(catalogue, tmp_path):
+    manifest = Manifest.model_validate_json(
+        (build(catalogue, tmp_path) / "manifest.json").read_text(encoding="utf-8")
+    )
+    assert all(n.start_weight is None for n in _factors_by_id(manifest).values())

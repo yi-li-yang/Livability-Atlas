@@ -79,9 +79,11 @@ describe("cellColours", () => {
 
   it("colours the best service level the palette's last colour and the worst its first", async () => {
     const bundle = await loadBundle("/bundles", "london", fixtureFetch);
-    // Only the service level is real data in the fixture: leave the others out of the score.
+    // Only the service level is real data in the fixture: leave the others out of the score. It
+    // starts at "Not counted" (D14), so it is counted here.
     const profile = {
       weights: {
+        "service-level": 3,
         "station-proximity": 0,
         "travel-time-to-places": 0,
         "walk-to-green-space": 0,

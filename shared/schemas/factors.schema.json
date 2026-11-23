@@ -84,6 +84,18 @@
           "default": null,
           "title": "Status"
         },
+        "starts_counted": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Starts Counted"
+        },
         "children": {
           "anyOf": [
             {

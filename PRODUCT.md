@@ -43,7 +43,7 @@ No logo or brand identity yet. The name is "Livability Atlas". The voice is plai
 
 ## Evidence on Hand
 
-Real data only: the London data bundle (62 measured indicators across 15 top-level factors) and its QA report. There are no testimonials, user numbers or press. Do not invent any.
+Real data only: the London data bundle (70 measured indicators across 15 top-level factors) and its QA report. There are no testimonials, user numbers or press. Do not invent any.
 
 ## Product Principles
 

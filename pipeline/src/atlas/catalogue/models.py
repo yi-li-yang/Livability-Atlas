@@ -169,6 +169,9 @@ class Factor(_Strict):
     weight_reason: Text | None = None
     scales: list[Scale] | None = Field(default=None, min_length=1)
     status: Status | None = None
+    # One of the few essentials that count when a user starts (D14), with everything inside it.
+    # Every other factor starts at "Not counted", one action from counting.
+    starts_counted: StrictBool | None = None
     children: list["Factor"] | None = None
     # Measured indicators only.
     unit: Text | None = None
@@ -197,6 +200,10 @@ class Factor(_Strict):
                     "so it has none of its own"
                 )
             return self
+        if self.starts_counted and self.preference_type == "user-choice":
+            raise ValueError(
+                "a choice cannot start counted: it counts once the user picks something (D18)"
+            )
         if self.curve is not None:
             if self.curve_reason is None:
                 raise ValueError("a curve needs a curve_reason")
@@ -324,7 +331,8 @@ class Limit(_Strict):
 
 class Preset(_Strict):
     """A ready-made preference profile to start from. Only what it lists differs from the
-    defaults: a factor it does not name keeps its default weight."""
+    defaults: a factor it does not name keeps its start weight, so a preset adds to the few
+    essentials that count at the start (D14)."""
 
     id: Id
     name: Text
