@@ -88,3 +88,4 @@ Recipes for adding a factor, a dataset or a region are in [CONTRIBUTING.md](CONT
 - `E:` is NTFS (D13). Python comes from uv (3.13, in `pipeline/.venv`), separate from the conda base install.
 - Set `PYTHONUTF8=1`, and pass `encoding="utf-8"` when opening text files, because the Windows code page here is not UTF-8.
 - Set `UV_CACHE_DIR` to a folder on `E:`, so uv can hard-link packages instead of copying them.
+- On Windows, local Playwright tests draw WebGL on the GPU with 4 workers (`web/playwright.config.ts` sets both; elsewhere they draw in software with 2). Do not pass a higher `--workers`: each worker is a browser, and too many stall the machine. A one-off Playwright script launches Chromium with `--use-angle=d3d11`, not SwiftShader, and closes the browser when done.
