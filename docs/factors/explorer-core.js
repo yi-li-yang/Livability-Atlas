@@ -174,6 +174,8 @@
         if (typeof node.starts_counted !== "boolean") problems.push(`${label}: starts_counted must be true or false.`);
         else if (node.starts_counted && node.preference_type === "user-choice") {
           problems.push(`${label}: a choice cannot start counted: it counts once the user picks something (D18).`);
+        } else if (node.starts_counted && node.default_weight === 0) {
+          problems.push(`${label}: a factor at weight 0 cannot start counted: it would count for nothing.`);
         }
       }
       const weight = node.default_weight;

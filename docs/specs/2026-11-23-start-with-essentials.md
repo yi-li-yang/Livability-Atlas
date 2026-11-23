@@ -37,9 +37,11 @@ They are the owner's examples (rent, a station, safety), with one plain measure 
 - **"Start from"** lists two starts before the catalogue's presets:
   - "A few essentials", the start itself, named with its essentials.
   - "Everything, equally", every factor at its default weight, as before.
-- **"Reset to defaults"** returns to the essentials.
 - **The presets** set what they name, on top of the essentials.
-- **Saved profiles and old links keep their meaning.** The profile's text now starts with `v=2`. Text without it is from before, when every factor counted, so it is read as counting everything (`everything` in the profile, written `s=all`). "Everything, equally" uses the same marker.
+- **Saved profiles and old links keep their meaning.** The profile's text now starts with `v=2`. Text without it is from before, when every factor counted, so it is read as counting everything (`everything` in the profile, written `s=all`). "Everything, equally" uses the same marker. A profile from before that set nothing has no text, so it takes the new start, as a new visitor does: it chose nothing to keep.
+- **An opened branch that does not count says so:** "Health care is not counted, so nothing in it changes the map yet", with "Count Health care".
+- **"Start again"** (was "Reset to defaults") goes back to the essentials.
+- **A preset that flips an indicator counts its branch.** The catalogue's checks refuse a flip inside a branch that starts at 0 unless the preset gives that branch a weight. Retired now counts Culture and leisure, so that its flip of nightlife makes a quiet street score higher.
 
 ## Checks
 

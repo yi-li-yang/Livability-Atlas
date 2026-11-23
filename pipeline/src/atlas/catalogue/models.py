@@ -204,6 +204,10 @@ class Factor(_Strict):
             raise ValueError(
                 "a choice cannot start counted: it counts once the user picks something (D18)"
             )
+        if self.starts_counted and self.default_weight == 0:
+            raise ValueError(
+                "a factor at weight 0 cannot start counted: it would count for nothing"
+            )
         if self.curve is not None:
             if self.curve_reason is None:
                 raise ValueError("a curve needs a curve_reason")

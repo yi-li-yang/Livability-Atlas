@@ -236,6 +236,11 @@ def test_a_factor_can_start_counted():
     assert Factor.model_validate(factor(starts_counted=True)).starts_counted is True
 
 
+def test_a_factor_at_weight_0_cannot_start_counted():
+    # It would be named among the essentials and count for nothing.
+    assert "weight 0" in problem(Factor, factor(default_weight=0, starts_counted=True))
+
+
 def test_a_choice_cannot_start_counted():
     # A choice counts once the user picks something (D18), so it cannot count from the start.
     data = factor(**{**RESEARCHED, "preference_type": "user-choice"}, starts_counted=True)

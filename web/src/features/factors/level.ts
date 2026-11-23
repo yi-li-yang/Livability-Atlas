@@ -30,6 +30,11 @@ export interface Level {
   counted: FactorView[];
   /** The factors at weight 0, which the drawing leaves out. */
   notCounted: FactorView[];
+  /**
+   * The outermost factor opened to reach this level that is at weight 0, such as a branch that
+   * starts at "Not counted" (D14): nothing at this level changes the score until it counts.
+   */
+  uncounted: ManifestFactor | null;
 }
 
 const kidsOf = (factor: ManifestFactor): ManifestFactor[] =>
@@ -81,6 +86,9 @@ export function levelAt(
     trail,
     counted: views.filter((v) => v.effectiveWeight > 0),
     notCounted: views.filter((v) => v.effectiveWeight === 0),
+    uncounted:
+      trail.find((step) => weightIn(profile, step.factor) === 0)?.factor ??
+      null,
   };
 }
 
@@ -143,8 +151,15 @@ export function countFactor(profile: Profile, factor: ManifestFactor): Profile {
     for (const kid of kidsOf(f)) clear(kid, [...path, f]);
   };
   clear(factor, []);
+  // A weight the user set on the factor itself stays: it was not counted only because all that is
+  // inside it was at 0.
+  const own = profile.weights[factor.id] ?? 0;
   weights[factor.id] =
-    factor.default_weight > 0 ? factor.default_weight : CHOSEN_WEIGHT;
+    own > 0
+      ? own
+      : factor.default_weight > 0
+        ? factor.default_weight
+        : CHOSEN_WEIGHT;
   for (const path of paths) {
     for (const f of path) {
       if (weightIn({ ...profile, weights }, f) > 0) continue;

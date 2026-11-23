@@ -303,6 +303,10 @@ test("a factor may start counted, but not a choice", () => {
     problemsOf(researched({ preference_type: "user-choice", starts_counted: true })),
     /^pm25: a choice cannot start counted/,
   );
+  expectProblem(
+    problemsOf(researched({ default_weight: 0, weight_reason: "None.", starts_counted: true })),
+    /^pm25: a factor at weight 0 cannot start counted/,
+  );
 });
 
 test("a curve needs a reason, whatever the status", () => {

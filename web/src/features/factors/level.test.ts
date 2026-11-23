@@ -250,3 +250,33 @@ describe("withChoice", () => {
     });
   });
 });
+
+describe("a level opened inside a factor that does not count", () => {
+  const education: ManifestFactor = {
+    id: "education",
+    name: "Education",
+    default_weight: 3,
+    start_weight: 0,
+    children: [leaf("schools", 3), leaf("nurseries", 3)],
+  };
+
+  it("names that factor, since nothing inside it changes the score until it counts", () => {
+    expect(levelAt([education], NONE, ["education"]).uncounted?.id).toBe(
+      "education",
+    );
+    const counted = countFactor(NONE, education);
+    expect(levelAt([education], counted, ["education"]).uncounted).toBeNull();
+    expect(levelAt([education], NONE, []).uncounted).toBeNull();
+  });
+});
+
+describe("countFactor and a weight the user set", () => {
+  it("keeps it, where the factor was not counted only because all inside it were at 0", () => {
+    const profile = withWeight(
+      withWeight(withWeight(NONE, "safety", 5), "crime", 0),
+      "lighting",
+      0,
+    );
+    expect(countFactor(profile, FACTORS[0]).weights).toEqual({ safety: 5 });
+  });
+});

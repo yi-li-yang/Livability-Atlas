@@ -16,7 +16,7 @@ PRESET = {
     "id": "renter",
     "name": "Renter who commutes",
     "description": "Rent and the trip to work matter most.",
-    "weights": {"housing-and-cost": 5, "renting-cost": 5, "safety": 2},
+    "weights": {"housing-and-cost": 5, "renting-cost": 5, "safety": 2, "culture-and-leisure": 3},
     "flipped": ["nightlife"],
     "limits": [{"indicator": "renting-cost", "max": 2200}],
 }
@@ -68,6 +68,14 @@ class TestTheChecks:
         preset = Preset.model_validate({**PRESET, "flipped": ["renting-cost"]})  # a fixed one
         problems = check_preset(preset, factors())
         assert any("renting-cost" in p and "direction" in p for p in problems)
+
+    def test_a_flipped_indicator_must_count(self):
+        # Culture and leisure starts at "Not counted" (D14), so a flip of nightlife inside it would
+        # count for nothing unless the preset counts it.
+        weights = {k: v for k, v in PRESET["weights"].items() if k != "culture-and-leisure"}
+        preset = Preset.model_validate({**PRESET, "weights": weights})
+        problems = check_preset(preset, factors())
+        assert any("nightlife" in p and "counts for nothing" in p for p in problems)
 
     def test_a_limit_on_an_unknown_indicator_is_a_problem(self):
         preset = Preset.model_validate({**PRESET, "limits": [{"indicator": "nope", "max": 1}]})

@@ -49,9 +49,16 @@ test("a new visitor starts with a few essentials, and can count everything or on
   await expect(page.getByTestId("presets")).toContainText(
     "Only a few things count to start with:",
   );
-  // Health care holds no essential (D14), so it starts under "Not counted".
+  // Health care holds no essential (D14), so it starts under "Not counted". Opened, it says that
+  // nothing in it counts yet, with a way to count it.
   await expect(weight(page, "Health care")).toHaveCount(0);
+  await page.getByRole("button", { name: "Open Health care" }).click();
+  await expect(page.getByRole("note")).toContainText(
+    "Health care is not counted",
+  );
   await page.getByRole("button", { name: "Count Health care" }).click();
+  await expect(page.getByRole("note")).toHaveCount(0);
+  await page.getByRole("button", { name: "All factors" }).click();
   await expect(weight(page, "Health care")).toHaveValue("3");
   await expect(start).toHaveValue("");
 

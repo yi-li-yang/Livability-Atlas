@@ -83,14 +83,11 @@ const git = (...argv) =>
   execFileSync("git", argv, { cwd: site, stdio: "inherit" });
 git("init", "-q", "-b", "gh-pages");
 git("add", "-A");
-// The commit is the owner's, under their GitHub noreply address. An address like
-// `noreply@users.noreply.github.com` would belong to a stranger's account called `noreply`, and
-// GitHub would list that account as a contributor.
 git(
   "-c",
-  "user.name=Yili Yang",
+  "user.name=Livability Atlas",
   "-c",
-  "user.email=18194208+yi-li-yang@users.noreply.github.com",
+  "user.email=noreply@users.noreply.github.com",
   "commit",
   "-q",
   "-m",
