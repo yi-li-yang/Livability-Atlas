@@ -310,6 +310,18 @@ export function App() {
         : [],
     [shown, excluded, few, colourBy],
   );
+  // With hard limits, how many hex cells that would count they leave out, for the legend's key.
+  const leftOut = useMemo(() => {
+    if (!scores || !excluded || (limits ?? []).length === 0) return null;
+    let count = 0;
+    let of = 0;
+    scores.forEach((score, i) => {
+      if (Number.isNaN(score) || few?.[i]) return;
+      of++;
+      if (excluded[i]) count++;
+    });
+    return { count, of };
+  }, [scores, excluded, few, limits]);
   const spread = useMemo(
     () =>
       shown
@@ -614,6 +626,7 @@ export function App() {
             region={state.bundle.manifest.region.name}
             spread={spread}
             topMarked={!viewName && top.length > 0}
+            leftOut={leftOut}
           />
         )}
       </main>

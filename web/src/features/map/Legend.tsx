@@ -1,6 +1,42 @@
-import { FEW_HOMES_OUTLINE, LAND_COLOURS, PALETTE, scoreToCss } from "./colour";
+import {
+  EXCLUDED,
+  FEW_HOMES_OUTLINE,
+  LAND_COLOURS,
+  PALETTE,
+  type Rgba,
+  scoreToCss,
+} from "./colour";
 import type { ColourBy } from "./rank";
 import type { ViewOption } from "./views";
+
+const css = ([r, g, b, a]: Rgba) => `rgb(${r} ${g} ${b} / ${a / 255})`;
+
+/** A small hexagon for a key in the legend, filled and outlined as the map draws the cells it names. */
+function HexKey({
+  fill,
+  stroke,
+  testId,
+}: {
+  fill: string;
+  stroke?: string;
+  testId: string;
+}) {
+  return (
+    <svg
+      aria-hidden="true"
+      data-testid={testId}
+      viewBox="0 0 20 22"
+      className="h-4 w-4 shrink-0"
+    >
+      <polygon
+        points="10,1 19,6 19,16 10,21 1,16 1,6"
+        fill={fill}
+        stroke={stroke ?? "none"}
+        strokeWidth={1.5}
+      />
+    </svg>
+  );
+}
 
 /**
  * The scores between which most of the region lies (the middle 80%), read off the spread's bands,
@@ -46,6 +82,7 @@ export function Legend({
   region = "the region",
   spread = null,
   topMarked = false,
+  leftOut = null,
 }: {
   title: string;
   low: string;
@@ -73,6 +110,8 @@ export function Legend({
   spread?: readonly number[] | null;
   /** Whether the map marks the top neighbourhoods with their places in the list. */
   topMarked?: boolean;
+  /** With hard limits: how many hex cells with homes and a score they leave out, of how many. */
+  leftOut?: { count: number; of: number } | null;
 }) {
   const byRank = colourBy === "rank";
   const fifths = `linear-gradient(to right, ${PALETTE.map(
@@ -93,17 +132,21 @@ export function Legend({
   // the key shows one, half park and half industry.
   const fewHomesKey = fewHomes && (
     <span className="flex items-center gap-1.5">
-      <span
-        aria-hidden="true"
-        data-testid="few-homes-key"
-        className="inline-block h-3 w-4 shrink-0 rounded-sm border"
-        style={{
-          borderColor: `rgb(${FEW_HOMES_OUTLINE.slice(0, 3).join(" ")})`,
-          background: `linear-gradient(to right, ${LAND_COLOURS.green} 50%, ${LAND_COLOURS.industry} 50%)`,
-        }}
+      <HexKey
+        testId="few-homes-key"
+        fill={LAND_COLOURS.green}
+        stroke={css(FEW_HOMES_OUTLINE)}
       />
       Few or no homes: no score
     </span>
+  );
+  const wholeNumber = new Intl.NumberFormat("en-GB");
+  const leftOutKey = leftOut && leftOut.count > 0 && (
+    <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-600">
+      <HexKey testId="left-out-key" fill={css(EXCLUDED)} />
+      Left out by your hard limits: {wholeNumber.format(leftOut.count)} of{" "}
+      {wholeNumber.format(leftOut.of)}
+    </p>
   );
   const topMark = topMarked && (
     <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-600">
@@ -170,14 +213,14 @@ export function Legend({
         max={100}
         step={5}
         value={Math.round(opacity * 100)}
-        aria-label="Cell opacity"
+        aria-label="Colour strength"
         aria-valuetext={`${Math.round(opacity * 100)}%`}
-        className="block w-full"
+        className="block w-full accent-neutral-700"
         onChange={(event) => onOpacity(Number(event.target.value) / 100)}
       />
       <span className="flex justify-between">
         <span>Map</span>
-        <span>Cells</span>
+        <span>Colours</span>
       </span>
     </>
   );
@@ -267,6 +310,7 @@ export function Legend({
       {fewHomesKey && !phone && (
         <p className="mt-1 text-xs text-neutral-600">{fewHomesKey}</p>
       )}
+      {leftOutKey}
       {note && (
         <p role="note" className="mt-1 text-xs text-neutral-600">
           {note}
@@ -278,7 +322,7 @@ export function Legend({
           {about}
           {colourSwitch}
           <label htmlFor="cell-opacity" className="mt-2 block">
-            Cell opacity
+            Colour strength
             {opacityControl}
           </label>
         </details>
@@ -287,7 +331,7 @@ export function Legend({
           htmlFor="cell-opacity"
           className="mt-2 block text-xs text-neutral-600"
         >
-          Cell opacity
+          Colour strength
           {opacityControl}
         </label>
       )}
