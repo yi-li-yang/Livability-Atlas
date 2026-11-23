@@ -29,6 +29,44 @@ test("hovering over a hex cell shows its score, rank, strengths and weakness", a
   await expect(card).toContainText("Click for the reasons");
 });
 
+test("the quick look goes when the pointer leaves the map or the map moves, and does not come back", async ({
+  page,
+}) => {
+  const { x, y } = await openOverCells(page);
+  const card = page.getByTestId("quick-look");
+  const hoverCell = async () =>
+    expect(async () => {
+      await page.mouse.move(x - 5, y - 5);
+      await page.mouse.move(x, y);
+      await expect(card).toBeVisible({ timeout: 500 });
+    }).toPass({ timeout: 10_000 });
+
+  // Onto the legend, which sits over the map: the card describes no cell any more.
+  await hoverCell();
+  const legend = page.getByRole("region", { name: "Legend" });
+  const box = await legend.boundingBox();
+  if (!box) throw new Error("no legend");
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await expect(card).toBeHidden();
+
+  // Off the page's map altogether, onto the heading.
+  await hoverCell();
+  await page.getByRole("heading", { name: "Livability Atlas" }).hover();
+  await expect(card).toBeHidden();
+
+  // Clicking the cell opens its reasons; closing them must not bring an old card back.
+  await hoverCell();
+  const panel = page.getByRole("complementary", { name: "Why this score" });
+  await expect(async () => {
+    await page.mouse.click(x, y);
+    await expect(panel).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 10_000 });
+  await page.getByRole("heading", { name: "Livability Atlas" }).hover();
+  await page.keyboard.press("Escape");
+  await expect(panel).toBeHidden();
+  await expect(card).toBeHidden();
+});
+
 test("clicking a hex cell says why it scores what it does, and the parts add up", async ({
   page,
 }) => {
