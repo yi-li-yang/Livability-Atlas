@@ -328,7 +328,7 @@ def _travel_estimates(cells: Cells) -> NDArray[np.float64]:
     ids = cells.table["cell"].to_pylist()
     centres = np.array([h3.cell_to_latlng(c) for c in ids])
     position = {cell: i for i, cell in enumerate(ids)}
-    resolution = h3.get_resolution(ids[0])
+    resolution = cells.manifest.grid.resolution
     constants = {
         "reach_minutes": travel.reach_minutes,
         "walk_metres_a_minute": travel.walk_metres_a_minute,

@@ -3,13 +3,17 @@ and a bus to the station, whichever is quicker (spike S9).
 
 The travel estimate starts and ends at the stations (D10). A walk to a station is an upper bound
 where a bus is quicker, which made the estimate a median 11 minutes too long ([S4]); a bus leg at
-both ends cut that to 5.5 minutes ([S9]). The bus leg is found on a graph with a node for each
-stop, one for each line at each stop, and one for each station: boarding a line at a stop costs
-half its headway (the mean wait) and `BOARD_MINUTES`, a ride to the next stop costs the
-timetable's minutes, getting off costs nothing, and a stop links to each station within a walk of
-`TO_STATION` minutes in a straight line times the street factor. A search back from each station
-gives every stop's minutes to it. A cell then takes, for each station, the quicker of the street
-walk and a street walk of at most `STOP_WALK` minutes to a stop plus that stop's minutes.
+both ends cut that to about 5 minutes ([S9]). The bus leg is found on a graph with two nodes for
+each stop (one to board from, one to get off at), two for each line at each stop (to board it,
+and to arrive on it), and one for each station: boarding a line costs half its headway (the mean
+wait) and `BOARD_MINUTES`, a ride to the next stop costs the timetable's minutes, staying on and
+getting off cost nothing, and a stop where one gets off
+links to each station within a walk of `TO_STATION` minutes in a straight line times the street
+factor, and to the lines there for a change. A search back from each station gives every stop's
+minutes to it, by paths that board at least one bus: a walk from a stop to a station without a
+ride would undercut the street walk where the streets are long, such as across a river. A cell then
+takes, for each station, the quicker of the street walk and a street walk of at most `STOP_WALK`
+minutes to a stop plus that stop's minutes.
 
 The times are an estimate: the wait is a mean, and the timetable is the weekday morning's.
 """
@@ -49,19 +53,23 @@ def bus_to_station(
     reach: float = REACH,
 ) -> np.ndarray:
     """The minutes from each stop of `stops` to each station of `stations` (both with `stop`,
-    `Easting` and `Northing`), by bus and on foot, as stations by stops in their order, with
-    infinity beyond `reach`. A ride may pass through a stop that `stops` lacks (one with no
-    position): it is a node of the graph, with no walk to a station."""
+    `Easting` and `Northing`), by at least one bus and then on foot, as stations by stops in their
+    order, with infinity beyond `reach` or where no bus leads there. A ride may pass through a stop
+    that `stops` lacks (one with no position): it is a node of the graph, with no walk to a
+    station."""
     index = {stop: i for i, stop in enumerate(stops["stop"])}
     rides = list(rides)
     for ride in rides:
         for stop in (ride.start, ride.end):
             index.setdefault(stop, len(index))
     count = len(index)
-    line_nodes: dict[tuple[str, str], int] = {}
+    # Node i boards at stop i, node count + i gets off there, and the lines' nodes follow: one to
+    # board a line at a stop, and one to arrive there on it, so that only a ride leads to getting
+    # off.
+    line_nodes: dict[tuple[str, str, bool], int] = {}
 
-    def node(stop: str, line: str) -> int:
-        return line_nodes.setdefault((stop, line), count + len(line_nodes))
+    def node(stop: str, line: str, arriving: bool) -> int:
+        return line_nodes.setdefault((stop, line, arriving), 2 * count + len(line_nodes))
 
     # The cheapest cost of each edge, since a sparse graph adds up repeated entries.
     edges: dict[tuple[int, int], float] = {}
@@ -72,11 +80,14 @@ def bus_to_station(
     for ride in rides:
         wait = headways[ride.line] / 2 + BOARD_MINUTES
         for stop in (ride.start, ride.end):
-            edge(index[stop], node(stop, ride.line), wait)
-            edge(node(stop, ride.line), index[stop], 0.0)
-        edge(node(ride.start, ride.line), node(ride.end, ride.line), ride.minutes)
+            board, arrive = node(stop, ride.line, False), node(stop, ride.line, True)
+            edge(index[stop], board, wait)
+            edge(count + index[stop], board, wait)  # a change of line at the stop
+            edge(arrive, board, 0.0)  # staying on
+            edge(arrive, count + index[stop], 0.0)  # getting off
+        edge(node(ride.start, ride.line, False), node(ride.end, ride.line, True), ride.minutes)
 
-    first_station = count + len(line_nodes)
+    first_station = 2 * count + len(line_nodes)
     station_xy, stop_xy = _xy(stations), _xy(stops)
     if len(stop_xy) and len(station_xy):
         metres_limit = TO_STATION * WALK_METRES_A_MINUTE / STREET_FACTOR
@@ -84,7 +95,7 @@ def bus_to_station(
         for s, found in enumerate(near):
             for q in sorted(found):
                 metres = float(np.hypot(*(station_xy[q] - stop_xy[s])))
-                edge(s, first_station + q, metres * STREET_FACTOR / WALK_METRES_A_MINUTE)
+                edge(count + s, first_station + q, metres * STREET_FACTOR / WALK_METRES_A_MINUTE)
 
     size = first_station + len(station_xy)
     rows = [a for a, _ in edges]

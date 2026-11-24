@@ -167,3 +167,77 @@ def test_a_fetch_keeps_each_answer_trimmed(tmp_path, monkeypatch):
     assert len(asked) == 4
     tfl_buses.fetch(tmp_path)
     assert len(asked) == 4  # asked once
+
+
+def test_the_headway_counts_each_direction_once(tmp_path):
+    # A short working from M lists the buses that pass M from O too, so its count is not added:
+    # each direction takes its busiest first stop, 24 one way and 18 the other, 21 on average.
+    keep(
+        tmp_path,
+        ["1"],
+        {("1", "inbound"): [["O", "A"], ["M", "A"]], ("1", "outbound"): [["C", "B"]]},
+        {
+            ("1", "O"): ([[["A", 2.0]]], 18),
+            ("1", "M"): ([[["A", 1.0]]], 24),
+            ("1", "C"): ([[["B", 2.0]]], 18),
+        },
+    )
+    assert tfl_buses.read(tmp_path).headways == {"1": pytest.approx(180 / 21)}
+
+
+def test_a_line_that_runs_one_way_counts_its_departures_once(tmp_path):
+    keep(tmp_path, ["1"], {("1", "inbound"): [["O", "A"]]}, {("1", "O"): ([[["A", 2.0]]], 18)})
+    assert tfl_buses.read(tmp_path).headways == {"1": pytest.approx(10.0)}
+
+
+def test_an_answer_cut_short_is_asked_again(tmp_path, monkeypatch):
+    root = tmp_path / "raw" / "tfl" / "buses"
+    keep(root, ["1"], {("1", "inbound"): [["O", "A"]]}, {("1", "O"): ([], 6)})
+    (root / "sequences" / "1-outbound.json").write_text('{"routes": [', encoding="utf-8")
+    asked = []
+
+    def fake(path: str, missing: bool = False):
+        asked.append(path)
+        return None
+
+    monkeypatch.setattr(tfl_api, "get", fake)
+    monkeypatch.setattr(tfl_buses, "PAUSE", 0.0)
+    tfl_buses.fetch(tmp_path)
+    assert asked == ["Line/1/Route/Sequence/outbound"]
+    kept = json.loads((root / "sequences" / "1-outbound.json").read_text(encoding="utf-8"))
+    assert kept == {"routes": [], "stops": {}}
+    assert not list(root.rglob("*.part"))
+
+
+def test_a_list_of_no_bus_lines_is_not_kept(tmp_path, monkeypatch):
+    # TfL refusing the list once must not leave every later build without buses.
+    monkeypatch.setattr(tfl_api, "get", lambda path, missing=False: None)
+    monkeypatch.setattr(tfl_buses, "PAUSE", 0.0)
+    with pytest.raises(RuntimeError, match="no bus lines"):
+        tfl_buses.fetch(tmp_path)
+    assert not (tmp_path / "raw" / "tfl" / "buses" / "lines.json").exists()
+
+
+def test_an_answer_with_missing_fields_is_trimmed_without_them():
+    sequence = {
+        "orderedLineRoutes": [{"naptanIds": ["O", "A"]}, {"name": "no stops"}],
+        "stopPointSequences": [{"stopPoint": [{"id": "O", "lat": 51.5, "lon": 0.0}, {"id": "X"}]}],
+    }
+    assert tfl_buses.trim_sequence(sequence) == {
+        "routes": [["O", "A"]],
+        "stops": {"O": [51.5, 0.0]},
+    }
+    timetable = {
+        "timetable": {
+            "routes": [
+                {
+                    "stationIntervals": [
+                        {"id": "no intervals"},
+                        {"intervals": [{"stopId": "A"}, {"stopId": "B", "timeToArrival": 4}]},
+                    ]
+                }
+            ]
+        }
+    }
+    trimmed = tfl_buses.trim_timetable(timetable)
+    assert trimmed["intervals"] == [[], [["B", 4.0]]]

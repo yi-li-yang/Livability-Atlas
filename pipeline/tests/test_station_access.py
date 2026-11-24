@@ -36,14 +36,21 @@ class TestBusToStation:
         got = bus_to_station(stops, [Ride("L", "P", "Q", 5.0)], {"L": 10.0}, stations)
         assert got.shape == (1, 2)
         assert got[0, 0] == pytest.approx(5 + 0.5 + 5 + 80 * STREET, abs=1e-4)
-        assert got[0, 1] == pytest.approx(80 * STREET, abs=1e-4)
+        # Q is beside the station, but no bus leaves it that way: the walk alone is the cell's.
+        assert np.isinf(got[0, 1])
+
+    def test_a_stop_reaches_a_station_only_by_boarding_a_bus(self):
+        # The walk from a stop to a station without a ride would undercut the street walk where
+        # the streets are long (a river, a railway): the street walk is the cell's own option.
+        stops = places(P=(0.0, 0.0))
+        stations = places(S=(80.0, 0.0))
+        assert np.isinf(bus_to_station(stops, [], {}, stations)[0, 0])
 
     def test_a_bus_runs_only_the_way_its_timetable_gives(self):
         stops = places(P=(0.0, 0.0), Q=(5000.0, 0.0))
         stations = places(S=(-80.0, 0.0))
         got = bus_to_station(stops, [Ride("L", "P", "Q", 5.0)], {"L": 10.0}, stations)
-        assert got[0, 0] == pytest.approx(80 * STREET, abs=1e-4)
-        assert np.isinf(got[0, 1])
+        assert np.isinf(got[0, 0]) and np.isinf(got[0, 1])
 
     def test_a_change_of_line_at_a_stop_waits_again(self):
         stops = places(P=(0.0, 0.0), Q=(5000.0, 0.0), R=(10000.0, 0.0))
@@ -53,13 +60,14 @@ class TestBusToStation:
         want = (5 + 0.5 + 5) + (10 + 0.5 + 5) + 80 * STREET
         assert got[0, 0] == pytest.approx(want, abs=1e-4)
 
-    def test_a_stop_farther_than_six_minutes_from_any_station_reaches_none_on_foot(self):
-        # 400 m in a straight line is a walk of 6.65 minutes along the streets.
-        stops = places(P=(0.0, 0.0), Q=(350.0, 0.0))
-        stations = places(S=(400.0, 0.0))
-        got = bus_to_station(stops, [], {}, stations)
+    def test_a_bus_stop_farther_than_six_minutes_from_a_station_does_not_reach_it(self):
+        # 400 m in a straight line is a walk of 6.65 minutes along the streets; 300 m is 4.99.
+        stops = places(P=(0.0, 0.0), Q=(5000.0, 0.0), R=(10000.0, 0.0))
+        stations = places(S=(5400.0, 0.0), T=(10300.0, 0.0))
+        rides = [Ride("L", "P", "Q", 5.0), Ride("L", "Q", "R", 5.0)]
+        got = bus_to_station(stops, rides, {"L": 10.0}, stations)
         assert np.isinf(got[0, 0])
-        assert got[0, 1] == pytest.approx(50 * STREET, abs=1e-4)
+        assert got[1, 0] == pytest.approx(5 + 0.5 + 10 + 300 * STREET, abs=1e-4)
 
     def test_a_way_longer_than_the_reach_is_dropped(self):
         stops = places(P=(0.0, 0.0), Q=(5000.0, 0.0))
