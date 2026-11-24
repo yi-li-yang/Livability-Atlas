@@ -247,8 +247,8 @@ export function WhyPanel({
                 ))}
               </ul>
               <p className="mt-1 text-xs text-neutral-600">
-                An estimate by public transport, on a weekday morning. Buses are
-                not counted yet.
+                An estimate by public transport on a weekday morning: trains and
+                the Tube, with a walk or a bus to and from the station.
               </p>
             </section>
           )}
