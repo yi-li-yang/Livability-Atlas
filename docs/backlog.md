@@ -35,7 +35,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Price and rent models, and value for money (ML) | idea |
 | Area types by clustering (ML) | idea |
 | Scheduled data refresh with anomaly checks (ML) | idea |
-| Buses in the travel-time estimate for a user's places (the station matrix has rail only, so a place a bus reaches quicker is estimated too far); cycling, step-free and night-time travel; jobs within 45 min | buses: planned, after [spike S9](spikes/S9-buses.md) (progress.md, Next); the rest: idea |
+| Buses in the travel-time estimate for a user's places (the station matrix has rail only, so a place a bus reaches quicker is estimated too far); cycling, step-free and night-time travel; jobs within 45 min | buses: shipped 2026-11-24, a walk or a bus to and from the stations ([S9](spikes/S9-buses.md)); journeys by bus alone and the rest: idea |
 | Postcodes of the user's places geocoded by street address, or by a search for a place name, both still in the browser | idea |
 | Personal notes layer: users rate places they have visited, stored in the browser | idea |
 | Destinations: the user picks public places or chains, e.g. Costco, IKEA or the nearest airport, and each is scored by distance to the nearest one. Starts as straight-line distance computed in the browser from a small points file per destination (brand tags, checked in spike S6); later car and public-transport times | idea |

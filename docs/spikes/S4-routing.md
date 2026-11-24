@@ -59,7 +59,7 @@ The matrix was built from TfL's timetables ([spec](../specs/2026-11-22-own-place
 
 1. **The design stands:** a browser estimate from the walk, the station matrix and the walk, labelled an estimate. D10 is accepted.
 2. **The engine is r5py with GTFS timetables,** because it computes the whole matrix at several departure times in minutes, where the API would take about 21 hours for one. It waits for the owner's registrations. **The Journey Planner API is the fallback,** proven by this spike, with a key from TfL's portal for the 500 calls a minute.
-3. **Add buses later,** as the next largest source of error. Bus times need the BODS timetables in the same r5py run.
+3. **Add buses later,** as the next largest source of error. Bus times need the BODS timetables in the same r5py run. Done another way on 2026-11-24: [spike S9](S9-buses.md) took a bus to and from the stations from TfL's own bus timetables, with no registration, and cut the median error from 11 to about 5 minutes.
 4. **Check the estimate again on a larger sample** when the real matrix exists, across several departure times. Done on 2026-11-22 (above): buses stay the largest source of error.
 
 ## What the owner can do

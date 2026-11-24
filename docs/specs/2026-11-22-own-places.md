@@ -17,7 +17,7 @@ $$T(c, p) = \min\Big(\text{walk}(c, p),\ \min_{s \in S(c),\ q \in S(p)} \big[\te
 - $\text{walk}(c, p)$: the same straight-line walk from the cell's centre, so a place next door is not routed through a station.
 - $M(s, q)$: the station matrix, whole minutes from station $s$ to station $q$ at about 08:30 on a weekday, including the wait at the first platform and at each change.
 
-The result carries the evidence type "estimate". Buses are not in the matrix (D10's known limit).
+The result carries the evidence type "estimate". Buses are not in the matrix (D10's known limit). Since 2026-11-24 a walk or a bus leads to and from the stations ([S9](../spikes/S9-buses.md)), and the last leg reads the links of the place's own cell.
 
 ## The station matrix (pipeline)
 
