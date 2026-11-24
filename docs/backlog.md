@@ -8,7 +8,12 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | --- | --- |
 | Place and street names drawn above the hex cells | shipped: the cells sit under the water, roads and names, over the land use (D23) |
 | `DESIGN.md` for the Impeccable design skill (`/impeccable document`), now that the map's look is settled | idea |
-| A full `/impeccable critique` of the map and the legend | idea |
+| A full `/impeccable critique` of the map and the legend | shipped: 24/40 on 2026-11-23, and its three P1 and two P2 items are fixed (#108, #110 to #113) |
+| A `/impeccable critique` of the rest of the app: the factor tree and the preferences panel, the reasons panel, the phone sheets | planned |
+| A search for a postcode or an area on the map, in the browser only (D08), from the map critique | idea |
+| A way back to all of London after the map flies to a place, from the map critique | idea |
+| Keyboard access to the hex cells, beyond the list of top neighbourhoods, from the map critique | idea |
+| A short "how to read the map", from the map critique | idea |
 | More factors, in catalogue priority order | planned |
 | Placeholders at WCAG AA contrast (they were 3.9:1), found by `impeccable detect` (2026-11-23; its "card inside a card" was a false positive: a bordered toggle) | shipped: 4.7:1 |
 | Crime rates per resident and worker, so that centres with few residents and many workers, like the City of London, stop topping every crime ([spike S2](spikes/S2-crime.md)). Needs a workplace population table whose licence and geography are checked | idea |
@@ -30,7 +35,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Price and rent models, and value for money (ML) | idea |
 | Area types by clustering (ML) | idea |
 | Scheduled data refresh with anomaly checks (ML) | idea |
-| Buses in the travel-time estimate for a user's places (the station matrix has rail only, so a place a bus reaches quicker is estimated too far); cycling, step-free and night-time travel; jobs within 45 min | idea |
+| Buses in the travel-time estimate for a user's places (the station matrix has rail only, so a place a bus reaches quicker is estimated too far); cycling, step-free and night-time travel; jobs within 45 min | planned: spike S9 first (progress.md, Next) |
 | Postcodes of the user's places geocoded by street address, or by a search for a place name, both still in the browser | idea |
 | Personal notes layer: users rate places they have visited, stored in the browser | idea |
 | Destinations: the user picks public places or chains, e.g. Costco, IKEA or the nearest airport, and each is scored by distance to the nearest one. Starts as straight-line distance computed in the browser from a small points file per destination (brand tags, checked in spike S6); later car and public-transport times | idea |
