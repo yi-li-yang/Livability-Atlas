@@ -48,6 +48,7 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 | S6 | How complete are Overture, Foursquare Open Source Places and OpenStreetMap, brand tags included? How much do straight-line and network walking distances differ? Partly done: [S6](spikes/S6-places.md); food, supermarkets and shops are tested, other kinds are not |
 | S7 | Does the culture evidence ladder work on a sample of neighbourhoods, with a known-fact assertion for each kind of evidence? Partly done: [S7](spikes/S7-culture-ladder.md); four rungs tested |
 | S8 | Do the food signals (hygiene ratings, Michelin in Wikidata, cuisine variety, the independents' share) work for London? Do the brand groups track house prices? Done: [S8](spikes/S8-food-signals.md) |
+| S9 | Can a walk-and-bus leg from TfL's bus data, which needs no key, replace the walk to and from the stations in the travel estimate, and how much does it cut the error? A spike of Phase 1. Done: [S9](spikes/S9-buses.md); the error falls from +10.8 to +5.5 minutes |
 
 ### Exit criteria
 

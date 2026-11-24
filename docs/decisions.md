@@ -197,6 +197,7 @@ The living list of project decisions. Each entry holds the current choice and wh
   - 2026-10-28: accepted after [spike S4](spikes/S4-routing.md). The design stands, r5py is the engine, and the API is the fallback. r5py was not run, because its timetable sources need accounts that only the owner can create.
   - 2026-11-22: the matrix is built from TfL's timetables and the Journey Planner's National Rail times, with a shortest-path search, since the Journey Planner alone would take some 200 hours (my call, within the owner's delegation). r5py stays the later engine.
   - 2026-11-22: the error checked on 300 journeys at 08:30, 12:30 and 18:00: a median 11 minutes too long, within 20% in 70%, from the buses left out ([S4](spikes/S4-routing.md)).
+  - 2026-11-24: [spike S9](spikes/S9-buses.md): a walk-and-bus leg at both ends, from TfL's bus routes and timetables without a key, cuts the error on the same journeys to a median 5.5 minutes too long, within 20% in 85%. To be built next, for the default places and a user's places; the choice above changes when it ships.
 
 ## D11 Documentation
 
