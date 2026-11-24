@@ -12,6 +12,7 @@ way exists.
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -19,8 +20,9 @@ from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import dijkstra
 from scipy.spatial import KDTree
 
-from atlas.spatial.grid import cell_centres_bng
-from atlas.spatial.walking import Network
+if TYPE_CHECKING:
+    from atlas.indicators.station_access import Access
+
 
 UNREACHABLE = 65535  # the matrix is kept as unsigned 16-bit minutes
 STREET_FACTOR = 1.33  # a street walk is a median 1.33 times its straight line (spike S6)
@@ -104,22 +106,12 @@ def station_matrix(
     return out
 
 
-def cell_stations(
-    network: Network,
-    stations: pd.DataFrame,
-    cells: list[str],
-    *,
-    walk: float = 40.0,
-    keep: int = 8,
-) -> list[tuple[int, int, float]]:
-    """For each cell, the `keep` stations quickest to walk to from its centre along the streets,
-    within `walk` minutes: (cell position, station position, minutes to a tenth). These are where
-    the estimate to a user's place can start."""
-    xy = np.column_stack([stations["Easting"].to_numpy(), stations["Northing"].to_numpy()])
+def cell_stations(access: "Access", *, keep: int = 8) -> list[tuple[int, int, float]]:
+    """For each cell, the `keep` stations quickest to reach from its centre, on foot or by bus
+    (`station_access.cell_access`): (cell position, station position, minutes to a tenth). These
+    are where the estimate to a user's place can start, and, read backwards, where it can end."""
     links: list[tuple[int, int, float]] = []
-    for position, (found, minutes) in enumerate(
-        network.times_within(xy, cell_centres_bng(cells), walk)
-    ):
+    for position, (found, minutes) in enumerate(access):
         order = np.lexsort((found, minutes))[:keep]
         links += [(position, int(found[i]), round(float(minutes[i]), 1)) for i in order]
     return links
