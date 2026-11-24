@@ -1,9 +1,11 @@
 /**
  * The travel estimate to a user's own place (D10), in the browser: the place never leaves it. A
- * cell's time is the quickest of walking straight there (within reach), or walking along the
- * streets to one of its stations, riding the station matrix, and walking from a station near the
- * place. The Python reference (`pipeline/src/atlas/scoring/travel.py`) gives the same numbers on
- * the golden cases of `shared/fixtures/travel/`.
+ * cell's time is the quickest of walking straight there (within reach), or going to one of its
+ * stations (on foot or by bus), riding the station matrix, and going from a station to the place.
+ * That last leg is the quicker of the straight walk and the links of the cell that holds the place,
+ * read backwards: a station to the cell takes as long as the cell to the station (spike S9). The
+ * Python reference (`pipeline/src/atlas/scoring/travel.py`) gives the same numbers on the golden
+ * cases of `shared/fixtures/travel/`.
  */
 
 /** The mean radius of the Earth, in metres, as the Python reference uses. */
@@ -21,14 +23,17 @@ export interface Point {
   lng: number;
 }
 
-/** One golden case: a cell, a place, the stations and the matrix, and the expected minutes. */
+/**
+ * One golden case: a cell, a place (with the links of the cell that holds it, if it is inside the
+ * region), the stations and the matrix, and the expected minutes.
+ */
 export interface TravelCase {
   id: string;
   constants: TravelConstants;
   stations: [number, number][];
   matrix: number[][];
   cell: Point & { stations: [number, number][] };
-  place: Point;
+  place: Point & { stations?: [number, number][] };
   expected: number | null;
 }
 
@@ -51,14 +56,21 @@ export function straightMetres(
 
 /** The minutes of one golden case, or null where there is no way within reach. */
 export function estimateCase(c: TravelCase): number | null {
+  // The case's cell, and the place's own cell when it has links.
+  const own = c.place.stations;
+  const links = [...c.cell.stations, ...(own ?? [])];
   const [got] = placeMinutes(
     {
       stations: c.stations.map(([lat, lng]) => ({ lat, lng })),
       matrix: Uint16Array.from(c.matrix.flat()),
-      cellStart: Int32Array.from([0, c.cell.stations.length]),
-      cellStation: Int32Array.from(c.cell.stations.map(([s]) => s)),
-      cellMinutes: Float64Array.from(c.cell.stations.map(([, m]) => m)),
-      centres: [{ lat: c.cell.lat, lng: c.cell.lng }],
+      cellStart: Int32Array.from([0, c.cell.stations.length, links.length]),
+      cellStation: Int32Array.from(links.map(([s]) => s)),
+      cellMinutes: Float64Array.from(links.map(([, m]) => m)),
+      centres: [
+        { lat: c.cell.lat, lng: c.cell.lng },
+        { lat: c.place.lat, lng: c.place.lng },
+      ],
+      cellOf: () => (own ? 1 : -1),
       constants: c.constants,
     },
     c.place,
@@ -74,10 +86,12 @@ export interface TravelData {
   /** Cell i's stations are positions cellStart[i] to cellStart[i + 1] of the next two arrays. */
   cellStart: Int32Array;
   cellStation: Int32Array;
-  /** The minutes on foot, along the streets, from the cell's centre to that station. */
+  /** The minutes from the cell's centre to that station, on foot or by bus. */
   cellMinutes: Float64Array;
   /** The centre of each cell. */
   centres: Point[];
+  /** The position of the cell that holds a point, or -1 where none of the cells does. */
+  cellOf: (point: Point) => number;
   constants: TravelConstants;
 }
 
@@ -93,12 +107,25 @@ export function placeMinutes(data: TravelData, place: Point): Float64Array {
     (straightMetres(from.lat, from.lng, place.lat, place.lng) * street_factor) /
     walk_metres_a_minute;
   const n = data.stations.length;
-  const near: { q: number; minutes: number }[] = [];
+  // The last leg from each station: the straight walk within reach, or the link of the place's
+  // own cell, read backwards, whichever is quicker.
+  const last = new Float64Array(n).fill(Number.POSITIVE_INFINITY);
   data.stations.forEach((station, q) => {
     const minutes = walk(station);
-    if (minutes <= reach_minutes) near.push({ q, minutes });
+    if (minutes <= reach_minutes) last[q] = minutes;
   });
-  // The best time from each station: the ride to a station near the place, then the walk.
+  const own = data.cellOf(place);
+  if (own >= 0) {
+    for (let k = data.cellStart[own]; k < data.cellStart[own + 1]; k++) {
+      const q = data.cellStation[k];
+      if (data.cellMinutes[k] < last[q]) last[q] = data.cellMinutes[k];
+    }
+  }
+  const near: { q: number; minutes: number }[] = [];
+  last.forEach((minutes, q) => {
+    if (Number.isFinite(minutes)) near.push({ q, minutes });
+  });
+  // The best time from each station: the ride to a station near the place, then the last leg.
   const fromStation = new Float64Array(n).fill(Number.POSITIVE_INFINITY);
   for (let s = 0; s < n; s++) {
     const row = s * n;

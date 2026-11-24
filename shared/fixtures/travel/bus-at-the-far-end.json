@@ -1,0 +1,51 @@
+{
+  "id": "bus-at-the-far-end",
+  "description": "All points are on longitude 0, so a straight line is the Earth's radius (6,371,008.8 m) times the difference of latitude in radians: 0.001 degrees is 111.19508 m, a walk of 111.19508 x 1.33 / 80 = 1.8486182 minutes. The place carries the links of its own cell, read backwards as the minutes from each station to the place: station 1 is 12.5 minutes away by bus. No station is within a 40-minute walk of the place (station 1 is 0.05 degrees away, a walk of 92.43 minutes), and the direct walk of 0.25 degrees is far beyond reach, so without the place's links there would be no estimate. With them: 4 + 25 + 12.5 = 41.5.",
+  "constants": {
+    "reach_minutes": 40,
+    "walk_metres_a_minute": 80,
+    "street_factor": 1.33,
+    "unreachable": 65535
+  },
+  "stations": [
+    [
+      51.501,
+      0
+    ],
+    [
+      51.7,
+      0
+    ]
+  ],
+  "matrix": [
+    [
+      0,
+      25
+    ],
+    [
+      25,
+      0
+    ]
+  ],
+  "cell": {
+    "lat": 51.5,
+    "lng": 0,
+    "stations": [
+      [
+        0,
+        4.0
+      ]
+    ]
+  },
+  "place": {
+    "lat": 51.75,
+    "lng": 0,
+    "stations": [
+      [
+        1,
+        12.5
+      ]
+    ]
+  },
+  "expected": 41.5
+}
