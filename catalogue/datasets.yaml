@@ -87,6 +87,7 @@ datasets:
       - The fare zone of each station
       - Journey plans by public transport between any two places
       - The timetables of TfL's own rail lines (stop order, minutes between stops, departures)
+      - The bus routes (each route's stops in order, the minutes between them, and the weekday-morning departures)
 
   - id: tfl-ptal
     name: Public Transport Accessibility Levels (PTAL)
