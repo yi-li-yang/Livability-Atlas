@@ -2,7 +2,7 @@
 
 Phases end when their exit criteria are met, not on dates. Features beyond the current phase are kept in the [backlog](backlog.md).
 
-## Phase 0: foundations (current)
+## Phase 0: foundations (done)
 
 Goal: turn the concept into decisions, a researched factor catalogue, a scoring method and a clean scaffold, so that Phase 1 can build without rework.
 
@@ -57,9 +57,9 @@ A spike is a small experiment with throwaway code. It answers one question, stop
 - [x] Spikes S1–S8 are written up with their decisions.
 - [x] The scoring specification and the golden test cases are committed.
 - [x] `just check` passes locally and in GitHub Actions.
-- [ ] A fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and `docs/progress.md` alone.
+- [x] A fresh Claude Code session finds the next task and the right commands from `CLAUDE.md` and `docs/progress.md` alone. Passed on 2026-11-24: the session found both, and needed git only to see that some facts in "Now" and "Next" were out of date (progress.md, log of that day).
 
-## Phase 1: London MVP
+## Phase 1: London MVP (current)
 
 Goal: a public London map. Exit criteria: the MVP success criteria in [vision.md](vision.md#mvp-success-criteria-end-of-phase-1).
 
@@ -82,7 +82,7 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [x] All 41 measured indicators of the ten MVP factors are in the London bundle, built in the [build order](specs/2026-10-28-mvp-scope.md#build-order): Safety, Natural hazards, Transport (service level, station walk, rail lines, bus routes, fare zone, travel time), Environment (park walk, air quality, noise), Education (school walks, inspections), Health care (GP walk, patients per GP, A&E), Housing and cost (buying and renting cost, council tax), Daily amenities, Digital connectivity, and Community and people (diversity, and the choices Your community and Faith).
   - [x] The 32 measured indicators that ship at launch, the 5 that needed a curve (from the built data), and the 4 that were blocked on the owner's checks (the energy certificates, the Journey Planner as the fallback for r5py, and the two choices).
   - Check for each: its dataset checks, a known-fact assertion, and coverage in the QA report pass, and `atlas validate` passes. The methods in the catalogue carry the spikes' choices: street walks, residents shared by area, rates pooled with a floor, noise averaged at addresses, and the two sources of places pooled.
-- [ ] **Travel and hard limits.**
+- [x] **Travel and hard limits.**
   - [x] the station matrix, from the Journey Planner API: 863 stations to the four default places, at 08:30 on a weekday (D10, [S4](spikes/S4-routing.md)). r5py with timetables stays the better engine, once the owner has registered for the three sources and installed a JDK
   - [x] travel times to the default places, as an estimate from the station times (the evidence type says so)
   - [x] the in-browser estimate for a user's places, with its error checked on a larger sample and several departure times (the station matrix from TfL's timetables; [S4](spikes/S4-routing.md))
@@ -98,7 +98,7 @@ Each milestone ends when its checks pass. The order follows what depends on what
   - [x] `just build london` rebuilds the bundle from raw downloads, and gives the same result every time. A synthetic build is pinned by a test, and a rebuild of London from the kept downloads reproduced version `09eb39a09d3c` byte for byte.
   - [x] A new factor is added by the recipe with no change to the UI's code. The app builds its factor tree, its "Show on the map" list and its reasons from the manifest alone, and a Playwright test walks the factor tree level by level against the manifest, so that a factor the app hid, or a factor the manifest lacks, fails it.
   - [x] Every dataset in the bundle has a licence entry, with its attribution shown, and is marked for commercial use or not. The QA report fails a bundle whose dataset is not listed or has no attribution, warns on an unknown licence, and lists the commercial-use markings; the app shows each credit once under "About the data", and an indicator's sources with their licences in the evidence layer. A fuller page for the credits is in the [backlog](backlog.md).
-  - [x] The site is public on GitHub Pages, released with the owner's go-ahead; it has had the newest bundle (`491e7170e59f`, with a user's places) since 2026-11-23. The licences of the LAEI and Defra's background maps are still to confirm (progress.md, Next).
+  - [x] The site is public on GitHub Pages, released with the owner's go-ahead; it has had the newest bundle (`dc3d5a941943`, with a user's places, D25 and D14) since 2026-11-24. The licences of the LAEI and Defra's background maps are still to confirm (progress.md, Next).
 
 ## Phase 2: depth and trust
 
