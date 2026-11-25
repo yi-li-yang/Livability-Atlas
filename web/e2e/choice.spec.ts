@@ -26,7 +26,7 @@ test("picking a faith counts the faith, which started out not counted", async ({
   await ready(page);
   await expect(tile(page, "community-and-people")).toHaveCount(0);
   await pickHindu(page);
-  await expect(tile(page, "faith")).toHaveCount(1);
+  // Faith is the only factor counted in Community and people, so it has a slider and no picture.
   await expect(
     page.getByRole("slider", { name: "Weight of Faith" }),
   ).toHaveValue("3");

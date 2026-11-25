@@ -34,7 +34,10 @@ async function openApp(page: Page, fragment = "") {
     "data-cells",
     /^[1-9]\d*$/,
   );
-  await expect(page.getByTestId("factor-tree")).toBeVisible();
+  // With one factor counted there is no picture of the shares, so wait for the section itself.
+  await expect(
+    page.getByRole("region", { name: "What matters to you" }),
+  ).toBeVisible();
   await page.waitForLoadState("networkidle");
 }
 

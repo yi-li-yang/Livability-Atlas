@@ -127,6 +127,39 @@ test("a weight moved to 0 keeps its row and the focus until the slider is let go
   ).toBeVisible();
 });
 
+test("the boxes are a short strip, so the sliders come first", async ({
+  page,
+}) => {
+  await openApp(page);
+  const box = await page.getByTestId("factor-tree").boundingBox();
+  if (!box) throw new Error("no drawing");
+  expect(box.height).toBeLessThanOrEqual(box.width * 0.3);
+});
+
+test("clicking a box opens its factor, as its name does", async ({ page }) => {
+  await openApp(page);
+  await tile(page, "transport").click();
+  await expect(tile(page, "getting-around")).toHaveCount(1);
+});
+
+test("with one factor counted, there is no picture of the shares", async ({
+  page,
+}) => {
+  await openApp(page);
+  await page.getByRole("button", { name: "Open Transport" }).click();
+  const slider = page.getByRole("slider", { name: "Weight of Getting around" });
+  await slider.fill("0");
+  // While the slider is held, the picture stays, so the slider under the pointer does not move.
+  await expect(slider).toBeFocused();
+  await expect(page.getByTestId("factor-tile")).toHaveCount(1);
+  await slider.blur();
+  // Only travel time to places counts at this level now: a picture of one share says nothing.
+  await expect(page.getByTestId("factor-tile")).toHaveCount(0);
+  await expect(
+    page.getByRole("slider", { name: "Weight of Travel time to places" }),
+  ).toBeVisible();
+});
+
 test("every slider is drawn in the app's dark grey, not the browser's blue", async ({
   page,
 }) => {
