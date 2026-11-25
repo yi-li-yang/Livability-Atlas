@@ -23,4 +23,12 @@
   input[type="radio"] {
     accent-color: var(--color-neutral-700);
   }
+
+  /* On a touch screen a slider is a finger's target: 32 px high (it was 16), above WCAG 2.2's 24 px
+     minimum, with the track drawn as before (the critique of 2026-11-25). */
+  @media (pointer: coarse) {
+    input[type="range"] {
+      min-height: 2rem;
+    }
+  }
 }

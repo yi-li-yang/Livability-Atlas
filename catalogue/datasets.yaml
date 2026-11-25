@@ -1151,6 +1151,29 @@ datasets:
     tells:
       - How many patients are registered at each GP practice, by age and sex
       - Since April 2024 the count comes from the Personal Demographics Service
+  - id: nhs-gp-patient-survey
+    name: GP Patient Survey
+    publisher: NHS England, run by Ipsos
+    url: https://www.gp-patient.co.uk/surveysandreports
+    tier: country
+    area: England
+    resolution: GP practices
+    date: 2026 (fieldwork January to April 2026, published 9 July 2026)
+    licence: OGL-UK-3.0
+    licence_checked: 2026-11-25
+    commercial_use: false
+    licence_note: >-
+      Probably the Open Government Licence v3.0, but no page states a licence
+      for the data itself. NHS England's statistics pages carry only the
+      site-wide footer link to the OGL; gp-patient.co.uk, where the files are,
+      shows "© 2026 GP Patient Survey" and no terms; data.gov.uk lists the
+      survey under the OGL, in an old record; and the technical annex of 2014
+      said that no licence was granted. Marked not for commercial use until
+      NHS England or Ipsos (GPPatientSurvey@ipsos.com) confirms the licence.
+    attribution: GP Patient Survey 2026, NHS England and Ipsos. Contains public sector information licensed under the Open Government Licence v3.0.
+    tells:
+      - How patients registered at each GP practice in England rate it, such as their overall experience and how easy it is to contact by phone
+      - Results from 2024 on are a new series, not comparable with 2023 and before (a new questionnaire and an online-first method)
   - id: nhs-gp-workforce
     name: General Practice Workforce
     publisher: NHS England

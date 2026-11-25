@@ -88,7 +88,7 @@ export function Rings({
         data-testid="factor-rings"
         viewBox="-50 -50 100 100"
         aria-hidden="true"
-        className="mx-auto block w-full max-w-60"
+        className="mx-auto block w-full max-w-44"
         onMouseLeave={() => setPointed(null)}
       >
         {factors.map(({ item, start, end }) => {
