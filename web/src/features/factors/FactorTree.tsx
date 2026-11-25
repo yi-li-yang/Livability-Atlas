@@ -9,6 +9,7 @@ import type { Layout } from "./layout";
 import {
   countFactor,
   type FactorView,
+  holding,
   levelAt,
   withChoice,
   withWeight,
@@ -70,6 +71,8 @@ export function FactorTree({
   // A picker is drawn in the list of counted factors or in the list of those not counted, and a
   // first pick moves it from one to the other, so which is open is kept here, not in the element.
   const [openPicker, setOpenPicker] = useState<string | null>(null);
+  // The factor whose slider is in use: moved to 0, it keeps its row until the slider is let go.
+  const [held, setHeld] = useState<string | null>(null);
   const optionsOf = (view: FactorView): ManifestIndicator | undefined =>
     indicators.find((i) => i.id === view.factor.indicator && i.options);
   /** The switch or the band a measured indicator offers, by its preference type. */
@@ -129,6 +132,8 @@ export function FactorTree({
   );
   // The path may name factors that a new bundle no longer has: the level is what it reaches.
   const opened = level.trail.map((step) => step.id);
+  const { rows, notCounted } = holding(level, held);
+  const letGo = rows.find((f) => f.id === held && f.effectiveWeight === 0);
   const tiles = useMemo(
     () =>
       squarify(
@@ -272,13 +277,19 @@ export function FactorTree({
         )}
       </div>
 
+      <p role="status" className="sr-only">
+        {letGo ? `${letGo.name} is not counted now.` : ""}
+      </p>
       <ul className="space-y-2">
-        {level.counted.map((f) => (
+        {rows.map((f) => (
           <li key={f.id}>
             <Row
               view={f}
               onOpen={f.opens ? () => setPath([...opened, f.id]) : undefined}
               onWeight={(w) => onChange(withWeight(profile, f.id, w))}
+              onHold={(on) =>
+                setHeld((now) => (on ? f.id : now === f.id ? null : now))
+              }
             />
             {preference(f)}
             {picker(f)}
@@ -297,11 +308,11 @@ export function FactorTree({
         </button>
       )}
 
-      {level.notCounted.length > 0 && (
+      {notCounted.length > 0 && (
         <div>
           <h3 className="font-medium">Not counted</h3>
           <ul className="space-y-1">
-            {level.notCounted.map((f) => (
+            {notCounted.map((f) => (
               <li key={f.id}>
                 <div className="flex items-center gap-2">
                   <Swatch colour={f.colour} />
@@ -353,11 +364,18 @@ function Row({
   view,
   onOpen,
   onWeight,
+  onHold,
 }: {
   view: FactorView;
   onOpen?: () => void;
   onWeight: (weight: number) => void;
+  /**
+   * Called with true when the slider is taken (the focus or the pointer), and false when it is let
+   * go. Safari gives a range input no focus on a click or a touch, so the pointer counts too.
+   */
+  onHold: (on: boolean) => void;
 }) {
+  const off = view.weight === 0;
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2">
@@ -388,7 +406,18 @@ function Row({
         aria-valuetext={`${view.weight} out of 5`}
         className="w-full"
         onChange={(event) => onWeight(Number(event.target.value))}
+        onFocus={() => onHold(true)}
+        onBlur={() => onHold(false)}
+        onPointerDown={() => onHold(true)}
+        onPointerUp={(event) => {
+          if (document.activeElement !== event.currentTarget) onHold(false);
+        }}
       />
+      {off && (
+        <p className="text-xs text-neutral-600">
+          Not counted now. Move it up to count it.
+        </p>
+      )}
     </div>
   );
 }

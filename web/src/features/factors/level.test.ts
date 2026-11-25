@@ -3,6 +3,7 @@ import type { ManifestFactor } from "../../generated/manifest.schema";
 import {
   CHOSEN_WEIGHT,
   countFactor,
+  holding,
   levelAt,
   withChoice,
   withWeight,
@@ -108,6 +109,33 @@ describe("levelAt", () => {
   it("gives every factor of a level a different colour at the top", () => {
     const colours = levelAt(FACTORS, NONE, []).counted.map((f) => f.colour);
     expect(new Set(colours).size).toBe(colours.length);
+  });
+});
+
+describe("holding", () => {
+  it("keeps the row of a factor moved to 0 in its place while its slider is in use", () => {
+    const level = levelAt(FACTORS, withWeight(NONE, "transport", 0), []);
+    const held = holding(level, "transport");
+    expect(held.rows.map((f) => f.id)).toEqual([
+      "safety",
+      "transport",
+      "comfort",
+    ]);
+    expect(held.notCounted).toEqual([]);
+  });
+
+  it("lets the factor go to the list of those not counted once the slider is let go", () => {
+    const level = levelAt(FACTORS, withWeight(NONE, "transport", 0), []);
+    const held = holding(level, null);
+    expect(held.rows.map((f) => f.id)).toEqual(["safety", "comfort"]);
+    expect(held.notCounted.map((f) => f.id)).toEqual(["transport"]);
+  });
+
+  it("holds nothing back for a factor that still counts", () => {
+    const level = levelAt(FACTORS, withWeight(NONE, "comfort", 0), []);
+    const held = holding(level, "safety");
+    expect(held.rows.map((f) => f.id)).toEqual(["safety", "transport"]);
+    expect(held.notCounted.map((f) => f.id)).toEqual(["comfort"]);
   });
 });
 
