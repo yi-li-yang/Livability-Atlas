@@ -103,6 +103,23 @@ test("clicking a hex cell says why it scores what it does, and the parts add up"
   const total = contributions.reduce((a, b) => a + b, 0);
   // Each is rounded to a whole number, so they add up to the score within the rounding.
   expect(Math.abs(total - score)).toBeLessThanOrEqual(2);
+  // The answer at the top, as in the quick look and the phone's peek: what helps and what hurts,
+  // and that the points add up to the score.
+  // The fixture's centre cell has both a strength and a weakness (a factor under 50).
+  const short = panel.getByRole("list", { name: "In short" });
+  const below = (
+    await panel
+      .locator(":scope > ul > li > details > summary")
+      .allTextContents()
+  ).some((text) => {
+    const [, got, of] = text.match(/(\d+) of (\d+) points/) ?? [];
+    return Number(got) < Number(of) / 2;
+  });
+  await expect(short).toContainText("+ ");
+  if (below) await expect(short).toContainText("− ");
+  await expect(
+    panel.getByText(`The points from each factor add up to ${score}.`),
+  ).toBeVisible();
 
   // Opening a factor shows what is inside it.
   await panel.locator("summary", { hasText: "Transport" }).first().click();

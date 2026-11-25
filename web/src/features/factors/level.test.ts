@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ManifestFactor } from "../../generated/manifest.schema";
 import {
+  atStart,
   CHOSEN_WEIGHT,
   countFactor,
   holding,
@@ -109,6 +110,17 @@ describe("levelAt", () => {
   it("gives every factor of a level a different colour at the top", () => {
     const colours = levelAt(FACTORS, NONE, []).counted.map((f) => f.colour);
     expect(new Set(colours).size).toBe(colours.length);
+  });
+});
+
+describe("atStart", () => {
+  it("is true only for a profile with nothing set", () => {
+    expect(atStart({ weights: {} })).toBe(true);
+    expect(atStart(withWeight(NONE, "comfort", 2))).toBe(false);
+    expect(atStart({ weights: {}, mode: "balanced" })).toBe(false);
+    expect(atStart({ weights: {}, everything: true })).toBe(false);
+    expect(atStart({ weights: {}, flipped: ["crime"] })).toBe(false);
+    expect(atStart({ weights: {}, flipped: [], limits: [] })).toBe(true);
   });
 });
 

@@ -859,6 +859,40 @@ def job_density(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Millions of jobs are within 45 minutes of the centre, and few of the edge",
+    needs=("jobs_within_reach",),
+)
+def jobs_within_reach(cells: Cells) -> str:
+    column = "jobs_within_reach"
+    everywhere(cells, column)
+    at = {p: cells.at(p, column) for p in ("Bank", "Stratford", "Croydon", "Biggin Hill")}
+    # The build of 2026-11-25 gave Bank 3.2 million, Stratford 2.6 million, Croydon 380,000 and
+    # Biggin Hill 4,000: these bounds catch a broken matrix or a broken share of jobs, not a drift.
+    expect(at["Bank"] > 2_000_000, f"Bank reaches {number(at['Bank'])} jobs")
+    expect(at["Stratford"] > 1_000_000, f"Stratford reaches {number(at['Stratford'])} jobs")
+    expect(100_000 < at["Croydon"] < at["Bank"], f"Croydon reaches {number(at['Croydon'])} jobs")
+    expect(at["Biggin Hill"] < 100_000, f"Biggin Hill reaches {number(at['Biggin Hill'])} jobs")
+    middle = median(cells, column)
+    expect(20_000 < middle < 500_000, f"the median is {number(middle)} jobs")
+    return ", ".join(f"{p} {number(v)}" for p, v in at.items()) + f"; median {number(middle)}"
+
+
+@FACTS.add(
+    "Thousands of cultural venues are within 30 minutes of the West End, and a few of the edge",
+    needs=("cultural_venues_in_reach", "cultural_venues_nearby"),
+)
+def cultural_venues_in_reach(cells: Cells) -> str:
+    column = "cultural_venues_in_reach"
+    everywhere(cells, column)
+    soho, edge = cells.at("Soho", column), cells.at("Biggin Hill", column)
+    near = cells.at("Soho", "cultural_venues_nearby")
+    expect(soho > 1000, f"Soho reaches {number(soho)} venues")
+    expect(soho >= near, f"Soho reaches {number(soho)} by transport, {number(near)} on foot")
+    expect(edge < 50, f"Biggin Hill reaches {number(edge)} venues")
+    return f"Soho {number(soho)} (on foot {number(near)}), Biggin Hill {number(edge)}"
+
+
+@FACTS.add(
     "A nursery is a short walk in most of London, and a long one in the parks",
     needs=("nurseries",),
 )
