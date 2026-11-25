@@ -134,8 +134,9 @@ export function FactorTree({
   // The path may name factors that a new bundle no longer has: the level is what it reaches.
   const opened = level.trail.map((step) => step.id);
   const { rows, notCounted } = holding(level, held);
-  // A picture of one share (100%) says nothing, so it is drawn only for two or more.
-  const drawn = level.counted.length > 1;
+  // A picture of one share (100%) says nothing, so it is drawn only for two or more rows. A row held
+  // at 0 still counts here, so that the picture does not vanish mid-drag and move the slider.
+  const drawn = rows.length > 1 && level.counted.length > 0;
   const letGo = rows.find((f) => f.id === held && f.effectiveWeight === 0);
   const tiles = useMemo(
     () =>

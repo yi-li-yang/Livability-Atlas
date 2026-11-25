@@ -149,6 +149,9 @@ test("with one factor counted, there is no picture of the shares", async ({
   await page.getByRole("button", { name: "Open Transport" }).click();
   const slider = page.getByRole("slider", { name: "Weight of Getting around" });
   await slider.fill("0");
+  // While the slider is held, the picture stays, so the slider under the pointer does not move.
+  await expect(slider).toBeFocused();
+  await expect(page.getByTestId("factor-tile")).toHaveCount(1);
   await slider.blur();
   // Only travel time to places counts at this level now: a picture of one share says nothing.
   await expect(page.getByTestId("factor-tile")).toHaveCount(0);
