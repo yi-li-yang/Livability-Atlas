@@ -1,0 +1,42 @@
+/* generated from tokens.json by dev/visual-preference/build.py · visual-preference 1.0.0 · do not edit */
+/* Tailwind 4: import after tailwindcss and load tokens.css; utilities follow the active theme. */
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-rule: var(--rule);
+  --color-edge: var(--edge);
+  --color-muted: var(--muted);
+  --color-ink: var(--ink);
+  --color-lichen: var(--lichen);
+  --color-signal: var(--signal);
+  --color-amber: var(--amber);
+  --color-data-sky: var(--data-sky);
+  --color-data-rust: var(--data-rust);
+  --color-data-spruce: var(--data-spruce);
+  --color-data-sand: var(--data-sand);
+  --color-data-dusk: var(--data-dusk);
+  --color-data-ochre: var(--data-ochre);
+  --color-data-glacier: var(--data-glacier);
+  --color-data-rose: var(--data-rose);
+  --color-data-olive: var(--data-olive);
+  --font-sans: "Albert Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-serif: "Source Serif 4", Georgia, serif;
+  --font-cjk: "Noto Sans SC", sans-serif;
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-6: var(--space-6);
+  --spacing-8: var(--space-8);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+  --spacing-24: var(--space-24);
+  --radius-none: 0;
+  --radius-dot: 9999px;
+  --shadow-float: var(--float);
+  --ease-out: var(--out);
+  --container-measure: var(--measure);
+  --container-page: var(--page);
+}

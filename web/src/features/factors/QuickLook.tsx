@@ -27,7 +27,7 @@ export function QuickLook({
         <p className="font-medium">
           {neighbourhood.name}
           {neighbourhood.area && (
-            <span className="font-normal text-neutral-600">
+            <span className="font-normal text-muted">
               , {neighbourhood.area}
             </span>
           )}
@@ -43,20 +43,18 @@ export function QuickLook({
         <p className="font-medium">No score here: there is no data for it.</p>
       ) : (
         <>
-          {onMap && (
-            <p className="mt-1 text-xs text-neutral-600">Livability score</p>
-          )}
+          {onMap && <p className="mt-1 text-xs text-muted">Livability score</p>}
           <p>
-            <span className="text-2xl font-semibold tabular-nums">
+            <span className="font-mono text-[25px] font-medium leading-[1.15] tabular-nums">
               {Math.round(score)}
             </span>{" "}
-            <span className="text-neutral-600">out of 100</span>
+            <span className="text-muted">out of 100</span>
           </p>
           {explanation.excluded && (
             <p className="font-medium">Left out by your hard limits</p>
           )}
           {rank !== null && (
-            <p className="text-neutral-600">
+            <p className="text-muted">
               Rank {wholeNumber.format(rank)} of {wholeNumber.format(total)}
             </p>
           )}
@@ -66,9 +64,7 @@ export function QuickLook({
             ))}
             {weakness && <li>− {weakness.name}</li>}
           </ul>
-          <p className="mt-1 text-xs text-neutral-600">
-            Click for the reasons.
-          </p>
+          <p className="mt-1 text-xs text-muted">Click for the reasons.</p>
         </>
       )}
     </div>

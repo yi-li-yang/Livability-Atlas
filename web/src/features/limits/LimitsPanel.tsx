@@ -33,8 +33,8 @@ export function LimitsPanel({
 
   return (
     <section aria-label="Hard limits" className="space-y-2 text-sm">
-      <h2 className="font-medium">Hard limits</h2>
-      <p className="text-xs text-neutral-600">
+      <h2 className="group-label">Hard limits</h2>
+      <p className="text-xs text-muted">
         Hex cells that fail a limit are greyed out and not ranked.
       </p>
       {limits.length > 0 && (
@@ -123,7 +123,7 @@ function AddLimit({
 
   return (
     <form
-      className="space-y-2 rounded border border-neutral-300 p-2"
+      className="space-y-2 border border-rule p-2"
       onSubmit={(event) => {
         event.preventDefault();
         submit();
@@ -133,7 +133,7 @@ function AddLimit({
         Measure
         <select
           id={`${field}-indicator`}
-          className="mt-1 w-full rounded border border-neutral-300 p-1"
+          className="mt-1 w-full border border-edge p-1"
           value={id}
           onChange={(event) => {
             setId(event.target.value);
@@ -169,13 +169,13 @@ function AddLimit({
             <input
               id={`${field}-number`}
               inputMode="decimal"
-              className="mt-1 w-full rounded border border-neutral-300 p-1"
+              className="mt-1 w-full border border-edge p-1"
               value={text}
               onChange={(event) => setText(event.target.value)}
             />
           </label>
           {range && (
-            <p className="text-xs text-neutral-600">
+            <p className="text-xs text-muted">
               Across the region: {formatValue(range.min, unit)} to{" "}
               {formatValue(range.max, unit)}, middle{" "}
               {formatValue(range.median, unit)}.

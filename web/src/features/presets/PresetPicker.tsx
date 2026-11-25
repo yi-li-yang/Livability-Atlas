@@ -24,7 +24,7 @@ export function PresetPicker({
       <label className="flex items-center gap-2">
         <span className="shrink-0">Start from</span>
         <select
-          className="min-w-0 flex-1 rounded border border-neutral-400 bg-white px-1 py-0.5"
+          className="min-w-0 flex-1 border border-edge bg-raised px-1 py-0.5"
           value={current?.id ?? ""}
           onChange={(event) => {
             const preset = presets.find((p) => p.id === event.target.value);
@@ -42,7 +42,7 @@ export function PresetPicker({
         </select>
       </label>
       {current && (
-        <p className="text-xs text-neutral-600">
+        <p className="text-xs text-muted">
           {current.description}{" "}
           {onUndo && (
             <button type="button" className="underline" onClick={onUndo}>

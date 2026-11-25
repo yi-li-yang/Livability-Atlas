@@ -8,6 +8,8 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | --- | --- |
 | Place and street names drawn above the hex cells | shipped: the cells sit under the water, roads and names, over the land use (D23) |
 | `DESIGN.md` for the Impeccable design skill (`/impeccable document`), now that the map's look is settled | shipped: "The Field Notebook" |
+| The owner's visual system in the web app: stone neutrals, dark as home, the lichen accent, Earth 8 for the factors (D26) | shipped, for the owner to confirm |
+| The factor explorer (`docs/factors/`) in the owner's visual system, as the web app is | idea |
 | A full `/impeccable critique` of the map and the legend | shipped: 24/40 on 2026-11-23, and its three P1 and two P2 items are fixed (#108, #110 to #113) |
 | A `/impeccable critique` of the rest of the app: the factor tree and the preferences panel, the reasons panel, the phone sheets | shipped: 24/40 on 2026-11-25, and its three P1 and three P2 items are fixed (#123 to #127, #129) |
 | 44 px targets for the small links of the phone sheet ("Open", "Count", the reasons' "Close"), from the critique of 2026-11-25 | idea |

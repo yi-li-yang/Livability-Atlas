@@ -19,7 +19,7 @@ export function EvidenceDetails({ evidence }: { evidence: Evidence }) {
       <summary className="cursor-pointer underline">
         Details<span className="sr-only"> of {indicator.name}</span>
       </summary>
-      <dl className="mt-1 space-y-1 border-l border-neutral-300 pl-2">
+      <dl className="mt-1 space-y-1 border-l border-rule pl-2">
         <div>
           <dt className="font-medium">Value here</dt>
           <dd>{here}</dd>

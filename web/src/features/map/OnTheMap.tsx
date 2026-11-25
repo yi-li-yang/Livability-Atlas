@@ -14,7 +14,7 @@ export function OnTheMap({
 }) {
   return (
     <p data-testid="on-the-map" className="text-sm">
-      <span className="text-neutral-600">On the map: </span>
+      <span className="text-muted">On the map: </span>
       <span className="font-medium">{name}</span>
       {score === null ? (
         ", no data here"
@@ -27,7 +27,7 @@ export function OnTheMap({
             data-testid="score-chip"
             data-score={score / 100}
             aria-hidden="true"
-            className="mr-1 inline-block size-3 rounded-sm align-[-1px] ring-1 ring-inset ring-black/20"
+            className="mr-1 inline-block size-3 align-[-1px] ring-1 ring-inset ring-edge/60"
             style={{ background: scoreToCss(score / 100) }}
           />
           {`${Math.round(score)} out of 100`}

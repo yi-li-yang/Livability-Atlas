@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import type { Explanation, FactorLine } from "../../scoring/explain";
 import { describeLimit } from "../limits/limits";
 import { scoreToCss } from "../map/colour";
@@ -8,6 +8,11 @@ import { EvidenceDetails } from "./EvidenceDetails";
 const wholeNumber = new Intl.NumberFormat("en-GB");
 const points = (value: number): string => String(Math.round(value));
 
+/** A number in the monospace face, so that it keeps its width as it changes (DESIGN.md). */
+function Num({ children }: { children: ReactNode }) {
+  return <span className="font-mono tabular-nums">{children}</span>;
+}
+
 /**
  * One bar for a factor. The track is the most the factor could add, from its share of the weight,
  * and the filled part is what it adds in this hex cell, so a short fill in a long track is a
@@ -16,18 +21,18 @@ const points = (value: number): string => String(Math.round(value));
  */
 function Bar({ line, widest }: { line: FactorLine; widest: number }) {
   if (line.share === null || line.score === null) {
-    return <p className="text-xs text-neutral-600">No data here</p>;
+    return <p className="text-xs text-muted">No data here</p>;
   }
   return (
     <div
-      className="h-2 rounded-sm bg-neutral-100 ring-1 ring-neutral-300"
+      className="h-2 bg-surface ring-1 ring-rule"
       style={{ width: `${(line.share / widest) * 100}%` }}
       aria-hidden="true"
     >
       <div
         data-testid="score-bar"
         data-score={line.score}
-        className="h-full rounded-sm ring-1 ring-inset ring-black/20"
+        className="h-full ring-1 ring-inset ring-edge/60"
         style={{
           width: `${line.score * 100}%`,
           background: scoreToCss(line.score),
@@ -49,17 +54,26 @@ function Line({ line, widest }: { line: FactorLine; widest: number }) {
         <span className="flex items-center gap-1">
           <span
             aria-hidden="true"
-            className="inline-block w-3 text-neutral-600 transition-transform group-open:rotate-90"
+            className="inline-block w-3 text-muted transition-transform group-open:rotate-90"
           >
             {opens ? "›" : ""}
           </span>
           {/* A factor that opens is underlined, as every action in the app is. */}
           <span className={opens ? "underline" : undefined}>{line.name}</span>
         </span>
-        <span className="tabular-nums text-neutral-600">
-          {line.contribution !== null && line.share !== null
-            ? `${points(line.contribution)} of ${points(line.share * 100)} points`
-            : line.score !== null && `${points(line.score * 100)} out of 100`}
+        <span className="text-muted">
+          {line.contribution !== null && line.share !== null ? (
+            <>
+              <Num>{points(line.contribution)}</Num> of{" "}
+              <Num>{points(line.share * 100)}</Num> points
+            </>
+          ) : (
+            line.score !== null && (
+              <>
+                <Num>{points(line.score * 100)}</Num> out of 100
+              </>
+            )
+          )}
         </span>
       </div>
       <Bar line={line} widest={widest} />
@@ -83,7 +97,7 @@ function Line({ line, widest }: { line: FactorLine; widest: number }) {
         <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
           {summary}
         </summary>
-        <ul className="mt-2 space-y-2 border-l border-neutral-300 pl-3">
+        <ul className="mt-2 space-y-2 border-l border-rule pl-3">
           {line.children.map((child) => (
             <Line key={child.id} line={child} widest={widestInside} />
           ))}
@@ -141,15 +155,15 @@ export function WhyPanel({
       data-covers-map
       className={
         phone
-          ? "absolute inset-x-0 bottom-0 z-20 max-h-[70%] overflow-y-auto rounded-t-xl bg-white p-3 landscape:max-h-[55%] text-sm shadow-[0_-2px_10px_rgba(0,0,0,0.25)]"
-          : "absolute right-4 top-4 z-10 max-h-[calc(100%-9rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 text-sm shadow"
+          ? "absolute inset-x-0 bottom-0 z-20 max-h-[70%] overflow-y-auto bg-raised p-3 landscape:max-h-[55%] text-sm shadow-float"
+          : "absolute right-4 top-4 z-10 max-h-[calc(100%-9rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto bg-raised p-3 text-sm shadow-float"
       }
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="font-medium">Why this score</h2>
+          <h2 className="group-label">Why this score</h2>
           {explanation.neighbourhood && (
-            <p className="text-xs text-neutral-600">
+            <p className="text-xs text-muted">
               {explanation.neighbourhood.name}
               {explanation.neighbourhood.area &&
                 `, ${explanation.neighbourhood.area}`}
@@ -175,16 +189,14 @@ export function WhyPanel({
         <p className="mt-2">There is no data here for the factors you count.</p>
       ) : (
         <>
-          {onMap && (
-            <p className="mt-2 text-xs text-neutral-600">Livability score</p>
-          )}
+          {onMap && <p className="mt-2 text-xs text-muted">Livability score</p>}
           <p className="mt-1">
-            <span className="text-2xl font-semibold tabular-nums">
+            <span className="font-mono text-[25px] font-medium leading-[1.15] tabular-nums">
               {Math.round(explanation.score)}
             </span>{" "}
             out of 100
             {rank !== null && (
-              <span className="text-neutral-600">
+              <span className="text-muted">
                 , rank {wholeNumber.format(rank)} of {wholeNumber.format(total)}
               </span>
             )}
@@ -204,7 +216,8 @@ export function WhyPanel({
         <button
           type="button"
           aria-expanded="false"
-          className="mt-2 min-h-11 w-full rounded border border-neutral-300 font-medium"
+          // The view's one action, so its one filled button, in the accent (DESIGN.md).
+          className="mt-2 min-h-11 w-full bg-[var(--accent)] font-medium text-ground"
           onClick={() => setOpen(true)}
         >
           Show the reasons
@@ -213,41 +226,45 @@ export function WhyPanel({
       {open && (
         <>
           {explanation.mode === "balanced" && explanation.score !== null && (
-            <p className="mt-1 text-xs text-neutral-600">
+            <p className="mt-1 text-xs text-muted">
               No weak spots: each factor shows its own score, and a weak one
               pulls the total down harder, so they do not add up to it.
             </p>
           )}
           {places.length > 0 && (
             <section aria-label="Your places" className="mt-3">
-              <h3 className="font-medium">Your places</h3>
+              <h3 className="group-label">Your places</h3>
               <ul className="mt-1 space-y-1 text-xs">
                 {places.map((place) => (
                   <li key={place.name} className="flex justify-between gap-2">
                     <span>{place.name}</span>
-                    <span className="tabular-nums">
-                      {Number.isNaN(place.minutes)
-                        ? "No way within reach"
-                        : `${Math.round(place.minutes)} minutes`}
+                    <span>
+                      {Number.isNaN(place.minutes) ? (
+                        "No way within reach"
+                      ) : (
+                        <>
+                          <Num>{Math.round(place.minutes)}</Num> minutes
+                        </>
+                      )}
                     </span>
                   </li>
                 ))}
               </ul>
-              <p className="mt-1 text-xs text-neutral-600">
+              <p className="mt-1 text-xs text-muted">
                 An estimate by public transport on a weekday morning: trains and
                 the Tube, with a walk or a bus to and from the station.
               </p>
             </section>
           )}
           {explanation.excluded && !explanation.fewHomes && (
-            <p role="note" className="mt-2 rounded bg-neutral-200 p-2 text-xs">
+            <p role="note" className="mt-2 bg-surface p-2 text-xs">
               Left out of the ranking: this hex cell fails a hard limit. Its
               score is shown for reference.
             </p>
           )}
           {explanation.limits.length > 0 && (
             <section aria-label="Your hard limits" className="mt-3">
-              <h3 className="font-medium">Your hard limits</h3>
+              <h3 className="group-label">Your hard limits</h3>
               <ul className="mt-1 space-y-1 text-xs">
                 {explanation.limits.map(({ limit, indicator, result }) => (
                   <li
@@ -268,7 +285,10 @@ export function WhyPanel({
             </section>
           )}
           {explanation.lowCoverage && explanation.score !== null && (
-            <p role="note" className="mt-2 rounded bg-amber-100 p-2 text-xs">
+            <p
+              role="note"
+              className="mt-2 border border-edge bg-surface p-2 text-xs"
+            >
               This score rests on thin data: less than 70% of the weight you
               gave has data here.
             </p>
@@ -276,7 +296,7 @@ export function WhyPanel({
           {explanation.mode !== "balanced" &&
             explanation.score !== null &&
             !explanation.fewHomes && (
-              <p className="mt-3 text-xs text-neutral-600">
+              <p className="mt-3 text-xs text-muted">
                 The points from each factor add up to{" "}
                 {Math.round(explanation.score)}.
               </p>

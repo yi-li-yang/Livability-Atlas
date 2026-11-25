@@ -81,7 +81,7 @@ export function levelAt(
       share: total > 0 ? weight / total : 0,
       opens: kidsOf(factor).length > 0,
       colour: top ? colour.tint : colour.base,
-      ink: top ? "#1c1c1c" : "#ffffff",
+      ink: top ? colour.tintInk : colour.ink,
     };
   });
   return {
