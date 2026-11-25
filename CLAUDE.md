@@ -34,7 +34,7 @@ Every command runs through `just` from the repo root. `just` lists them.
 - `just dev`, `just build` and `just e2e` start, build and smoke-test the web app. The first `just e2e` downloads a browser.
 - `just docs` refreshes the factor explorer's copy of the catalogue after an edit to `catalogue/factors.yaml` or `catalogue/datasets.yaml`.
 - `/research-factor <id>` researches one factor of the catalogue, through to an open pull request ([.claude/commands/research-factor.md](.claude/commands/research-factor.md)).
-- `/impeccable critique|audit|polish <target>` reviews or polishes a part of the web app's interface, with [PRODUCT.md](PRODUCT.md) as its brief. Never run `/impeccable live`: its Apply button can start an agent with permission checks off.
+- `/impeccable critique|audit|polish <target>` reviews or polishes a part of the web app's interface, with [PRODUCT.md](PRODUCT.md) as its brief and [DESIGN.md](DESIGN.md) as the look to keep. Never run `/impeccable live`: its Apply button can start an agent with permission checks off.
 
 ## Living documents: what to update when
 
