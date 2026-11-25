@@ -1146,7 +1146,7 @@ factors:
       # GP access sits here, not under Daily amenities. Life expectancy sits under Resident wellbeing.
       - id: gp-access
         name: GP access
-        description: How near a GP practice is, and how many patients each GP serves.
+        description: How near a GP practice is, how many patients each GP serves, and how its patients rate it.
         default_weight: 3
         scales: [within-city]
         children:
@@ -1205,6 +1205,35 @@ factors:
               here, because the walk to a GP practice already scores the
               first. The register covers England only.
             datasets: [nhs-gp-registered-patients, nhs-gp-workforce, os-code-point-open]
+          - id: gp-experience
+            name: Patients' rating of nearby GPs
+            description: The share of patients at the GP practices nearby who rate their overall experience as good.
+            default_weight: 3
+            status: built
+            unit: "% rating it good"
+            preference_type: fixed
+            curve: {shape: region-ramp, better: higher}
+            curve_reason: >-
+              No standard says what share of good ratings is enough, so the
+              ends of the ramp come from the region's own values (D25). The
+              share is a percentage between practices that mostly score well,
+              so the scale is linear, not log.
+            evidence_type: perception
+            comparable_across_regions: true
+            method: >-
+              For each hex cell, the share of patients who rate the overall
+              experience of their GP practice as very or fairly good (question
+              32 of the GP Patient Survey 2026), over the practices within a
+              15-minute walk (1,200 m at 4.8 km/h, along streets and paths):
+              each practice's share, weighted by its registered patients
+              (September 2026). The survey's shares are weighted by Ipsos to
+              the practice's patients. A practice whose result is suppressed
+              (fewer than 10 answers) is left out, and a cell with no rated
+              practice in reach has no value, because the walk to a GP practice
+              already scores the first. It is a perception: what the
+              practice's own patients say, not a measure of care. A practice is
+              placed at its main postcode. The survey covers England only.
+            datasets: [nhs-gp-patient-survey, nhs-gp-registered-patients, os-code-point-open]
       - id: ae-distance
         name: Distance to A&E
         description: How far the nearest hospital with a 24-hour emergency department is.
