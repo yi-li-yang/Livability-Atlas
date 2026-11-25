@@ -22,6 +22,7 @@ SCROLL = "https://planningdata.london.gov.uk/api-guest/_search/scroll"
 HEADERS = {"X-API-AllowRequest": "be2rmRnt&", "Content-Type": "application/json"}
 START, END = date(2020, 4, 1), date(2025, 3, 31)
 PAGE = 2000
+UNITS = "application_details.residential_details.residential_units"
 FIELDS = [
     "id",
     "actual_completion_date",
@@ -68,20 +69,28 @@ def homes(source: dict[str, Any]) -> dict[str, Any] | None:
 def fetch(data_dir: Path) -> Path:
     """Fetches the schemes completed in the window to `data/raw/gla-planning/` once, and returns
     the file."""
-    target = data_dir / "raw" / "gla-planning" / f"completions-{START:%Y%m}-{END:%Y%m}.json"
+    target = data_dir / "raw" / "gla-planning" / f"completions-v2-{START:%Y%m}-{END:%Y%m}.json"
     if target.exists():
         return target
+    window = {"gte": f"{START:%d/%m/%Y}", "lte": f"{END:%d/%m/%Y}", "format": "dd/MM/yyyy"}
     query = {
         "size": PAGE,
         "_source": FIELDS,
         "sort": ["_doc"],
+        # A scheme completed in the window, or one with a home completed in it: a phased scheme's
+        # own date is its last phase's, which may fall after the window.
         "query": {
-            "range": {
-                "actual_completion_date": {
-                    "gte": f"{START:%d/%m/%Y}",
-                    "lte": f"{END:%d/%m/%Y}",
-                    "format": "dd/MM/yyyy",
-                }
+            "bool": {
+                "should": [
+                    {"range": {"actual_completion_date": window}},
+                    {
+                        "nested": {
+                            "path": UNITS,
+                            "query": {"range": {f"{UNITS}.actual_completion_date": window}},
+                        }
+                    },
+                ],
+                "minimum_should_match": 1,
             }
         },
     }
