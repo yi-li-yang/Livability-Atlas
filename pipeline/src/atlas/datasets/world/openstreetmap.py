@@ -85,24 +85,40 @@ class _Stations(osmium.SimpleHandler):
         super().__init__()
         self.rows: list[dict[str, object]] = []
 
-    def node(self, n) -> None:
-        if n.tags.get("railway") == "station" and n.location.valid():
+    def _keep(self, tags, lng: float, lat: float) -> None:
+        if tags.get("railway") == "station":
             self.rows.append(
                 {
-                    "lng": n.location.lon,
-                    "lat": n.location.lat,
-                    "name": n.tags.get("name"),
-                    "wheelchair": n.tags.get("wheelchair"),
+                    "lng": lng,
+                    "lat": lat,
+                    "name": tags.get("name"),
+                    "wheelchair": tags.get("wheelchair"),
                 }
             )
 
+    def node(self, n) -> None:
+        if len(n.tags) and n.location.valid():
+            self._keep(n.tags, n.location.lon, n.location.lat)
+
+    def way(self, w) -> None:
+        if not len(w.tags) or w.tags.get("railway") != "station":
+            return
+        nodes = [n for n in w.nodes if n.location.valid()]
+        if len(nodes) > 1 and nodes[0].ref == nodes[-1].ref:
+            nodes = nodes[:-1]  # a closed outline names its first node twice
+        if nodes:
+            lng = sum(n.lon for n in nodes) / len(nodes)
+            lat = sum(n.lat for n in nodes) / len(nodes)
+            self._keep(w.tags, lng, lat)
+
 
 def read_stations(path: Path) -> pd.DataFrame:
-    """The railway stations mapped as points in an OpenStreetMap file, as a table with `lng`,
+    """The railway stations in an OpenStreetMap file, at their point or the middle of their
+    outline, as a table with `lng`,
     `lat`, `name` and `wheelchair` (`yes`, `limited`, `no`, or missing): whether a wheelchair user
     can reach the trains, as mappers have tagged it."""
     handler = _Stations()
-    handler.apply_file(str(path))
+    handler.apply_file(str(path), locations=True)
     return pd.DataFrame(handler.rows, columns=["lng", "lat", "name", "wheelchair"])
 
 
@@ -111,7 +127,7 @@ def stations(data_dir: Path, region_id: str) -> pd.DataFrame:
     it, as `places` keeps its places."""
     extract = fetch(data_dir, region_id)
     checksum = extract.with_name(extract.name + ".sha256").read_text(encoding="utf-8").strip()
-    kept = extract.with_name(f"stations-v1-{region_id}-{checksum[:12]}.parquet")
+    kept = extract.with_name(f"stations-v2-{region_id}-{checksum[:12]}.parquet")
     if kept.exists():
         return pd.read_parquet(kept)
     table = read_stations(extract)

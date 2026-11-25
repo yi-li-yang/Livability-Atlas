@@ -98,6 +98,13 @@ STATIONS_OSM = """<?xml version="1.0" encoding="UTF-8"?>
     <tag k="railway" v="station"/><tag k="name" v="Untagged"/>
   </node>
   <node id="4" lat="51.4300" lon="-0.1800"><tag k="railway" v="halt"/></node>
+  <node id="5" lat="51.4000" lon="-0.1000"/>
+  <node id="6" lat="51.4000" lon="-0.1020"/>
+  <node id="7" lat="51.4020" lon="-0.1020"/>
+  <way id="10">
+    <nd ref="5"/><nd ref="6"/><nd ref="7"/><nd ref="5"/>
+    <tag k="railway" v="station"/><tag k="name" v="Outline"/><tag k="wheelchair" v="yes"/>
+  </way>
 </osm>
 """
 
@@ -108,9 +115,11 @@ def test_osm_stations_are_read_with_their_wheelchair_tag(tmp_path):
     path = tmp_path / "stations.osm"
     path.write_text(STATIONS_OSM, encoding="utf-8")
     found = openstreetmap.read_stations(path)
-    assert found["name"].tolist() == ["Barnes", "Steps", "Untagged"]
+    assert found["name"].tolist() == ["Barnes", "Steps", "Untagged", "Outline"]
     assert found["wheelchair"].tolist()[:2] == ["yes", "limited"]
-    assert found["wheelchair"].isna().tolist() == [False, False, True]
+    assert found["wheelchair"].isna().tolist() == [False, False, True, False]
+    outline = found.set_index("name").loc["Outline"]
+    assert outline["lat"] == pytest.approx(51.4006667, abs=1e-6)
 
 
 def test_an_osm_station_counts_only_away_from_tfl_s_stations_and_when_tagged_yes():
