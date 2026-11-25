@@ -19,7 +19,14 @@ from pyproj import Transformer
 from atlas import families
 from atlas.catalogue.load import Catalogue, load_catalogue
 from atlas.catalogue.models import Region
-from atlas.datasets.cities.london import laei, ptal, tfl_journeys, tfl_lines, tfl_timetables
+from atlas.datasets.cities.london import (
+    laei,
+    ptal,
+    tfl_buses,
+    tfl_journeys,
+    tfl_lines,
+    tfl_timetables,
+)
 from atlas.datasets.countries.gb import (
     census_age,
     census_country_of_birth,
@@ -64,6 +71,7 @@ from atlas.indicators import (
     housing,
     noise,
     prices,
+    station_access,
     station_matrix,
     transport,
 )
@@ -253,13 +261,14 @@ def _travel(
 ) -> tuple[dict[str, Sequence[Any]], Travel | None]:
     """Travel time to places: the mean over the region's default places (D09) of the quickest
     door-to-door time by public transport on a weekday morning. The Journey Planner is asked for
-    the journey from each station, and a cell takes the walk to a station within 40 minutes and
-    that station's journey (an estimate: see `transport.travel_minutes`).
+    the journey from each station, and a cell takes its way to a station within 40 minutes, on foot
+    or by bus (`station_access`, spike S9), and that station's journey (an estimate: see
+    `transport.travel_minutes`).
 
     It also gives what the web app needs to estimate travel to a user's own places (D10): the
-    minutes from each station to each, from the timetables (`station_matrix`), and each cell's
-    quickest stations on foot, and the region's postcodes, so that a user's postcode is found in
-    the browser and sent nowhere."""
+    minutes from each station to each, from the timetables (`station_matrix`), each cell's
+    quickest stations by the same ways, and the region's postcodes, so that a user's postcode is
+    found in the browser and sent nowhere."""
     if not region.default_places:
         return {}, None
     rail = tfl_lines.read_stops(tfl_lines.fetch(data_dir))
@@ -270,7 +279,18 @@ def _travel(
     stations = pd.DataFrame(rail.loc[inside]).drop_duplicates("stop").reset_index(drop=True)
     places = [(p.name, p.lat, p.lng) for p in region.default_places]
     times = tfl_journeys.read_times(tfl_journeys.fetch(data_dir, region.id, stations, places))
-    minutes = transport.travel_minutes(network, stations, times, cells)
+    buses = tfl_buses.fetch(data_dir)
+    legs = None
+    if buses.stops:
+        stops = transport.place_stops(
+            pd.DataFrame(
+                [(stop, lat, lng) for stop, (lat, lng) in buses.stops.items()],
+                columns=["stop", "Latitude", "Longitude"],
+            )
+        )
+        legs = (stops, station_access.bus_to_station(stops, buses.rides, buses.headways, stations))
+    access = station_access.cell_access(network, stations, cells, buses=legs)
+    minutes = transport.travel_minutes(access, stations, times, cells)
     columns: dict[str, Sequence[Any]] = {
         "travel-time-to-places": [None if pd.isna(v) else float(v) for v in minutes]
     }
@@ -281,7 +301,7 @@ def _travel(
     rides, headways = tfl_timetables.fetch(data_dir, where)
     travel = Travel(
         stations=[(stop, lat, lng) for stop, (lat, lng) in where.items()],
-        cell_stations=station_matrix.cell_stations(network, stations, cells),
+        cell_stations=station_matrix.cell_stations(access),
         matrix=station_matrix.station_matrix(
             stations,
             rides,

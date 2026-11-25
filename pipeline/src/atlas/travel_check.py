@@ -120,7 +120,13 @@ def check(bundle: Path, data_dir: Path, region_id: str, count: int = 300) -> str
     for i, (a, b) in enumerate(pairs):
         if b not in by_place:
             by_place[b] = region_minutes(
-                station_xy, matrix, link_rows, centres, (centres[b][0], centres[b][1]), travel
+                station_xy,
+                matrix,
+                link_rows,
+                centres,
+                (centres[b][0], centres[b][1]),
+                travel,
+                place_cell=b,
             )
         estimate[i] = by_place[b][a]
     metres = np.array([straight_metres(*centres[a], *centres[b]) for a, b in pairs])

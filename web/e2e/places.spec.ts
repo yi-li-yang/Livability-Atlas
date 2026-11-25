@@ -54,6 +54,11 @@ test("a place added by postcode becomes the travel time, stays after a reload, a
   }).toPass({ timeout: 10_000 });
   await expect(panel).toContainText("Your places");
   await expect(panel).toContainText(/Work\s*\d+ minutes/);
+  // Buses to and from the stations count (spike S9), and the panel says so.
+  await expect(panel).toContainText(
+    "with a walk or a bus to and from the station",
+  );
+  await expect(panel).not.toContainText("Buses are not counted");
 
   await openApp(page);
   await expect(section(page).getByRole("listitem")).toHaveText(["WorkRemove"]);

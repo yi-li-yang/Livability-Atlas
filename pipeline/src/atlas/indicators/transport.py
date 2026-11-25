@@ -2,6 +2,7 @@
 number of lines or routes that stop within a walk."""
 
 import re
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -11,6 +12,9 @@ from scipy.spatial import KDTree
 
 from atlas.spatial.grid import cell_centres_bng
 from atlas.spatial.walking import Network
+
+if TYPE_CHECKING:
+    from atlas.indicators.station_access import Access
 
 _TO_BNG = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
 
@@ -73,19 +77,19 @@ def fare_zones(stations: pd.DataFrame, cells: list[str]) -> pd.Series:
 
 
 def travel_minutes(
-    network: Network,
+    access: "Access",
     stations: pd.DataFrame,
     times: pd.DataFrame,
     cells: list[str],
-    walk: float = 40.0,
 ) -> pd.Series:
     """The mean over the default places of the quickest door-to-door time from each cell's centre,
-    by foot to a station within `walk` minutes and then that station's journey.
+    on foot or by bus to a station (`access`, from `station_access.cell_access`) and then that
+    station's journey.
 
-    `stations` has `stop`, `Easting` and `Northing`, and `times` has the journey `minutes` from
-    each `stop` to each `place`. For each place a cell takes the station that gives the shortest
-    walk plus journey, and the places' times are averaged. A cell with no station in reach, or from
-    which a place cannot be reached, has no value.
+    `stations` has `stop`, and `times` has the journey `minutes` from each `stop` to each `place`.
+    For each place a cell takes the station that gives the shortest way there plus journey, and
+    the places' times are averaged. A cell with no station in reach, or from which a place cannot
+    be reached, has no value.
     """
     names = sorted(set(times["place"]))
     table = np.full((len(stations), len(names)), np.nan)
@@ -94,10 +98,8 @@ def travel_minutes(
     for stop, place, minutes in zip(times["stop"], times["place"], times["minutes"], strict=True):
         if stop in row:
             table[row[stop], column[place]] = minutes
-    places = np.column_stack([stations["Easting"].to_numpy(), stations["Northing"].to_numpy()])
-    reach = network.times_within(places, cell_centres_bng(cells), walk)
     result = np.full(len(cells), np.nan)
-    for position, (found, walking) in enumerate(reach):
+    for position, (found, walking) in enumerate(access):
         if len(found) == 0:
             continue
         total = walking[:, None] + table[found]

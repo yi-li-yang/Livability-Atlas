@@ -5,6 +5,7 @@ import pytest
 
 from atlas.datasets.cities.london import tfl_journeys
 from atlas.indicators import transport
+from atlas.indicators.station_access import cell_access
 from atlas.spatial.grid import cell_centres_bng
 from atlas.spatial.walking import SPEED, Network
 
@@ -121,25 +122,40 @@ class TestTravelMinutes:
         network, stations = self.setup()
         times = self.times(near=(30, 40), far=(10, 10))
         walk_near, walk_far = 400 / SPEED, 1600 / SPEED  # 5 and 20 minutes
-        minutes = transport.travel_minutes(network, stations, times, [self.cell], walk=25)
+        minutes = transport.travel_minutes(
+            cell_access(network, stations, [self.cell], walk=25), stations, times, [self.cell]
+        )
         want_a = min(walk_near + 30, walk_far + 10)  # 30 by the far station
         want_b = min(walk_near + 40, walk_far + 10)
         assert minutes[self.cell] == pytest.approx((want_a + want_b) / 2, abs=0.3)
 
+    def test_a_quicker_way_by_bus_counts_for_the_places(self):
+        _, stations = self.setup()
+        times = self.times(near=(30, 40), far=(10, 10))
+        access = [(np.array([0, 1]), np.array([5.0, 8.0]))]  # the far station 8 minutes by bus
+        minutes = transport.travel_minutes(access, stations, times, [self.cell])
+        assert minutes[self.cell] == pytest.approx((min(5 + 30, 8 + 10) + min(5 + 40, 8 + 10)) / 2)
+
     def test_a_station_beyond_the_walk_is_not_a_choice(self):
         network, stations = self.setup()
         times = self.times(near=(30, 40), far=(1, 1))
-        minutes = transport.travel_minutes(network, stations, times, [self.cell], walk=10)
+        minutes = transport.travel_minutes(
+            cell_access(network, stations, [self.cell], walk=10), stations, times, [self.cell]
+        )
         assert minutes[self.cell] == pytest.approx(400 / SPEED + 35, abs=0.3)
 
     def test_a_place_that_no_station_in_reach_gets_to_leaves_the_cell_without_a_value(self):
         network, stations = self.setup()
         times = self.times(near=(30, np.nan), far=(10, np.nan))
-        minutes = transport.travel_minutes(network, stations, times, [self.cell], walk=25)
+        minutes = transport.travel_minutes(
+            cell_access(network, stations, [self.cell], walk=25), stations, times, [self.cell]
+        )
         assert np.isnan(minutes[self.cell])
 
     def test_with_no_station_in_reach_there_is_no_value(self):
         network, stations = self.setup()
         times = self.times(near=(30, 40), far=(10, 10))
-        minutes = transport.travel_minutes(network, stations, times, [self.cell], walk=1)
+        minutes = transport.travel_minutes(
+            cell_access(network, stations, [self.cell], walk=1), stations, times, [self.cell]
+        )
         assert np.isnan(minutes[self.cell])

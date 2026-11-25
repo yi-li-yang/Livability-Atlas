@@ -672,6 +672,12 @@ def use_synthetic_data(monkeypatch, tmp_path):
     monkeypatch.setattr(build_module.tfl_lines, "read_stops", lambda path: synthetic_line_stops())
     # One station, so no ride between stations: the matrix is its one zero.
     monkeypatch.setattr(build_module.tfl_timetables, "fetch", lambda data_dir, where: ([], {}))
+    # No buses: the way to the station is the walk.
+    monkeypatch.setattr(
+        build_module.tfl_buses,
+        "fetch",
+        lambda data_dir: build_module.tfl_buses.BusRoutes({}, [], {}),
+    )
     monkeypatch.setattr(
         build_module.nhs_gp, "fetch", lambda data_dir: (tmp_path / "p", tmp_path / "w")
     )

@@ -1,0 +1,51 @@
+{
+  "id": "walk-at-the-far-end-when-quicker",
+  "description": "All points are on longitude 0, so a straight line is the Earth's radius (6,371,008.8 m) times the difference of latitude in radians: 0.001 degrees is 111.19508 m, a walk of 111.19508 x 1.33 / 80 = 1.8486182 minutes. The place carries the links of its own cell: station 1 is 3.0 minutes away by them. But the place is 0.001 degrees from station 1, a straight walk of 1.8486182 minutes, which is quicker, so the way is 4 + 30 + 1.848618208877666 = 35.84861820887767, and not 4 + 30 + 3 = 37.",
+  "constants": {
+    "reach_minutes": 40,
+    "walk_metres_a_minute": 80,
+    "street_factor": 1.33,
+    "unreachable": 65535
+  },
+  "stations": [
+    [
+      51.501,
+      0
+    ],
+    [
+      51.6,
+      0
+    ]
+  ],
+  "matrix": [
+    [
+      0,
+      30
+    ],
+    [
+      30,
+      0
+    ]
+  ],
+  "cell": {
+    "lat": 51.5,
+    "lng": 0,
+    "stations": [
+      [
+        0,
+        4.0
+      ]
+    ]
+  },
+  "place": {
+    "lat": 51.601,
+    "lng": 0,
+    "stations": [
+      [
+        1,
+        3.0
+      ]
+    ]
+  },
+  "expected": 35.84861820887767
+}

@@ -659,8 +659,8 @@ factors:
           61 to 90 minutes, against those of 15 minutes or less. The GLA found
           the effect of commute length small in London (Commuting and individual
           well-being in London, 2015), so the ramp is wide and gentle. London's
-          cells spread across it: the middle half run from 53 to 74 minutes,
-          the 5th to 95th percentile from 37 to 89, and the City and the West
+          cells spread across it: the middle half run from 52 to 71 minutes,
+          the 5th to 95th percentile from 37 to 86, and the City and the West
           End are 21 to 25.
         evidence_type: estimate
         comparable_across_regions: true
@@ -672,18 +672,21 @@ factors:
           own journey cannot be asked of TfL's Journey Planner for each of
           17,000 cells: the Journey Planner gives the quickest journey, by all
           modes with buses, from each of the region's stations to each place,
-          and a cell takes the walk along streets to a station within 40
-          minutes plus that station's journey, whichever station gives the
-          shortest total for the place. A walk to a station that long is an
-          upper bound on what the journey takes, as a bus would be quicker, so
-          the time is too long for the cells far from a station. A cell with no
-          station within 40 minutes' walk (8% of London's: parks and the edge)
-          has no value. Spike S4 found such an estimate within 20% of the
-          Journey Planner's door-to-door time in 81% of journeys, and too long
-          in 19%, because buses are not in the station times. A
-          user's own places get an estimate in the browser instead, from the
-          same station times (D10). The weekday-morning timetable is
-          one departure, not a range of them.
+          and a cell takes its way to a station plus that station's journey,
+          whichever station gives the shortest total for the place. The way to
+          a station is the walk along streets, or a walk of up to 10 minutes to
+          a bus stop and a bus, whichever is quicker, within 40 minutes; the
+          bus times come from TfL's timetables, with a wait of half the time
+          between buses (spike S9). A cell with no station within 40 minutes
+          this way (5% of London's: parks and the edge) has no value. A user's
+          own places get an estimate in the browser instead, from the
+          timetables' times between stations and the same ways to and from
+          them (D10). On 300 random journeys from one cell to another, that
+          estimate was within 20% of the Journey Planner's door-to-door time in
+          85% of journeys, and a median 5.5 minutes too long, because it waits
+          half the time between trains or buses where a planned journey leaves
+          in time for one. The weekday-morning timetable is one departure, not
+          a range of them.
         datasets: [tfl-unified-api, openstreetmap]
       - {id: airport-connectivity, name: "Airport connectivity", default_weight: 3, scales: [across-cities]}
       - {id: intercity-rail, name: "Intercity rail", default_weight: 3, scales: [across-cities]}
@@ -2524,6 +2527,7 @@ datasets:
       - The fare zone of each station
       - Journey plans by public transport between any two places
       - The timetables of TfL's own rail lines (stop order, minutes between stops, departures)
+      - The bus routes (each route's stops in order, the minutes between them, and the weekday-morning departures)
 
   - id: tfl-ptal
     name: Public Transport Accessibility Levels (PTAL)

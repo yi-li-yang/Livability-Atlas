@@ -325,7 +325,10 @@ def _travel_estimates(cells: Cells) -> NDArray[np.float64]:
     flat = pq.read_table(cells.folder / travel.matrix).column("minutes").to_numpy()
     n = travel.station_count
     matrix = flat.reshape(n, n)
-    centres = np.array([h3.cell_to_latlng(c) for c in cells.table["cell"].to_pylist()])
+    ids = cells.table["cell"].to_pylist()
+    centres = np.array([h3.cell_to_latlng(c) for c in ids])
+    position = {cell: i for i, cell in enumerate(ids)}
+    resolution = cells.manifest.grid.resolution
     constants = {
         "reach_minutes": travel.reach_minutes,
         "walk_metres_a_minute": travel.walk_metres_a_minute,
@@ -340,6 +343,7 @@ def _travel_estimates(cells: Cells) -> NDArray[np.float64]:
             centres,
             (place.lat, place.lng),
             constants,
+            place_cell=position.get(h3.latlng_to_cell(place.lat, place.lng, resolution)),
         )
         for place in load_catalogue().regions["london"].default_places
     ]

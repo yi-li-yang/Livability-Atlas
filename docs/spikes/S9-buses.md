@@ -70,6 +70,10 @@ By distance (08:30, a bus at both ends, 8 kept): under 5 km, +9.1 minutes and 30
 - Evenings after 19:00, nights and weekends: the check asks about weekday daytime only.
 - How fast the bus data goes out of date: TfL changes routes several times a year, and a refresh fetches them again.
 
+## After the spike
+
+The build (bundle `446823cd3071`, D10) fixed two flaws that a code review found in this spike's graph. A stop linked straight to the stations within a 6-minute walk, so a cell could reach a station by walking to a stop and on, with no bus: that undercuts the street walk where the streets are long, such as across a river. Now a stop's way to a station boards and rides at least one bus. And the headway added up the departures of every first stop, where a short working's timetable also lists the buses that pass its first stop: each direction now counts its busiest first stop. The travel check on the built bundle gives the numbers above to within 0.1 minutes: +5.5 minutes at 08:30, within 20% in 85%. The notebook keeps the spike's graph.
+
 ## Reproduce
 
 From `pipeline/`:

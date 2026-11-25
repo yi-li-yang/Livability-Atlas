@@ -1,8 +1,8 @@
-import { cellToLatLng } from "h3-js";
+import { cellToLatLng, latLngToCell } from "h3-js";
 import { parquetReadObjects } from "hyparquet";
 import type { Bundle, Fetcher } from "../data/bundle";
 import type { PostcodeTable } from "../features/places/places";
-import type { TravelData } from "./estimate";
+import type { Point, TravelData } from "./estimate";
 
 async function rows(
   fetcher: Fetcher,
@@ -16,6 +16,19 @@ async function rows(
 }
 
 const num = (value: unknown): number => Number(value);
+
+/**
+ * Finds the position of the cell that holds a point among `cells` (H3 cells of `resolution`), or
+ * -1 where none does, such as a place just outside the region.
+ */
+export function cellFinder(
+  cells: readonly string[],
+  resolution: number,
+): (point: Point) => number {
+  const position = new Map(cells.map((cell, i) => [cell, i]));
+  return (point) =>
+    position.get(latLngToCell(point.lat, point.lng, resolution)) ?? -1;
+}
 
 /**
  * Loads what the travel estimate needs from the bundle's travel files, or null where the bundle
@@ -47,6 +60,7 @@ export async function loadTravel(
       const [lat, lng] = cellToLatLng(cell);
       return { lat, lng };
     }),
+    cellOf: cellFinder(bundle.cells, bundle.manifest.grid.resolution),
     constants: {
       reach_minutes: travel.reach_minutes,
       walk_metres_a_minute: travel.walk_metres_a_minute,

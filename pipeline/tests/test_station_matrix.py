@@ -82,6 +82,7 @@ def test_a_ride_that_two_routes_share_is_not_counted_twice():
 def test_each_cell_keeps_its_quickest_stations_within_the_walk():
     import h3
 
+    from atlas.indicators.station_access import cell_access
     from atlas.indicators.station_matrix import cell_stations
     from atlas.spatial.grid import cell_centres_bng
     from atlas.spatial.walking import SPEED, Network
@@ -93,7 +94,7 @@ def test_each_cell_keeps_its_quickest_stations_within_the_walk():
     stations = pd.DataFrame(
         {"stop": ["a", "b", "c"], "Easting": [x + 240, x - 120, x + 400], "Northing": [y, y, y]}
     )
-    links = cell_stations(network, stations, [soho, far], walk=40, keep=2)
+    links = cell_stations(cell_access(network, stations, [soho, far], walk=40), keep=2)
     assert [(c, s) for c, s, _ in links] == [(0, 1), (0, 0)]  # b, then a; c is third
     assert links[0][2] == pytest.approx(120 / SPEED, abs=0.15)
     assert links[1][2] == round(links[1][2], 1)  # tenths of a minute

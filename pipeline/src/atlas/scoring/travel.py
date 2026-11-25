@@ -1,10 +1,13 @@
 """The reference for the travel estimate to a user's place (D10), which the web app reproduces.
 
 A cell's time to a place is the quickest of: walking straight there, when the walk is within reach;
-or walking along the streets to one of the cell's stations, riding the station matrix to a station
-near the place, and walking from there. A walk from the place is the straight line times the street
-factor, since the browser has no street network. The inputs are in the format of the golden cases
-in `shared/fixtures/travel/`, the same as the bundle's travel files.
+or going to one of the cell's stations (its links: on foot or by bus), riding the station matrix,
+and going from a station to the place. The last leg is the quicker of the straight walk (the
+straight line times the street factor, since the browser has no street network) and the links of
+the cell that holds the place, read backwards: a station to the cell takes as long as the cell to
+the station (spike S9). A place outside the region's cells has the straight walk only. The inputs
+are in the format of the golden cases in `shared/fixtures/travel/`, the same as the bundle's travel
+files.
 """
 
 import math
@@ -41,12 +44,15 @@ def estimate(case: dict[str, Any]) -> float | None:
     direct = walk(cell["lat"], cell["lng"], place["lat"], place["lng"])
     if direct <= reach:
         best = direct
-    # The best time from each station to the place: its walk, where the walk is within reach.
+    # The best time from each station to the place: its walk, where the walk is within reach, or
+    # the link of the place's own cell, whichever is quicker.
     to_place = {
         q: minutes
         for q, (lat, lng) in enumerate(case["stations"])
         if (minutes := walk(lat, lng, place["lat"], place["lng"])) <= reach
     }
+    for q, minutes in place.get("stations", []):
+        to_place[q] = min(minutes, to_place.get(q, math.inf))
     for s, on_foot in cell["stations"]:
         for q, last in to_place.items():
             ride = case["matrix"][s][q]
@@ -70,10 +76,13 @@ def region_minutes(
     centres: np.ndarray,
     place: tuple[float, float],
     constants: dict[str, float],
+    place_cell: int | None = None,
 ) -> np.ndarray:
     """`estimate` for every cell at once: `stations` and `centres` are (latitude, longitude) rows,
-    `matrix` the square station matrix and `links` rows of (cell, station, minutes). NaN where a
-    cell has no way within reach."""
+    `matrix` the square station matrix and `links` rows of (cell, station, minutes). `place_cell`
+    is the position of the cell that holds the place, whose links give the last leg where they are
+    quicker than the walk, or None for a place outside the cells. NaN where a cell has no way
+    within reach."""
     reach, speed, factor = (
         constants["reach_minutes"],
         constants["walk_metres_a_minute"],
@@ -81,7 +90,11 @@ def region_minutes(
     )
     lat, lng = place
     last = _metres(stations[:, 0], stations[:, 1], lat, lng) * factor / speed
-    near = np.flatnonzero(last <= reach)
+    last[last > reach] = np.inf
+    if place_cell is not None and len(links):
+        own = links[links[:, 0] == place_cell]
+        np.minimum.at(last, own[:, 1].astype(np.int64), own[:, 2])
+    near = np.flatnonzero(np.isfinite(last))
     rides = matrix[:, near].astype(np.float64)
     rides[matrix[:, near] == constants["unreachable"]] = np.inf
     from_station = (rides + last[near]).min(axis=1) if len(near) else np.full(len(stations), np.inf)
