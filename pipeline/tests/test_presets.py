@@ -88,7 +88,9 @@ class TestTheChecks:
         )
 
     def test_a_limit_on_an_indicator_not_built_is_a_problem(self):
-        preset = Preset.model_validate({**PRESET, "limits": [{"indicator": "cycling", "min": 1}]})
+        preset = Preset.model_validate(
+            {**PRESET, "limits": [{"indicator": "cultural-activity", "min": 1}]}
+        )
         assert any("built" in p for p in check_preset(preset, factors()))
 
 

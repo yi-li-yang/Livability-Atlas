@@ -677,7 +677,68 @@ factors:
               or not at all is not counted, so a cell near one (such as
               Barnes) may have a longer walk here than it has.
             datasets: [tfl-station-topology, openstreetmap]
-          - {id: cycling, name: "Cycling", default_weight: 3, description: "Protected lanes, cycle-hire docks and slope."}
+          - id: cycling
+            name: Cycling
+            description: Cycle tracks kept apart from traffic, and cycle hire docks nearby.
+            default_weight: 3
+            children:
+              - id: cycle-tracks
+                name: Cycle tracks nearby
+                description: Kilometres of cycle track, kept apart from motor traffic, within 1 km.
+                default_weight: 3
+                scales: [within-city]
+                status: built
+                unit: km of track within 1 km
+                preference_type: fixed
+                curve: {shape: region-ramp, better: higher, log: true, offset: 1}
+                curve_reason: >-
+                  No standard says how much track nearby is enough, so the ends
+                  of the ramp come from the region's own values (D25). Many
+                  cells have little or none and a few have a great deal, so the
+                  score follows the log of the kilometres plus one: the first
+                  kilometres count most.
+                evidence_type: direct
+                comparable_across_regions: true
+                method: >-
+                  The length of cycle track whose segments have their middle
+                  within 1 km of the hex cell's centre, in a straight line: the
+                  ways OpenStreetMap tags as cycleways, and the roads it tags
+                  with a track beside them (cycleway, cycleway:left, :right or
+                  :both = track). A painted lane, a bus lane and a path where
+                  cycling is only allowed are not tracks, and a cycleway may be
+                  shared with people on foot. London's extract holds about
+                  1,500 km. How completely mappers tag tracks varies between
+                  boroughs, and the slope of the streets is not counted (an
+                  idea in the backlog).
+                datasets: [openstreetmap]
+              - id: cycle-hire
+                name: Cycle hire nearby
+                description: The number of Santander Cycles docking stations within a 10-minute walk.
+                default_weight: 3
+                scales: [within-city]
+                status: built
+                unit: docking stations
+                preference_type: fixed
+                curve: {shape: region-ramp, better: higher, log: true, offset: 1}
+                curve_reason: >-
+                  No standard says how many docks are enough, so the ends of the
+                  ramp come from the region's own counts (D25): none scores 0,
+                  and the score follows the log of the count plus one, so that
+                  the first dock counts most.
+                evidence_type: direct
+                comparable_across_regions: false
+                method: >-
+                  The number of Santander Cycles docking stations within a
+                  10-minute walk (800 m at 4.8 km/h, the acceptable walking
+                  distance for trips other than commuting in Table 3.2 of the
+                  CIHT's Guidelines for Providing for Journeys on Foot, 2000)
+                  along streets and paths, from TfL's list of its 801 stations.
+                  A 5-minute walk was tried first, and left Bank, 5.2 minutes
+                  from its nearest dock, with none. The scheme covers inner
+                  London and a few outer centres, so most cells have none. It
+                  counts stations, not their bikes or free docks at a moment, and
+                  not e-bikes from other operators, which park without docks.
+                datasets: [tfl-unified-api, openstreetmap]
       - id: travel-time-to-places
         name: Travel time to places
         description: Door-to-door public-transport time to the default places, or to the user's own places.

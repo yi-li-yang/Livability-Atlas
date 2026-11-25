@@ -122,6 +122,49 @@ def read_stations(path: Path) -> pd.DataFrame:
     return pd.DataFrame(handler.rows, columns=["lng", "lat", "name", "wheelchair"])
 
 
+# The keys that say a road has a cycle track beside it, kept apart from motor traffic.
+TRACK_KEYS = ("cycleway", "cycleway:left", "cycleway:right", "cycleway:both")
+
+
+class _Tracks(osmium.SimpleHandler):
+    def __init__(self) -> None:
+        super().__init__()
+        self.rows: list[tuple[float, float, float, float]] = []
+
+    def way(self, w) -> None:
+        tags = w.tags
+        if tags.get("highway") != "cycleway" and not any(
+            tags.get(key) == "track" for key in TRACK_KEYS
+        ):
+            return
+        nodes = [n for n in w.nodes if n.location.valid()]
+        for a, b in zip(nodes, nodes[1:], strict=False):
+            self.rows.append((a.lon, a.lat, b.lon, b.lat))
+
+
+def read_cycle_tracks(path: Path) -> pd.DataFrame:
+    """The cycle tracks in an OpenStreetMap file, one row for each segment between two nodes
+    (`lng0`, `lat0`, `lng1`, `lat1`): the ways tagged `highway=cycleway`, and the roads tagged with
+    a `track` beside them. Painted lanes (`cycleway=lane`) and paths where cycling is only allowed
+    are not tracks."""
+    handler = _Tracks()
+    handler.apply_file(str(path), locations=True)
+    return pd.DataFrame(handler.rows, columns=["lng0", "lat0", "lng1", "lat1"])
+
+
+def cycle_tracks(data_dir: Path, region_id: str) -> pd.DataFrame:
+    """The region's cycle track segments (`read_cycle_tracks`), read from its extract once and kept
+    beside it, as `places` keeps its places."""
+    extract = fetch(data_dir, region_id)
+    checksum = extract.with_name(extract.name + ".sha256").read_text(encoding="utf-8").strip()
+    kept = extract.with_name(f"cycle-tracks-v1-{region_id}-{checksum[:12]}.parquet")
+    if kept.exists():
+        return pd.read_parquet(kept)
+    table = read_cycle_tracks(extract)
+    table.to_parquet(kept)
+    return table
+
+
 def stations(data_dir: Path, region_id: str) -> pd.DataFrame:
     """The region's railway stations (`read_stations`), read from its extract once and kept beside
     it, as `places` keeps its places."""

@@ -313,6 +313,25 @@ def step_free_access(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "Cycle hire is an inner London scheme, and cycle tracks reach most of London",
+    needs=("cycle_hire", "cycle_tracks"),
+)
+def cycling(cells: Cells) -> str:
+    hire, tracks = cells.numbers("cycle_hire"), cells.numbers("cycle_tracks")
+    everywhere(cells, "cycle_hire", "cycle_tracks")
+    some = float(np.mean(hire > 0))
+    # The build of 2026-11-25 gave docks within a walk of 7.8% of cells.
+    expect(0.04 < some < 0.2, f"{share(some)} of cells have a dock within a walk")
+    soho, croydon = cells.at("Soho", "cycle_hire"), cells.at("Croydon", "cycle_hire")
+    expect(soho >= 5 and croydon == 0, f"Soho {soho:.0f} docks, Croydon {croydon:.0f}")
+    with_track = float(np.mean(tracks > 0))
+    expect(with_track > 0.7, f"{share(with_track)} of cells have a track within 1 km")
+    stratford = cells.at("Stratford", "cycle_tracks")
+    expect(stratford > 5, f"Stratford has {stratford:.1f} km of track within 1 km")
+    return f"docks near {share(some)} of cells (Soho {soho:.0f}); track near {share(with_track)}"
+
+
+@FACTS.add(
     "Travel to the four job centres is short in the centre and long at the edge",
     needs=("travel_time_to_places",),
 )
