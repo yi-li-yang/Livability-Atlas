@@ -127,6 +127,18 @@ test("a weight moved to 0 keeps its row and the focus until the slider is let go
   ).toBeVisible();
 });
 
+test("every slider is drawn in the app's dark grey, not the browser's blue", async ({
+  page,
+}) => {
+  await openApp(page);
+  const sliders = page.getByRole("slider");
+  expect(await sliders.count()).toBeGreaterThan(2);
+  // Tailwind's neutral-700, oklch(37.1% 0 0): a grey, with no chroma.
+  for (const slider of await sliders.all()) {
+    await expect(slider).toHaveCSS("accent-color", /^oklch\(0\.371 0 /);
+  }
+});
+
 test("opening a factor shows its sub-factors, and the trail leads back", async ({
   page,
 }) => {
