@@ -16,7 +16,7 @@
 The owner asked for these one by one, in the order the agent chooses (2026-11-24).
 
 1. **Frontend polish.** `DESIGN.md` is written ("The Field Notebook"), and every P1 and P2 item of the critique of the preferences panel, the reasons panel and the phone sheets is fixed (log, 2026-11-25). Still open: the other small targets in the phone sheet (the "Open" and "Count" links and the reasons' "Close" are about 20 px high); folding the sections under the sliders ("How the factors combine", "Your places", "Hard limits") into one-line rows that show their state; a fresh `/impeccable critique` to see the score move; and the open items of the map critique: a search for a postcode or an area (in the browser, D08), a way back to all of London after a fly-to, keyboard access to the cells, and a short "how to read the map". Check each change on the full London bundle, not only the e2e fixture.
-2. **Finish London's factors**, from the work queue: election turnout, step-free access and cycling; then regeneration, cultural activity, dog-friendly parks and pet-friendly venues, subsidence and sea-level rise; then bundle exports and a size check (3.6) and `atlas refresh` (3.2). Main language as an option of Your community, if a table at the smallest areas turns up (the census gives the detailed languages only down to boroughs). Optional polish: a fuller page for the dataset credits (backlog).
+2. **Finish London's factors**, from the work queue: election turnout (blocked: a PDF reader), step-free access and cycling; then regeneration, cultural activity, dog-friendly parks and pet-friendly venues, subsidence and sea-level rise; then bundle exports and a size check (3.6) and `atlas refresh` (3.2). Main language as an option of Your community, if a table at the smallest areas turns up (the census gives the detailed languages only down to boroughs). Optional polish: a fuller page for the dataset credits (backlog).
 3. **For the owner, set aside for now:** the licences of the LAEI and Defra's background maps are unconfirmed, and the site includes NO₂ and PM2.5 built from them. Phase 1 closes when they are confirmed, or when the two indicators leave the public build.
 4. Checks only the owner can make, none of them blocking the licence side any more (the project is non-commercial for now, D07):
    - Optionally, register for the three timetable sources that r5py needs (the Bus Open Data Service, National Rail Open Data and TfL's open data portal), keep the credentials in `.env`, and then install JDK 21. The station matrix and the buses no longer need them (both come from TfL's own timetables, [S9](spikes/S9-buses.md)), but r5py would give exact waits and other departure times ([S4](spikes/S4-routing.md)).
@@ -26,7 +26,7 @@ The owner asked for these one by one, in the order the agent chooses (2026-11-24
 
 ## Blocked
 
-- Nothing.
+- **Election turnout needs the owner's choice of a PDF reader.** The only consistent ward-level source is the GLA's results for the London borough elections of May 2022 (OGL v2): its spreadsheet has the ward codes and the ballot papers of all 679 wards, but the electorate is only in its PDF report (the turnout tables, which match the spreadsheet's ballots exactly). The Electoral Commission's spreadsheet has the electorate by ward name, but its London rows have errors (Hackney's ballots are those of another count, Hounslow's Heston Central and Hanworth Village are swapped, Camden's Haverstock is wrong) and its licence is unconfirmed. Reading the PDF in the pipeline needs either `pypdf` as a new dependency (added with `uv add pypdf`; uv is not on the agent's path here) or poppler's `pdftotext` as a system tool. The City of London's wards have no data either way (the Common Council's elections are separate). The ward boundaries are the ONS's of December 2022, which match May 2022 in London.
 
 ## Work queue
 
@@ -41,7 +41,7 @@ Status: `todo`, `in progress`, `PR open`, `merged`, `deferred`. **Order of work 
 | T0.2 | Fetch the open downloads that Tranches 1 and 2 need, kept in `data/raw/` with a checksum | todo | |
 | 1.1 | Housing and cost: energy efficiency, price trend and sales volume (merged). Purchasing power waits for Work and economy (2.2) | merged | |
 | 1.2 | Safety: crime per resident and worker; road collisions (STATS19) | merged | |
-| 1.3 | Community and people: community spaces and LGBTQ+ venues (merged); how long residents stay (merged); election turnout still to do. English proficiency is across-cities only | in progress | |
+| 1.3 | Community and people: community spaces and LGBTQ+ venues (merged); how long residents stay (merged); election turnout still to do (blocked: see Blocked). English proficiency is across-cities only | in progress | |
 | 1.4 | Daily amenities: the cuisine choice (merged); shopping and brand presence, independents and guide recognition still to do (they need brand names, which the kept Overture table lacks) | in progress | |
 | 1.5 | Health care: dentists (merged); A&E waiting (merged); patients' rating of nearby GPs, from the GP Patient Survey (merged, `data/gp-experience`) | merged | |
 | 1.6 | Education: nurseries and school league tables (merged). Universities and international schools are across-cities only | merged | |
