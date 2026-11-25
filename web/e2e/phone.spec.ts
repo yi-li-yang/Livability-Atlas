@@ -90,6 +90,34 @@ test("opening the sheet shows the factors and the sliders work, and closing keep
   await expect(tile(page, "transport")).toHaveCount(0);
 });
 
+test("the sheet opens half-way, with the sliders in view and the map above, and opens further on Show more", async ({
+  page,
+}) => {
+  const { box: map } = await openApp(page);
+  await handle(page).tap();
+  const half = await sheet(page).boundingBox();
+  if (!half) throw new Error("the sheet is not shown");
+  // At least half of the map stays in view, so a weight's effect on the colours shows.
+  expect(half.height).toBeLessThanOrEqual(map.height * 0.46);
+  expect(half.y).toBeGreaterThan(map.y + map.height * 0.5);
+  const slider = page.getByRole("slider", { name: "Weight of Transport" });
+  await expect(slider).toBeInViewport();
+  // A finger's target: at least WCAG 2.2's 24 px.
+  expect((await slider.boundingBox())?.height).toBeGreaterThanOrEqual(24);
+
+  await page.getByRole("button", { name: "Show more of the panel" }).tap();
+  const full = await sheet(page).boundingBox();
+  if (!full) throw new Error("the sheet is not shown");
+  expect(full.height).toBeGreaterThan(half.height + 40);
+  await page.getByRole("button", { name: "Show less of the panel" }).tap();
+  await expect
+    .poll(async () => (await sheet(page).boundingBox())?.height)
+    .toBeLessThanOrEqual(half.height + 1);
+
+  await handle(page).tap();
+  await expect(handle(page)).toHaveAttribute("aria-expanded", "false");
+});
+
 test("the legend is across the top of the map and never meets the sheet", async ({
   page,
 }) => {
