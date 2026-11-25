@@ -203,12 +203,14 @@ export function WhyPanel({
             )}
           </p>
           {/* The answer first, as in the quick look: what helps most, and what holds it back. */}
-          <ul aria-label="In short" className="mt-1">
-            {explanation.strengths.map((f) => (
-              <li key={f.id}>+ {f.name}</li>
-            ))}
-            {explanation.weakness && <li>− {explanation.weakness.name}</li>}
-          </ul>
+          {(explanation.strengths.length > 0 || explanation.weakness) && (
+            <ul aria-label="In short" className="mt-1">
+              {explanation.strengths.map((f) => (
+                <li key={f.id}>+ {f.name}</li>
+              ))}
+              {explanation.weakness && <li>− {explanation.weakness.name}</li>}
+            </ul>
+          )}
         </>
       )}
       {!open && (
