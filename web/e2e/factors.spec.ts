@@ -88,6 +88,18 @@ test("a factor at weight 0 leaves the drawing for the not counted list, and can 
   expect(await share(page, "transport")).toBeCloseTo(1 / 3, 3);
 });
 
+test("every slider is drawn in the app's dark grey, not the browser's blue", async ({
+  page,
+}) => {
+  await openApp(page);
+  const sliders = page.getByRole("slider");
+  expect(await sliders.count()).toBeGreaterThan(2);
+  for (const slider of await sliders.all()) {
+    // Tailwind's neutral-700, as the legend's colour strength uses.
+    await expect(slider).not.toHaveCSS("accent-color", "auto");
+  }
+});
+
 test("opening a factor shows its sub-factors, and the trail leads back", async ({
   page,
 }) => {
