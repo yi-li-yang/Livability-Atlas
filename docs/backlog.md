@@ -17,6 +17,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Keyboard access to the hex cells, beyond the list of top neighbourhoods, from the map critique | idea |
 | A short "how to read the map", from the map critique | idea |
 | More factors, in catalogue priority order | planned |
+| The slope of the streets for cycling, from an open elevation model (such as the Environment Agency's LIDAR composite or OS Terrain 50) | idea |
 | Placeholders at WCAG AA contrast (they were 3.9:1), found by `impeccable detect` (2026-11-23; its "card inside a card" was a false positive: a bordered toggle) | shipped: 4.7:1 |
 | Crime rates per resident and worker, so that centres with few residents and many workers, like the City of London, stop topping every crime ([spike S2](spikes/S2-crime.md)). Needs a workplace population table whose licence and geography are checked | idea |
 | Presets, e.g. a renter commuting to the centre, a family with children, a retiree | shipped: "Start from", from the manifest's `presets` |
