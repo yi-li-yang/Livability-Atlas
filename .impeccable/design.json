@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-25T17:00:00Z",
+  "title": "Design System: Livability Atlas",
+  "extensions": {
+    "colorMeta": {
+      "score-worst": { "role": "primary", "displayName": "Brick Red", "tonalRamp": ["#3d120a", "#5e1b0f", "#7f2414", "#B2361E", "#cf5a40", "#e48a75", "#f1b9ab", "#f9e2dc"] },
+      "score-poor": { "role": "primary", "displayName": "Burnt Orange", "tonalRamp": ["#3f200c", "#633313", "#8c481b", "#b8602a", "#E07B39", "#eb9f6c", "#f4c4a3", "#fbe7d9"] },
+      "score-middling": { "role": "primary", "displayName": "Mustard", "tonalRamp": ["#3d3110", "#5e4b18", "#806721", "#a6852b", "#cba638", "#EDC84A", "#f4dc8c", "#fbf1cf"] },
+      "score-good": { "role": "primary", "displayName": "Sage Mint", "tonalRamp": ["#173229", "#234c3e", "#326754", "#43846c", "#5ea386", "#83C5A6", "#b2dcc8", "#e2f2ea"] },
+      "score-best": { "role": "primary", "displayName": "Deep Teal", "tonalRamp": ["#0b2829", "#123d3f", "#1a5457", "#226d70", "#2A8F94", "#55aeb2", "#94cfd2", "#d6eeef"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "oklch(20.5% 0 0)" },
+      "ink-strong": { "role": "neutral", "displayName": "Strong Ink", "canonical": "oklch(26.9% 0 0)" },
+      "ink-quiet": { "role": "neutral", "displayName": "Quiet Ink", "canonical": "oklch(43.9% 0 0)" },
+      "placeholder": { "role": "neutral", "displayName": "Placeholder Grey" },
+      "rule": { "role": "neutral", "displayName": "Rule", "canonical": "oklch(87% 0 0)" },
+      "rule-strong": { "role": "neutral", "displayName": "Strong Rule", "canonical": "oklch(70.8% 0 0)" },
+      "paper": { "role": "neutral", "displayName": "Paper" },
+      "wash": { "role": "neutral", "displayName": "Wash", "canonical": "oklch(97% 0 0)" },
+      "wash-strong": { "role": "neutral", "displayName": "Strong Wash", "canonical": "oklch(92.2% 0 0)" },
+      "note": { "role": "tertiary", "displayName": "Note Amber", "canonical": "oklch(96.2% 0.059 95.617)" },
+      "alert": { "role": "tertiary", "displayName": "Alert Red", "canonical": "oklch(50.5% 0.213 27.518)" },
+      "land-green": { "role": "tertiary", "displayName": "Park Tint" },
+      "land-industry": { "role": "tertiary", "displayName": "Industry Tint" },
+      "land-railway": { "role": "tertiary", "displayName": "Railway Tint" },
+      "water": { "role": "tertiary", "displayName": "River Blue" },
+      "cell-excluded": { "role": "tertiary", "displayName": "Left-out Grey" }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "The app's name in the header." },
+      "title": { "displayName": "Title", "purpose": "Section names and factor names in rows." },
+      "body": { "displayName": "Body", "purpose": "The text of the panels' sections, switches and lists." },
+      "label": { "displayName": "Label", "purpose": "Help under a control, notes, legend ends, credits and factor boxes, usually in quiet ink." },
+      "figure": { "displayName": "Figure", "purpose": "A cell's score, in tabular numerals." }
+    },
+    "shadows": [
+      { "name": "panel", "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)", "purpose": "Lifts a panel or note off the coloured map." },
+      { "name": "sheet", "value": "0 -2px 10px rgba(0,0,0,0.25)", "purpose": "The phone's bottom sheet, casting upwards over the map." }
+    ],
+    "motion": [],
+    "breakpoints": [
+      { "name": "phone", "value": "below 768px" },
+      { "name": "desktop", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "A note pinned to the map's margin: white at 95%, 4px corners, the panel shadow.",
+      "html": "<section class=\"ds-panel\"><h3 class=\"ds-panel-title\">What matters to you</h3><p class=\"ds-panel-help\">Only a few things count to start with. Count anything else that matters to you from Not counted.</p><hr class=\"ds-panel-rule\"><a class=\"ds-text-action\" href=\"#\">All factors</a></section>",
+      "css": ".ds-panel { width: 320px; padding: 12px; border-radius: 4px; background: rgb(255 255 255 / 0.95); color: #171717; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); font: 400 14px/1.43 ui-sans-serif, system-ui, sans-serif; } .ds-panel-title { margin: 0; font-size: 14px; font-weight: 500; } .ds-panel-help { margin: 4px 0 0; font-size: 12px; line-height: 1.33; color: #525252; } .ds-panel-rule { margin: 12px 0; border: 0; border-top: 1px solid #d4d4d4; } .ds-text-action { color: inherit; text-decoration: underline; } .ds-text-action:focus-visible { outline: 2px solid #262626; outline-offset: 2px; }"
+    },
+    {
+      "name": "Switch",
+      "kind": "chip",
+      "refersTo": "switch-option-on",
+      "description": "Two words side by side in a thin frame; the chosen one is filled.",
+      "html": "<div class=\"ds-switch\" role=\"group\" aria-label=\"Draw the factors as\"><button class=\"ds-switch-option\" aria-pressed=\"true\">Boxes</button><button class=\"ds-switch-option\" aria-pressed=\"false\">Rings</button></div>",
+      "css": ".ds-switch { display: inline-flex; overflow: hidden; border: 1px solid #a3a3a3; border-radius: 4px; font: 400 12px/1.33 ui-sans-serif, system-ui, sans-serif; } .ds-switch-option { border: 0; padding: 2px 8px; background: #fff; color: #171717; cursor: pointer; font: inherit; } .ds-switch-option:hover { background: #f5f5f5; } .ds-switch-option[aria-pressed=\"true\"] { background: #262626; color: #fff; } .ds-switch-option:focus-visible { outline: 2px solid #262626; outline-offset: -2px; }"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "refersTo": "text-action",
+      "description": "Actions are underlined words, as in a notebook.",
+      "html": "<button class=\"ds-text-button\">Undo</button>",
+      "css": ".ds-text-button { border: 0; padding: 0; background: none; color: #171717; font: 400 14px/1.43 ui-sans-serif, system-ui, sans-serif; text-decoration: underline; cursor: pointer; } .ds-text-button:hover { color: #262626; text-decoration-thickness: 2px; } .ds-text-button:focus-visible { outline: 2px solid #262626; outline-offset: 2px; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "A white field with a hairline border and 4px corners.",
+      "html": "<label class=\"ds-field-label\">Postcode<input class=\"ds-field\" placeholder=\"e.g. SW1A 1AA\"></label>",
+      "css": ".ds-field-label { display: block; font: 400 12px/1.33 ui-sans-serif, system-ui, sans-serif; color: #525252; } .ds-field { display: block; width: 100%; margin-top: 2px; padding: 4px; border: 1px solid #a3a3a3; border-radius: 4px; background: #fff; color: #171717; font: 400 14px/1.43 ui-sans-serif, system-ui, sans-serif; } .ds-field::placeholder { color: #737373; } .ds-field:focus-visible { outline: 2px solid #262626; outline-offset: 1px; }"
+    },
+    {
+      "name": "Score scale",
+      "kind": "custom",
+      "refersTo": "score-best",
+      "description": "The one scale of every score, with its plain-word ends.",
+      "html": "<div class=\"ds-scale\"><div class=\"ds-scale-ramp\"></div><div class=\"ds-scale-ends\"><span>Worse</span><span>Better</span></div></div>",
+      "css": ".ds-scale { width: 264px; font: 400 12px/1.33 ui-sans-serif, system-ui, sans-serif; color: #525252; } .ds-scale-ramp { height: 12px; border-radius: 2px; background: linear-gradient(to right, #B2361E, #E07B39, #EDC84A, #83C5A6, #2A8F94); } .ds-scale-ends { display: flex; justify-content: space-between; margin-top: 4px; }"
+    },
+    {
+      "name": "Factor row",
+      "kind": "custom",
+      "refersTo": "factor-tile",
+      "description": "A factor's swatch, name, share and weight slider.",
+      "html": "<div class=\"ds-factor-row\"><div class=\"ds-factor-head\"><span class=\"ds-factor-swatch\"></span><a class=\"ds-factor-name\" href=\"#\">Housing and cost ›</a><span class=\"ds-factor-share\">20%</span></div><input class=\"ds-factor-slider\" type=\"range\" min=\"0\" max=\"5\" value=\"3\" aria-label=\"Weight of Housing and cost\"></div>",
+      "css": ".ds-factor-row { width: 296px; font: 400 14px/1.43 ui-sans-serif, system-ui, sans-serif; color: #171717; } .ds-factor-head { display: flex; align-items: center; gap: 8px; } .ds-factor-swatch { width: 12px; height: 12px; border-radius: 2px; background: #4676bf; flex-shrink: 0; } .ds-factor-name { flex: 1; color: inherit; text-decoration: underline; } .ds-factor-share { color: #525252; font-variant-numeric: tabular-nums; } .ds-factor-slider { width: 100%; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Field Notebook",
+    "overview": "The app is a researcher's notebook laid over a map. The map of hex cells is the page's subject and takes nearly all of it; the panels are the notes in its margin: plain, practical, written to be used, at a desk while exploring or on a phone while walking an area. A note says what a mark means and where it came from, and then gets out of the way. Every score can be traced, so the notes are full of small, exact words and never of slogans.\n\nThe panels are quiet and exact. Grey text, thin borders, white paper and system type: nothing in them competes with the map. Colour has two jobs only, and both carry meaning: the score scale on the map, the legend and every bar; and each top-level factor's own colour in the boxes, the rings and the swatches beside the sliders. Detail opens on demand, so the surface stays the answer and the notebook holds the working.\n\nThis is not an estate agent's site, and it is not a dashboard either.",
+    "keyCharacteristics": [
+      "The map fills the window; the panels float over it at its edges, never beside it in a column of their own.",
+      "One score scale everywhere, and colour used only where it means something.",
+      "System sans-serif type in three sizes, with figures in tabular numerals.",
+      "Actions are underlined words, not buttons; the only filled control is the chosen side of a switch.",
+      "Flat paper, a hairline of shadow to lift a panel off the map, and nothing more."
+    ],
+    "rules": [
+      { "name": "The Meaning Only Rule", "body": "A colour in this app always means something: a score, a factor, the land, or a warning. Decoration in colour is not allowed; a new colour must name what it means.", "section": "colors" },
+      { "name": "The One Scale Rule", "body": "Every score, anywhere, takes the same red → yellow → blue-green scale (web/src/features/map/colour.ts). Never a second scale, and never a factor colour for a score.", "section": "colors" },
+      { "name": "The Tabular Figures Rule", "body": "Every number that sits in a column or changes as a slider moves (shares, scores, ranks) uses tabular numerals, so it does not jump.", "section": "typography" },
+      { "name": "The Plain Words Rule", "body": "Labels are plain words a newcomer understands; jargon stays in the code and the docs for contributors.", "section": "typography" },
+      { "name": "The Margin Note Rule", "body": "A panel is a note on the map, not a card on a page. One level of lift only: no card inside a card, and no shadow inside a panel.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do let the map fill the window and float the panels over its edges.",
+      "Do colour every score with the one scale in web/src/features/map/colour.ts, and show it as a length and a number too.",
+      "Do use the factor's own colour only to say which factor a thing belongs to.",
+      "Do write labels in plain words, help in label-sized quiet ink, and numbers in tabular numerals.",
+      "Do keep text at WCAG AA contrast (4.5:1) or better, placeholders included, and targets on a phone at 44px or more.",
+      "Do put detail one step down: hover for a quick look, click for the reasons, \"About the data\" for the sources."
+    ],
+    "donts": [
+      "Don't make it look like an estate agent's site: no photographs of houses, no big call-to-action buttons, no sales words.",
+      "Don't add dashboard clutter: no grid of cards, headline figures or charts that compete with the map.",
+      "Don't add a colour that means nothing, a second score scale, or a factor colour on a score.",
+      "Don't put a card inside a card or a shadow inside a panel.",
+      "Don't add a display typeface or a second font family.",
+      "Don't draw over the basemap's credits: they are a licence condition."
+    ]
+  }
+}
