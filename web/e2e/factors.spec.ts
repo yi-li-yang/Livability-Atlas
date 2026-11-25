@@ -160,15 +160,24 @@ test("with one factor counted, there is no picture of the shares", async ({
   ).toBeVisible();
 });
 
-test("every slider is drawn in the app's dark grey, not the browser's blue", async ({
+test("every slider is drawn in the ink colour, not the browser's blue", async ({
   page,
 }) => {
   await openApp(page);
   const sliders = page.getByRole("slider");
   expect(await sliders.count()).toBeGreaterThan(2);
-  // Tailwind's neutral-700, oklch(37.1% 0 0): a grey, with no chroma.
+  // The visual system's ink (DESIGN.md), as the page's own --ink gives it in this theme.
+  const ink = await page.evaluate(() => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--ink)";
+    document.body.append(probe);
+    const colour = getComputedStyle(probe).color;
+    probe.remove();
+    return colour;
+  });
+  expect(ink).toMatch(/^rgb\(/);
   for (const slider of await sliders.all()) {
-    await expect(slider).toHaveCSS("accent-color", /^oklch\(0\.371 0 /);
+    await expect(slider).toHaveCSS("accent-color", ink);
   }
 });
 

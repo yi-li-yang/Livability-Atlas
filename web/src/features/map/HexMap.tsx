@@ -5,6 +5,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { useEffect, useRef, useState } from "react";
 import {
+  EXCLUDED,
   FEW_HOMES_OUTLINE_MAX_PIXELS,
   FEW_HOMES_OUTLINE_METRES,
   type Rgba,
@@ -12,15 +13,20 @@ import {
 import type { HexCell } from "./hexcells";
 import { type Inset, insetFor } from "./inset";
 import { LONDON_BOUNDS, LONDON_CENTRE } from "./london";
-import { restack, type Stack } from "./stack";
+import { DARK_BASEMAP_OWN, restack, type Stack } from "./stack";
+import { basemapFor, type Scheme, token } from "./theme";
 
 // MapLibre 6 looks for its worker script beside the bundle, where Vite does not
 // put it. Importing it with ?url makes Vite emit it, and this points MapLibre there.
 setWorkerUrl(workerUrl);
 
 // OpenFreeMap needs no key (docs/tech-stack.md). Positron is its light grey style, made to sit
-// under data: its own colours stay out of the way of the cells'. stack.ts adds the land use.
+// under data: its own colours stay out of the way of the cells'. stack.ts adds the land use, and in
+// the dark theme repaints it in the stone of the dark ground.
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+
+const hex = ([r, g, b]: Rgba) =>
+  `#${[r, g, b].map((c) => c.toString(16).padStart(2, "0")).join("")}`;
 
 /** The prop `@deck.gl/maplibre` reads to put a layer under one of the basemap's (it declares no type for it). */
 type InMap = { beforeId?: string };
@@ -99,7 +105,10 @@ export function HexMap({
   marks = [],
   onHover,
   onSelect,
+  scheme = "light",
 }: {
+  /** The page's theme. The map is made for one theme: give it a new key when the theme changes. */
+  scheme?: Scheme;
   cells: HexCell[];
   /** The colour of each cell, in the order of `cells`. */
   colours: Rgba[];
@@ -144,7 +153,23 @@ export function HexMap({
     });
     const layers = new MapLibreOverlay({ interleaved: true, layers: [] });
     basemap.addControl(layers);
-    basemap.once("style.load", () => setStack(restack(basemap)));
+    const colours = basemapFor(scheme);
+    basemap.once("style.load", () =>
+      setStack(
+        restack(
+          basemap,
+          colours,
+          scheme === "dark"
+            ? {
+                ...DARK_BASEMAP_OWN,
+                ground: hex(token("ground")),
+                boundary: hex(token("edge")),
+                name: hex(token("muted")),
+              }
+            : undefined,
+        ),
+      ),
+    );
     // A click is picked here, not by deck.gl's onClick: interleaved with MapLibre, deck.gl's own
     // click (picked asynchronously from the pointer-down) was lost on the full London bundle, while
     // hovering still worked. pickObject reads the cell under the point at once.
@@ -170,7 +195,7 @@ export function HexMap({
       map.current = null;
       basemap.remove();
     };
-  }, []);
+  }, [scheme]);
 
   // The first view: the region's centre in the middle of the part of the map the panels leave
   // clear, not under the panel. It waits for the cells, since the panels come with the data.
@@ -225,6 +250,11 @@ export function HexMap({
     const basemap = map.current;
     const deck = overlay.current;
     if (!stack || !basemap || !deck) return;
+    // The colours that follow the theme: a cell left out, and the marks drawn over the cells, in
+    // the visual system's ink and ground so that they read in either theme.
+    const leftOut = basemapFor(scheme).excluded;
+    const ink = token("ink");
+    const ground = token("ground");
     withStyleLoaded(basemap, () =>
       deck.setProps({
         layers: [
@@ -234,7 +264,8 @@ export function HexMap({
             data: cells,
             getPolygon: (cell) => cell.polygon,
             // Read by index, so that a new score only re-evaluates the colours, not the shapes.
-            getFillColor: (_cell, { index }) => colours[index],
+            getFillColor: (_cell, { index }) =>
+              colours[index] === EXCLUDED ? leftOut : colours[index],
             getLineColor: (_cell, { index }) =>
               outlines?.[index] ?? [0, 0, 0, 0],
             updateTriggers: { getFillColor: colours, getLineColor: outlines },
@@ -257,7 +288,7 @@ export function HexMap({
             getPolygon: (cell) => cell.polygon,
             filled: false,
             stroked: true,
-            getLineColor: [20, 20, 20, 255],
+            getLineColor: ink,
             lineWidthMinPixels: 3,
           }),
           new ScatterplotLayer<
@@ -283,8 +314,8 @@ export function HexMap({
             getPosition: ({ cell }) => centreOf(cells[cell].polygon),
             getRadius: 9,
             radiusUnits: "pixels",
-            getFillColor: [255, 255, 255, 240],
-            getLineColor: [30, 30, 30, 255],
+            getFillColor: ink,
+            getLineColor: ground,
             lineWidthMinPixels: 2,
             stroked: true,
           }),
@@ -295,8 +326,9 @@ export function HexMap({
             getText: ({ place }) => String(place),
             getSize: 11,
             sizeUnits: "pixels",
-            getColor: [20, 20, 20, 255],
-            fontWeight: 700,
+            getColor: ground,
+            fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+            fontWeight: 500,
             getTextAnchor: "middle",
             getAlignmentBaseline: "center",
             characterSet: "0123456789",
@@ -314,6 +346,7 @@ export function HexMap({
     places,
     marks,
     onHover,
+    scheme,
   ]);
 
   return (

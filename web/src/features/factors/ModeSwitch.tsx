@@ -25,8 +25,8 @@ export function ModeSwitch({
   return (
     <section aria-label="How the factors combine" className="space-y-1 text-sm">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="font-medium">How the factors combine</h3>
-        <fieldset className="m-0 flex min-w-0 overflow-hidden rounded border border-neutral-400 p-0 text-xs">
+        <h3 className="group-label">How the factors combine</h3>
+        <fieldset className="m-0 flex min-w-0 overflow-hidden border border-edge p-0 text-xs">
           <legend className="sr-only">How the factors combine</legend>
           {MODES.map(({ mode: option, name }) => (
             <button
@@ -35,8 +35,8 @@ export function ModeSwitch({
               aria-pressed={mode === option}
               className={
                 mode === option
-                  ? "bg-neutral-800 px-2 py-0.5 text-white"
-                  : "bg-white px-2 py-0.5 hover:bg-neutral-100"
+                  ? "bg-ink px-2 py-0.5 text-ground"
+                  : "bg-raised px-2 py-0.5 hover:bg-surface"
               }
               onClick={() => onMode(option)}
             >
@@ -45,7 +45,7 @@ export function ModeSwitch({
           ))}
         </fieldset>
       </div>
-      <p className="text-xs text-neutral-600">{help}</p>
+      <p className="text-xs text-muted">{help}</p>
     </section>
   );
 }

@@ -42,9 +42,8 @@ function Arc({
     <path
       {...data}
       d={d}
-      fill={fill}
+      style={{ fill, stroke: "var(--raised)" }}
       fillOpacity={fillOpacity}
-      stroke="#ffffff"
       strokeWidth={GAP}
       className={onClick ? "cursor-pointer" : undefined}
       onClick={onClick}
@@ -124,7 +123,7 @@ export function Rings({
                   textAnchor="middle"
                   dominantBaseline="central"
                   fontSize={5}
-                  fill={item.ink}
+                  style={{ fill: item.ink }}
                   pointerEvents="none"
                 >
                   {percent(item.share)}
@@ -158,7 +157,7 @@ export function Rings({
         })}
         <Centre title={title} onBack={onBack} />
       </svg>
-      <p className="mt-1 min-h-4 text-center text-xs text-neutral-600">
+      <p className="mt-1 min-h-4 text-center text-xs text-muted">
         {pointed ?? ""}
       </p>
     </div>
@@ -178,8 +177,7 @@ function Centre({ title, onBack }: { title: string; onBack?: () => void }) {
       <circle
         data-testid="factor-centre"
         r={CENTRE}
-        fill="#ffffff"
-        stroke="#d4d4d4"
+        style={{ fill: "var(--raised)", stroke: "var(--rule)" }}
         strokeWidth={GAP}
         className={onBack ? "cursor-pointer" : undefined}
         onClick={onBack}
@@ -191,7 +189,7 @@ function Centre({ title, onBack }: { title: string; onBack?: () => void }) {
         data-title={title}
         textAnchor="middle"
         fontSize={4.4}
-        fill="#262626"
+        style={{ fill: "var(--ink)" }}
         pointerEvents="none"
       >
         {lines.map(({ text, y }) => (

@@ -15,8 +15,7 @@ Livability-Atlas/
 ├── .pre-commit-config.yaml  # checks before each commit: ruff, large files, gitleaks
 ├── .github/workflows/ci.yml  # CI: runs `just check` and the generated-file check
 ├── PRODUCT.md             # the product record that the Impeccable design skill reads
-├── DESIGN.md              # the app's look as built: colours, type, layout, components and rules, for the Impeccable design skill
-├── .impeccable/design.json  # DESIGN.md's sidecar for Impeccable: tonal ramps, shadows and component snippets
+├── DESIGN.md              # the app's look (D26): the owner's visual system, copied from its template, and what this app decides on top; design tools read it
 ├── .claude/
 │   ├── settings.json      # shared permissions for the coding agents
 │   ├── commands/
@@ -52,7 +51,9 @@ Livability-Atlas/
 │   │   ├── useIsPhone.ts  # whether the window is narrow enough for the phone layout
 │   │   ├── profile/       # storage.ts: the preference profile in the browser's storage and the link
 │   │   ├── features/factors/  # FactorTree (the factors as boxes or rings, with sliders), treemap (the box layout), Rings and arcs (the sunburst and its geometry), layout (which of the two the browser remembers), level (what each level shows), colours, QuickLook (the hover card), ModeSwitch ("Add up" or "No weak spots"), preferences (the direction switch and the band of full marks), WhyPanel (the reasons for a hex cell's score), EvidenceDetails and evidence (the value, curve, evidence type and sources behind a measure)
-│   │   ├── features/map/  # HexMap (the basemap with the hex cells drawn inside it), stack (where the cells go among the basemap's layers, and the land use, D23), hexcells (shapes and colours), colour (the score scale, the land-use tints and the cells' opacity), Legend (with the "Show on the map" list), views (what that list offers, from the manifest), OnTheMap (the score on the map, in the quick look and the reasons)
+│   │   ├── visual-preference/  # the owner's visual system, version 1.0.0: tokens.css and tailwind-v4.css, copied as they are (do not edit; copy again for a new version)
+│   │   ├── index.css      # the base styles: the system's files, the accent, the factors' colour mixes, the focus ring, the group labels
+│   │   ├── features/map/  # HexMap (the basemap with the hex cells drawn inside it), stack (where the cells go among the basemap's layers, the land use, D23, and the dark theme's repaint), theme (the page's theme and the basemap's colours in each), hexcells (shapes and colours), colour (the score scale, the land-use tints and the cells' opacity), Legend (with the "Show on the map" list), views (what that list offers, from the manifest), OnTheMap (the score on the map, in the quick look and the reasons)
 │   │   ├── features/limits/  # LimitsPanel (the hard limits form) and limits (what a limit says, which measures take one)
 │   │   ├── features/neighbourhoods/  # TopNeighbourhoods (the best neighbourhoods by name and score, and how many stay when a weight moves), top (how they are ranked) and stability
 │   │   ├── features/presets/  # PresetPicker ("Start from") and presets (starting from one, undoing it, and which one the profile is at)

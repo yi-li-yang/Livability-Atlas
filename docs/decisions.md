@@ -38,6 +38,7 @@ The living list of project decisions. Each entry holds the current choice and wh
 | [D23](#d23-the-maps-layers) | The map's layers | The colours under the water, roads and names, over the land use; no satellite | accepted |
 | [D24](#d24-colour-by-score-or-by-rank) | Colour by score or by rank | The score by default; a legend switch to the rank in the region, in fifths | accepted |
 | [D25](#d25-score-by-the-amount-never-by-rank) | Score by the amount, never by rank | A fixed ramp where a standard gives the ends, else a ramp whose ends come from the region's own values; no percentile curve | accepted |
+| [D26](#d26-the-apps-look) | The app's look | The owner's visual system: stone neutrals, dark as home, the lichen accent, Earth 8 for the factors; the score scale stays | proposed |
 
 ## D01 First slice
 
@@ -432,3 +433,22 @@ The living list of project decisions. Each entry holds the current choice and wh
 - **Revisit when:** a second region or currency arrives: check that its ends are sound in its QA report, and whether an indicator with a national scale should move to a fixed ramp.
 - **History:**
   - 2026-11-23: accepted by the owner in plan mode: fix every percentile indicator with one rule, and a log scale for money.
+
+## D26 The app's look
+
+- **Status:** proposed
+- **Choice:** The web app follows the owner's own visual system (the `visual-preference` skill, version 1.0.0), recorded in [DESIGN.md](../DESIGN.md). Its files are copied into `web/src/visual-preference/` at that version.
+  - The stone neutrals, Albert Sans for text and IBM Plex Mono for numbers, square corners, hairline rules and one shadow, for a panel over the map.
+  - Dark is home; light follows the reader's system setting. In the dark theme the basemap is Positron repainted in the stone of the dark ground; in the light theme it stays Positron.
+  - One accent, lichen: the focus ring, the full stop after the name, and the phone's "Show the reasons". It is never on the map.
+  - The factors' own colours are the system's Earth 8, in place of the Salt palette, mixed towards a ground that keeps a factor's name at WCAG AA in both themes.
+  - The score scale (red, yellow, blue-green) stays: it carries meaning that the user has learned, and it already passes the system's first principle (readable by everyone).
+- **Why:** The owner chose one visual system for all of their work, so that each project looks like theirs and none borrows another company's look. The app's light grey "Field Notebook" used the system's type and Tailwind's greys, and the J.P. Morgan Salt palette for the factors.
+- **Alternatives considered:**
+  - Signal or amber as the accent: each also lies inside the score scale's hues (orange and yellow), so none is clear of it; lichen is the system's default, and it stays off the map.
+  - A Crameri colour map for the score: it would drop a scale the user has learned, and the current one is checked under three kinds of colour blindness.
+  - A light-only app: the system makes dark home, and the map reads well on the dark stone.
+- **What it costs:** Earth 8 has eight colours for up to 18 top-level factors, so a colour comes round again; every box and row also carries the factor's name. The typefaces come from Google Fonts, a request to a third party, like the basemap's tiles from OpenFreeMap; the app sends it none of the user's settings.
+- **Revisit when:** the system releases a new version (copy its files again), or the owner wants the accent on the map.
+- **History:**
+  - 2026-11-25: proposed with the restyle, for the owner to confirm.

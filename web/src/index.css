@@ -1,5 +1,45 @@
 @import "tailwindcss";
+/* Yili Yang's visual system, version 1.0.0 (DESIGN.md): the stone neutrals, the lichen accent, the
+   data colours and the type. Copied from the skills repo; copy again for a newer version. */
+@import "./visual-preference/tokens.css";
+@import "./visual-preference/tailwind-v4.css";
 
+/* The project's one accent (DESIGN.md). */
+:root {
+  --accent: var(--lichen);
+}
+
+/* A factor's own colour (features/factors/colours.ts) is one of the data colours. In a factor's box
+   its name sits on it, so the box takes the colour mixed towards a ground that keeps the name at
+   4.5:1 or more in both themes: on the dark ground, the data colour lifted 15% towards ink, with
+   the name in the ground colour; on the light ground, the data colour at 55% on white, with the
+   name in ink. A sub-factor takes 30% (dark) or 25% (light) of it on the panel, with the name in
+   ink. Every pair was checked against WCAG AA for the eight colours of Earth 8. colours.ts builds
+   the colours from these values. */
+:root,
+[data-theme="dark"] {
+  --factor-share: 85%;
+  --factor-towards: var(--ink);
+  --factor-on: var(--ground);
+  --factor-tint-share: 30%;
+  --factor-tint-towards: var(--raised);
+}
+[data-theme="light"] {
+  --factor-share: 55%;
+  --factor-towards: #ffffff;
+  --factor-on: var(--ink);
+  --factor-tint-share: 25%;
+  --factor-tint-towards: #ffffff;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --factor-share: 55%;
+    --factor-towards: #ffffff;
+    --factor-on: var(--ink);
+    --factor-tint-share: 25%;
+    --factor-tint-towards: #ffffff;
+  }
+}
 /* On a phone the preferences sheet lies along the bottom of the map. Its handle is 3 rem high, and
    the basemap's credit, a licence condition, stays above it. */
 @media (max-width: 767px) {
@@ -9,19 +49,52 @@
   }
 }
 
-/* A placeholder, such as the default name of a place, is read: Tailwind's half-strength grey is
-   3.9:1 on white, under WCAG AA's 4.5:1. This grey (#737373) is 4.7:1. */
+/* MapLibre's credit, in the panels' colours so that it reads on the dark ground too. */
+.maplibregl-ctrl.maplibregl-ctrl-attrib {
+  background: color-mix(in srgb, var(--raised) 90%, transparent);
+  color: var(--muted);
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--ink);
+}
+.maplibregl-ctrl-attrib-button {
+  border-radius: 0;
+}
+
 @layer base {
-  ::placeholder {
-    color: rgb(115 115 115);
+  body {
+    background: var(--ground);
+    color: var(--ink);
   }
 
-  /* Sliders, check boxes and radio buttons in the app's dark grey (Tailwind's neutral-700), not the
-     browser's blue: the one colour on the page that meant nothing (the critique of 2026-11-25). */
+  /* A placeholder, such as the default name of a place, is read: the muted grey reaches 4.5:1 on
+     the panels in both themes. */
+  ::placeholder {
+    color: var(--muted);
+    opacity: 1;
+  }
+
+  /* Sliders, check boxes and radio buttons in the ink colour, not the browser's blue: there are many
+     of them in a view, and the accent marks only one thing. */
   input[type="range"],
   input[type="checkbox"],
   input[type="radio"] {
-    accent-color: var(--color-neutral-700);
+    accent-color: var(--ink);
+  }
+
+  /* Fields and selects sit on the panel, with a control edge at 3:1. */
+  select,
+  input[type="text"],
+  input[type="search"],
+  input[type="number"] {
+    background: var(--raised);
+    color: var(--ink);
+  }
+
+  /* The focus ring is the accent: 2 px, 2 px from the control. */
+  :focus-visible {
+    outline: var(--focus-width) solid var(--accent);
+    outline-offset: var(--focus-offset);
   }
 
   /* On a touch screen a slider is a finger's target: 32 px high (it was 16), above WCAG 2.2's 24 px
@@ -30,5 +103,17 @@
     input[type="range"] {
       min-height: 2rem;
     }
+  }
+}
+
+@layer components {
+  /* A label over a group of controls: spaced capitals, in the muted grey. */
+  .group-label {
+    font-size: 12px;
+    line-height: 1.55;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
 }
