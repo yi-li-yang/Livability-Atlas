@@ -55,7 +55,7 @@ function Line({
         <span className="flex items-center gap-1">
           <span
             aria-hidden="true"
-            className="inline-block w-3 text-neutral-500 transition-transform group-open:rotate-90"
+            className="inline-block w-3 text-neutral-600 transition-transform group-open:rotate-90"
           >
             {opens ? "›" : ""}
           </span>
@@ -66,7 +66,8 @@ function Line({
               style={{ background: colour }}
             />
           )}
-          <span>{line.name}</span>
+          {/* A factor that opens is underlined, as every action in the app is. */}
+          <span className={opens ? "underline" : undefined}>{line.name}</span>
         </span>
         <span className="tabular-nums text-neutral-600">
           {line.contribution !== null && line.share !== null
@@ -201,27 +202,24 @@ export function WhyPanel({
               </span>
             )}
           </p>
+          {/* The answer first, as in the quick look: what helps most, and what holds it back. */}
+          <ul aria-label="In short" className="mt-1">
+            {explanation.strengths.map((f) => (
+              <li key={f.id}>+ {f.name}</li>
+            ))}
+            {explanation.weakness && <li>− {explanation.weakness.name}</li>}
+          </ul>
         </>
       )}
       {!open && (
-        <>
-          {!explanation.fewHomes && explanation.score !== null && (
-            <ul className="mt-1">
-              {explanation.strengths.map((f) => (
-                <li key={f.id}>+ {f.name}</li>
-              ))}
-              {explanation.weakness && <li>− {explanation.weakness.name}</li>}
-            </ul>
-          )}
-          <button
-            type="button"
-            aria-expanded="false"
-            className="mt-2 min-h-11 w-full rounded border border-neutral-300 font-medium"
-            onClick={() => setOpen(true)}
-          >
-            Show the reasons
-          </button>
-        </>
+        <button
+          type="button"
+          aria-expanded="false"
+          className="mt-2 min-h-11 w-full rounded border border-neutral-300 font-medium"
+          onClick={() => setOpen(true)}
+        >
+          Show the reasons
+        </button>
       )}
       {open && (
         <>
@@ -286,6 +284,14 @@ export function WhyPanel({
               gave has data here.
             </p>
           )}
+          {explanation.mode !== "balanced" &&
+            explanation.score !== null &&
+            !explanation.fewHomes && (
+              <p className="mt-3 text-xs text-neutral-600">
+                The points from each factor add up to{" "}
+                {Math.round(explanation.score)}.
+              </p>
+            )}
           <ul className="mt-3 space-y-3">
             {!explanation.fewHomes &&
               explanation.factors.map((factor, position) => (

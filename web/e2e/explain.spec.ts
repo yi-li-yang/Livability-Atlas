@@ -103,6 +103,14 @@ test("clicking a hex cell says why it scores what it does, and the parts add up"
   const total = contributions.reduce((a, b) => a + b, 0);
   // Each is rounded to a whole number, so they add up to the score within the rounding.
   expect(Math.abs(total - score)).toBeLessThanOrEqual(2);
+  // The answer at the top, as in the quick look and the phone's peek: what helps and what hurts,
+  // and that the points add up to the score.
+  const short = panel.getByRole("list", { name: "In short" });
+  await expect(short).toContainText("+ ");
+  await expect(short).toContainText("− ");
+  await expect(
+    panel.getByText(`The points from each factor add up to ${score}.`),
+  ).toBeVisible();
 
   // Opening a factor shows what is inside it.
   await panel.locator("summary", { hasText: "Transport" }).first().click();
