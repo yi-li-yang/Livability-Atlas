@@ -297,6 +297,22 @@ def fare_zones(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "A step-free station is a longer walk than any station, and short in the new centres",
+    needs=("step_free_access", "station_proximity"),
+)
+def step_free_access(cells: Cells) -> str:
+    column = "step_free_access"
+    everywhere(cells, column)
+    middle = median(cells, column)
+    # The build of 2026-11-25 gave a median of 20.7 minutes, against 14.6 to any station.
+    expect(middle > median(cells, "station_proximity"), f"the median is {middle:.1f} minutes")
+    expect(12 < middle < 30, f"the median is {middle:.1f} minutes")
+    stratford, croydon = cells.at("Stratford", column), cells.at("Croydon", column)
+    expect(stratford < 10 and croydon < 10, f"Stratford {stratford:.1f}, Croydon {croydon:.1f}")
+    return f"median {middle:.1f} minutes; Stratford {stratford:.1f}, Croydon {croydon:.1f}"
+
+
+@FACTS.add(
     "Travel to the four job centres is short in the centre and long at the edge",
     needs=("travel_time_to_places",),
 )

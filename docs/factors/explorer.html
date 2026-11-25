@@ -641,7 +641,42 @@ factors:
               a lower bound. The Tube's night service runs on Friday and Saturday
               nights only.
             datasets: [tfl-unified-api]
-          - {id: step-free-access, name: "Step-free access", default_weight: 3, scales: [within-city], description: "Stations with lifts or ramps from street to train."}
+          - id: step-free-access
+            name: Walk to a step-free station
+            description: Walking minutes to the nearest station with lifts, ramps or level ways from the street to every platform.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 25, t1: 6}
+            curve_reason: >-
+              The same ends as the walk to the nearest station, for the same
+              reason: 1 within 6 minutes and 0 at 25 minutes, about 500 m and
+              2,000 m at 4.8 km/h, the desirable and the preferred maximum
+              walking distances for commuting in Table 3.2 of the CIHT's
+              Guidelines for Providing for Journeys on Foot (2000).
+            evidence_type: direct
+            comparable_across_regions: true
+            method: >-
+              The walking time along streets and paths from the hex cell's
+              centre to the nearest station that is step-free from the street
+              to every one of its platforms, at 4.8 km/h. A station is
+              step-free when TfL's station topology (October 2026), whose
+              paths are only level ways, ramps and lifts, leads from outside
+              the station to each of its platforms: 279 of its 509 stations,
+              such as Stratford and Canary Wharf; Waterloo (3 of 8 platforms)
+              and Oxford Circus (none) are not. It counts the way to the
+              platform, not the step or gap from the platform to the train,
+              which may need a ramp. Stations served by National Rail alone
+              (about 140 in London) are not in TfL's data: for them,
+              OpenStreetMap's tag `wheelchair=yes`, set by its mappers, counts at a
+              station more than 300 m from any of TfL's (44 stations, such as
+              Feltham and Surbiton). That tag is community data, less certain
+              than TfL's, and a National Rail station tagged `limited`, `no`
+              or not at all is not counted, so a cell near one (such as
+              Barnes) may have a longer walk here than it has.
+            datasets: [tfl-station-topology, openstreetmap]
           - {id: cycling, name: "Cycling", default_weight: 3, description: "Protected lanes, cycle-hire docks and slope."}
       - id: travel-time-to-places
         name: Travel time to places
@@ -2621,6 +2656,29 @@ datasets:
       - Modelled annual mean background concentrations of NOx, NO₂, PM10 and PM2.5, for each year from 2021 to 2040
       - An estimated split of those concentrations by source sector
 
+  - id: tfl-station-topology
+    name: TfL station topology (step-free access)
+    publisher: Transport for London
+    url: https://tfl.gov.uk/info-for/open-data-users/our-open-data
+    tier: city
+    area: Greater London
+    resolution: stations, their platforms and the step-free paths between them
+    date: October 2026
+    licence: LicenseRef-TfL-Open-Data
+    licence_checked: 2026-11-25
+    commercial_use: true
+    licence_note: >-
+      TfL's transport data service terms: version 2.0 of the Open Government
+      Licence with TfL's amendments, which allow commercial use and
+      redistribution with the exact attribution below. TfL may change them
+      without notice, so check them before each commercial build.
+    attribution: >-
+      Powered by TfL Open Data. Contains OS data © Crown copyright and database
+      rights 2016 and Geomni UK Map data © and database rights [2019].
+    tells:
+      - The platforms of 509 stations of the Tube, DLR, Overground, Elizabeth line, trams and the National Rail stations TfL serves, and the step-free paths (level ways, ramps, lifts) from the street to each
+      - The step and gap between each platform and the train
+      - Not the stations served by National Rail alone
   - id: tfl-unified-api
     name: TfL Unified API
     publisher: Transport for London
