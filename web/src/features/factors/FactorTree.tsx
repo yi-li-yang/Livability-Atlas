@@ -23,8 +23,9 @@ import {
 import { Rings } from "./Rings";
 import { squarify } from "./treemap";
 
-// The treemap is laid out in a box of 100 by 62 units, and drawn in percentages of its container.
-const BOX = { x: 0, y: 0, w: 100, h: 62 };
+// The treemap is laid out in a strip of 100 by 26 units, and drawn in percentages of its container:
+// short, so that the sliders, which are the controls, come first (the critique of 2026-11-25).
+const BOX = { x: 0, y: 0, w: 100, h: 26 };
 
 const percent = (share: number): string => `${Math.round(share * 100)}%`;
 
@@ -133,6 +134,8 @@ export function FactorTree({
   // The path may name factors that a new bundle no longer has: the level is what it reaches.
   const opened = level.trail.map((step) => step.id);
   const { rows, notCounted } = holding(level, held);
+  // A picture of one share (100%) says nothing, so it is drawn only for two or more.
+  const drawn = level.counted.length > 1;
   const letGo = rows.find((f) => f.id === held && f.effectiveWeight === 0);
   const tiles = useMemo(
     () =>
@@ -231,12 +234,12 @@ export function FactorTree({
         data-testid="factor-tree"
         className="relative w-full overflow-hidden rounded"
         style={
-          layout === "boxes"
+          layout === "boxes" && drawn
             ? { aspectRatio: `${BOX.w} / ${BOX.h}` }
             : undefined
         }
       >
-        {layout === "rings" && level.counted.length > 0 && (
+        {layout === "rings" && drawn && (
           <Rings
             key={opened.join("/")}
             title={level.trail.at(-1)?.name ?? "All factors"}
@@ -249,14 +252,20 @@ export function FactorTree({
           />
         )}
         {layout === "boxes" &&
+          drawn &&
           tiles.map(({ item, x, y, w, h }) => (
+            // A box opens its factor, as the rings' arcs do; the row's name is the way in for a
+            // keyboard, so the box stays out of the tab order and the accessibility tree.
             <div
               key={item.id}
               data-testid="factor-tile"
               data-factor={item.id}
               data-share={item.share.toFixed(4)}
               aria-hidden="true"
-              className="absolute overflow-hidden border border-white p-1 text-xs leading-tight"
+              onClick={
+                item.opens ? () => setPath([...opened, item.id]) : undefined
+              }
+              className={`absolute overflow-hidden border border-white p-1 text-xs leading-tight${item.opens ? " cursor-pointer" : ""}`}
               style={{
                 left: `${(x / BOX.w) * 100}%`,
                 top: `${(y / BOX.h) * 100}%`,
@@ -266,8 +275,10 @@ export function FactorTree({
                 color: item.ink,
               }}
             >
-              <span className="font-medium">{item.name}</span>{" "}
-              <span>{percent(item.share)}</span>
+              {/* The strip is short: a name that does not fit ends in "…", and the row below has it
+                  whole, beside the same colour. */}
+              <span className="block truncate font-medium">{item.name}</span>
+              <span className="block">{percent(item.share)}</span>
             </div>
           ))}
         {level.counted.length === 0 && (
