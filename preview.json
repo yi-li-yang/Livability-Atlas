@@ -15,6 +15,7 @@
     { "waitForFunction": "Number(document.querySelector('[data-testid=map]')?.dataset.cells) > 0" },
     { "waitFor": "aside[aria-label=\"Your preferences\"]" },
     { "waitForFunction": "document.fonts.status === 'loaded'" },
+    { "mouse": [8, 8] },
     { "wait": 4000 },
     { "eval": "new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))" },
     { "wait": 300 }
@@ -25,6 +26,7 @@
       { "waitForFunction": "Number(document.querySelector('[data-testid=map]')?.dataset.cells) > 0" },
       { "waitFor": "aside[aria-label=\"Your preferences\"]" },
       { "waitForFunction": "document.fonts.status === 'loaded'" },
+      { "mouse": [8, 8] },
       { "wait": 4000 },
       { "recordStart": { "fps": 8 } },
       { "wait": 800 },
