@@ -2175,7 +2175,7 @@ factors:
         status: built
         unit: jobs
         preference_type: fixed
-        curve: {shape: region-ramp, better: higher, log: true}
+        curve: {shape: region-ramp, better: higher, log: true, offset: 1}
         curve_reason: >-
           No standard says how many jobs within reach are enough, so the ends
           of the ramp come from the region's own counts (D25), on a log scale:
