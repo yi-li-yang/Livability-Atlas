@@ -218,7 +218,7 @@ export function Legend({
         value={Math.round(opacity * 100)}
         aria-label="Colour strength"
         aria-valuetext={`${Math.round(opacity * 100)}%`}
-        className="block w-full accent-neutral-700"
+        className="block w-full"
         onChange={(event) => onOpacity(Number(event.target.value) / 100)}
       />
       <span className="flex justify-between">
