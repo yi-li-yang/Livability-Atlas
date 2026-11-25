@@ -4,6 +4,7 @@ import { type Bundle, fewHomes, loadBundle } from "./data/bundle";
 import { formatValue } from "./features/factors/evidence";
 import { FactorTree } from "./features/factors/FactorTree";
 import { type Layout, loadLayout, saveLayout } from "./features/factors/layout";
+import { atStart } from "./features/factors/level";
 import { ModeSwitch } from "./features/factors/ModeSwitch";
 import { QuickLook } from "./features/factors/QuickLook";
 import { WhyPanel } from "./features/factors/WhyPanel";
@@ -128,6 +129,12 @@ export function App() {
   const [selected, setSelected] = useState<number | null>(null);
   // The profile before the user started from a preset, so that "Undo" can bring it back.
   const [beforePreset, setBeforePreset] = useState<Profile | null>(null);
+  // The profile before "Start again", so that its "Undo" can bring it back; any change after
+  // starting again forgets it.
+  const [beforeReset, setBeforeReset] = useState<Profile | null>(null);
+  useEffect(() => {
+    if (!atStart(profile)) setBeforeReset(null);
+  }, [profile]);
   const [opacity, setOpacity] = useState(CELL_OPACITY);
   // What the map shows in place of the livability score: a factor or a measured indicator.
   const [view, setView] = useState<string | null>(null);
@@ -486,9 +493,18 @@ export function App() {
             saveLayout(next, browserStorage());
           }}
           onReset={() => {
+            setBeforeReset(profile);
             setProfile({ weights: {} });
             setBeforePreset(null);
           }}
+          onUndoReset={
+            beforeReset
+              ? () => {
+                  setProfile(beforeReset);
+                  setBeforeReset(null);
+                }
+              : undefined
+          }
         />
         <div className="mt-4 border-t border-neutral-300 pt-3">
           <ModeSwitch
