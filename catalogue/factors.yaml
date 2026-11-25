@@ -2258,7 +2258,35 @@ factors:
           let or improved since 2008, so it leans towards homes that changed
           hands. No address is kept.
         datasets: [epc-domestic, os-code-point-open]
-      - {id: regeneration, name: "Regeneration and planning", default_weight: 3, scales: [within-city]}
+      - id: regeneration
+        name: New homes built nearby
+        description: The number of new homes completed within 1 km in five years, a sign of how much the area is changing.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: new homes within 1 km, 2020 to 2025
+        preference_type: user-direction
+        curve: {shape: region-ramp, better: higher, log: true, offset: 1}
+        curve_reason: >-
+          Whether building is good is the user's to say: new homes bring new
+          shops, transport and people, and also years of works. So the user can
+          flip the direction; it starts with more as better. No standard says
+          how much is a lot, so the ends of the ramp come from the region's own
+          counts (D25), on a log scale: a few large schemes dwarf the rest.
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The new homes completed within 1 km of the hex cell's centre, in a
+          straight line, in the five financial years from April 2020 to March
+          2025, from the GLA's Planning London Datahub: each home a scheme gains,
+          by its own completion date or the scheme's where it has none, at the
+          middle of the scheme's site. Homes lost are not taken off, so a
+          scheme that replaces homes counts what it builds. Boroughs report
+          completions once a year, so the window ends at the last year they have
+          all reported. A large scheme is counted at one point, which concentrates
+          it; 17,479 schemes gained 170,348 homes in the window, about 34,000 a
+          year.
+        datasets: [gla-planning-london-datahub]
       - {id: urban-growth, name: "Urban growth", default_weight: 3, scales: [across-cities]}
 
   - id: governance-and-rights
