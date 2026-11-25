@@ -1,0 +1,31 @@
+{
+  "_comment": "How auto-generate-preview-image (github.com/yi-li-yang/auto-generate-preview-image) captures this app for the README and the homepage.",
+  "url": "https://yi-li-yang.github.io/Livability-Atlas/#v=2&w=transport:5,environment:5,safety:4,housing-and-cost:1,culture-and-leisure:4",
+  "data": "public",
+  "dataNote": "The live site's open datasets about areas of London (police records, energy certificates, TfL timetables); no person appears. The link holds example weights only.",
+  "watch": ["web/"],
+  "timeoutMs": 120000,
+  "steps": [
+    { "waitForFunction": "Number(document.querySelector('[data-testid=map]')?.dataset.cells) > 0" },
+    { "waitFor": "aside[aria-label=\"Your preferences\"]" },
+    { "waitForLoadState": "networkidle" },
+    { "eval": "new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))" },
+    { "wait": 300 }
+  ],
+  "anim": {
+    "steps": [
+      { "waitForFunction": "Number(document.querySelector('[data-testid=map]')?.dataset.cells) > 0" },
+      { "waitFor": "aside[aria-label=\"Your preferences\"]" },
+      { "waitForLoadState": "networkidle" },
+      { "recordStart": { "fps": 8 } },
+      { "wait": 800 },
+      { "select": ["role=combobox[name=\"Start from\"]", "Student"] },
+      { "wait": 1500 },
+      { "select": ["role=combobox[name=\"Start from\"]", "Family with children"] },
+      { "wait": 1500 },
+      { "select": ["role=combobox[name=\"Start from\"]", "Retired"] },
+      { "wait": 1500 },
+      { "recordStop": {} }
+    ]
+  }
+}

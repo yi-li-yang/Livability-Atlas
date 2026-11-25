@@ -30,6 +30,8 @@ export interface Level {
   counted: FactorView[];
   /** The factors at weight 0, which the drawing leaves out. */
   notCounted: FactorView[];
+  /** Every factor at this level, counted or not, in the catalogue's order. */
+  all: FactorView[];
   /**
    * The outermost factor opened to reach this level that is at weight 0, such as a branch that
    * starts at "Not counted" (D14): nothing at this level changes the score until it counts.
@@ -86,6 +88,7 @@ export function levelAt(
     trail,
     counted: views.filter((v) => v.effectiveWeight > 0),
     notCounted: views.filter((v) => v.effectiveWeight === 0),
+    all: views,
     uncounted:
       trail.find((step) => weightIn(profile, step.factor) === 0)?.factor ??
       null,
@@ -105,6 +108,23 @@ export function atStart(profile: Profile): boolean {
     !profile.everything &&
     (profile.limits?.length ?? 0) === 0
   );
+}
+
+/**
+ * The rows of sliders and the list of factors not counted while the slider of `held` is in use (it
+ * has the focus or the pointer). A factor moved to 0 keeps its row in place until the user lets go,
+ * so that the slider under their finger or their keyboard's focus does not vanish; then it moves to
+ * "Not counted". The drawing still leaves it out at once.
+ */
+export function holding(
+  level: Level,
+  held: string | null,
+): { rows: FactorView[]; notCounted: FactorView[] } {
+  const kept = (v: FactorView) => v.effectiveWeight > 0 || v.id === held;
+  return {
+    rows: level.all.filter(kept),
+    notCounted: level.notCounted.filter((v) => !kept(v)),
+  };
 }
 
 /** The profile with one weight set. */

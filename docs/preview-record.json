@@ -1,0 +1,17 @@
+{
+  "_edit": "DERIVED — written by auto-generate-preview-image capture. Never edit; the next capture rewrites it.",
+  "commit": "1d449c8e99aa6fc1f0ce48434f33502328b1c25c",
+  "capturedAt": "2026-11-25T16:27:54.959Z",
+  "url": "https://yi-li-yang.github.io/Livability-Atlas/#v=2&w=transport:5,environment:5,safety:4,housing-and-cost:1,culture-and-leisure:4",
+  "tool": "0.1.0",
+  "image": {
+    "file": "docs/preview.webp",
+    "sha256": "21f6663ac1e2cde30c6902a0a12229a99eadf5be0bab5298eae118bccc13ad96",
+    "bytes": 168746
+  },
+  "anim": {
+    "file": "docs/preview-anim.webp",
+    "sha256": "a2463ce69ca93158cdcd9368fcc963f61f64627422083993e1bbfb6b3640a38d",
+    "bytes": 296312
+  }
+}
