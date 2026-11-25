@@ -1626,7 +1626,34 @@ factors:
               bound and an indirect sign of how welcoming an area is. Legal rights
               and public acceptance belong to the across-cities scale.
             datasets: [overture-places]
-          - {id: election-turnout, name: "Local election turnout", default_weight: 3}
+          - id: election-turnout
+            name: Local election turnout
+            description: The share of the ward's electors who voted at the last borough council election.
+            default_weight: 3
+            status: built
+            unit: "% of electors"
+            preference_type: fixed
+            curve: {shape: region-ramp, better: higher}
+            curve_reason: >-
+              No standard says what turnout is enough, so the ends of the ramp
+              come from the region's own values (D25). Turnout is a share between
+              about a fifth and three fifths of electors, so the scale is linear.
+            evidence_type: indirect
+            comparable_across_regions: false
+            method: >-
+              The ballot papers at the count over the electorate, in the ward
+              that the hex cell's centre lies in, at the London borough council
+              elections of 5 May 2022, from the GLA's report of the results.
+              Ballot papers include postal votes and rejected papers (the
+              Electoral Commission's "ballot box turnout"). It is an indirect
+              sign of how much residents take part in local life. Turnout
+              depends on the election: 2022 was low across London (35.5% in all),
+              and local elections differ between countries, so it is not
+              compared across regions. The City of London votes apart and has no
+              value, and so do Hounslow's Hanworth Village and Heston Central,
+              which the GLA's results give the same ballot counts. Ward
+              boundaries are the ONS's of December 2022.
+            datasets: [gla-borough-elections-2022, ons-ward-boundaries]
           - id: residents-stay
             name: How long residents stay
             description: The share of residents who lived at the same address a year before the census.

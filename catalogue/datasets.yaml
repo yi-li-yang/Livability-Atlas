@@ -560,6 +560,45 @@ datasets:
     tells:
       - The boundary of each MSOA, an area of 7,000 to 10,000 residents, clipped to the coastline
 
+  - id: gla-borough-elections-2022
+    name: London Borough Council Elections, 5 May 2022
+    publisher: Greater London Authority (GLA)
+    url: https://data.london.gov.uk/dataset/borough-council-election-results-2022
+    tier: city
+    area: Greater London's 32 boroughs (not the City of London)
+    resolution: electoral wards of 2022
+    date: 2022
+    licence: OGL-UK-2.0
+    licence_checked: 2026-11-25
+    commercial_use: true
+    licence_note: >-
+      The London Datastore gives the licence of this dataset as the Open
+      Government Licence v2.0. The turnout tables are in the GLA's PDF report;
+      its spreadsheet of the same results has no electorate.
+    attribution: Contains public sector information licensed under the Open Government Licence v2.0. Greater London Authority, London Borough Council Elections 2022.
+    tells:
+      - The electorate, the ballot papers at the count, and the papers from polling stations and by post, for each of the 679 wards
+      - The candidates and their votes
+  - id: ons-ward-boundaries
+    name: Wards (December 2022) Boundaries UK BGC
+    publisher: Office for National Statistics (ONS)
+    url: https://geoportal.statistics.gov.uk/
+    tier: country
+    area: United Kingdom
+    resolution: electoral wards, generalised to 20 m
+    date: December 2022
+    licence: OGL-UK-3.0
+    licence_checked: 2026-11-25
+    commercial_use: true
+    licence_note: >-
+      The ONS supplies its digital boundary products under the Open Government
+      Licence v3.0, with credits to the ONS and to Ordnance Survey. In London
+      they are the wards of the borough elections of May 2022.
+    attribution: >-
+      Source: Office for National Statistics licensed under the Open Government
+      Licence v.3.0. Contains OS data © Crown copyright and database right 2026.
+    tells:
+      - The boundary, code and name of each electoral ward, with its local authority
   - id: ons-lsoa-boundaries
     name: Lower layer Super Output Areas (December 2011) Boundaries EW BGC
     publisher: Office for National Statistics (ONS)

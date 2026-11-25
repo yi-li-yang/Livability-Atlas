@@ -1893,7 +1893,34 @@ factors:
               bound and an indirect sign of how welcoming an area is. Legal rights
               and public acceptance belong to the across-cities scale.
             datasets: [overture-places]
-          - {id: election-turnout, name: "Local election turnout", default_weight: 3}
+          - id: election-turnout
+            name: Local election turnout
+            description: The share of the ward's electors who voted at the last borough council election.
+            default_weight: 3
+            status: built
+            unit: "% of electors"
+            preference_type: fixed
+            curve: {shape: region-ramp, better: higher}
+            curve_reason: >-
+              No standard says what turnout is enough, so the ends of the ramp
+              come from the region's own values (D25). Turnout is a share between
+              about a fifth and three fifths of electors, so the scale is linear.
+            evidence_type: indirect
+            comparable_across_regions: false
+            method: >-
+              The ballot papers at the count over the electorate, in the ward
+              that the hex cell's centre lies in, at the London borough council
+              elections of 5 May 2022, from the GLA's report of the results.
+              Ballot papers include postal votes and rejected papers (the
+              Electoral Commission's "ballot box turnout"). It is an indirect
+              sign of how much residents take part in local life. Turnout
+              depends on the election: 2022 was low across London (35.5% in all),
+              and local elections differ between countries, so it is not
+              compared across regions. The City of London votes apart and has no
+              value, and so do Hounslow's Hanworth Village and Heston Central,
+              which the GLA's results give the same ballot counts. Ward
+              boundaries are the ONS's of December 2022.
+            datasets: [gla-borough-elections-2022, ons-ward-boundaries]
           - id: residents-stay
             name: How long residents stay
             description: The share of residents who lived at the same address a year before the census.
@@ -3092,6 +3119,45 @@ datasets:
     tells:
       - The boundary of each MSOA, an area of 7,000 to 10,000 residents, clipped to the coastline
 
+  - id: gla-borough-elections-2022
+    name: London Borough Council Elections, 5 May 2022
+    publisher: Greater London Authority (GLA)
+    url: https://data.london.gov.uk/dataset/borough-council-election-results-2022
+    tier: city
+    area: Greater London's 32 boroughs (not the City of London)
+    resolution: electoral wards of 2022
+    date: 2022
+    licence: OGL-UK-2.0
+    licence_checked: 2026-11-25
+    commercial_use: true
+    licence_note: >-
+      The London Datastore gives the licence of this dataset as the Open
+      Government Licence v2.0. The turnout tables are in the GLA's PDF report;
+      its spreadsheet of the same results has no electorate.
+    attribution: Contains public sector information licensed under the Open Government Licence v2.0. Greater London Authority, London Borough Council Elections 2022.
+    tells:
+      - The electorate, the ballot papers at the count, and the papers from polling stations and by post, for each of the 679 wards
+      - The candidates and their votes
+  - id: ons-ward-boundaries
+    name: Wards (December 2022) Boundaries UK BGC
+    publisher: Office for National Statistics (ONS)
+    url: https://geoportal.statistics.gov.uk/
+    tier: country
+    area: United Kingdom
+    resolution: electoral wards, generalised to 20 m
+    date: December 2022
+    licence: OGL-UK-3.0
+    licence_checked: 2026-11-25
+    commercial_use: true
+    licence_note: >-
+      The ONS supplies its digital boundary products under the Open Government
+      Licence v3.0, with credits to the ONS and to Ordnance Survey. In London
+      they are the wards of the borough elections of May 2022.
+    attribution: >-
+      Source: Office for National Statistics licensed under the Open Government
+      Licence v.3.0. Contains OS data © Crown copyright and database right 2026.
+    tells:
+      - The boundary, code and name of each electoral ward, with its local authority
   - id: ons-lsoa-boundaries
     name: Lower layer Super Output Areas (December 2011) Boundaries EW BGC
     publisher: Office for National Statistics (ONS)
