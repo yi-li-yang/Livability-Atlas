@@ -131,7 +131,10 @@ export function App() {
   const [beforePreset, setBeforePreset] = useState<Profile | null>(null);
   // The profile before "Start again", so that its "Undo" can bring it back; any change after
   // starting again forgets it.
-  const [beforeReset, setBeforeReset] = useState<Profile | null>(null);
+  const [beforeReset, setBeforeReset] = useState<{
+    profile: Profile;
+    beforePreset: Profile | null;
+  } | null>(null);
   useEffect(() => {
     if (!atStart(profile)) setBeforeReset(null);
   }, [profile]);
@@ -493,14 +496,15 @@ export function App() {
             saveLayout(next, browserStorage());
           }}
           onReset={() => {
-            setBeforeReset(profile);
+            setBeforeReset({ profile, beforePreset });
             setProfile({ weights: {} });
             setBeforePreset(null);
           }}
           onUndoReset={
             beforeReset
               ? () => {
-                  setProfile(beforeReset);
+                  setProfile(beforeReset.profile);
+                  setBeforePreset(beforeReset.beforePreset);
                   setBeforeReset(null);
                 }
               : undefined
