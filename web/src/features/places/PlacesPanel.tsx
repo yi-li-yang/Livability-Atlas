@@ -36,8 +36,8 @@ export function PlacesPanel({
   const full = places.length >= MAX_PLACES;
   return (
     <section aria-label="Your places" className="space-y-2 text-sm">
-      <h3 className="font-medium">Your places</h3>
-      <p className="text-xs text-neutral-600">
+      <h3 className="group-label">Your places</h3>
+      <p className="text-xs text-muted">
         Add up to {MAX_PLACES} places you travel to often. Travel time then
         means the time to them, estimated by public transport. They stay in this
         browser; links do not carry them.
@@ -62,7 +62,7 @@ export function PlacesPanel({
           ))}
         </ul>
       )}
-      {status && <p className="text-xs text-neutral-600">{status}</p>}
+      {status && <p className="text-xs text-muted">{status}</p>}
       {!full && (
         <form
           className="space-y-1"
@@ -91,7 +91,7 @@ export function PlacesPanel({
           <label className="flex items-center gap-2">
             <span className="w-16 shrink-0">Name</span>
             <input
-              className="min-w-0 flex-1 rounded border border-neutral-400 px-1"
+              className="min-w-0 flex-1 border border-edge px-1"
               value={name}
               placeholder={freeName(places)}
               onChange={(event) => setName(event.target.value)}
@@ -100,7 +100,7 @@ export function PlacesPanel({
           <label className="flex items-center gap-2">
             <span className="w-16 shrink-0">Postcode</span>
             <input
-              className="min-w-0 flex-1 rounded border border-neutral-400 px-1"
+              className="min-w-0 flex-1 border border-edge px-1"
               value={postcode}
               autoComplete="postal-code"
               onChange={(event) => setPostcode(event.target.value)}
@@ -134,7 +134,7 @@ export function PlacesPanel({
             </p>
           )}
           {problem && (
-            <p role="alert" className="text-xs text-red-800">
+            <p role="alert" className="text-xs font-medium text-ink">
               {problem}
             </p>
           )}

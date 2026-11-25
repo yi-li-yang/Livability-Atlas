@@ -69,7 +69,7 @@ export function TopNeighbourhoods({
                 onClick={() => onChoose(n)}
               >
                 {n.name}
-                {n.area && <span className="text-neutral-600">, {n.area}</span>}
+                {n.area && <span className="text-muted">, {n.area}</span>}
               </button>
               <span className="flex shrink-0 gap-1">
                 {steady && (
@@ -78,14 +78,16 @@ export function TopNeighbourhoods({
                     <span className="sr-only">Steady,</span>
                   </span>
                 )}
-                <span className="tabular-nums">{Math.round(n.score)}</span>
+                <span className="font-mono tabular-nums">
+                  {Math.round(n.score)}
+                </span>
               </span>
             </li>
           );
         })}
       </ol>
       {result && stay !== null && (
-        <p className="mt-2 text-xs text-neutral-600" data-testid="stability">
+        <p className="mt-2 text-xs text-muted" data-testid="stability">
           {stay} of these {result.baseline.length} stay, on average, when a
           weight moves by a fifth. ● marks those that stay whichever weight
           moves.

@@ -169,10 +169,10 @@ export function FactorTree({
   return (
     <section aria-label="What matters to you" className="space-y-3 text-sm">
       <div className="flex items-center justify-between gap-2">
-        <h2 className={heading ? "font-medium" : "sr-only"}>
+        <h2 className={heading ? "group-label" : "sr-only"}>
           What matters to you
         </h2>
-        <fieldset className="m-0 flex min-w-0 overflow-hidden rounded border border-neutral-400 p-0 text-xs">
+        <fieldset className="m-0 flex min-w-0 overflow-hidden border border-edge p-0 text-xs">
           <legend className="sr-only">Draw the factors as</legend>
           {LAYOUTS.map(({ layout: option, name }) => (
             <button
@@ -181,8 +181,8 @@ export function FactorTree({
               aria-pressed={layout === option}
               className={
                 layout === option
-                  ? "bg-neutral-800 px-2 py-0.5 text-white"
-                  : "bg-white px-2 py-0.5 hover:bg-neutral-100"
+                  ? "bg-ink px-2 py-0.5 text-ground"
+                  : "bg-raised px-2 py-0.5 hover:bg-surface"
               }
               onClick={() => onLayout(option)}
             >
@@ -220,7 +220,7 @@ export function FactorTree({
       </nav>
 
       {level.uncounted && (
-        <p role="note" className="text-xs text-neutral-600">
+        <p role="note" className="text-xs text-muted">
           {level.uncounted.name} is not counted, so nothing in it changes the
           map yet.{" "}
           <button
@@ -237,7 +237,7 @@ export function FactorTree({
 
       <div
         data-testid="factor-tree"
-        className="relative w-full overflow-hidden rounded"
+        className="relative w-full overflow-hidden"
         style={
           layout === "boxes" && drawn
             ? { aspectRatio: `${BOX.w} / ${BOX.h}` }
@@ -270,7 +270,7 @@ export function FactorTree({
               onClick={
                 item.opens ? () => setPath([...opened, item.id]) : undefined
               }
-              className={`absolute overflow-hidden border border-white p-1 text-xs leading-tight${item.opens ? " cursor-pointer" : ""}`}
+              className={`absolute overflow-hidden border border-raised p-1 text-xs leading-tight${item.opens ? " cursor-pointer" : ""}`}
               style={{
                 left: `${(x / BOX.w) * 100}%`,
                 top: `${(y / BOX.h) * 100}%`,
@@ -287,7 +287,7 @@ export function FactorTree({
             </div>
           ))}
         {level.counted.length === 0 && (
-          <p className="p-2 text-neutral-600">
+          <p className="p-2 text-muted">
             Nothing here counts. Give a factor a weight above 0.
           </p>
         )}
@@ -319,7 +319,7 @@ export function FactorTree({
         </button>
       ) : (
         onUndoReset && (
-          <p className="text-xs text-neutral-600">
+          <p className="text-xs text-muted">
             Started again from a few essentials.{" "}
             <button
               type="button"
@@ -335,7 +335,7 @@ export function FactorTree({
 
       {notCounted.length > 0 && (
         <div>
-          <h3 className="font-medium">Not counted</h3>
+          <h3 className="group-label">Not counted</h3>
           <ul className="space-y-1">
             {notCounted.map((f) => (
               <li key={f.id}>
@@ -379,7 +379,7 @@ function Swatch({ colour }: { colour: string }) {
   return (
     <span
       aria-hidden="true"
-      className="inline-block size-3 shrink-0 rounded-sm"
+      className="inline-block size-3 shrink-0"
       style={{ background: colour }}
     />
   );
@@ -417,7 +417,7 @@ function Row({
         ) : (
           <span className="flex-1">{view.name}</span>
         )}
-        <span className="tabular-nums text-neutral-600">
+        <span className="font-mono tabular-nums text-muted">
           {percent(view.share)}
         </span>
       </div>
@@ -439,7 +439,7 @@ function Row({
         }}
       />
       {off && (
-        <p className="text-xs text-neutral-600">
+        <p className="text-xs text-muted">
           Not counted now. Move it up to count it.
         </p>
       )}
@@ -462,7 +462,7 @@ function Direction({
     { more: false, label: "Less is better" },
   ];
   return (
-    <fieldset className="m-0 mt-1 flex w-fit overflow-hidden rounded border border-neutral-400 p-0 text-xs">
+    <fieldset className="m-0 mt-1 flex w-fit overflow-hidden border border-edge p-0 text-xs">
       <legend className="sr-only">Which is better for {name}</legend>
       {options.map(({ more, label }) => (
         <button
@@ -471,8 +471,8 @@ function Direction({
           aria-pressed={higher === more}
           className={
             higher === more
-              ? "bg-neutral-800 px-2 py-0.5 text-white"
-              : "bg-white px-2 py-0.5 hover:bg-neutral-100"
+              ? "bg-ink px-2 py-0.5 text-ground"
+              : "bg-raised px-2 py-0.5 hover:bg-surface"
           }
           onClick={() => onSet(more)}
         >
@@ -579,7 +579,7 @@ function Picker({
         {picked.length > 0 ? `Chosen: ${picked.length}` : "Choose"}
         <span className="sr-only"> for {indicator.name}</span>
       </summary>
-      <p className="text-xs text-neutral-600">
+      <p className="text-xs text-muted">
         Your choices stay in this browser. Links do not carry them.
       </p>
       {[...groups].map(([title, options]) => (

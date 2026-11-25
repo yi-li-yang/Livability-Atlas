@@ -21,6 +21,7 @@ import {
   saveColourBy,
   scoreSpread,
 } from "./features/map/rank";
+import { useScheme } from "./features/map/theme";
 import {
   legendEnds,
   noDataNote,
@@ -143,6 +144,7 @@ export function App() {
   const [view, setView] = useState<string | null>(null);
   // On a phone the preferences are a sheet along the bottom, shut until the user opens it.
   const phone = useIsPhone();
+  const scheme = useScheme();
   // It opens half-way, so that the map stays in view while a weight moves (the owner's choice,
   // 2026-11-25), and opens further on "Show more".
   const [sheet, setSheet] = useState<"shut" | "half" | "full">("shut");
@@ -525,7 +527,7 @@ export function App() {
               : undefined
           }
         />
-        <div className="mt-4 border-t border-neutral-300 pt-3">
+        <div className="mt-4 border-t border-rule pt-3">
           <ModeSwitch
             mode={profile.mode ?? "mean"}
             onMode={(mode) =>
@@ -535,7 +537,7 @@ export function App() {
             }
           />
         </div>
-        <div className="mt-4 border-t border-neutral-300 pt-3">
+        <div className="mt-4 border-t border-rule pt-3">
           <PlacesPanel
             places={places}
             picking={picking !== null}
@@ -545,7 +547,7 @@ export function App() {
             onRemove={(index) => setPlaces((now) => withoutPlace(now, index))}
           />
         </div>
-        <div className="mt-4 border-t border-neutral-300 pt-3">
+        <div className="mt-4 border-t border-rule pt-3">
           <LimitsPanel
             bundle={bundle ?? state.bundle}
             profile={profile}
@@ -557,16 +559,26 @@ export function App() {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="px-4 py-2">
-        <h1 className="text-2xl font-semibold">Livability Atlas</h1>
+      <header className="border-b border-rule px-4 py-2">
+        <h1 className="text-[20px] font-semibold leading-[1.15]">
+          Livability Atlas
+          {/* The project's mark: a square full stop in its accent (DESIGN.md). */}
+          <span
+            aria-hidden="true"
+            className="ml-[0.1em] inline-block size-[0.22em] bg-[var(--accent)]"
+          />
+        </h1>
         {state.status === "failed" && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm font-medium text-ink">
             The map data could not be loaded. Try again in a moment.
           </p>
         )}
       </header>
       <main ref={mapArea} className="relative min-h-0 flex-1">
         <HexMap
+          // The basemap is painted for one theme, so a new theme makes a new map.
+          key={scheme}
+          scheme={scheme}
           cells={cells}
           colours={colours}
           outlines={outlines}
@@ -591,7 +603,7 @@ export function App() {
         {state.status === "loading" && (
           <p
             role="status"
-            className="absolute left-4 top-4 rounded bg-white/90 px-3 py-1 text-sm shadow"
+            className="absolute left-4 top-4 bg-raised px-3 py-1 text-sm shadow-float"
           >
             Loading the map data…
           </p>
@@ -601,7 +613,7 @@ export function App() {
             <aside
               aria-label="Your preferences"
               data-covers-map
-              className={`absolute inset-x-0 bottom-0 z-10 flex-col rounded-t-xl bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.25)] ${sheet === "full" ? "h-[66%] landscape:h-[50%]" : sheet === "half" ? "h-[42%] landscape:h-[40%]" : ""} ${chosen ? "hidden" : "flex"}`}
+              className={`absolute inset-x-0 bottom-0 z-10 flex-col bg-raised shadow-float ${sheet === "full" ? "h-[66%] landscape:h-[50%]" : sheet === "half" ? "h-[42%] landscape:h-[40%]" : ""} ${chosen ? "hidden" : "flex"}`}
             >
               <div className="flex shrink-0 items-center">
                 <button
@@ -641,7 +653,7 @@ export function App() {
             <aside
               aria-label="Your preferences"
               data-covers-map
-              className="absolute left-4 top-4 z-10 max-h-[calc(100%-21rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto rounded bg-white/95 p-3 shadow"
+              className="absolute left-4 top-4 z-10 max-h-[calc(100%-22rem)] w-80 max-w-[calc(100%-2rem)] overflow-y-auto bg-raised p-3 shadow-float"
             >
               {preferences}
             </aside>
@@ -649,7 +661,7 @@ export function App() {
         {hover && hovered && !phone && (
           <div
             data-testid="quick-look"
-            className="pointer-events-none absolute z-10 w-52 rounded bg-white/95 p-3 shadow"
+            className="pointer-events-none absolute z-10 w-52 bg-raised p-3 shadow-float"
             style={{
               // The pointer is measured from the map's corner, so the card flips against the
               // map's own edges, not the window's.
@@ -712,7 +724,7 @@ export function App() {
       {state.status === "ready" && (
         <section
           aria-label="Data sources"
-          className="px-4 py-1 text-xs text-neutral-600"
+          className="px-4 py-1 text-xs text-muted"
         >
           <details>
             <summary className="cursor-pointer">About the data</summary>
@@ -724,7 +736,7 @@ export function App() {
               Privacy: your weights, limits, choices and places stay in your
               browser and are sent to no server; a postcode is looked up in a
               table the app loads, not sent anywhere. The map's tiles and labels
-              come from OpenFreeMap.
+              come from OpenFreeMap, and its typefaces from Google Fonts.
             </p>
             {/* Datasets from one publisher often share a line of credit: show each line once. */}
             {[
@@ -747,7 +759,7 @@ function Chevron({ up }: { up: boolean }) {
     <svg
       aria-hidden="true"
       viewBox="0 0 16 16"
-      className="size-4 shrink-0 text-neutral-600"
+      className="size-4 shrink-0 text-muted"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.75"

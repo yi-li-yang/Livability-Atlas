@@ -1,12 +1,6 @@
-import {
-  EXCLUDED,
-  FEW_HOMES_OUTLINE,
-  LAND_COLOURS,
-  PALETTE,
-  type Rgba,
-  scoreToCss,
-} from "./colour";
+import { FEW_HOMES_OUTLINE, PALETTE, type Rgba, scoreToCss } from "./colour";
 import type { ColourBy } from "./rank";
+import { basemapFor, useScheme } from "./theme";
 import type { ViewOption } from "./views";
 
 const css = ([r, g, b, a]: Rgba) => `rgb(${r} ${g} ${b} / ${a / 255})`;
@@ -122,6 +116,7 @@ export function Legend({
   ).join(", ")})`;
   const tallest = spread ? Math.max(...spread, 1) : 1;
   const middle = spread && !byRank ? middleOf(spread) : null;
+  const basemap = basemapFor(useScheme());
   const gradient = `linear-gradient(to right, ${[0, 0.25, 0.5, 0.75, 1].map(scoreToCss).join(", ")})`;
   const groups = new Map<string, { name: string; items: ViewOption[] }>();
   for (const option of options) {
@@ -137,7 +132,7 @@ export function Legend({
     <span className="flex items-center gap-1.5">
       <HexKey
         testId="few-homes-key"
-        fill={LAND_COLOURS.green}
+        fill={basemap.land.green}
         stroke={css(FEW_HOMES_OUTLINE)}
       />
       Few or no homes: no score
@@ -145,17 +140,17 @@ export function Legend({
   );
   const wholeNumber = new Intl.NumberFormat("en-GB");
   const leftOutKey = leftOut && leftOut.count > 0 && (
-    <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-600">
-      <HexKey testId="left-out-key" fill={css(EXCLUDED)} />
+    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+      <HexKey testId="left-out-key" fill={css(basemap.excluded)} />
       Left out by your hard limits: {wholeNumber.format(leftOut.count)} of{" "}
       {wholeNumber.format(leftOut.of)}
     </p>
   );
   const topMark = topMarked && (
-    <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-600">
+    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
       <span
         aria-hidden="true"
-        className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 border-neutral-800 bg-white text-[9px] font-semibold text-neutral-900"
+        className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 border-ground bg-ink font-mono text-[9px] font-medium text-ground"
       >
         1
       </span>
@@ -167,12 +162,12 @@ export function Legend({
   const about = (
     <>
       {middle && (
-        <p className="mt-1 text-xs text-neutral-600">
+        <p className="mt-1 text-xs text-muted">
           Most of {region} scores {middle[0]} to {middle[1]}.
         </p>
       )}
       {byRank && (
-        <p className="mt-1 text-xs text-neutral-600">
+        <p className="mt-1 text-xs text-muted">
           Each colour is a fifth of {region}'s hex cells, from its lowest scores
           to its highest.
         </p>
@@ -182,7 +177,7 @@ export function Legend({
   );
   const colourSwitch = onColourBy && (
     <fieldset
-      className={`m-0 flex w-fit overflow-hidden rounded border border-neutral-400 p-0 text-xs ${phone ? "mt-2" : ""}`}
+      className={`m-0 flex w-fit overflow-hidden border border-edge p-0 text-xs ${phone ? "mt-2" : ""}`}
     >
       <legend className="sr-only">Colour the map by</legend>
       {(
@@ -197,8 +192,8 @@ export function Legend({
           aria-pressed={colourBy === option}
           className={
             colourBy === option
-              ? "bg-neutral-800 px-2 py-0.5 text-white"
-              : "bg-white px-2 py-0.5 hover:bg-neutral-100"
+              ? "bg-ink px-2 py-0.5 text-ground"
+              : "bg-raised px-2 py-0.5 hover:bg-surface"
           }
           onClick={() => onColourBy(option)}
         >
@@ -233,16 +228,18 @@ export function Legend({
       data-covers-map
       className={
         phone
-          ? "absolute left-2 right-2 top-2 z-10 rounded bg-white/90 p-2 text-sm shadow"
-          : "absolute bottom-6 left-4 z-10 w-72 rounded bg-white/90 p-3 text-sm shadow"
+          ? "absolute left-2 right-2 top-2 z-10 bg-raised p-2 text-sm shadow-float"
+          : "absolute bottom-6 left-4 z-10 w-72 bg-raised p-3 text-sm shadow-float"
       }
     >
-      <label className="mb-2 block text-xs text-neutral-600">
-        <span className={phone ? "sr-only" : undefined}>Show on the map</span>
+      <label className="mb-2 block text-xs text-muted">
+        <span className={phone ? "sr-only" : "group-label"}>
+          Show on the map
+        </span>
         <select
           aria-label="Show on the map"
           value={view ?? ""}
-          className="mt-0.5 block w-full rounded border border-neutral-400 bg-white p-1 text-sm text-neutral-900"
+          className="mt-0.5 block w-full border border-edge bg-raised p-1 text-sm text-ink"
           onChange={(event) => onView(event.target.value || null)}
         >
           <option value="">Livability score</option>
@@ -263,7 +260,7 @@ export function Legend({
         <h2 className="sr-only">{title}</h2>
       ) : (
         <div className="mb-1 flex flex-wrap items-center justify-between gap-x-2">
-          <h2 className="font-medium">{title}</h2>
+          <h2 className="group-label">{title}</h2>
           {colourSwitch}
         </div>
       )}
@@ -284,48 +281,48 @@ export function Legend({
               width={0.8}
               y={10 - (10 * count) / tallest}
               height={(10 * count) / tallest}
-              fill="rgb(115 115 115)"
+              style={{ fill: "var(--muted)" }}
             />
           ))}
         </svg>
       )}
       <div
         data-testid="legend-bar"
-        className="h-3 rounded"
+        className="h-3"
         style={{ background: byRank ? fifths : gradient }}
       />
       {!byRank && !phone && (
         <div
           aria-hidden="true"
-          className="flex justify-between text-[10px] text-neutral-500 tabular-nums"
+          className="flex justify-between font-mono text-xs text-muted tabular-nums"
         >
           <span>0</span>
           <span>50</span>
           <span>100</span>
         </div>
       )}
-      <div className="mt-0.5 flex justify-between gap-2 text-xs text-neutral-600">
+      <div className="mt-0.5 flex justify-between gap-2 text-xs text-muted">
         <span>{byRank ? "Bottom fifth" : low}</span>
         {phone && fewHomesKey}
         <span>{byRank ? "Top fifth" : high}</span>
       </div>
       {unit && !byRank && (
-        <p data-testid="legend-unit" className="text-xs text-neutral-600">
+        <p data-testid="legend-unit" className="text-xs text-muted">
           In {unit}
         </p>
       )}
       {!phone && about}
       {fewHomesKey && !phone && (
-        <p className="mt-1 text-xs text-neutral-600">{fewHomesKey}</p>
+        <p className="mt-1 text-xs text-muted">{fewHomesKey}</p>
       )}
       {leftOutKey}
       {note && (
-        <p role="note" className="mt-1 text-xs text-neutral-600">
+        <p role="note" className="mt-1 text-xs text-muted">
           {note}
         </p>
       )}
       {phone ? (
-        <details className="mt-1 text-xs text-neutral-600">
+        <details className="mt-1 text-xs text-muted">
           <summary className="cursor-pointer">Colours</summary>
           {about}
           {colourSwitch}
@@ -335,10 +332,7 @@ export function Legend({
           </label>
         </details>
       ) : (
-        <label
-          htmlFor="cell-opacity"
-          className="mt-2 block text-xs text-neutral-600"
-        >
+        <label htmlFor="cell-opacity" className="mt-2 block text-xs text-muted">
           Colour strength
           {opacityControl}
         </label>

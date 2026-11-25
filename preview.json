@@ -1,22 +1,31 @@
 {
-  "_comment": "How auto-generate-preview-image (github.com/yi-li-yang/auto-generate-preview-image) captures this app for the README and the homepage.",
-  "url": "https://yi-li-yang.github.io/Livability-Atlas/#v=2&w=transport:5,environment:5,safety:4,housing-and-cost:1,culture-and-leisure:4",
+  "_comment": "How auto-generate-preview-image (github.com/yi-li-yang/auto-generate-preview-image) captures this app for the README and the homepage. It runs the app from this commit, so the image shows this code, not the live site, which is published by hand. It needs London's bundle in data/published (just data london).",
+  "url": "http://localhost:5181/#v=2&w=transport:5,environment:5,safety:4,housing-and-cost:1,culture-and-leisure:4",
+  "start": {
+    "command": "npm --prefix web run dev -- --port 5181 --strictPort",
+    "waitUrl": "http://localhost:5181/",
+    "timeoutMs": 60000
+  },
   "data": "public",
-  "dataNote": "The live site's open datasets about areas of London (police records, energy certificates, TfL timetables); no person appears. The link holds example weights only.",
+  "dataNote": "London's open datasets about areas (police records, energy certificates, TfL timetables), from the local bundle; no person appears. The link holds example weights only.",
   "watch": ["web/"],
+  "colorScheme": "dark",
   "timeoutMs": 120000,
   "steps": [
     { "waitForFunction": "Number(document.querySelector('[data-testid=map]')?.dataset.cells) > 0" },
     { "waitFor": "aside[aria-label=\"Your preferences\"]" },
-    { "waitForLoadState": "networkidle" },
+    { "waitForFunction": "document.fonts.status === 'loaded'" },
+    { "wait": 4000 },
     { "eval": "new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))" },
     { "wait": 300 }
   ],
   "anim": {
+    "colorScheme": "dark",
     "steps": [
       { "waitForFunction": "Number(document.querySelector('[data-testid=map]')?.dataset.cells) > 0" },
       { "waitFor": "aside[aria-label=\"Your preferences\"]" },
-      { "waitForLoadState": "networkidle" },
+      { "waitForFunction": "document.fonts.status === 'loaded'" },
+      { "wait": 4000 },
       { "recordStart": { "fps": 8 } },
       { "wait": 800 },
       { "select": ["role=combobox[name=\"Start from\"]", "Student"] },
