@@ -369,10 +369,13 @@ function Row({
   view: FactorView;
   onOpen?: () => void;
   onWeight: (weight: number) => void;
-  /** Called with true when the slider takes the focus, and false when it loses it. */
+  /**
+   * Called with true when the slider is taken (the focus or the pointer), and false when it is let
+   * go. Safari gives a range input no focus on a click or a touch, so the pointer counts too.
+   */
   onHold: (on: boolean) => void;
 }) {
-  const off = view.effectiveWeight === 0;
+  const off = view.weight === 0;
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2">
@@ -405,6 +408,10 @@ function Row({
         onChange={(event) => onWeight(Number(event.target.value))}
         onFocus={() => onHold(true)}
         onBlur={() => onHold(false)}
+        onPointerDown={() => onHold(true)}
+        onPointerUp={(event) => {
+          if (document.activeElement !== event.currentTarget) onHold(false);
+        }}
       />
       {off && (
         <p className="text-xs text-neutral-600">
