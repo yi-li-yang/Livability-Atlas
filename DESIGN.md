@@ -9,6 +9,7 @@ colors:
   score-best: "#2A8F94"
   ink: "#171717"
   ink-strong: "#262626"
+  control: "#404040"
   ink-quiet: "#525252"
   placeholder: "#737373"
   rule: "#D4D4D4"
@@ -116,7 +117,7 @@ components:
 
 The app is a researcher's notebook laid over a map. The map of hex cells is the page's subject and takes nearly all of it; the panels are the notes in its margin: plain, practical, written to be used, at a desk while exploring or on a phone while walking an area. A note says what a mark means and where it came from, and then gets out of the way. Every score can be traced, so the notes are full of small, exact words ("Most of London scores 50 to 80", "Few or no homes: no score") and never of slogans.
 
-The panels are quiet and exact. Grey text, thin borders, white paper and system type: nothing in them competes with the map. Colour has two jobs only, and both carry meaning: the score scale (red is worse, yellow middling, blue-green better) on the map, the legend and every bar; and each top-level factor's own colour in the boxes, the rings and the swatches beside the sliders. Detail opens on demand (a quick look on hover, the reasons on click, "About the data" at the foot), so the surface stays the answer and the notebook holds the working.
+The panels are quiet and exact. Grey text, thin borders, white paper and system type: nothing in them competes with the map. Colour has two jobs only, and both carry meaning: the score scale (red is worse, yellow middling, blue-green better) on the map, the legend and every bar; and each top-level factor's own colour in the boxes, the rings and the swatches beside the sliders, never beside a score. Detail opens on demand (a quick look on hover, the reasons on click, "About the data" at the foot), so the surface stays the answer and the notebook holds the working.
 
 This is not an estate agent's site: no photographs of houses, no big call-to-action buttons, no sales words. It is not a dashboard either: no grid of cards, headline figures and charts that fight the map for attention.
 
@@ -135,7 +136,7 @@ A neutral notebook (white paper, greys, one near-black) around two sets of meani
 - **Score scale** (`score-worst` Brick Red → `score-poor` Burnt Orange → `score-middling` Mustard → `score-good` Sage Mint → `score-best` Deep Teal): the colour of every score, from 0 to 1, on the hex cells, the legend's ramp and every bar. The good end leans to blue, not pure green, so the ends and the quarters stay apart in the common kinds of colour blindness (every pair of stops at ΔE 12 or more under simulated deuteranopia, protanopia and tritanopia). Scores just either side of the middle look alike to a red-green colour-blind reader, so a bar also shows its score as a length and a number. Cells are drawn at 80% so the land shows through faintly.
 
 ### Secondary
-- **Factor colours**: each top-level factor takes a colour from the Salt design system's categorical palette (J.P. Morgan, Apache-2.0), step 500 for the factor (white text at 4.5:1 or more) and step 200 for its sub-factors (dark text, `#1C1C1C`). They mark which factor is which in the boxes, the rings and the swatch beside each slider, and they are never used for a score. The palette lives in `web/src/features/factors/colours.ts`.
+- **Factor colours**: each top-level factor takes a colour from the Salt design system's categorical palette (J.P. Morgan, Apache-2.0), step 500 for the factor (white text at 4.5:1 or more) and step 200 for its sub-factors (dark text, `#1C1C1C`). They mark which factor is which in the boxes, the rings and the swatch beside each slider; they are never used for a score, and never sit beside a score bar, where they would read as one (so the reasons show none). The palette lives in `web/src/features/factors/colours.ts`.
 
 ### Tertiary
 - **Land and water under the cells** (`land-green`, `land-industry`, `land-railway`, `water`): pale, greyed tints of the basemap that show in a cell with few or no homes and on rivers drawn above the cells. Each stays at ΔE 8 or more from every score colour drawn at 80%, so none passes for a score.
@@ -144,6 +145,7 @@ A neutral notebook (white paper, greys, one near-black) around two sets of meani
 ### Neutral
 - **Ink** (`ink`, Tailwind neutral-900): text in fields and the strongest text.
 - **Strong ink** (`ink-strong`, neutral-800): the chosen side of a switch, the near-black of the map's outlines and rank markers.
+- **Control grey** (`control`, neutral-700): the accent of every slider, check box and radio button.
 - **Quiet ink** (`ink-quiet`, neutral-600): help text, notes, values beside a label, credits. The most used text colour after the default.
 - **Placeholder** (`placeholder`, `#737373`): placeholders, at 4.7:1 on white (Tailwind's own was 3.9:1, under WCAG AA).
 - **Rule** and **strong rule** (`rule` neutral-300, `rule-strong` neutral-400): section dividers and the edges of fields and switches.
@@ -179,7 +181,7 @@ A neutral notebook (white paper, greys, one near-black) around two sets of meani
 The map takes the whole window under a slim header (the name, 16px by 8px of padding) and above a one-line footer ("About the data"). Everything else floats over the map.
 
 - **Desktop** (768px and wider): the preferences panel at the top left (16px in, 320px wide, at most the window less 2rem, scrolling inside itself), the legend at the bottom left (288px wide), and the reasons panel at the top right (320px wide) on a click. The quick look follows the pointer (208px wide). Panels never grow down over the legend.
-- **Phone** (under 768px): the legend sits at the top of the map, and the preferences lie in a sheet along the bottom (a 48px handle, up to 66% of the height, 50% in landscape), with rounded top corners. The basemap's credits stay above the sheet's handle, as their licence asks.
+- **Phone** (under 768px): the legend sits at the top of the map, and the preferences lie in a sheet along the bottom with rounded top corners and three stops: shut (a 48px handle), half (42% of the map's height, 40% in landscape, scrolled to the sliders so the map stays in view while a weight moves) and full (66%, 50% in landscape), moved between with "More" and "Less". The basemap's credits stay above the sheet's handle, as their licence asks.
 - **Spacing:** a 4px step. 4px between a label and its control, 8px between rows, 12px inside a panel and between sections, 16px from the window's edge. Sections inside a panel are divided by a hairline rule with 12px above and below it.
 
 ## Elevation & Depth
@@ -216,12 +218,12 @@ Small, quiet corners: 4px on panels, fields, switches and quiet boxes; 2px on th
 
 ### Fields
 - **Style:** a white field with a 1px `rule` or `rule-strong` border, 4px corners and 4px of padding; selects keep the browser's own control.
-- **Sliders:** the browser's own range control at full width, with the value as a number beside the label. The legend's "Colour strength" slider uses `ink-strong` as its accent.
+- **Sliders, check boxes and radio buttons:** the browser's own controls, with `control` (neutral-700) as their accent colour from one base rule in `index.css`, never the browser's blue. A slider is full width with its value as a number beside its label, and 32px high on a touch screen.
 - **Error:** a line of `alert` text under the field.
 
 ### Factor boxes and rings (signature)
 - **Character:** the user's weights, drawn as a picture of shares.
-- **Boxes:** a treemap 100 by 62 units, each factor a box in its own colour with its name (500) and share in label type, white 1px lines between boxes, 4px of padding.
+- **Boxes:** a short strip, a treemap of 100 by 26 units, so that the sliders come first; each factor a box in its own colour with its name (500, on one line, ending in "…" where it does not fit) and share in label type, white 1px lines between boxes, 4px of padding. A box opens its factor. With one factor counted at a level there is no picture.
 - **Rings:** a sunburst of the same shares, the counted sub-factors drawn outside their factor in its tint, a white centre with the level's name.
 - Under either, one row per counted factor: a 12px swatch in the factor's colour, the name (underlined with "›" when it opens), the share in tabular numerals, and a slider from 0 to 5.
 
@@ -231,7 +233,7 @@ Small, quiet corners: 4px on panels, fields, switches and quiet boxes; 2px on th
 
 ### Quick look and reasons
 - **Quick look:** on hover, a 208px note beside the pointer with the cell's score out of 100, its rank, its strongest factors (+) and its weakest (−), and "Click for the reasons"; it never takes a click.
-- **Reasons:** on click, a panel with the score as a headline figure, a bar per factor in the score scale with its length and number, and the evidence behind each measure (value, dataset, date, licence) one more click away.
+- **Reasons:** on click, a panel with the score as a headline figure, the strongest factors (+) and the weakest (−) under it, "The points from each factor add up to …", a bar per factor in the score scale with its length and number (a factor that opens is underlined), and the evidence behind each measure (value, dataset, date, licence) one more click away.
 
 ## Do's and Don'ts
 

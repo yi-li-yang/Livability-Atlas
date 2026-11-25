@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-25T17:00:00Z",
+  "generatedAt": "2026-11-25T18:00:00Z",
   "title": "Design System: Livability Atlas",
   "extensions": {
     "colorMeta": {
@@ -11,6 +11,7 @@
       "score-best": { "role": "primary", "displayName": "Deep Teal", "tonalRamp": ["#0b2829", "#123d3f", "#1a5457", "#226d70", "#2A8F94", "#55aeb2", "#94cfd2", "#d6eeef"] },
       "ink": { "role": "neutral", "displayName": "Ink", "canonical": "oklch(20.5% 0 0)" },
       "ink-strong": { "role": "neutral", "displayName": "Strong Ink", "canonical": "oklch(26.9% 0 0)" },
+      "control": { "role": "neutral", "displayName": "Control Grey", "canonical": "oklch(37.1% 0 0)" },
       "ink-quiet": { "role": "neutral", "displayName": "Quiet Ink", "canonical": "oklch(43.9% 0 0)" },
       "placeholder": { "role": "neutral", "displayName": "Placeholder Grey" },
       "rule": { "role": "neutral", "displayName": "Rule", "canonical": "oklch(87% 0 0)" },
@@ -90,7 +91,7 @@
       "refersTo": "factor-tile",
       "description": "A factor's swatch, name, share and weight slider.",
       "html": "<div class=\"ds-factor-row\"><div class=\"ds-factor-head\"><span class=\"ds-factor-swatch\"></span><a class=\"ds-factor-name\" href=\"#\">Housing and cost ›</a><span class=\"ds-factor-share\">20%</span></div><input class=\"ds-factor-slider\" type=\"range\" min=\"0\" max=\"5\" value=\"3\" aria-label=\"Weight of Housing and cost\"></div>",
-      "css": ".ds-factor-row { width: 296px; font: 400 14px/1.43 ui-sans-serif, system-ui, sans-serif; color: #171717; } .ds-factor-head { display: flex; align-items: center; gap: 8px; } .ds-factor-swatch { width: 12px; height: 12px; border-radius: 2px; background: #4676bf; flex-shrink: 0; } .ds-factor-name { flex: 1; color: inherit; text-decoration: underline; } .ds-factor-share { color: #525252; font-variant-numeric: tabular-nums; } .ds-factor-slider { width: 100%; }"
+      "css": ".ds-factor-row { width: 296px; font: 400 14px/1.43 ui-sans-serif, system-ui, sans-serif; color: #171717; } .ds-factor-head { display: flex; align-items: center; gap: 8px; } .ds-factor-swatch { width: 12px; height: 12px; border-radius: 2px; background: #4676bf; flex-shrink: 0; } .ds-factor-name { flex: 1; color: inherit; text-decoration: underline; } .ds-factor-share { color: #525252; font-variant-numeric: tabular-nums; } .ds-factor-slider { width: 100%; accent-color: #404040; }"
     }
   ],
   "narrative": {
