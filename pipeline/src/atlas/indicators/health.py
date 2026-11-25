@@ -55,6 +55,29 @@ def patients_per_gp(
     return pd.Series(ratio, index=cells)
 
 
+def patient_rating(
+    network: Network,
+    places: np.ndarray,
+    rating: np.ndarray,
+    patients: np.ndarray,
+    cells: list[str],
+    minutes: float = 15.0,
+) -> pd.Series:
+    """The share of patients, in %, rating their GP practice's overall experience good, over the
+    practices within a walk of each cell's centre: each practice's share (from 0 to 1) weighted by
+    its registered patients. A practice with no rating is left out; a cell with no rated practice
+    in reach has no value."""
+    reach = network.places_within(places, cell_centres_bng(cells), minutes)
+    rated = ~np.isnan(rating)
+    out = np.full(len(cells), np.nan)
+    for position, found in enumerate(reach):
+        found = found[rated[found]]
+        weight = patients[found].sum()
+        if len(found) and weight > 0:
+            out[position] = 100.0 * float((rating[found] * patients[found]).sum()) / weight
+    return pd.Series(out, index=cells)
+
+
 gp_places = site_places
 
 

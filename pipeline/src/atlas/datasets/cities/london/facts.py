@@ -947,6 +947,24 @@ def patients_per_gp(cells: Cells) -> str:
     return f"median {middle:,.0f}; Soho {soho:,.0f}, East Ham {east_ham:,.0f}"
 
 
+@FACTS.add(
+    "Most patients rate their GP practice good, and fewer where each GP has more patients",
+    needs=("gp_experience", "gp_list_size"),
+)
+def gp_experience(cells: Cells) -> str:
+    column = "gp_experience"
+    rating, load = cells.numbers(column), cells.numbers("gp_list_size")
+    # The same practices in reach as patients per GP: a cell with one has the other.
+    reach, middle = covered(cells, column), median(cells, column)
+    expect(abs(reach - covered(cells, "gp_list_size")) < 0.02, f"{share(reach)} of cells rated")
+    expect(65 < middle < 85, f"the median is {middle:.0f}%")  # England's practices: 79%
+    both = ~np.isnan(rating) & ~np.isnan(load)
+    rho = float(np.corrcoef(rankdata(rating[both]), rankdata(load[both]))[0, 1])
+    # The build of 2026-11-25 gave -0.28: patients rate a stretched practice lower.
+    expect(rho < -0.1, f"the rank correlation with patients per GP is {rho:+.2f}")
+    return f"median {middle:.0f}%, {share(reach)} of cells rated; with patients per GP {rho:+.2f}"
+
+
 @FACTS.add("An A&E department is a few kilometres from anywhere in London", needs=("ae_distance",))
 def accident_and_emergency(cells: Cells) -> str:
     column = "ae_distance"
