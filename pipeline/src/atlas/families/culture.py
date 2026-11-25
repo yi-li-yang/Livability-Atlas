@@ -1,5 +1,6 @@
 """Culture and leisure: the cultural venues within a 15-minute walk (`cultural-venues-nearby`) and
-the pubs, bars and clubs within a 10-minute walk (`nightlife`), from Overture's places. See the
+within 30 minutes by public transport (`cultural-venues-in-reach`, `Context.reached_by_transport`),
+and the pubs, bars and clubs within a 10-minute walk (`nightlife`), from Overture's places. See the
 indicators' methods in the catalogue.
 """
 
@@ -9,6 +10,7 @@ from typing import Any
 from atlas.families import Context, Family
 
 CULTURE_MINUTES = 15
+CULTURE_REACH_MINUTES = 30
 NIGHTLIFE_MINUTES = 10
 CULTURE = {
     "art_gallery",
@@ -55,6 +57,9 @@ def columns(ctx: Context) -> dict[str, Sequence[Any]]:
     venues = ctx.places_of(CULTURE, suffixes=("_museum",))
     return {
         "cultural-venues-nearby": ctx.count_within(venues, CULTURE_MINUTES),
+        "cultural-venues-in-reach": ctx.reached_by_transport(
+            ctx.count_in_cells(venues), CULTURE_REACH_MINUTES
+        ),
         "nightlife": ctx.count_within(ctx.places_of(NIGHTLIFE), NIGHTLIFE_MINUTES),
     }
 
