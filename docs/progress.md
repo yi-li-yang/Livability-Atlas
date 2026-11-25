@@ -15,7 +15,7 @@
 
 The owner asked for these one by one, in the order the agent chooses (2026-11-24).
 
-1. **Frontend polish.** `/impeccable document` to write `DESIGN.md` from the shipped app; a `/impeccable critique` of the parts not yet critiqued (the factor tree and the preferences panel, the reasons panel, the phone sheets), with its P1 items fixed one pull request each; and the open items of the map critique: a search for a postcode or an area (in the browser, D08), a way back to all of London after a fly-to, keyboard access to the cells, and a short "how to read the map". Check each change on the full London bundle, not only the e2e fixture.
+1. **Frontend polish.** `DESIGN.md` is written ("The Field Notebook"). The critique of the preferences panel, the reasons panel and the phone sheets scored 24/40; the owner asked for all its P1 and P2 items, one pull request each, in the order the agent chooses: a weight set to 0 removes its row and loses keyboard focus; the slider colour and the factor swatches beside score bars; "Start again" with no undo; a summary at the top of the desktop reasons; a smaller drawing so that the sliders come first; and on a phone, a half-open stop for the sheet so the map stays in view (the owner's choice). Then the open items of the map critique: a search for a postcode or an area (in the browser, D08), a way back to all of London after a fly-to, keyboard access to the cells, and a short "how to read the map". Check each change on the full London bundle, not only the e2e fixture.
 2. **Finish London's factors**, from the work queue: jobs within 45 minutes and venues in reach by transport (from the station matrix and the walk-or-bus times to the stations, S9); then GP Patient Survey, election turnout, step-free access and cycling; then regeneration, cultural activity, dog-friendly parks and pet-friendly venues, subsidence and sea-level rise; then bundle exports and a size check (3.6) and `atlas refresh` (3.2). Main language as an option of Your community, if a table at the smallest areas turns up (the census gives the detailed languages only down to boroughs). Optional polish: a fuller page for the dataset credits (backlog).
 3. **For the owner, set aside for now:** the licences of the LAEI and Defra's background maps are unconfirmed, and the site includes NO₂ and PM2.5 built from them. Phase 1 closes when they are confirmed, or when the two indicators leave the public build.
 4. Checks only the owner can make, none of them blocking the licence side any more (the project is non-commercial for now, D07):
@@ -67,6 +67,11 @@ Status: `todo`, `in progress`, `PR open`, `merged`, `deferred`. **Order of work 
 | 5 | Across-cities scale: global-tier baseline, Governance and rights, country adapters | deferred (as 4.1) | |
 
 ## Log
+
+### 2026-11-25
+
+- **`DESIGN.md`** (`/impeccable document`): the app's look as built, from the code. The owner chose the motto, "The Field Notebook", quiet and exact panels, and no estate-agent gloss or dashboard clutter. Its sidecar `.impeccable/design.json` holds the tonal ramps, shadows and component snippets for the skill.
+- **A `/impeccable critique` of the preferences panel, the reasons panel and the phone sheets**: 24/40, with three P1 items (a weight set to 0 removes its row and drops keyboard focus; the drawing of the weights crowds out the sliders, 1,341 px of content in a 492 px panel; on a phone the open sheet covers the map) and three P2 items (browser-blue sliders and factor swatches beside score bars; the desktop reasons have no summary; "Start again" has no undo). The detector found nothing but its known false positive; a browser check found 52 of 53 controls in the phone sheet under 44 px, and a focus ring hidden on the chosen side of a switch. The snapshot is in `.impeccable/critique/` (git-ignored).
 
 ### 2026-11-24
 

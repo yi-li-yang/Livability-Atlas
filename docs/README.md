@@ -32,6 +32,7 @@ Specs and plans are named `YYYY-MM-DD-topic.md`.
 | --- | --- |
 | [architecture.md](architecture.md) | System diagram, data flow, contracts, privacy boundary, planned layout |
 | [interface.md](interface.md) | Progressive disclosure and the visual factor tree |
+| [../DESIGN.md](../DESIGN.md) | The app's look as built, "The Field Notebook": colours, type, layout, components and the rules that keep them consistent. Written by `/impeccable document` from the code; refresh it when the look changes |
 | [../PRODUCT.md](../PRODUCT.md) | The product record that the Impeccable design skill reads: users, purpose, constraints, principles. It sits at the root because the skill looks for it there; the documents here win where they disagree |
 | [factors/README.md](factors/README.md) | The factor explorer, and research notes for building the factor catalogue |
 | [tech-stack.md](tech-stack.md) | Every technology: its role, why it was chosen, the alternatives |

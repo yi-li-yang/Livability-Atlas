@@ -70,8 +70,11 @@ test("a slider resizes an arc at once, and a factor at weight 0 leaves the rings
   expect(await share(page, "transport")).toBeCloseTo(5 / 14, 3);
   expect(await share(page, "environment")).toBeCloseTo(3 / 14, 3);
 
-  await page.getByRole("slider", { name: "Weight of Transport" }).fill("0");
+  const slider = page.getByRole("slider", { name: "Weight of Transport" });
+  await slider.fill("0");
   await expect(tile(page, "transport")).toHaveCount(0);
+  // The row stays while the slider has the focus, then moves to "Not counted".
+  await slider.blur();
   await expect(
     page.getByRole("heading", { name: "Not counted" }),
   ).toBeVisible();

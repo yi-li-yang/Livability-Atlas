@@ -15,6 +15,8 @@ Livability-Atlas/
 ├── .pre-commit-config.yaml  # checks before each commit: ruff, large files, gitleaks
 ├── .github/workflows/ci.yml  # CI: runs `just check` and the generated-file check
 ├── PRODUCT.md             # the product record that the Impeccable design skill reads
+├── DESIGN.md              # the app's look as built: colours, type, layout, components and rules, for the Impeccable design skill
+├── .impeccable/design.json  # DESIGN.md's sidecar for Impeccable: tonal ramps, shadows and component snippets
 ├── .claude/
 │   ├── settings.json      # shared permissions for the coding agents
 │   ├── commands/

@@ -73,7 +73,9 @@ test("a factor at weight 0 leaves the drawing for the not counted list, and can 
   page,
 }) => {
   await openApp(page);
-  await page.getByRole("slider", { name: "Weight of Transport" }).fill("0");
+  const slider = page.getByRole("slider", { name: "Weight of Transport" });
+  await slider.fill("0");
+  await slider.blur();
   await expect(tile(page, "transport")).toHaveCount(0);
   const notCounted = page.getByRole("heading", { name: "Not counted" });
   await expect(notCounted).toBeVisible();
@@ -86,6 +88,43 @@ test("a factor at weight 0 leaves the drawing for the not counted list, and can 
     page.getByRole("button", { name: "Count Transport" }),
   ).toHaveCount(0);
   expect(await share(page, "transport")).toBeCloseTo(1 / 3, 3);
+});
+
+test("a weight moved to 0 keeps its row and the focus until the slider is let go", async ({
+  page,
+}) => {
+  await openApp(page);
+  const slider = page.getByRole("slider", { name: "Weight of Transport" });
+  await slider.focus();
+  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowLeft");
+  await expect(slider).toHaveValue("0");
+  await expect(slider).toBeFocused();
+  // The drawing leaves it out at once; its row says so and stays.
+  await expect(tile(page, "transport")).toHaveCount(0);
+  await expect(
+    page.getByText("Not counted now. Move it up to count it."),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "Transport is not counted now." }),
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("button", { name: "Count Transport" }),
+  ).toHaveCount(0);
+
+  // Back up again before letting go: it counts, and never left.
+  await page.keyboard.press("ArrowRight");
+  await expect(tile(page, "transport")).toHaveCount(1);
+  await page.keyboard.press("ArrowLeft");
+
+  await page.keyboard.press("Tab");
+  await expect(slider).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Count Transport" }),
+  ).toBeVisible();
 });
 
 test("every slider is drawn in the app's dark grey, not the browser's blue", async ({
