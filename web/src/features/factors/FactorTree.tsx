@@ -280,7 +280,7 @@ export function FactorTree({
       <p role="status" className="sr-only">
         {letGo ? `${letGo.name} is not counted now.` : ""}
       </p>
-      <ul className="space-y-2">
+      <ul className="space-y-2" data-weights>
         {rows.map((f) => (
           <li key={f.id}>
             <Row

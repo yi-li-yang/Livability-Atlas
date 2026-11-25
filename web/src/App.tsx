@@ -133,7 +133,22 @@ export function App() {
   const [view, setView] = useState<string | null>(null);
   // On a phone the preferences are a sheet along the bottom, shut until the user opens it.
   const phone = useIsPhone();
-  const [sheetOpen, setSheetOpen] = useState(false);
+  // It opens half-way, so that the map stays in view while a weight moves (the owner's choice,
+  // 2026-11-25), and opens further on "Show more".
+  const [sheet, setSheet] = useState<"shut" | "half" | "full">("shut");
+  const sheetOpen = sheet !== "shut";
+  const sheetBody = useRef<HTMLDivElement>(null);
+  // On opening half-way, the sliders come to the top of the sheet, unless the user has already
+  // scrolled it: the presets, the top neighbourhoods and the picture of the weights are above.
+  useEffect(() => {
+    const body = sheetBody.current;
+    if (sheet !== "half" || !body || body.scrollTop > 0) return;
+    const weights = body.querySelector<HTMLElement>("[data-weights]");
+    if (weights) {
+      body.scrollTop =
+        weights.getBoundingClientRect().top - body.getBoundingClientRect().top;
+    }
+  }, [sheet]);
   // The user's own places, kept in this browser only, and the travel files they need.
   const [places, setPlaces] = useState<Place[]>(() =>
     loadPlaces(browserStorage()),
@@ -441,7 +456,7 @@ export function App() {
               state.bundle.cells[neighbourhood.bestCell],
             );
             setSelected(neighbourhood.bestCell);
-            setSheetOpen(false); // so that the map shows where it went
+            setSheet("shut"); // so that the map shows where it went
             setFocus((now) => ({
               lng,
               lat,
@@ -566,21 +581,38 @@ export function App() {
             <aside
               aria-label="Your preferences"
               data-covers-map
-              className={`absolute inset-x-0 bottom-0 z-10 max-h-[66%] flex-col rounded-t-xl bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.25)] landscape:max-h-[50%] ${chosen ? "hidden" : "flex"}`}
+              className={`absolute inset-x-0 bottom-0 z-10 flex-col rounded-t-xl bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.25)] ${sheet === "full" ? "h-[66%] landscape:h-[50%]" : sheet === "half" ? "h-[42%] landscape:h-[40%]" : ""} ${chosen ? "hidden" : "flex"}`}
             >
-              <button
-                type="button"
-                aria-expanded={sheetOpen}
-                className="flex h-12 w-full shrink-0 items-center justify-between px-4 text-left font-medium"
-                onClick={() => setSheetOpen(!sheetOpen)}
-              >
-                What matters to you
-                <span aria-hidden="true">{sheetOpen ? "⌄" : "⌃"}</span>
-              </button>
+              <div className="flex shrink-0 items-center">
+                <button
+                  type="button"
+                  aria-expanded={sheetOpen}
+                  className="flex h-12 min-w-0 flex-1 items-center gap-2 px-4 text-left font-medium"
+                  onClick={() => setSheet(sheetOpen ? "shut" : "half")}
+                >
+                  What matters to you
+                  <Chevron up={!sheetOpen} />
+                </button>
+                {sheetOpen && (
+                  <button
+                    type="button"
+                    className="h-12 shrink-0 px-4 text-sm underline"
+                    aria-label={
+                      sheet === "full"
+                        ? "Show less of the panel"
+                        : "Show more of the panel"
+                    }
+                    onClick={() => setSheet(sheet === "full" ? "half" : "full")}
+                  >
+                    {sheet === "full" ? "Less" : "More"}
+                  </button>
+                )}
+              </div>
               {/* Shut, not removed, so that what the user had opened inside is still there. */}
               <div
+                ref={sheetBody}
                 hidden={!sheetOpen}
-                className="min-h-0 overflow-y-auto p-3 pt-0"
+                className="min-h-0 flex-1 overflow-y-auto p-3 pt-0"
               >
                 {preferences}
               </div>
@@ -686,5 +718,23 @@ export function App() {
         </section>
       )}
     </div>
+  );
+}
+
+/** The arrow on the handle of a phone's sheet: up to open it, down to shut it. */
+function Chevron({ up }: { up: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      className="size-4 shrink-0 text-neutral-600"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d={up ? "M3.5 10 8 5.5l4.5 4.5" : "M3.5 6 8 10.5 12.5 6"} />
+    </svg>
   );
 }
