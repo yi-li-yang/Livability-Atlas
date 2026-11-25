@@ -62,6 +62,29 @@ datasets:
       - Modelled annual mean background concentrations of NOx, NO₂, PM10 and PM2.5, for each year from 2021 to 2040
       - An estimated split of those concentrations by source sector
 
+  - id: tfl-station-topology
+    name: TfL station topology (step-free access)
+    publisher: Transport for London
+    url: https://tfl.gov.uk/info-for/open-data-users/our-open-data
+    tier: city
+    area: Greater London
+    resolution: stations, their platforms and the step-free paths between them
+    date: October 2026
+    licence: LicenseRef-TfL-Open-Data
+    licence_checked: 2026-11-25
+    commercial_use: true
+    licence_note: >-
+      TfL's transport data service terms: version 2.0 of the Open Government
+      Licence with TfL's amendments, which allow commercial use and
+      redistribution with the exact attribution below. TfL may change them
+      without notice, so check them before each commercial build.
+    attribution: >-
+      Powered by TfL Open Data. Contains OS data © Crown copyright and database
+      rights 2016 and Geomni UK Map data © and database rights [2019].
+    tells:
+      - The platforms of 509 stations of the Tube, DLR, Overground, Elizabeth line, trams and the National Rail stations TfL serves, and the step-free paths (level ways, ramps, lifts) from the street to each
+      - The step and gap between each platform and the train
+      - Not the stations served by National Rail alone
   - id: tfl-unified-api
     name: TfL Unified API
     publisher: Transport for London

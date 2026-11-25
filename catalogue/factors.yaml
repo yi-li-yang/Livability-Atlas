@@ -374,7 +374,42 @@ factors:
               a lower bound. The Tube's night service runs on Friday and Saturday
               nights only.
             datasets: [tfl-unified-api]
-          - {id: step-free-access, name: "Step-free access", default_weight: 3, scales: [within-city], description: "Stations with lifts or ramps from street to train."}
+          - id: step-free-access
+            name: Walk to a step-free station
+            description: Walking minutes to the nearest station with lifts, ramps or level ways from the street to every platform.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: minutes on foot
+            preference_type: fixed
+            curve: {shape: ramp, t0: 25, t1: 6}
+            curve_reason: >-
+              The same ends as the walk to the nearest station, for the same
+              reason: 1 within 6 minutes and 0 at 25 minutes, about 500 m and
+              2,000 m at 4.8 km/h, the desirable and the preferred maximum
+              walking distances for commuting in Table 3.2 of the CIHT's
+              Guidelines for Providing for Journeys on Foot (2000).
+            evidence_type: direct
+            comparable_across_regions: true
+            method: >-
+              The walking time along streets and paths from the hex cell's
+              centre to the nearest station that is step-free from the street
+              to every one of its platforms, at 4.8 km/h. A station is
+              step-free when TfL's station topology (October 2026), whose
+              paths are only level ways, ramps and lifts, leads from outside
+              the station to each of its platforms: 279 of its 509 stations,
+              such as Stratford and Canary Wharf; Waterloo (3 of 8 platforms)
+              and Oxford Circus (none) are not. It counts the way to the
+              platform, not the step or gap from the platform to the train,
+              which may need a ramp. Stations served by National Rail alone
+              (about 140 in London) are not in TfL's data: for them,
+              OpenStreetMap's tag `wheelchair=yes`, set by its mappers, counts at a
+              station more than 300 m from any of TfL's (44 stations, such as
+              Feltham and Surbiton). That tag is community data, less certain
+              than TfL's, and a National Rail station tagged `limited`, `no`
+              or not at all is not counted, so a cell near one (such as
+              Barnes) may have a longer walk here than it has.
+            datasets: [tfl-station-topology, openstreetmap]
           - {id: cycling, name: "Cycling", default_weight: 3, description: "Protected lanes, cycle-hire docks and slope."}
       - id: travel-time-to-places
         name: Travel time to places

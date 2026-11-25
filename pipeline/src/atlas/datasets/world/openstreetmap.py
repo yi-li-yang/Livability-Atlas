@@ -80,6 +80,45 @@ def read_places(path: Path) -> pd.DataFrame:
     return pd.DataFrame(handler.rows, columns=["lng", "lat", *KEPT_TAGS])
 
 
+class _Stations(osmium.SimpleHandler):
+    def __init__(self) -> None:
+        super().__init__()
+        self.rows: list[dict[str, object]] = []
+
+    def node(self, n) -> None:
+        if n.tags.get("railway") == "station" and n.location.valid():
+            self.rows.append(
+                {
+                    "lng": n.location.lon,
+                    "lat": n.location.lat,
+                    "name": n.tags.get("name"),
+                    "wheelchair": n.tags.get("wheelchair"),
+                }
+            )
+
+
+def read_stations(path: Path) -> pd.DataFrame:
+    """The railway stations mapped as points in an OpenStreetMap file, as a table with `lng`,
+    `lat`, `name` and `wheelchair` (`yes`, `limited`, `no`, or missing): whether a wheelchair user
+    can reach the trains, as mappers have tagged it."""
+    handler = _Stations()
+    handler.apply_file(str(path))
+    return pd.DataFrame(handler.rows, columns=["lng", "lat", "name", "wheelchair"])
+
+
+def stations(data_dir: Path, region_id: str) -> pd.DataFrame:
+    """The region's railway stations (`read_stations`), read from its extract once and kept beside
+    it, as `places` keeps its places."""
+    extract = fetch(data_dir, region_id)
+    checksum = extract.with_name(extract.name + ".sha256").read_text(encoding="utf-8").strip()
+    kept = extract.with_name(f"stations-v1-{region_id}-{checksum[:12]}.parquet")
+    if kept.exists():
+        return pd.read_parquet(kept)
+    table = read_stations(extract)
+    table.to_parquet(kept)
+    return table
+
+
 def places(data_dir: Path, region_id: str) -> pd.DataFrame:
     """The region's places, read from its extract once. Reading takes about a minute, so the table
     is kept beside the extract, named by the first characters of the extract's checksum: a new
