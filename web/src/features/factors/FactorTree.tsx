@@ -7,6 +7,7 @@ import type { Profile } from "../../scoring/region";
 import { formatNumber } from "./evidence";
 import type { Layout } from "./layout";
 import {
+  atStart,
   countFactor,
   type FactorView,
   holding,
@@ -48,6 +49,7 @@ export function FactorTree({
   onChange,
   onLayout,
   onReset,
+  onUndoReset,
 }: {
   factors: readonly ManifestFactor[];
   /** The measured indicators, to find the ones that offer a choice. */
@@ -66,6 +68,8 @@ export function FactorTree({
    * combining set.
    */
   onReset: () => void;
+  /** Brings back the profile from before "Start again", while there is one to bring back. */
+  onUndoReset?: () => void;
 }) {
   const [path, setPath] = useState<string[]>([]);
   // A picker is drawn in the list of counted factors or in the list of those not counted, and a
@@ -297,15 +301,24 @@ export function FactorTree({
         ))}
       </ul>
 
-      {(Object.keys(profile.weights).length > 0 ||
-        (profile.flipped?.length ?? 0) > 0 ||
-        Object.keys(profile.ranges ?? {}).length > 0 ||
-        profile.mode === "balanced" ||
-        profile.everything ||
-        (profile.limits?.length ?? 0) > 0) && (
+      {!atStart(profile) ? (
         <button type="button" className="underline" onClick={onReset}>
           Start again
         </button>
+      ) : (
+        onUndoReset && (
+          <p className="text-xs text-neutral-600">
+            Started again from a few essentials.{" "}
+            <button
+              type="button"
+              className="underline"
+              aria-label="Undo starting again"
+              onClick={onUndoReset}
+            >
+              Undo
+            </button>
+          </p>
+        )
       )}
 
       {notCounted.length > 0 && (

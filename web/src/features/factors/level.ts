@@ -96,6 +96,21 @@ export function levelAt(
 }
 
 /**
+ * Whether the profile is the start (D14): no weights, directions, bands, limits or way of combining
+ * set, where "Start again" would change nothing. Choices are the user's own and do not count.
+ */
+export function atStart(profile: Profile): boolean {
+  return (
+    Object.keys(profile.weights).length === 0 &&
+    (profile.flipped?.length ?? 0) === 0 &&
+    Object.keys(profile.ranges ?? {}).length === 0 &&
+    profile.mode !== "balanced" &&
+    !profile.everything &&
+    (profile.limits?.length ?? 0) === 0
+  );
+}
+
+/**
  * The rows of sliders and the list of factors not counted while the slider of `held` is in use (it
  * has the focus or the pointer). A factor moved to 0 keeps its row in place until the user lets go,
  * so that the slider under their finger or their keyboard's focus does not vanish; then it moves to
