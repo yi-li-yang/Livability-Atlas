@@ -156,6 +156,9 @@ test("each bar in the reasons takes the colour of its own score: red for worse, 
     const [r, g, b] = scoreToColour(score);
     await expect(bar).toHaveCSS("background-color", `rgb(${r}, ${g}, ${b})`);
   }
+  // A factor's own colour beside a score bar would read as a score (Safety's salmon by a green
+  // bar), so the reasons draw no factor colours: the only colour in a row is its score's.
+  await expect(panel.getByTestId("factor-swatch")).toHaveCount(0);
 });
 
 test("the reasons close with the button, with Escape, and by clicking where there is no cell", async ({

@@ -3,7 +3,6 @@ import type { Explanation, FactorLine } from "../../scoring/explain";
 import { describeLimit } from "../limits/limits";
 import { scoreToCss } from "../map/colour";
 import { OnTheMap } from "../map/OnTheMap";
-import { factorColour } from "./colours";
 import { EvidenceDetails } from "./EvidenceDetails";
 
 const wholeNumber = new Intl.NumberFormat("en-GB");
@@ -38,16 +37,11 @@ function Bar({ line, widest }: { line: FactorLine; widest: number }) {
   );
 }
 
-function Line({
-  line,
-  widest,
-  colour,
-}: {
-  line: FactorLine;
-  widest: number;
-  /** The factor's own colour, as in the factor tree, for a top-level factor. */
-  colour?: string;
-}) {
+/**
+ * One factor's row in the reasons. It draws no factor colour: beside a score bar, a factor's own
+ * colour would read as a score (DESIGN.md, the One Scale Rule).
+ */
+function Line({ line, widest }: { line: FactorLine; widest: number }) {
   const opens = line.children.length > 0;
   const summary = (
     <div className="space-y-1">
@@ -59,13 +53,6 @@ function Line({
           >
             {opens ? "›" : ""}
           </span>
-          {colour && (
-            <span
-              aria-hidden="true"
-              className="inline-block size-3 shrink-0 rounded-sm"
-              style={{ background: colour }}
-            />
-          )}
           {/* A factor that opens is underlined, as every action in the app is. */}
           <span className={opens ? "underline" : undefined}>{line.name}</span>
         </span>
@@ -296,13 +283,8 @@ export function WhyPanel({
             )}
           <ul className="mt-3 space-y-3">
             {!explanation.fewHomes &&
-              explanation.factors.map((factor, position) => (
-                <Line
-                  key={factor.id}
-                  line={factor}
-                  widest={widest}
-                  colour={factorColour(factor.id, position).base}
-                />
+              explanation.factors.map((factor) => (
+                <Line key={factor.id} line={factor} widest={widest} />
               ))}
           </ul>
         </>
