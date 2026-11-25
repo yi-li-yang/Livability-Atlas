@@ -16,7 +16,7 @@
     color: rgb(115 115 115);
   }
 
-  /* Sliders, check boxes and radio buttons in the app's dark grey (DESIGN.md's strong ink), not the
+  /* Sliders, check boxes and radio buttons in the app's dark grey (Tailwind's neutral-700), not the
      browser's blue: the one colour on the page that meant nothing (the critique of 2026-11-25). */
   input[type="range"],
   input[type="checkbox"],

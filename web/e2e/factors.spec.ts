@@ -94,9 +94,9 @@ test("every slider is drawn in the app's dark grey, not the browser's blue", asy
   await openApp(page);
   const sliders = page.getByRole("slider");
   expect(await sliders.count()).toBeGreaterThan(2);
+  // Tailwind's neutral-700, oklch(37.1% 0 0): a grey, with no chroma.
   for (const slider of await sliders.all()) {
-    // Tailwind's neutral-700, as the legend's colour strength uses.
-    await expect(slider).not.toHaveCSS("accent-color", "auto");
+    await expect(slider).toHaveCSS("accent-color", /^oklch\(0\.371 0 /);
   }
 });
 
