@@ -19,6 +19,7 @@ The "From" column gives the step or phase in which a tool arrives.
 | [Pydantic v2](https://docs.pydantic.dev/) | Schemas for the factor catalogue and the data bundle, exported to JSON Schema | One definition, checked on both sides | dataclasses with jsonschema | 0.3 |
 | [pandera](https://pandera.readthedocs.io/) | Table checks in the pipeline | Declarative checks on DataFrames | Great Expectations (heavier) | 0.4 |
 | [Typer](https://typer.tiangolo.com/) | The `atlas` command line: fetch, build, publish, validate | Simple and typed | Click, argparse | 0.3 |
+| [pypdf](https://pypdf.readthedocs.io/) 7.1 (BSD-3-Clause) | Reading the turnout tables of the GLA's report of the London borough elections, which publishes the electorate only in a PDF | Pure Python, so a build needs no system tool; its layout mode keeps the columns apart | poppler's `pdftotext` (a system tool, outside uv) | 1 (election turnout, 2026-11-25) |
 | [ruff](https://docs.astral.sh/ruff/), [pyright](https://microsoft.github.io/pyright/) | Linting, formatting, type checks | Fast; pyright matches VS Code's Pylance | flake8 with black, mypy | 0.3 |
 | [pytest](https://docs.pytest.org/), [Hypothesis](https://hypothesis.readthedocs.io/) | Tests, including property tests for scoring | Property tests catch whole classes of scoring bugs | unittest | 0.3 |
 | [scikit-learn](https://scikit-learn.org/), [LightGBM](https://lightgbm.readthedocs.io/) | ML for estimates and data QA | Standard and light | Deep learning frameworks, only for imagery later | Phase 2 |

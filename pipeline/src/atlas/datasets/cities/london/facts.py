@@ -965,6 +965,22 @@ def gp_experience(cells: Cells) -> str:
     return f"median {middle:.0f}%, {share(reach)} of cells rated; with patients per GP {rho:+.2f}"
 
 
+@FACTS.add(
+    "About a third of electors voted in 2022, more in the outer west than the east",
+    needs=("election_turnout",),
+)
+def election_turnout(cells: Cells) -> str:
+    column = "election_turnout"
+    reach, middle = covered(cells, column), median(cells, column)
+    # The City of London votes apart, and two Hounslow wards have no reliable count.
+    expect(reach > 0.98, f"{share(reach)} of cells have a turnout")
+    expect(30 < middle < 42, f"the median is {middle:.1f}%")  # London as a whole: 35.5%
+    richmond, barking = cells.at("Richmond", column), cells.at("Barking", column)
+    expect(richmond > barking + 10, f"Richmond {richmond:.1f}%, Barking {barking:.1f}%")
+    expect(np.isnan(cells.at("Bank", column)), "the City of London has a turnout")
+    return f"median {middle:.1f}%; Richmond {richmond:.1f}%, Barking {barking:.1f}%"
+
+
 @FACTS.add("An A&E department is a few kilometres from anywhere in London", needs=("ae_distance",))
 def accident_and_emergency(cells: Cells) -> str:
     column = "ae_distance"
