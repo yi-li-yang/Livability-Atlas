@@ -7,7 +7,7 @@ Features to add, grouped by target phase. Each item has a status: idea, planned,
 | Item | Status |
 | --- | --- |
 | Place and street names drawn above the hex cells | shipped: the cells sit under the water, roads and names, over the land use (D23) |
-| `DESIGN.md` for the Impeccable design skill (`/impeccable document`), now that the map's look is settled | idea |
+| `DESIGN.md` for the Impeccable design skill (`/impeccable document`), now that the map's look is settled | shipped: "The Field Notebook" |
 | A full `/impeccable critique` of the map and the legend | shipped: 24/40 on 2026-11-23, and its three P1 and two P2 items are fixed (#108, #110 to #113) |
 | A `/impeccable critique` of the rest of the app: the factor tree and the preferences panel, the reasons panel, the phone sheets | planned |
 | A search for a postcode or an area on the map, in the browser only (D08), from the map critique | idea |
