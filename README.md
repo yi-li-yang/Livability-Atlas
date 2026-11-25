@@ -1,5 +1,7 @@
 # Livability Atlas
 
+![Livability Atlas preview: London's areas coloured by a score built from your own weights, with the top ten numbered; choosing a starting preset recolours the map](docs/preview-anim.webp)
+
 An open-source decision tool for one question: **where should I live?**
 
 Livability Atlas gathers evidence about places, such as cost, transport, safety, environment, community and amenities. It scores every area by each user's own weights and hard limits. The map lights up the best areas, a ranked list names them, and every score explains itself, one layer of detail at a time.
