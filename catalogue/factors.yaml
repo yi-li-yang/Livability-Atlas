@@ -1669,7 +1669,38 @@ factors:
               Overture is a lower bound, and it counts every venue once, however
               large it is.
             datasets: [overture-places]
-          - {id: cultural-venues-in-reach, name: "Cultural venues within 30 minutes by public transport", default_weight: 3, scales: [within-city]}
+          - id: cultural-venues-in-reach
+            name: Cultural venues within reach
+            description: The number of galleries, museums, theatres, music venues and cinemas within 30 minutes by public transport.
+            default_weight: 3
+            scales: [within-city]
+            status: built
+            unit: venues
+            preference_type: fixed
+            curve: {shape: region-ramp, better: higher, log: true, offset: 1}
+            curve_reason: >-
+              No standard says how many are enough, so the ends of the ramp come
+              from the region's own counts (D25). The counts grow by multiples
+              towards the centre, so the score follows the log of the count plus
+              one: the first venues in reach count most.
+            evidence_type: estimate
+            comparable_across_regions: true
+            method: >-
+              The number of cultural venues (as for cultural venues nearby: the
+              places whose Overture category is an art gallery, a museum of any
+              kind, a theatre, a performing arts venue, a music venue, a comedy
+              club, an opera or ballet house, a cinema, a planetarium or a
+              cultural centre) in every hex cell that a cell reaches within 30
+              minutes, its own included, by the same estimate as jobs within
+              reach and travel time to a user's places (D10): the quicker of the
+              straight walk times the street factor, within 40 minutes, and the
+              journey through the stations, with a walk or a walk and a bus at
+              each end and the ride between stations from TfL's timetables. It
+              is a weekday-morning estimate, a median 5.5 minutes too long on
+              300 random journeys (spike S9); an evening out has other
+              timetables. Overture is a lower bound, it counts every venue once
+              however large it is, and only the venues inside the region count.
+            datasets: [overture-places, tfl-unified-api, openstreetmap]
           - id: local-character
             name: Listed buildings
             description: The number of listed buildings within a 10-minute walk.
@@ -1869,7 +1900,39 @@ factors:
           The register counts a job where the employer's site is, so a large
           employer's head office can raise the count of its area.
         datasets: [ons-bres, ons-lsoa-boundaries]
-      - {id: jobs-within-reach, name: "Jobs within reach", default_weight: 3, scales: [within-city], description: "Jobs reachable within 45 minutes by public transport."}
+      - id: jobs-within-reach
+        name: Jobs within reach
+        description: How many jobs can be reached within 45 minutes by public transport.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: jobs
+        preference_type: fixed
+        curve: {shape: region-ramp, better: higher, log: true, offset: 1}
+        curve_reason: >-
+          No standard says how many jobs within reach are enough, so the ends
+          of the ramp come from the region's own counts (D25), on a log scale:
+          the count grows by multiples from the edge to the centre, and the
+          step from a few thousand jobs to a few hundred thousand matters more
+          than the step from two million to three. More jobs in reach widen
+          the choice of work, for the user and for anyone they live with.
+        evidence_type: estimate
+        comparable_across_regions: true
+        method: >-
+          The jobs in every hex cell that a cell reaches within 45 minutes,
+          its own included, by the same estimate as travel time to a user's
+          places (D10): the quicker of the straight walk times the street
+          factor, within 40 minutes, and the journey through the stations, a
+          walk or a walk and a bus to one of the cell's 8 quickest stations,
+          the ride between stations from TfL's timetables (with half the time
+          between trains as a wait), and the other cell's own way from one of
+          its stations. The jobs are the Business Register and Employment
+          Survey's by 2011 LSOA (2024, rounded to 25), shared between cells by
+          area, as for job density. It is a weekday-morning estimate, with the
+          estimate's bias (a median 5.5 minutes too long on 300 random
+          journeys, spike S9), and it counts only the jobs inside the region,
+          so a cell at the edge misses the jobs over the boundary.
+        datasets: [ons-bres, ons-lsoa-boundaries, tfl-unified-api, openstreetmap]
       - id: coworking
         name: Coworking
         description: The number of coworking and shared office spaces within a 15-minute walk.
@@ -1923,8 +1986,8 @@ factors:
           register counts a job where the employer's site is, so a head office
           counts the jobs of its whole firm. Fourteen sections are offered:
           farming, mining, the utilities, households as employers and
-          extraterritorial bodies are left out. How far a job is by public
-          transport (jobs within reach) waits for the travel times between stations.
+          extraterritorial bodies are left out. Jobs within reach counts the
+          jobs of every industry by public transport.
         datasets: [ons-bres, ons-lsoa-boundaries]
       - {id: salaries, name: "Salaries", default_weight: 3, scales: [across-cities]}
       - {id: unemployment, name: "Unemployment", default_weight: 3, scales: [across-cities]}

@@ -8,6 +8,7 @@ from atlas.families import Context, community_life, culture, discover, pets, wor
 from atlas.indicators import places
 from atlas.indicators.pooling import per_km2
 from atlas.paths import CATALOGUE_DIR
+from atlas.publish.bundle import Travel
 
 CENTRE = h3.latlng_to_cell(51.5136, -0.1337, 9)
 NEIGHBOUR = h3.grid_ring(CENTRE, 1)[0]
@@ -93,6 +94,22 @@ class TestTheFamilies:
         assert culture.columns(ctx)["cultural-venues-nearby"] == [3, 3]
         assert culture.CULTURE_MINUTES in ctx.network.asked  # type: ignore[attr-defined]
 
+    def test_culture_in_reach_counts_the_venues_of_the_cells_reached_by_transport(self, tmp_path):
+        # Every venue is in the centre cell; the neighbour is a short walk from it.
+        found = overture("art_gallery", "history_museum", "theatre_venue", "pub")
+        ctx = context(tmp_path, found)
+        assert culture.columns(ctx)["cultural-venues-in-reach"] == [None, None]
+        ctx.travel = Travel(stations=[("a", LAT, LNG)], cell_stations=[], matrix=np.zeros((1, 1)))
+        assert culture.columns(ctx)["cultural-venues-in-reach"] == [3.0, 3.0]
+
+    def test_places_are_counted_in_the_cell_their_point_lies_in(self, tmp_path):
+        far = pd.DataFrame({"Easting": [100.0], "Northing": [100.0]})  # outside the cells
+        ctx = context(tmp_path, overture())
+        assert ctx.count_in_cells(pd.DataFrame(columns=["Easting", "Northing"])).tolist() == [0, 0]
+        assert ctx.count_in_cells(far).tolist() == [0, 0]
+        inside = places.located(overture("museum"), ["museum"])
+        assert ctx.count_in_cells(inside).tolist() == [1, 0]
+
     def test_nightlife_counts_pubs_bars_and_clubs_within_10_minutes(self, tmp_path):
         found = overture("pub", "cocktail_bar", "dance_club", "art_gallery")
         ctx = context(tmp_path, found)
@@ -111,6 +128,26 @@ class TestTheFamilies:
         ctx = context(tmp_path, overture("coworking_space", "shared_office_space", "pub"))
         ctx.__dict__["workers"] = pd.Series(0.0, index=ctx.cells)
         assert work.columns(ctx)["coworking"] == [2, 2]
+
+    def test_jobs_within_reach_are_none_without_a_travel_estimate(self, tmp_path):
+        ctx = context(tmp_path, overture())
+        ctx.__dict__["workers"] = pd.Series(5.0, index=ctx.cells)
+        assert work.columns(ctx)["jobs-within-reach"] == [None, None]
+
+    def test_jobs_within_reach_add_up_the_jobs_of_the_cells_reached(self, tmp_path):
+        far = h3.latlng_to_cell(51.60, -0.30, 9)  # about 15 km away: out of a walk
+        ctx = context(tmp_path, overture(), cells=[CENTRE, NEIGHBOUR, far])
+        ctx.__dict__["workers"] = pd.Series({CENTRE: 10.0, NEIGHBOUR: 20.0, far: 300.0})
+        # The centre walks 5 minutes to station 0; a 30-minute ride; the far cell is 5 minutes
+        # from station 1. The neighbour has no station but is a short walk from the centre.
+        matrix = np.array([[0, 30], [30, 0]], dtype=np.uint16)
+        ctx.travel = Travel(
+            stations=[("a", 51.5, -0.13), ("b", 51.6, -0.3)],
+            cell_stations=[(0, 0, 5.0), (2, 1, 5.0)],
+            matrix=matrix,
+        )
+        reached = work.columns(ctx)["jobs-within-reach"]
+        assert reached == [330.0, 30.0, 310.0]
 
 
 class TestPerKm2:
@@ -134,7 +171,9 @@ def test_the_families_are_found_and_their_indicators_are_in_the_catalogue():
     assert {"pets", "culture", "community_life", "work"} <= {f.name for f in discover()}
     ids = {n.id for n in _leaves(load_catalogue(CATALOGUE_DIR).factors.factors)}
     wanted = {"vets", "pet-shops", "cultural-venues-nearby", "nightlife", "community-spaces"}
-    assert wanted | {"lgbtq-friendly-venues", "coworking", "job-density"} <= ids
+    assert (
+        wanted | {"lgbtq-friendly-venues", "coworking", "job-density", "jobs-within-reach"} <= ids
+    )
 
 
 def _leaves(nodes):

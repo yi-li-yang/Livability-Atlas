@@ -72,6 +72,28 @@ test("Start again goes back to the few essentials and clears the link", async ({
   await expect.poll(() => page.url()).not.toContain("w=");
 });
 
+test("Start again can be undone, until something else changes", async ({
+  page,
+}) => {
+  await page.goto("/#v=2&w=transport:0,environment:1");
+  await ready(page);
+  await page.getByRole("button", { name: "Start again" }).click();
+  await expect(tile(page, "transport")).toHaveCount(1);
+  await page.getByRole("button", { name: "Undo starting again" }).click();
+  await expect(tile(page, "transport")).toHaveCount(0);
+  await expect(
+    page.getByRole("slider", { name: "Weight of Environment" }),
+  ).toHaveValue("1");
+  await expect.poll(() => page.url()).toContain("w=");
+
+  // A change after starting again takes the Undo away.
+  await page.getByRole("button", { name: "Start again" }).click();
+  await page.getByRole("slider", { name: "Weight of Safety" }).fill("5");
+  await expect(
+    page.getByRole("button", { name: "Undo starting again" }),
+  ).toHaveCount(0);
+});
+
 test("a broken link, or one for factors that do not exist, does not break the app", async ({
   page,
 }) => {

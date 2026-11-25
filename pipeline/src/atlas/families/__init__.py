@@ -26,8 +26,10 @@ from pathlib import Path
 from typing import Any
 
 import geopandas as gpd
+import h3
 import numpy as np
 import pandas as pd
+from numpy.typing import ArrayLike, NDArray
 
 from atlas.catalogue.models import Region
 from atlas.datasets.countries.gb import (
@@ -39,9 +41,10 @@ from atlas.datasets.countries.gb import (
     output_areas,
 )
 from atlas.datasets.world import overture
-from atlas.indicators import crime
+from atlas.indicators import crime, reach
 from atlas.indicators import places as place_pool
-from atlas.publish.bundle import Choice
+from atlas.indicators.station_matrix import STREET_FACTOR, WALK_METRES_A_MINUTE
+from atlas.publish.bundle import Choice, Travel
 from atlas.spatial import walking
 from atlas.spatial.grid import bounds_bng, cell_centres_bng, cells_at_bng, lonlat_box
 
@@ -49,7 +52,8 @@ from atlas.spatial.grid import bounds_bng, cell_centres_bng, cells_at_bng, lonla
 @dataclass
 class Context:
     """What a family may read: the region, its cells (in the order of the columns it returns), the
-    data folder, the postcodes of Code-Point Open and the walking network."""
+    data folder, the postcodes of Code-Point Open, the walking network, and the travel estimate's
+    stations, cell-station links and station matrix (None for a region with no default places)."""
 
     region_id: str
     region: Region
@@ -57,6 +61,7 @@ class Context:
     data_dir: Path
     postcodes: pd.DataFrame
     network: walking.Network
+    travel: Travel | None = None
 
     @property
     def resolution(self) -> int:
@@ -136,6 +141,40 @@ class Context:
         found = np.column_stack([places["Easting"].to_numpy(), places["Northing"].to_numpy()])
         reach = self.network.groups_within([found], cell_centres_bng(self.cells), minutes)[0]
         return [len(r) for r in reach]
+
+    def count_in_cells(self, places: pd.DataFrame) -> NDArray[np.float64]:
+        """The number of `places` (with `Easting` and `Northing`) whose point lies in each cell, in
+        the order of the cells; places outside the cells are not counted."""
+        if places.empty:
+            return np.zeros(len(self.cells))
+        resolution = h3.get_resolution(self.cells[0])
+        found = cells_at_bng(
+            places["Easting"].to_numpy(), places["Northing"].to_numpy(), resolution
+        )
+        counts = pd.Series(found).value_counts()
+        return counts.reindex(self.cells, fill_value=0).to_numpy(dtype=np.float64)
+
+    def reached_by_transport(self, values: ArrayLike, minutes: float) -> list[float | None]:
+        """For each cell, the sum of `values` (one for each cell) over the cells it reaches by
+        public transport within `minutes`, itself included, by the travel estimate's stations, links
+        and station matrix (`reach.within_minutes`). None for every cell where the region has no
+        travel estimate."""
+        if self.travel is None:
+            return [None] * len(self.cells)
+        links = np.asarray(self.travel.cell_stations, dtype=np.float64).reshape(-1, 3)
+        centres = cell_centres_bng(self.cells)
+        sums = reach.within_minutes(
+            np.asarray(values, dtype=np.float64),
+            centres[:, 0],
+            centres[:, 1],
+            links,
+            self.travel.matrix,
+            minutes=minutes,
+            reach_minutes=self.travel.reach_minutes,
+            walk_metres_a_minute=WALK_METRES_A_MINUTE,
+            street_factor=STREET_FACTOR,
+        )
+        return [float(v) for v in sums]
 
     @cached_property
     def msoas(self) -> gpd.GeoDataFrame:

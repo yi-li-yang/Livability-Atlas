@@ -155,6 +155,7 @@ def build_region(
     columns.update(_amenity_columns(region_id, network, cells, data_dir))
     travel_columns, travel = _travel(region, network, cells, data_dir, postcodes)
     columns.update(travel_columns)
+    ctx.travel = travel
     columns.update(_noise_columns(cells, region.grid.resolution, data_dir, postcodes))
     columns.update(_housing_columns(region_id, cells, data_dir))
     columns.update(_price_columns(region_id, cells, data_dir, region.grid.resolution, postcodes))
