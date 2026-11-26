@@ -1,0 +1,45 @@
+# Publishes the web app to GitHub Pages after CI passes on main. The app is built from the commit
+# CI checked; the data bundles are kept from the live site (the gh-pages branch), because the data
+# folder is not in the repository. A new bundle still goes out with `just site` from the owner's
+# computer.
+name: Site
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: The live site
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: live-site
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - name: Publish
+        working-directory: web
+        env:
+          SITE_REMOTE: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: node scripts/publish-site.mjs --bundles-from ../live-site
