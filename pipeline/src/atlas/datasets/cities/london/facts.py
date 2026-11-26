@@ -332,6 +332,23 @@ def cycling(cells: Cells) -> str:
 
 
 @FACTS.add(
+    "New homes cluster in the regeneration areas, and few are built in the parks",
+    needs=("regeneration",),
+)
+def regeneration(cells: Cells) -> str:
+    column = "regeneration"
+    everywhere(cells, column)
+    middle = median(cells, column)
+    stratford, hampstead = cells.at("Stratford", column), cells.at("Hampstead", column)
+    park = cells.at("Richmond Park", column)
+    # The build of 2026-11-25 gave Stratford 7,570, Hampstead 200 and a median of 102.
+    expect(stratford > 10 * hampstead, f"Stratford {stratford:,.0f}, Hampstead {hampstead:,.0f}")
+    expect(park < 50, f"Richmond Park {park:,.0f}")
+    expect(30 < middle < 500, f"the median is {middle:,.0f} homes")
+    return f"median {middle:,.0f}; Stratford {stratford:,.0f}, Hampstead {hampstead:,.0f}"
+
+
+@FACTS.add(
     "Travel to the four job centres is short in the centre and long at the edge",
     needs=("travel_time_to_places",),
 )

@@ -2525,7 +2525,36 @@ factors:
           let or improved since 2008, so it leans towards homes that changed
           hands. No address is kept.
         datasets: [epc-domestic, os-code-point-open]
-      - {id: regeneration, name: "Regeneration and planning", default_weight: 3, scales: [within-city]}
+      - id: regeneration
+        name: New homes built nearby
+        description: The number of new homes completed within 1 km in five years, a sign of how much the area is changing.
+        default_weight: 3
+        scales: [within-city]
+        status: built
+        unit: new homes within 1 km, 2020 to 2025
+        preference_type: user-direction
+        curve: {shape: region-ramp, better: higher, log: true, offset: 1}
+        curve_reason: >-
+          Whether building is good is the user's to say: new homes bring new
+          shops, transport and people, and also years of works. So the user can
+          flip the direction; it starts with more as better. No standard says
+          how much is a lot, so the ends of the ramp come from the region's own
+          counts (D25), on a log scale: a few large schemes dwarf the rest.
+        evidence_type: direct
+        comparable_across_regions: false
+        method: >-
+          The new homes completed within 1 km of the hex cell's centre, in a
+          straight line, in the five financial years from April 2020 to March
+          2025, from the GLA's Planning London Datahub: each home a scheme gains,
+          by its own completion date or the scheme's where it has none, at the
+          middle of the scheme's site; a phased scheme counts the homes of its
+          phases completed in the window. Homes lost are not taken off, so a
+          scheme that replaces homes counts what it builds. Boroughs report
+          completions once a year, so the window ends at the last year they have
+          all reported. A large scheme is counted at one point, which concentrates
+          it; 19,163 schemes gained 205,650 homes in the window, about 41,000 a
+          year, before the homes they replaced.
+        datasets: [gla-planning-london-datahub]
       - {id: urban-growth, name: "Urban growth", default_weight: 3, scales: [across-cities]}
 
   - id: governance-and-rights
@@ -3238,6 +3267,29 @@ datasets:
     tells:
       - The boundary of each MSOA, an area of 7,000 to 10,000 residents, clipped to the coastline
 
+  - id: gla-planning-london-datahub
+    name: Planning London Datahub
+    publisher: Greater London Authority (GLA)
+    url: https://www.london.gov.uk/what-we-do/planning/digital-planning-0/planning-london-datahub
+    tier: city
+    area: Greater London
+    resolution: planning applications, placed at the middle of each site, with each home gained or lost
+    date: updated daily; completions to March 2025 used
+    licence: unknown
+    licence_checked: 2026-11-25
+    commercial_use: false
+    licence_note: >-
+      No licence is stated: the London Datastore's entries for the Datahub
+      have an empty licence field and no files, data.gov.uk's mirror says "Not
+      set", and the Datahub's page and its public API guide name none. Its
+      predecessor, the London Development Database, is under the Open
+      Government Licence v3.0. Ask the GLA's planning data team to confirm the
+      licence before a commercial build.
+    attribution: Greater London Authority, Planning London Datahub.
+    tells:
+      - Every planning application in London since 2004 or so, its decision, and when it started and was completed
+      - Each home a scheme gains or loses, its tenure, size and completion date
+      - Floorspace and open space gained and lost
   - id: gla-borough-elections-2022
     name: London Borough Council Elections, 5 May 2022
     publisher: Greater London Authority (GLA)

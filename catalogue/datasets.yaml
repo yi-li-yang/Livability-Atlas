@@ -583,6 +583,29 @@ datasets:
     tells:
       - The boundary of each MSOA, an area of 7,000 to 10,000 residents, clipped to the coastline
 
+  - id: gla-planning-london-datahub
+    name: Planning London Datahub
+    publisher: Greater London Authority (GLA)
+    url: https://www.london.gov.uk/what-we-do/planning/digital-planning-0/planning-london-datahub
+    tier: city
+    area: Greater London
+    resolution: planning applications, placed at the middle of each site, with each home gained or lost
+    date: updated daily; completions to March 2025 used
+    licence: unknown
+    licence_checked: 2026-11-25
+    commercial_use: false
+    licence_note: >-
+      No licence is stated: the London Datastore's entries for the Datahub
+      have an empty licence field and no files, data.gov.uk's mirror says "Not
+      set", and the Datahub's page and its public API guide name none. Its
+      predecessor, the London Development Database, is under the Open
+      Government Licence v3.0. Ask the GLA's planning data team to confirm the
+      licence before a commercial build.
+    attribution: Greater London Authority, Planning London Datahub.
+    tells:
+      - Every planning application in London since 2004 or so, its decision, and when it started and was completed
+      - Each home a scheme gains or loses, its tenure, size and completion date
+      - Floorspace and open space gained and lost
   - id: gla-borough-elections-2022
     name: London Borough Council Elections, 5 May 2022
     publisher: Greater London Authority (GLA)
