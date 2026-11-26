@@ -1,11 +1,16 @@
 // Builds the web app for GitHub Pages, adds the newest published data bundle of a region, and
 // pushes the result to the `gh-pages` branch (replacing it: the branch holds only the site).
 //
-//   node scripts/publish-site.mjs [--region london] [--dry-run]
+//   node scripts/publish-site.mjs [--region london] [--dry-run] [--bundles-from <site>]
 //
 // The bundle is whatever `latest.json` names under the data folder's `published/`, which only
 // holds a bundle that passed the QA report. The data folder is ATLAS_DATA_DIR, else `data/` in the
 // repository. Run from web/.
+//
+// With `--bundles-from <site>`, the bundles are copied from `<site>/bundles`, a checkout of the
+// `gh-pages` branch, so the site keeps the data it has. The workflow `site.yml` does this after
+// every merge to main, because the data folder is not in the repository. SITE_REMOTE, if set, is
+// the address to push to instead of the `origin` remote.
 import { execFileSync } from "node:child_process";
 import {
   cpSync,
@@ -24,6 +29,9 @@ const region = args.includes("--region")
   ? args[args.indexOf("--region") + 1]
   : "london";
 const dryRun = args.includes("--dry-run");
+const bundlesFrom = args.includes("--bundles-from")
+  ? resolve(args[args.indexOf("--bundles-from") + 1])
+  : undefined;
 const repo = resolve(import.meta.dirname, "../..");
 const web = join(repo, "web");
 const data = process.env.ATLAS_DATA_DIR ?? join(repo, "data");
@@ -35,18 +43,11 @@ const run = (cmd, argv, options = {}) =>
     ...options,
   });
 
-const { version } = JSON.parse(
-  readFileSync(join(published, "latest.json"), "utf8"),
-);
-const bundle = join(published, version);
-if (!existsSync(join(bundle, "manifest.json"))) {
-  throw new Error(`there is no bundle ${version} in ${published}`);
-}
-const remote = execFileSync("git", ["remote", "get-url", "origin"], {
-  cwd: repo,
-})
-  .toString()
-  .trim();
+const remote =
+  process.env.SITE_REMOTE ??
+  execFileSync("git", ["remote", "get-url", "origin"], { cwd: repo })
+    .toString()
+    .trim();
 const name = remote
   .replace(/\.git$/, "")
   .split("/")
@@ -59,22 +60,7 @@ run("npm", ["run", "build"], {
 
 const site = mkdtempSync(join(tmpdir(), "site-"));
 cpSync(join(web, "dist"), site, { recursive: true });
-const target = join(site, "bundles", region);
-mkdirSync(join(target, version), { recursive: true });
-// The manifest, the cells and the travel files for a user's places, which the manifest lists.
-const manifest = JSON.parse(
-  readFileSync(join(bundle, "manifest.json"), "utf8"),
-);
-const travel = manifest.travel ?? {};
-const files = ["manifest.json", "cells.parquet"].concat(
-  ["stations", "cell_stations", "matrix", "postcodes"]
-    .map((key) => travel[key])
-    .filter(Boolean),
-);
-for (const file of files) {
-  cpSync(join(bundle, file), join(target, version, file));
-}
-writeFileSync(join(target, "latest.json"), JSON.stringify({ version }) + "\n");
+const version = bundlesFrom ? keepBundles() : addBundle();
 writeFileSync(join(site, ".nojekyll"), "");
 console.log(`site for ${region} ${version} is in ${site}`);
 
@@ -98,4 +84,49 @@ git(
 );
 git("push", "--force", remote, "gh-pages");
 rmSync(site, { recursive: true, force: true });
-console.log(`published to the gh-pages branch of ${remote}`);
+console.log(
+  `published to the gh-pages branch of ${remote.replace(/\/\/[^@/]*@/, "//")}`,
+);
+
+// Adds the region's newest published bundle from the data folder, and returns its version.
+function addBundle() {
+  const { version } = JSON.parse(
+    readFileSync(join(published, "latest.json"), "utf8"),
+  );
+  const bundle = join(published, version);
+  if (!existsSync(join(bundle, "manifest.json"))) {
+    throw new Error(`there is no bundle ${version} in ${published}`);
+  }
+  const target = join(site, "bundles", region);
+  mkdirSync(join(target, version), { recursive: true });
+  // The manifest, the cells and the travel files for a user's places, which the manifest lists.
+  const manifest = JSON.parse(
+    readFileSync(join(bundle, "manifest.json"), "utf8"),
+  );
+  const travel = manifest.travel ?? {};
+  const files = ["manifest.json", "cells.parquet"].concat(
+    ["stations", "cell_stations", "matrix", "postcodes"]
+      .map((key) => travel[key])
+      .filter(Boolean),
+  );
+  for (const file of files) {
+    cpSync(join(bundle, file), join(target, version, file));
+  }
+  writeFileSync(
+    join(target, "latest.json"),
+    JSON.stringify({ version }) + "\n",
+  );
+  return version;
+}
+
+// Copies every bundle the live site has, and returns the version the region's latest.json names.
+function keepBundles() {
+  const latest = join(bundlesFrom, "bundles", region, "latest.json");
+  if (!existsSync(latest)) {
+    throw new Error(`the site in ${bundlesFrom} has no bundle for ${region}`);
+  }
+  cpSync(join(bundlesFrom, "bundles"), join(site, "bundles"), {
+    recursive: true,
+  });
+  return JSON.parse(readFileSync(latest, "utf8")).version;
+}

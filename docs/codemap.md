@@ -14,6 +14,7 @@ Livability-Atlas/
 ├── justfile               # every command: setup, check, test, validate, generate, docs
 ├── .pre-commit-config.yaml  # checks before each commit: ruff, large files, gitleaks
 ├── .github/workflows/ci.yml  # CI: runs `just check` and the generated-file check
+├── .github/workflows/site.yml  # after CI passes on main, publishes the app to GitHub Pages, keeping the live site's data bundles
 ├── PRODUCT.md             # the product record that the Impeccable design skill reads
 ├── DESIGN.md              # the app's look (D26): the owner's visual system, copied from its template, and what this app decides on top; design tools read it
 ├── .claude/
